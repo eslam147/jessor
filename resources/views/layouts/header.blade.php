@@ -66,7 +66,7 @@
                     <a class="dropdown-item" href="{{ route('resetpassword') }}">
                         <i class="fa fa-refresh mr-2 text-success"></i>{{ __('change_password') }}</a>
                     <div class="dropdown-divider"></div>
-                    <a class="dropdown-item" href="{{ route('logout') }}">
+                    <a class="dropdown-item" href="{{ route('logout') }}"> 
                         <i class="fa fa-sign-out mr-2 text-primary"></i> {{ __('signout') }}
                     </a>
                 </div>

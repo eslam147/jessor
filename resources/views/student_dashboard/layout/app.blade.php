@@ -16,7 +16,6 @@
 	<!-- Style-->
 	<link rel="stylesheet" href="{{ asset('student/css/style.css') }}">
 	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
-
     <link rel="stylesheet" href="{{ asset('student/assets/icons/Ionicons/css/ionicons.css') }}">
     <link rel="stylesheet" href="{{ asset('student/assets/icons/themify-icons/themify-icons.css') }}">
     <link rel="stylesheet" href="{{ asset('student/assets/icons/linea-icons/linea.css') }}">
@@ -31,6 +30,9 @@
     <link rel="stylesheet" href="{{ asset('student/assets/vendor_components/animate/animate.css') }}">
     <link rel="stylesheet" href="{{ asset('student/css/skin_color.css') }}">
     <link rel="icon" href="{{ asset('student/images/favicon.png') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/simple-line-icons/2.5.5/css/simple-line-icons.css">
+
+     @yield('style')
 </head>
 
 <body class="hold-transition light-skin sidebar-mini theme-primary fixed">
