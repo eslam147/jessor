@@ -19,12 +19,12 @@ class CheckRole
     */
     public function handle(Request $request, Closure $next)
     {
-        if (Auth::user()) 
+        if (Auth::user())
         {
-            
+             
             return $next($request);
         }
         return response()->view('auth.login');
-        
+
     }
 }

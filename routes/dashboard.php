@@ -48,7 +48,7 @@ use App\Http\Controllers\{
     FeesDiscountTypesController,
 };
 
-Route::group(['middleware' => ['Role', 'auth']], function () {
+Route::group(['middleware' => ['Role', 'auth','account_type']], function () {
     Route::group(['middleware' => 'language'], function () {
         // Route::get('/home', [HomeController::class, 'index']);
         Route::get('home', [HomeController::class, 'index'])->name('home');

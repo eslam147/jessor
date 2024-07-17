@@ -19,6 +19,7 @@ return new class extends Migration {
             $table->string('password');
             $table->string('mobile')->nullable();
             $table->string('image', 512)->nullable();
+            $table->string('is_student')->nullable();
             $table->date('dob')->nullable();
             $table->tinyInteger('status')->default(1);
             $table->rememberToken();

@@ -27,3 +27,5 @@ storage/framework/views/
 
 public/source_code/
 .vscode/settings.json
+
+/html_tmeplate/
