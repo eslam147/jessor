@@ -13,6 +13,7 @@ class Parents extends Model
     use HasFactory;
 
     protected $hidden = ["deleted_at", "created_at", "updated_at"];
+    protected $fillable = ['user_id','first_name','last_name','mobile','gender','email'];
 
     public function announcement()
     {

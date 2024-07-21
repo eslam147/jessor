@@ -32,10 +32,7 @@
                                     {!! Form::text('last_name', null, ['placeholder' => __('last_name'), 'class' => 'form-control']) !!}
 
                                 </div>
-                                <div class="form-group col-sm-12 col-md-4">
-                                    <label>{{ __('mobile') }}</label>
-                                    {!! Form::number('mobile', null, ['placeholder' => __('mobile'), 'class' => 'form-control mobile' , 'min' => 10]) !!}
-                                </div>
+
                                 <div class="form-group col-sm-12 col-md-4">
                                     <label>{{ __('gender') }} <span class="text-danger">*</span></label><br>
                                     <div class="d-flex">
@@ -53,22 +50,7 @@
                                         </div>
                                     </div>
                                 </div>
-                                <div class="form-group col-sm-12 col-md-4">
-                                    <label>{{ __('image') }} <span class="text-danger">*</span></label>
-                                    <input type="file" name="image" class="file-upload-default" accept="image/*"/>
-                                    <div class="input-group col-xs-12">
-                                        <input type="text" class="form-control file-upload-info" disabled="" placeholder="{{ __('image') }}" required="required"/>
-                                        <span class="input-group-append">
-                                            <button class="file-upload-browse btn btn-theme" type="button">{{ __('upload') }}</button>
-                                        </span>
-                                    </div>
-                                </div>
-                                <div class="form-group col-sm-12 col-md-4">
-                                    <label>{{ __('dob') }} <span class="text-danger">*</span></label>
-                                    {!! Form::text('dob', null, ['placeholder' => __('dob'), 'class' => 'datepicker-popup-no-future form-control']) !!}
-                                    <span class="input-group-addon input-group-append">
-                                    </span>
-                                </div>
+
                             </div>
                             <div class="row">
                                 <div class="form-group col-sm-12 col-md-4">
@@ -90,63 +72,15 @@
                                     </select>
                                 </div>
                                 <div class="form-group col-sm-12 col-md-4">
-                                    <label>{{ __('gr_number') }} <span class="text-danger">*</span></label>
-                                    {!! Form::text('admission_no', $admission_no, ['readonly','placeholder' => __('gr_number'), 'class' => 'form-control']) !!}
+                                    <label> student email <span class="text-danger">*</span></label>
+                                    <input type="email" name="student_email" class="form-control" required>
+                                </div>
+                                <div class="form-group col-sm-12 col-md-4">
+                                    <label> student password <span class="text-danger">*</span></label>
+                                    <input type="password" name="student_password" class="form-control" required>
                                 </div>
                             </div>
-                            <div class="row">
-                                <div class="form-group col-sm-12 col-md-4">
-                                    <label>{{ __('caste') }}</label>
-                                    {!! Form::text('caste', null, ['placeholder' => __('caste'), 'class' => 'form-control']) !!}
 
-                                </div>
-                                <div class="form-group col-sm-12 col-md-4">
-                                    <label>{{ __('religion') }}</label>
-                                    {!! Form::text('religion', null, ['placeholder' => __('religion'), 'class' => 'form-control']) !!}
-                                </div>
-                                <div class="form-group col-sm-12 col-md-4">
-                                    <label>{{ __('admission_date') }} <span class="text-danger">*</span></label>
-                                    {!! Form::text('admission_date', null, ['placeholder' => __('admission_date'), 'class' => 'datepicker-popup-no-future form-control']) !!}
-                                    <span class="input-group-addon input-group-append">
-                                    </span>
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div class="form-group col-sm-12 col-md-4">
-                                    <label>{{ __('blood_group') }} <span class="text-danger">*</span></label>
-                                    <select name="blood_group" class="form-control">
-                                        <option value="">{{ __('select') . ' ' . __('blood_group') }}</option>
-                                        <option value="A+">A+</option>
-                                        <option value="A-">A-</option>
-                                        <option value="B+">B+</option>
-                                        <option value="B-">B-</option>
-                                        <option value="O+">O+</option>
-                                        <option value="O-">O-</option>
-                                        <option value="AB+">AB+</option>
-                                        <option value="AB-">AB-</option>
-                                    </select>
-                                </div>
-                                <div class="form-group col-sm-12 col-md-4">
-                                    <label>{{ __('height') }} <span class="text-danger">*</span></label>
-                                    {!! Form::text('height', null, ['placeholder' => __('height'), 'class' => 'form-control']) !!}
-                                </div>
-                                <div class="form-group col-sm-12 col-md-4">
-                                    <label>{{ __('weight') }} <span class="text-danger">*</span></label>
-                                    {!! Form::text('weight', null, ['placeholder' => __('weight'), 'class' => 'form-control']) !!}
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div class="form-group col-12">
-                                    <label>{{ __('current_address') }} <span class="text-danger">*</span></label>
-                                    {!! Form::textarea('current_address', null, ['placeholder' => __('current_address'), 'class' => 'form-control', 'id' => 'current_address','rows'=>2]) !!}
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div class="form-group col-12">
-                                    <label>{{ __('permanent_address') }} <span class="text-danger">*</span></label>
-                                    {!! Form::textarea('permanent_address', null, ['placeholder' => __('permanent_address'), 'class' => 'form-control', 'id' => 'permanent_address','rows'=>2]) !!}
-                                </div>
-                            </div>
                             <div class="row">
                                 @foreach ($studentFields as $row)
                                     @if($row->type==="text" || $row->type==="number")
@@ -242,11 +176,7 @@
                             <div class="row" id="parents_div" style="display:none;">
                                 <div class="form-group col-sm-12 col-md-12">
                                     <label>{{ __('father_email') }} <span class="text-danger">*</span></label>
-                                    @if(env('DEMO_MODE'))
-                                        <select class="father-search w-100" id="father_email" name="father_email" disabled></select>
-                                    @else
-                                        <select class="father-search w-100" id="father_email" name="father_email"></select>
-                                    @endif
+                                    <select class="father-search w-100" id="father_email" name="father_email"></select>
                                 </div>
 
                                 <div class="form-group col-sm-12 col-md-4">
@@ -262,27 +192,10 @@
                                     {!! Form::number('father_mobile', null, ['placeholder' => __('father') . ' ' . __('mobile'), 'class' => 'form-control', 'id' => 'father_mobile', 'min' => 0]) !!}
                                 </div>
                                 <div class="form-group col-sm-12 col-md-4">
-                                    <label>{{ __('father') . ' ' . __('dob') }} <span class="text-danger">*</span></label>
-                                    {!! Form::text('father_dob', null, ['placeholder' => __('father') . ' ' . __('dob'), 'class' => 'form-control datepicker-popup-no-future form-control', 'id' => 'father_dob']) !!}
+                                    <label> father password <span class="text-danger">*</span></label>
+                                    <input type="password" class="form-control" name="father_password" >
                                 </div>
 
-                                <div class="form-group col-sm-12 col-md-4">
-                                    <label>{{ __('father') . ' ' . __('occupation') }} <span class="text-danger">*</span></label>
-                                    {!! Form::text('father_occupation', null, ['placeholder' => __('father') . ' ' . __('occupation'), 'class' => 'form-control', 'id' => 'father_occupation']) !!}
-                                </div>
-                                <div class="form-group col-sm-12 col-md-4">
-                                    <label>{{ __('father') . ' ' . __('image') }} <span class="text-danger">*</span></label>
-                                    <input type="file" name="father_image" class="father_image file-upload-default" accept="image/*"/>
-                                    <div class="input-group col-xs-12">
-                                        <input type="text" class="form-control file-upload-info" disabled="" placeholder="{{ __('father') . ' ' . __('image') }}"/>
-                                        <span class="input-group-append">
-                                            <button class="file-upload-browse btn btn-theme" type="button">{{ __('upload') }}</button>
-                                        </span>
-                                    </div>
-                                    <div style="width: 100px;">
-                                        <img src="" id="father-image-tag" class="img-fluid w-100" />
-                                    </div>
-                                </div>
                                 <div class="col-12">
                                     <div class="row father-extra-div">
                                     @foreach ($parentFields as $row)
@@ -361,17 +274,11 @@
                                         @endif
                                     @endforeach
                                     </div>
-
                                 </div>
 
                                 <div class="form-group col-sm-12 col-md-12">
                                     <label>{{ __('mother_email') }} <span class="text-danger">*</span></label>
-                                    @if(env('DEMO_MODE'))
-                                        <select class="mother-search w-100" id="mother_email" name="mother_email" disabled></select>
-                                    @else
-                                        <select class="mother-search w-100" id="mother_email" name="mother_email"></select>
-                                    @endif
-
+                                    <select class="mother-search w-100" id="mother_email" name="mother_email"></select>
                                 </div>
 
                                 <div class="form-group col-sm-12 col-md-4">
@@ -388,27 +295,11 @@
                                     {!! Form::number('mother_mobile', null, ['placeholder' => __('mother') . ' ' . __('mobile'), 'class' => 'form-control', 'id' => 'mother_mobile', 'min' => 0]) !!}
                                 </div>
                                 <div class="form-group col-sm-12 col-md-4">
-                                    <label>{{ __('mother') . ' ' . __('dob') }} <span class="text-danger">*</span></label>
-                                    {!! Form::text('mother_dob', null, ['placeholder' => __('mother') . ' ' . __('dob'), 'class' => 'form-control datepicker-popup-no-future form-control', 'id' => 'mother_dob']) !!}
+                                    <label> Mother Password <span class="text-danger">*</span></label>
+                                    <input type="password" name="mother_password" class="form-control">
                                 </div>
-                                <div class="form-group col-sm-12 col-md-4">
-                                    <label>{{ __('mother') . ' ' . __('occupation') }} <span class="text-danger">*</span></label>
-                                    {!! Form::text('mother_occupation', null, ['placeholder' => __('mother') . ' ' . __('occupation'), 'class' => 'form-control', 'id' => 'mother_occupation']) !!}
-                                </div>
-                                <div class="form-group col-sm-12 col-md-4">
-                                    <label>{{ __('mother') . ' ' . __('image') }} <span class="text-danger">*</span></label>
-                                    <input type="file" name="mother_image" class="mother_image file-upload-default" accept="image/*"/>
-                                    <div class="input-group col-xs-12">
-                                        <input type="text" class="form-control file-upload-info" disabled="" placeholder="{{ __('mother') . ' ' . __('image') }}"/>
-                                        <span class="input-group-append">
-                                            <button class="file-upload-browse btn btn-theme" type="button">{{ __('upload') }}</button>
-                                        </span>
-                                    </div>
-                                    <div style="width: 100px;">
-                                        <img src="" id="mother-image-tag" class="img-fluid w-100" />
-                                    </div>
 
-                                </div>
+
                                 <div class="col-12">
                                     <div class="row mother-extra-div">
                                         @foreach ($parentFields as $row)
@@ -494,11 +385,8 @@
                             <div class="row" id="guardian_div" style="display:none;">
                                 <div class="form-group col-sm-12 col-md-12">
                                     <label>{{ __('guardian') . ' ' . __('email') }} <span class="text-danger">*</span></label>
-                                    @if(env('DEMO_MODE'))
-                                        <select class="guardian-search form-control" id="guardian_email" name="guardian_email" disabled></select>
-                                    @else
-                                        <select class="guardian-search form-control" id="guardian_email" name="guardian_email"></select>
-                                    @endif
+                                    <select class="guardian-search form-control" id="guardian_email" name="guardian_email"></select>
+
                                 </div>
 
                                 <div class="form-group col-sm-12 col-md-4">
@@ -513,6 +401,10 @@
                                 <div class="form-group col-sm-12 col-md-4">
                                     <label>{{ __('guardian') . ' ' . __('mobile') }} <span class="text-danger">*</span></label>
                                     {!! Form::number('guardian_mobile', null, ['placeholder' => __('guardian') . ' ' . __('mobile'), 'class' => 'form-control', 'id' => 'guardian_mobile' , 'min' => 0]) !!}
+                                </div>
+                                <div class="form-group col-sm-12 col-md-4">
+                                    <label> Guardian Password <span class="text-danger">*</span></label>
+                                    <input type="password" class="form-control" name="guardian_password" >
                                 </div>
                                 <div class="form-group col-sm-12 col-md-12">
                                     <label>{{ __('gender') }} <span class="text-danger">*</span></label><br>
@@ -531,27 +423,7 @@
                                         </div>
                                     </div>
                                 </div>
-                                <div class="form-group col-sm-12 col-md-4">
-                                    <label>{{ __('guardian') . ' ' . __('dob') }} <span class="text-danger">*</span></label>
-                                    {!! Form::text('guardian_dob', null, ['placeholder' => __('guardian') . ' ' . __('dob'), 'class' => 'form-control datepicker-popup-no-future form-control', 'id' => 'guardian_dob']) !!}
-                                </div>
-                                <div class="form-group col-sm-12 col-md-4">
-                                    <label>{{ __('guardian') . ' ' . __('occupation') }} <span class="text-danger">*</span></label>
-                                    {!! Form::text('guardian_occupation', null, ['placeholder' => __('guardian') . ' ' . __('occupation'), 'class' => 'form-control', 'id' => 'guardian_occupation']) !!}
-                                </div>
-                                <div class="form-group col-sm-12 col-md-4">
-                                    <label>{{ __('guardian') . ' ' . __('image') }} <span class="text-danger">*</span></label>
-                                    <input type="file" name="guardian_image1" class="guardian_image1 file-upload-default" accept="image/*"/>
-                                    <div class="input-group col-xs-12">
-                                        <input type="text" class="form-control file-upload-info" disabled="" placeholder="{{ __('guardian') . ' ' . __('image') }}"/>
-                                        <span class="input-group-append">
-                                            <button class="file-upload-browse btn btn-theme" type="button">{{ __('upload') }}</button>
-                                        </span>
-                                    </div>
-                                    <div style="width: 100px;">
-                                        <img src="" name="guardian_image_tag" id="guardian-image-tag" class="img-fluid w-100" />
-                                    </div>
-                                </div>
+
 
                                 <div class="col-12">
                                     <div class="row guardian-extra-div">

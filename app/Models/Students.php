@@ -14,7 +14,7 @@ class Students extends Model
     use HasFactory;
 
     protected $hidden = ["deleted_at", "created_at", "updated_at"];
-
+    protected $fillable = ['user_id','class_section_id','category_id','father_id','mother_id','guardian_id'];
     public function announcement()
     {
         return $this->morphMany(Announcement::class, 'table');

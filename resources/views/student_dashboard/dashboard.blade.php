@@ -288,7 +288,7 @@
 								   	</svg>
 								</div>
 								<div class="d-flex flex-column w-75">
-									<a href="#" class="text-dark hover-primary mb-5 fw-600 fs-18">Biology Molecular</a>
+									<a href="#" class="text-dark hover-primary mb-5 fw-600 fs-18">Molecular Biology</a>
 									<div class="row">
 										<div class="col-xxl-6 col-xl-12 col-lg-6 col-md-6 text-fade">
 											<p class="my-10"  ><i class="si-book-open si"></i> 21 lesson</p>
