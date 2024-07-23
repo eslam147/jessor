@@ -19,6 +19,11 @@ class Subject extends Model
         return $this->belongsTo(Mediums::class)->withTrashed();
     }
 
+    public function classSubjects()
+    {
+        return $this->hasMany(ClassSubject::class);
+    }
+
     public function scopeSubjectTeacher($query) {
         $user = Auth::user();
         if ($user->hasRole('Teacher')) {

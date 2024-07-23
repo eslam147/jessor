@@ -27,6 +27,10 @@ class SettingsSeeder extends Seeder
         $school_email->update([
             'message' => 'info@jesoor.online',
         ]);
+        Settings::create([
+            'type'      => "show_teachers",
+            'message'   => 'allow'
+        ]);
 
     }
 }

@@ -49,7 +49,7 @@ class LoginController extends Controller
     protected function authenticated(Request $request, $user)
     {
         if ($user->is_student == 'yes') {
-            return redirect('/student_dashboard');
+            return redirect('/student_dashboard/home');
         } else {
             return redirect('/home');
         }

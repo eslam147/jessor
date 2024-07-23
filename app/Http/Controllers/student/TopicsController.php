@@ -2,32 +2,25 @@
 
 namespace App\Http\Controllers\student;
 
-
+use App\Models\Lesson;
 use App\Models\Students;
-use App\Models\ClassSection;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
-use App\Models\ClassSubject;
+use App\Models\LessonTopic;
+use App\Models\Settings;
+use App\Models\SubjectTeacher;
 use Illuminate\Support\Facades\Auth;
 
-class StudentDashboardController extends Controller
+class TopicsController extends Controller
 {
     /**
      * Display a listing of the resource.
      *
      * @return \Illuminate\Http\Response
-     */ 
+     */
     public function index()
     {
-        //get the subjects of the student
-            $class_section_id = Students::where('user_id',Auth::user()->id)->first()->class_section_id;
-            $class_section    = ClassSection::findOrFail($class_section_id);
-            $class_id         = $class_section->class_id;
-            $subjects = ClassSubject::where('class_id', $class_id)->with('subject')->latest()->take(3)->get()->pluck('subject');
-
-        //get the time table of the student
-
-        return view('student_dashboard.dashboard',compact('subjects'));
+        dd('test');
     }
 
     /**
@@ -59,7 +52,9 @@ class StudentDashboardController extends Controller
      */
     public function show($id)
     {
-        //
+
+        $topics = LessonTopic::where('lesson_id',$id)->get();
+        return view('student_dashboard.topics.index',compact('topics'));
     }
 
     /**

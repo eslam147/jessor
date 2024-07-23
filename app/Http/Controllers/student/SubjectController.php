@@ -2,32 +2,32 @@
 
 namespace App\Http\Controllers\student;
 
-
+use App\Models\Lesson;
+use App\Models\Settings;
 use App\Models\Students;
 use App\Models\ClassSection;
-use Illuminate\Http\Request;
-use App\Http\Controllers\Controller;
 use App\Models\ClassSubject;
+use Illuminate\Http\Request;
+use App\Models\SubjectTeacher;
+use App\Http\Controllers\Controller;
+use App\Models\Subject;
+use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 
-class StudentDashboardController extends Controller
+class SubjectController extends Controller
 {
     /**
      * Display a listing of the resource.
      *
      * @return \Illuminate\Http\Response
-     */ 
+     */
     public function index()
     {
-        //get the subjects of the student
-            $class_section_id = Students::where('user_id',Auth::user()->id)->first()->class_section_id;
-            $class_section    = ClassSection::findOrFail($class_section_id);
-            $class_id         = $class_section->class_id;
-            $subjects = ClassSubject::where('class_id', $class_id)->with('subject')->latest()->take(3)->get()->pluck('subject');
-
-        //get the time table of the student
-
-        return view('student_dashboard.dashboard',compact('subjects'));
+        $class_section_id = Students::where('user_id',Auth::user()->id)->first()->class_section_id;
+        $class_section    = ClassSection::findOrFail($class_section_id);
+        $class_id         = $class_section->class_id;
+        $subjects = ClassSubject::where('class_id', $class_id)->with('subject')->latest()->get()->pluck('subject');
+        return view('student_dashboard.subject.index',compact('subjects'));
     }
 
     /**
@@ -59,7 +59,17 @@ class StudentDashboardController extends Controller
      */
     public function show($id)
     {
-        //
+        $class_section_id = Students::where('user_id',Auth::user()->id)->first()->class_section_id;
+        $subject = Subject::findOrfail($id);
+        $show_teachers = Settings::where('type','show_teachers')->first()->message;
+
+        if($show_teachers == 'allow'){
+            $subjectTeachers = SubjectTeacher::where('subject_id', $id)->where('class_section_id', $class_section_id)->with('teacher.user')->get()->pluck('teacher.user');
+            return view('student_dashboard.teachers.index',compact('subjectTeachers','subject'));
+        }else{
+            $lessons = Lesson::where('subject_id',$id)->where('class_section_id',$class_section_id)->get();
+            return view('student_dashboard.lessons.index',compact('lessons'));
+        }
     }
 
     /**

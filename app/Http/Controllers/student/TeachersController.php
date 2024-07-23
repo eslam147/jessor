@@ -2,34 +2,30 @@
 
 namespace App\Http\Controllers\student;
 
-
+use App\Models\Lesson;
 use App\Models\Students;
-use App\Models\ClassSection;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
-use App\Models\ClassSubject;
 use Illuminate\Support\Facades\Auth;
 
-class StudentDashboardController extends Controller
+class TeachersController extends Controller
 {
     /**
      * Display a listing of the resource.
      *
      * @return \Illuminate\Http\Response
-     */ 
-    public function index()
+     */
+    public function index($id)
     {
-        //get the subjects of the student
-            $class_section_id = Students::where('user_id',Auth::user()->id)->first()->class_section_id;
-            $class_section    = ClassSection::findOrFail($class_section_id);
-            $class_id         = $class_section->class_id;
-            $subjects = ClassSubject::where('class_id', $class_id)->with('subject')->latest()->take(3)->get()->pluck('subject');
-
-        //get the time table of the student
-
-        return view('student_dashboard.dashboard',compact('subjects'));
+        dd('teachers');
     }
 
+    public function teacher_lessons($teacher_id,$subject_id){
+        $class_section_id = Students::where('user_id',Auth::user()->id)->first()->class_section_id;
+        //get the lesson's based on the teacher and subject and section class
+        $lessons = Lesson::where('subject_id',$subject_id)->where('class_section_id',$class_section_id)->where('teacher_id',$teacher_id)->get();
+        return view('student_dashboard.lessons.teacher_lessons',compact('lessons'));
+    }
     /**
      * Show the form for creating a new resource.
      *

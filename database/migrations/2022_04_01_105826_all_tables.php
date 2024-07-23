@@ -156,6 +156,9 @@ return new class extends Migration {
             $table->string('description', 1024)->nullable();
             $table->integer('class_section_id');
             $table->integer('subject_id');
+            $table->integer('teacher_id')->nullable();
+            $table->integer('is_free')->default(1)->nullable()->comment('1 = free , 0 = paid');
+            $table->integer('is_locked')->default(0)->nullable()->comment('1 = locked , 0 = unlocked');
             $table->timestamps();
             $table->softDeletes();
         });

@@ -18,6 +18,11 @@ class Teacher extends Model
         return $this->morphMany(Announcement::class, 'modal');
     }
 
+    public function subjectTeachers()
+    {
+        return $this->hasMany(SubjectTeacher::class);
+    }
+
     public function user()
     {
         return $this->belongsTo(User::class);

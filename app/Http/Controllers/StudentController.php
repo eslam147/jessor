@@ -1067,6 +1067,7 @@ class StudentController extends Controller
                 $student->class_section_id = $class_section_id;
                 $student->is_new_admission = 0;
                 $student->save();
+                
                 $student_session = new StudentSessions;
                 $student_session->student_id = $student->id;
                 $student_session->class_section_id = $class_section_id;
