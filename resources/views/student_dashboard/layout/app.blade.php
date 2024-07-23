@@ -445,7 +445,7 @@
 	<script src="{{ asset('student/js/template.js')}}"></script>
 	<script src="{{ asset('student/js/pages/dashboard.js')}}"></script>
 	<script src="{{ asset('student/js/pages/calendar.js')}}"></script>
-
+    @yield('script')
 </body>
 
 </html>

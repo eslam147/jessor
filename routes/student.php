@@ -13,5 +13,6 @@ Route::prefix('student_dashboard')->group(function(){
         Route::resource('/subjects', SubjectController::class);
         Route::resource('/topics', TopicsController::class);
         Route::get('/teacher_lessons/{teacher_id}/subject/{subject_id}', [TeachersController::class,'teacher_lessons'])->name('teacher.lessons');
+        Route::get('topic_files/{topic_id}',[TopicsController::class,'topic_files'])->name('topic.files');
     });
 });

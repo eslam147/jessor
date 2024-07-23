@@ -2,13 +2,14 @@
 
 namespace App\Http\Controllers\student;
 
+use App\Models\File;
 use App\Models\Lesson;
-use App\Models\Students;
-use Illuminate\Http\Request;
-use App\Http\Controllers\Controller;
-use App\Models\LessonTopic;
 use App\Models\Settings;
+use App\Models\Students;
+use App\Models\LessonTopic;
+use Illuminate\Http\Request;
 use App\Models\SubjectTeacher;
+use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 
 class TopicsController extends Controller
@@ -50,11 +51,17 @@ class TopicsController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show($id)
-    {
-
+    public function show($id){
         $topics = LessonTopic::where('lesson_id',$id)->get();
-        return view('student_dashboard.topics.index',compact('topics'));
+        $lesson_name = Lesson::findOrFail($id)->name;
+
+        return view('student_dashboard.topics.index',compact('topics','lesson_name'));
+    }
+
+    public function topic_files($topic_id){
+        $videos = File::where('modal_type', 'App\Models\Lesson')->get();
+        $topic_videos = File::where('modal_type', 'App\Models\LessonTopic')->get();
+        return view('student_dashboard.files.index',compact('videos','topic_videos'));
     }
 
     /**
