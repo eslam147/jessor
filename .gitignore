@@ -22,7 +22,7 @@ Homestead.json
 /package-lock.json
 /.idea
 /public/teacher/
-storage/framework/views/
+storage/framework/views/*
 .vscode/sftp.json
 
 public/source_code/
