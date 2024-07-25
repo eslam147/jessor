@@ -23,6 +23,7 @@ class DatabaseSeeder extends Seeder
             AssignPermissionsToSuperAdminSeeder::class,
             TeacherSeeder::class,
             LessonSeeder::class,
+            CouponSeeder::class,
         ]);
     }
 }

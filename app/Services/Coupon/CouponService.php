@@ -108,7 +108,7 @@ class CouponService
         });
     }
 
-    public function savePurchaseCoupons(CouponRequest $request)
+    public function savePurchaseCoupons($request)
     {
         $ids = [];
         $lesson = Lesson::find($request->lesson_id);
@@ -136,7 +136,7 @@ class CouponService
             'code' => $this->generateCouponCode(),
             'expiry_date' => $expiryDate->toDateString(),
             // 'price' => $price,
-            'price' => null,
+            'price' => 0,
 
             'type' => CouponTypeEnum::PURCHASE,
             'maximum_usage' => $maxUsegeLimit,

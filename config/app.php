@@ -69,7 +69,7 @@ return [
     |
     */
 
-    'timezone' => env('TIMEZONE'),
+    'timezone' => env('TIMEZONE', 'Africa/Cairo'),
 
     /*
     |--------------------------------------------------------------------------
@@ -198,7 +198,7 @@ return [
         // ...
         'Excel' => Maatwebsite\Excel\Facades\Excel::class,
         'Image' => \Intervention\Image\Facades\Image::class,
-        'PDF'       => Barryvdh\DomPDF\Facade::class,
+        'PDF' => Barryvdh\DomPDF\Facade::class,
         'Paystack' => Unicodeveloper\Paystack\Facades\Paystack::class,
     ])->toArray(),
 

@@ -10,35 +10,31 @@ class CouponRequest extends FormRequest
     {
         return true;
     }
+
     private function onCreate(): array
     {
         return [
-
             'coupons_count' => 'required|integer|min:1',
             'usage_limit' => 'required|integer|min:1',
-
-
             'expiry_date' => 'nullable|date|after:today',
-
             'teacher_id' => 'nullable|exists:teachers,id',
-
             'lesson_id' => 'nullable|exists:lessons,id',
         ];
     }
     private function onUpdate(): array
     {
+        // ------------------------------------------------ \\
         return [
             'code' => 'required|string|unique:coupons,code,' . $this->coupon->id,
-            // 'coupons_coun/t' => 'required|integer|min:1',
+            // ------------------------------------------------ \\
             'usage_limit' => 'required|integer|min:1',
-
             'expiry_date' => 'nullable|date|after:today',
             'expiry_time' => 'nullable|date_format:H:i',
-
+            // ------------------------------------------------ \\
             'teacher_id' => 'nullable|exists:teachers,id',
-
             'lesson_id' => 'nullable|exists:lessons,id',
         ];
+        // ------------------------------------------------ \\
     }
     private function onDelete(): array
     {
