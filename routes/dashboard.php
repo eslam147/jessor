@@ -44,8 +44,7 @@ use App\Http\Controllers\{
     StudentSessionController,
     SubjectTeacherController,
     OnlineExamQuestionController,
-    FeesDiscountController,
-    FeesDiscountTypesController,
+    EnrollmentController,
 };
 
 Route::group(['middleware' => ['Role', 'auth','account_type']], function () {
@@ -395,28 +394,30 @@ Route::group(['middleware' => ['Role', 'auth','account_type']], function () {
             Route::get('/', 'index')->name('index');
             Route::get('/list', 'list')->name('list');
             Route::post('store', 'store')->name('store');
+            Route::put('status/{coupon}', 'changeStatus')->name('status');
+
             Route::get('create', 'create')->name('create');
+
             Route::get('edit/{coupon}', 'edit')->name('edit');
             Route::get('show/{coupon}', 'show')->name('show');
             Route::put('update/{coupon}', 'update')->name('update');
             Route::delete('destroy/{coupon}', 'destroy')->name('destroy');
+            // #TODO Change Here 
+
         });
         // ------------------------------------------------------ \\
         // ------------------------------------------------------ \\
-        Route::prefix('fees_discounts/')->as('fees_discounts.')->controller(FeesDiscountController::class)->group(function () {
-            // types
-            Route::resource('types', FeesDiscountTypesController::class)->names('types');
-            Route::get('/', 'index')->name('index');
-            Route::post('store', 'store')->name('store');
-            Route::get('create', 'create')->name('create');
-            Route::get('edit/{feeDiscount}', 'edit')->name('edit');
-            Route::get('show/{feeDiscount}', 'show')->name('show');
-            Route::put('update/{feeDiscount}', 'update')->name('update');
-            Route::delete('destroy/{feeDiscount}', 'destroy')->name('destroy');
-
-
-
-        });
+        // Route::prefix('fees_discounts/')->as('fees_discounts.')->controller(FeesDiscountController::class)->group(function () {
+        //     // types
+        //     Route::resource('types', FeesDiscountTypesController::class)->names('types');
+        //     Route::get('/', 'index')->name('index');
+        //     Route::post('store', 'store')->name('store');
+        //     Route::get('create', 'create')->name('create');
+        //     Route::get('edit/{feeDiscount}', 'edit')->name('edit');
+        //     Route::get('show/{feeDiscount}', 'show')->name('show');
+        //     Route::put('update/{feeDiscount}', 'update')->name('update');
+        //     Route::delete('destroy/{feeDiscount}', 'destroy')->name('destroy');
+        // });
         // ------------------------------------------------------ \\
         Route::get('leave-report', [LeaveController::class, 'leaveReportIndex'])->name('leave-report.index');
         Route::get('leave-details', [LeaveController::class, 'leaveDetails'])->name('leave-details-list');
@@ -425,5 +426,11 @@ Route::group(['middleware' => ['Role', 'auth','account_type']], function () {
         Route::post('leave-request-update', [LeaveController::class, 'leaveStatusUpdate'])->name('leave-status.update');
         Route::delete('leave-request-delete/{id}', [LeaveController::class, 'leaveRequestDelete'])->name('leave-request.delete');
         Route::resource('leave', LeaveController::class);
+
+        Route::controller(EnrollmentController::class)->prefix('enrollment')->as('enrollment.')->group(function(){
+            Route::get('/', 'index')->name('index');
+            Route::get('/list', 'list')->name('list');
+            Route::delete('/{enrollment}/delete', 'destroy')->name('destroy');
+        });
     });
 });
