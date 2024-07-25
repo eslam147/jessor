@@ -30,7 +30,7 @@ class Teacher extends Model
 
     public function classSections()
     {
-        return $this->belongsToMany(ClassSection::class, 'class_teachers', 'class_teacher_id', 'class_section_id')->with('user');
+        return $this->belongsToMany(ClassSection::class, 'class_teachers', 'class_teacher_id', 'class_section_id');
     }
 
     public function class_sections()

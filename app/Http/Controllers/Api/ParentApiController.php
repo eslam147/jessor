@@ -1627,9 +1627,9 @@ class ParentApiController extends Controller
         try {
             $parent = Auth::user();
             $parent_name = $parent->first_name . ' ' . $parent->last_name;
-            $logo = env('LOGO2');
-            $logo = public_path('/storage/' . $logo);
-            $school_name = env('APP_NAME');
+            $logo = settingByType('logo2');
+            $logo = public_path("storage/{$logo}");
+            $school_name = settingByType('school_name');
             $school_address = getSettings('school_address');
             $school_address = $school_address['school_address'];
 

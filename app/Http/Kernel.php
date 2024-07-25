@@ -3,6 +3,7 @@
 namespace App\Http;
 
 use App\Http\Middleware\DemoMiddleware;
+use App\Http\Middleware\StudentAuthorized;
 use Illuminate\Foundation\Http\Kernel as HttpKernel;
 
 class Kernel extends HttpKernel
@@ -74,6 +75,6 @@ class Kernel extends HttpKernel
         'checkChild' => \App\Http\Middleware\CheckChild::class,
         'language' => \App\Http\Middleware\LanguageManager::class,
         'checkStudent' => \App\Http\Middleware\CheckStudent::class,
-        'account_type' => \App\Http\Middleware\CheckAccountType::class,
+        'student_authorized' => StudentAuthorized::class,
     ];
 }

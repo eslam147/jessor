@@ -3543,9 +3543,9 @@ class StudentApiController extends Controller
         try {
             $student = $request->user()->student;
 
-            $logo = env('LOGO2');
-            $logo = public_path('/storage/' . $logo);
-            $school_name = env('APP_NAME');
+            $logo = settingByType('logo2');
+            $logo = public_path("/storage/{$logo}");
+            $school_name = settingByType('school_name');
             $school_address = getSettings('school_address');
             $school_address = $school_address['school_address'];
 
@@ -3820,7 +3820,7 @@ class StudentApiController extends Controller
                     'code' => 104,
                 ]);
             }
-            if ($lesson->is_paid) {
+            if (!$lesson->isFree()) {
                 return response()->json([
                     'error' => true,
                     'message' => trans('lesson_is_not_free'),

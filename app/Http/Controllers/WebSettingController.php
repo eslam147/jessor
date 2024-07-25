@@ -577,8 +577,8 @@ class WebSettingController extends Controller
             return redirect(route('home'))->withErrors($response);
         }
         try {
-            $admin_mail = env('MAIL_FROM_ADDRESS');
-            $school_name = env('APP_NAME');
+            $admin_mail = settingByType('mail_send_from');
+            $school_name = settingByType('school_name');
 
             $attachments = [];
 

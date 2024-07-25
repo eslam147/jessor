@@ -48,10 +48,11 @@ class LoginController extends Controller
      */
     protected function authenticated(Request $request, $user)
     {
-        if ($user->is_student == 'yes') {
-            return redirect('/student_dashboard/home');
+        
+        if ($user->hasRole('Student')) {
+            return to_route('home.index');
         } else {
-            return redirect('/home');
+            return to_route('home');
         }
     }
 }

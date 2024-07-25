@@ -13,18 +13,21 @@ use App\Models\Students;
 use App\Models\ClassSchool;
 use App\Models\SessionYear;
 use App\Models\ClassSection;
+use App\Models\ClassSubject;
 use Illuminate\Support\Carbon;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 
-class DummyDataSeeder extends Seeder {
+class DummyDataSeeder extends Seeder
+{
     /**
      * Run the database seeds.
      *
      * @return void
      */
-    public function run() {
+    public function run()
+    {
         $medium = [
             ['id' => 1, 'name' => 'British School'],
             ['id' => 2, 'name' => 'American School'],
@@ -76,7 +79,7 @@ class DummyDataSeeder extends Seeder {
         SessionYear::upsert($session_years, ['id'], ['name', 'default', 'start_date', 'end_date']);
 
         $session_year_settings = [
-            ['id' => 9, 'type'   => 'session_year', 'message' => 1],
+            ['id' => 9, 'type' => 'session_year', 'message' => 1],
         ];
         Settings::upsert($session_year_settings, ['id'], ['type', 'message']);
 
@@ -170,12 +173,18 @@ class DummyDataSeeder extends Seeder {
             ]
         ];
         Parents::upsert($parent, ['id'], ['user_id', 'first_name', 'last_name', 'image', 'occupation', 'email', 'mobile', 'dob', 'gender']);
-
+        $class_section = ClassSection::whereId(3)->first();
+        ClassSubject::create([
+            'class_id' => $class_section->class_id,
+            'subject_id' => Subject::inRandomOrder()->value('id'),
+            'type' => 'Compulsory',
+        ]);
+        // $class_sections->subject()->sync([1, 2]);
         //Student
-        $student = [
+        $studentInfo = [
             'id' => 1,
             'user_id' => 4,
-            'class_section_id' => 3,
+            'class_section_id' => $class_section->id,
             'category_id' => 1,
             'admission_no' => 12345667,
             'roll_number' => 1,
@@ -187,8 +196,15 @@ class DummyDataSeeder extends Seeder {
             'father_id' => 1,
             'mother_id' => 2,
             'guardian_id' => 3,
-            'admission_date' => Carbon::create('2022', '04', '01')
+            'admission_date' => Carbon::create('2024', '04', '01')
         ];
-        Students::upsert($student, ['id'], ['user_id', 'class_section_id', 'category_id', 'admission_no', 'roll_number', 'caste', 'religion', 'admission_date', 'blood_group', 'height', 'weight', 'father_id', 'mother_id', 'guardian_id',]);
+        $student = Students::firstOrCreate([
+            'id' => 1,
+            'user_id' => 4,
+        ], $studentInfo);
+
+        $student->load('user');
+        $student->user->assignRole('Student');
+
     }
 }

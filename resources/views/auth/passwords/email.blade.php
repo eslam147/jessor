@@ -72,7 +72,7 @@
                             <div class="brand-logo text-center">
                                 {{-- <img src="{{asset(config('global.LOGO1')) }}" alt="logo"> --}}
                                 {{-- <img src="{{ asset('logo.svg') }}" alt="logo"> --}}
-                                <img src="{{asset('storage/'.env('LOGO1')) }}" alt="logo">
+                                <img src="{{ asset('storage/' . getSettings('logo1')) }}" alt="logo">
                             </div>
                             @if (session('status'))
                                 <div class="alert alert-success" role="alert">
@@ -84,9 +84,9 @@
                                 <div class="form-group">
                                     <label>{{ __('email') }}</label>
                                     {{-- <input type="text" name="username" required class="form-control form-control-lg" placeholder="{{__('username')}}"> --}}
-                                    <input id="email" type="email" class="form-control form-control-lg" name="email"
-                                        value="{{ old('email') }}" required autocomplete="email" autofocus
-                                        placeholder="{{ __('email') }}">
+                                    <input id="email" type="email" class="form-control form-control-lg"
+                                        name="email" value="{{ old('email') }}" required autocomplete="email"
+                                        autofocus placeholder="{{ __('email') }}">
                                 </div>
                                 <div class="mt-3">
                                     <input type="submit" name="btnlogin" value="{{ __('Send Password Reset Link') }}"
@@ -127,7 +127,7 @@
 @if (Session::has('error'))
     <script type='text/javascript'>
         $.toast({
-            text: '{{ Session::get('error') }}',
+            text: `{{ Session::get('error') }}`,
             showHideTransition: 'slide',
             icon: 'error',
             loaderBg: '#f2a654',

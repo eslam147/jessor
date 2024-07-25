@@ -21,6 +21,8 @@ class DatabaseSeeder extends Seeder
             SettingsSeeder::class,
             AddSuperAdminSeeder::class,
             AssignPermissionsToSuperAdminSeeder::class,
+            TeacherSeeder::class,
+            LessonSeeder::class,
         ]);
     }
 }

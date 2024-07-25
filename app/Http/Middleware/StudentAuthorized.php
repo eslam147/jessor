@@ -6,14 +6,13 @@ use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
-class CheckAccountType
+class StudentAuthorized
 {
     public function handle(Request $request, Closure $next)
     {
-        if(is_null(Auth::user()->is_student)){
+        if(Auth::check() && Auth::user()->hasRole('Student')){
             return $next($request);
-        }else{
-            return redirect()->route('home.index');
         }
+        return to_route('login');
     }
 }

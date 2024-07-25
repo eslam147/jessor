@@ -6,12 +6,16 @@ use App\Models\Settings;
 use Intervention\Image\Facades\Image;
 
 
-
+if(! function_exists('settingByType')) {
+    function settingByType($type){
+        return Settings::where('type', $type)->value("message");
+    }
+}
 if (! function_exists('getSettings')) {
     function getSettings($type = '')
     {
-        $settingList = array();
-        if ($type == '') {
+        $settingList = [];
+        if (empty($type)) {
             $setting = Settings::get();
         } else {
             $setting = Settings::where('type', $type)->get();

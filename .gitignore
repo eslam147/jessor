@@ -27,7 +27,7 @@ storage/framework/views/*
 
 public/source_code/
 .vscode/settings.json
-
+.env
 /html_tmeplate/
 jeso_demo.sql
 /vendor/

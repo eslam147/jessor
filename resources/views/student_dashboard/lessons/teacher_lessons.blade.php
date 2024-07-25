@@ -34,7 +34,7 @@
 									<p class="mb-0">{{ $row->description }}</p>
 								</div>
 								<div>
-                                    @if ($row->is_paid == 0)
+                                    @if ($row->isFree())
                                         <p class="mb-5 fw-600">55%</p>
                                         <div class="progress progress-sm mb-0 w-100">
                                             <div class="progress-bar progress-bar-primary" role="progressbar" aria-valuenow="40" aria-valuemin="0" aria-valuemax="100" style="width: 55%">
@@ -54,7 +54,7 @@
 								</div>
 							</div>
                             <div class="bg-primary mt-5 rounded">
-                                @if($row->is_paid == 0)
+                                @if($row->isFree())
                                     <a href="javascript:void(0)" >
                                         <h5 class="text-white text-center p-10"> start now </h5>
                                     </a>
