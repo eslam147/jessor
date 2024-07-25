@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use Exception;
 use Carbon\Carbon;
 use App\Models\Exam;
 use App\Models\File;
@@ -24,9 +25,11 @@ use Stripe\StripeClient;
 use App\Models\ExamClass;
 use App\Models\ExamMarks;
 use App\Models\FeesClass;
+use App\Models\FormField;
 use App\Models\Timetable;
 use App\Models\Assignment;
 use App\Models\Attendance;
+use App\Models\Enrollment;
 use App\Models\ExamResult;
 use App\Models\OnlineExam;
 use App\Models\ChatMessage;
@@ -51,10 +54,13 @@ use App\Models\UserNotification;
 use App\Models\PaidInstallmentFee;
 use App\Models\PaymentTransaction;
 use Illuminate\Support\Facades\DB;
+use Spatie\Permission\Models\Role;
 use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
 use App\Models\AssignmentSubmission;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
+use App\Services\Coupon\CouponService;
 use App\Models\OnlineExamStudentAnswer;
 use App\Models\StudentOnlineExamStatus;
 use Illuminate\Support\Facades\Storage;
@@ -63,10 +69,80 @@ use App\Models\OnlineExamQuestionChoice;
 use App\Models\OnlineExamQuestionOption;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Validator;
+use App\Services\Auth\RegisterAuthService;
+use App\Services\Purchase\PurchaseService;
 use App\Http\Resources\TimetableCollection;
+use Symfony\Component\HttpFoundation\Response;
+use App\Http\Requests\Api\V1\Auth\RegisterRequest;
+use App\Http\Resources\Student\Lesson\LessonResource;
+use App\Http\Resources\Student\LessonTopic\LessonTopicResource;
+use Symfony\Component\HttpFoundation\JsonResponse;
+use App\Http\Resources\Student\Teacher\TeacherResource;
 
 class StudentApiController extends Controller
 {
+    public function __construct(
+        protected RegisterAuthService $registerAuthService,
+        private CouponService $couponService,
+        private PurchaseService $purchaseService
+    ) {
+    }
+    public function register(RegisterRequest $request)
+    {
+        try {
+            #TODO Otp
+
+            $fatherId = null;
+            $motherId = null;
+            $guardianId = null;
+
+            DB::beginTransaction();
+            if (! empty($request->parent)) {
+                $parents = $this->registerAuthService->storeParents($request);
+                $fatherId = $parents['father']->id;
+                $motherId = $parents['mother']->id;
+            }
+            
+            if (! empty($request->guardian)) {
+                $guardian = $this->registerAuthService->storeGuardian($request);
+                $guardianId = $guardian->id;
+            }
+
+            $student = $this->registerAuthService->storeStudent(
+                request: $request,
+                fatherId: $fatherId,
+                motherId: $motherId,
+                guardianId: $guardianId
+            );
+            DB::commit();
+
+            return response()->json([
+                'error' => false,
+                'message' => 'Student Created Successfully!',
+                'data' => [
+                    'user' => $student,
+                ],
+                'code' => 100,
+            ], Response::HTTP_CREATED);
+            // ------------------------------------------------------------- \\
+
+        } catch (Exception $e) {
+            DB::rollback();
+            report($e);
+
+            $execptionResponse = [
+                'error' => true,
+                'message' => trans('error_occurred'),
+                'data' => []
+            ];
+
+            return response()->json($execptionResponse, Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+    }
+
+
+    // ------------------------------------------------------------- \\
+
     public function login(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -83,22 +159,23 @@ class StudentApiController extends Controller
             return response()->json($response);
         }
 
-        $session_year = getSettings('session_year');
-        $session_year_id = $session_year['session_year'];
-
-        $compulsory_fees_mode = getSettings('compulsory_fee_payment_mode');
-        $compulsory_fees_mode = $compulsory_fees_mode['compulsory_fee_payment_mode'];
-
-        $session_year = SessionYear::where('id', $session_year_id)->first();
-        $isInstallment = $session_year->include_fee_installments;
-
-        $due_date = $session_year->fee_due_date;
-        $free_app_use_date = $session_year->free_app_use_date;
-
-        $current_date = Carbon::now()->toDateString();
 
 
         if (Auth::attempt(['email' => $request->gr_number, 'password' => $request->password])) {
+            $session_year = getSettings('session_year');
+            $session_year_id = $session_year['session_year'];
+
+            $compulsory_fees_mode = getSettings('compulsory_fee_payment_mode');
+
+            $compulsory_fees_mode = $compulsory_fees_mode['compulsory_fee_payment_mode'];
+
+            $session_year = SessionYear::where('id', $session_year_id)->first();
+            $isInstallment = $session_year->include_fee_installments;
+
+            $due_date = $session_year->fee_due_date;
+            $free_app_use_date = $session_year->free_app_use_date;
+
+            $current_date = Carbon::now()->toDateString();
             //        if (Auth::attempt(['email' => $request->email, 'password' => $request->password])) {
             //Here Email Field is referenced as a GR Number for Student
             $auth = Auth::user();
@@ -437,7 +514,7 @@ class StudentApiController extends Controller
             );
             return response()->json($response, 200);
 
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $response = array(
                 'error' => true,
                 'message' => trans('error_occurred'),
@@ -489,7 +566,7 @@ class StudentApiController extends Controller
                     'code' => 107,
                 );
             }
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $response = array(
                 'error' => true,
                 'message' => trans('error_occurred'),
@@ -516,7 +593,7 @@ class StudentApiController extends Controller
                 'code' => 200,
             );
             return response()->json($response, 200);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $response = array(
                 'error' => true,
                 'message' => trans('error_occurred'),
@@ -539,7 +616,7 @@ class StudentApiController extends Controller
                 'code' => 200
             );
             return response()->json($response, 200);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $response = array(
                 'error' => true,
                 'message' => trans('error_occurred'),
@@ -595,7 +672,7 @@ class StudentApiController extends Controller
                 'message' => "Subject Selected Successfully",
                 'code' => 200,
             );
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $response = array(
                 'error' => true,
                 'message' => trans('error_occurred'),
@@ -696,7 +773,7 @@ class StudentApiController extends Controller
                 'data' => $data,
                 'code' => 200,
             );
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $response = array(
                 'error' => true,
                 'message' => trans('error_occurred'),
@@ -743,7 +820,7 @@ class StudentApiController extends Controller
                 'data' => new TimetableCollection($new_timetable),
                 'code' => 200,
             );
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $response = array(
                 'error' => true,
                 'message' => trans('error_occurred'),
@@ -762,7 +839,7 @@ class StudentApiController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'lesson_id' => 'nullable|numeric',
-            'subject_id' => 'required',
+            'teacher_id' => 'required',
         ]);
 
         if ($validator->fails()) {
@@ -773,26 +850,113 @@ class StudentApiController extends Controller
             ]);
         }
         try {
-            $student = $request->user()->student;
-            $data = Lesson::where('class_section_id', $student->class_section_id)->where('subject_id', $request->subject_id)->with('topic', 'file');
-            if ($request->lesson_id) {
-                $data->where('id', $request->lesson_id);
-            }
-            $data = $data->get();
+            $student = $request->user();
 
-            $response = array(
+
+            $data = Lesson::where('teacher_id', $request->teacher_id)
+                ->active()
+                ->with('topic', 'file');
+
+            $data = $data->addSelect([
+                'is_enrolled' => Enrollment::select('id')->where('user_id', $student->id)->whereColumn('lesson_id', 'lessons.id'),
+            ])->get();
+
+            $response = [
                 'error' => false,
                 'message' => "Lessons Fetched Successfully",
-                'data' => $data,
+                'data' => LessonResource::collection($data),
                 'code' => 200,
-            );
-        } catch (\Exception $e) {
+            ];
+
+        } catch (Exception $e) {
             report($e);
             $response = array(
                 'error' => true,
                 'message' => trans('error_occurred'),
                 'code' => 103,
             );
+        }
+        return response()->json($response);
+    }
+    /**
+     * @param
+     * subject_id : 2
+     * lesson_id : 1 //OPTIONAL
+     */
+    public function getEnrollmentLessons(Request $request)
+    {
+        try {
+            // $student = $request->user()->student;
+            $data = Lesson::whereHas('enrollments', function ($q) {
+                return $q->where('user_id', Auth::user()->id);
+            })->with('topic', 'file');
+
+            $data = $data->active()->get();
+
+            $response = [
+                'error' => false,
+                'message' => "Lessons Fetched Successfully",
+                'data' => $data,
+                'code' => 200,
+            ];
+        } catch (Exception $e) {
+            report($e);
+            $response = [
+                'error' => true,
+                'message' => trans('error_occurred'),
+                'code' => 103,
+            ];
+        }
+        return response()->json($response);
+    }
+
+    /**
+     * return all teachers belong to the Subject
+     */
+    public function getTeachers(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'subject_id' => 'required',
+        ]);
+
+        if ($validator->fails()) {
+
+            return response()->json([
+                'error' => true,
+                'message' => $validator->errors()->first(),
+                'code' => 102,
+            ]);
+
+        }
+
+        try {
+            $student = $request->user()->student;
+            //----------------------------------------- \\
+            $data = Teacher::whereHas('subjects', function ($q) use ($request, $student) {
+                return $q->where('subject_id', $request->subject_id)
+                    ->where('class_section_id', $student->class_section_id);
+            })->with('user')
+                ->withCount([
+                    'lessons' => fn($q) => $q->active(),
+                    'lessonTopics'
+                ])->get();
+            //----------------------------------------- \\
+
+            $response = [
+                'error' => false,
+                'message' => "Teacher Fetched Successfully",
+                'data' => TeacherResource::collection($data),
+                'code' => 200,
+            ];
+
+            //----------------------------------------- \\
+        } catch (Exception $e) {
+            report($e);
+            $response = [
+                'error' => true,
+                'message' => trans('error_occurred'),
+                'code' => 103,
+            ];
         }
         return response()->json($response);
     }
@@ -826,18 +990,18 @@ class StudentApiController extends Controller
             }
             $data = $data->get();
 
-            $response = array(
+            $response = [
                 'error' => false,
                 'message' => "Topics Fetched Successfully",
-                'data' => $data,
+                'data' => LessonTopicResource::collection($data),
                 'code' => 200,
-            );
-        } catch (\Exception $e) {
-            $response = array(
+            ];
+        } catch (Exception $e) {
+            $response = [
                 'error' => true,
                 'message' => trans('error_occurred'),
                 'code' => 103,
-            );
+            ];
         }
         return response()->json($response);
     }
@@ -856,11 +1020,11 @@ class StudentApiController extends Controller
         ]);
 
         if ($validator->fails()) {
-            $response = array(
+            $response = [
                 'error' => true,
                 'message' => $validator->errors()->first(),
                 'code' => 102,
-            );
+            ];
             return response()->json($response);
         }
 
@@ -906,19 +1070,19 @@ class StudentApiController extends Controller
             }
             $data = $data->orderBy('id', 'desc')->paginate();
 
-            $response = array(
+            $response = [
                 'error' => false,
                 'message' => "Assignments Fetched Successfully",
                 'data' => $data,
                 'code' => 200,
-            );
-        } catch (\Exception $e) {
-            $response = array(
+            ];
+        } catch (Exception $e) {
+            $response = [
                 'error' => true,
                 // 'message' => trans('error_occurred'),
                 'message' => trans($e->getMessage()),
                 'code' => 103,
-            );
+            ];
         }
         return response()->json($response);
     }
@@ -937,11 +1101,11 @@ class StudentApiController extends Controller
         ]);
 
         if ($validator->fails()) {
-            $response = array(
+            $response = [
                 'error' => true,
                 'message' => $validator->errors()->first(),
                 'code' => 102,
-            );
+            ];
             return response()->json($response);
         }
 
@@ -970,11 +1134,11 @@ class StudentApiController extends Controller
                 }
                 $assignment_submission->file()->delete();
             } else {
-                $response = array(
+                $response = [
                     'error' => true,
                     'message' => "You already have submitted your assignment.",
                     'code' => 104
-                );
+                ];
                 return response()->json($response);
             }
 
@@ -1020,7 +1184,7 @@ class StudentApiController extends Controller
                 'data' => $submitted_assignment,
                 'code' => 200,
             );
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $response = array(
                 'error' => true,
                 'message' => trans('error_occurred'),
@@ -1074,7 +1238,7 @@ class StudentApiController extends Controller
                     'code' => 110,
                 );
             }
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $response = array(
                 'error' => true,
                 'message' => trans('error_occurred'),
@@ -1131,7 +1295,7 @@ class StudentApiController extends Controller
                 'data' => ['attendance' => $attendance, 'holidays' => $holidays, 'session_year' => $session_year_data],
                 'code' => 200,
             );
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $response = array(
                 'error' => true,
                 'message' => trans('error_occurred'),
@@ -1195,7 +1359,7 @@ class StudentApiController extends Controller
                 'data' => $data,
                 'code' => 200,
             );
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $response = array(
                 'error' => true,
                 'message' => trans('error_occurred'),
@@ -1317,7 +1481,7 @@ class StudentApiController extends Controller
                 'data' => isset($exam_data) ? $exam_data : [],
                 'code' => 200,
             );
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $response = array(
                 'error' => true,
                 'message' => trans('error_occurred'),
@@ -1390,7 +1554,7 @@ class StudentApiController extends Controller
                 'data' => isset($exam_data) ? $exam_data : [],
                 'code' => 200,
             );
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $response = array(
                 'error' => true,
                 'message' => trans('error_occurred'),
@@ -1472,7 +1636,7 @@ class StudentApiController extends Controller
                     'code' => 200,
                 );
             }
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $response = array(
                 'error' => true,
                 'message' => trans('error_occurred'),
@@ -1606,7 +1770,7 @@ class StudentApiController extends Controller
                 'data' => $exam_data,
                 'code' => 200,
             );
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $response = array(
                 'error' => true,
                 'message' => trans('error_occurred'),
@@ -1725,7 +1889,7 @@ class StudentApiController extends Controller
                 'total_marks' => $total_marks,
                 'code' => 200,
             );
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $response = array(
                 'error' => true,
                 'message' => trans('error_occurred'),
@@ -1826,7 +1990,7 @@ class StudentApiController extends Controller
                 );
                 return response()->json($response);
             }
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $response = array(
                 'error' => true,
                 'message' => trans('error_occurred'),
@@ -1989,7 +2153,7 @@ class StudentApiController extends Controller
                 'data' => $online_exam_report_data ?? [],
                 'code' => 200,
             );
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $response = array(
                 'error' => true,
                 'message' => trans('error_occurred'),
@@ -2081,7 +2245,7 @@ class StudentApiController extends Controller
                 'data' => $assingment_report,
                 'code' => 200,
             );
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $response = array(
                 'error' => true,
                 'message' => trans('error_occurred'),
@@ -2174,7 +2338,7 @@ class StudentApiController extends Controller
                 'data' => $exam_list ?? '',
                 'code' => 200,
             );
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $response = array(
                 'error' => true,
                 'message' => trans('error_occurred'),
@@ -2287,7 +2451,7 @@ class StudentApiController extends Controller
                 'data' => $exam_result ?? '',
                 'code' => 200,
             );
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $response = array(
                 'error' => true,
                 'message' => trans('error_occurred'),
@@ -2427,7 +2591,7 @@ class StudentApiController extends Controller
                 'code' => 100,
             );
 
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $response = array(
                 'error' => true,
                 'message' => trans('error_occurred'),
@@ -2448,7 +2612,7 @@ class StudentApiController extends Controller
                 'data' => $notification ?? '',
                 'code' => 200,
             );
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $response = array(
                 'error' => true,
                 'message' => trans('error_occurred'),
@@ -2584,7 +2748,7 @@ class StudentApiController extends Controller
 
             return response()->json($response);
 
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $response = array(
                 'error' => true,
                 'message' => trans('error_occurred'),
@@ -2743,7 +2907,7 @@ class StudentApiController extends Controller
                 'data' => $data,
                 'code' => 200,
             );
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $response = array(
                 'error' => true,
                 'message' => trans('error_occurred'),
@@ -2801,7 +2965,7 @@ class StudentApiController extends Controller
                 ],
                 'code' => 100,
             );
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $response = array(
                 'error' => true,
                 'message' => trans('error_occurred'),
@@ -2838,7 +3002,7 @@ class StudentApiController extends Controller
                 'code' => 200,
             );
             return response()->json($response, 200);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $response = array(
                 'error' => true,
                 'message' => trans('error_occurred'),
@@ -2970,7 +3134,7 @@ class StudentApiController extends Controller
                 'code' => 200,
             );
             // dd($response);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $response = array(
                 'error' => true,
                 'message' => trans('error_occurred'),
@@ -3298,7 +3462,7 @@ class StudentApiController extends Controller
                 'payment_gateway_details' => $payment_gateway_details,
                 'code' => 200,
             );
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error($e);
             $response = array(
                 'error' => true,
@@ -3340,7 +3504,7 @@ class StudentApiController extends Controller
                 'message' => trans('data_update_successfully'),
                 'code' => 200,
             );
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $response = array(
                 'error' => true,
                 'message' => trans('error_occurred'),
@@ -3363,7 +3527,7 @@ class StudentApiController extends Controller
                 'data' => $fees_paid,
                 'code' => 200,
             );
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $response = array(
                 'error' => true,
                 'message' => trans('error_occurred'),
@@ -3481,7 +3645,7 @@ class StudentApiController extends Controller
                 ),
                 'code' => 200,
             );
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $response = array(
                 'error' => true,
                 'message' => trans('error_occurred'),
@@ -3529,7 +3693,7 @@ class StudentApiController extends Controller
                 'message' => 'Data Updated Successfully',
                 'code' => 200,
             );
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $response = array(
                 'error' => true,
                 'message' => trans('error_occurred'),
@@ -3576,7 +3740,7 @@ class StudentApiController extends Controller
                 'data' => $data,
                 'code' => 200,
             );
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $response = array(
                 'error' => true,
                 'message' => trans('error_occurred'),
@@ -3628,6 +3792,108 @@ class StudentApiController extends Controller
                 'message' => trans('error_occurred'),
                 'code' => 103,
             );
+        }
+        return response()->json($response);
+    }
+    public function enrollFreeLesson(
+        Request $request
+    ) {
+        $validator = Validator::make($request->all(), [
+            'lesson_id' => 'required|exists:lessons,id',
+        ]);
+        if ($validator->fails()) {
+            $response = [
+                'error' => true,
+                'message' => $validator->errors()->first(),
+                'code' => 102,
+            ];
+            return response()->json($response);
+        }
+        try {
+            $user = $request->user();
+            $lesson = Lesson::find($request->lesson_id);
+
+            if ($this->purchaseService->isLessonAlreadyEnrolled($lesson, $user->id)) {
+                return response()->json([
+                    'error' => true,
+                    'message' => trans('lesson_already_enrolled'),
+                    'code' => 104,
+                ]);
+            }
+            if ($lesson->is_paid) {
+                return response()->json([
+                    'error' => true,
+                    'message' => trans('lesson_is_not_free'),
+                ]);
+            }
+            $this->purchaseService->enrollLesson($lesson, $user->id);
+
+            $response = [
+                'error' => false,
+                'message' => trans('successfully_lesson_enrolled'),
+                'code' => 200,
+            ];
+
+        } catch (Exception $e) {
+            report($e);
+            $response = [
+                'error' => true,
+                'message' => trans('error_occurred'),
+                'code' => 103,
+            ];
+        }
+        return response()->json($response);
+
+    }
+    public function redeemCouponForLesson(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'lesson_id' => 'required|exists:lessons,id',
+            'coupon_code' => 'required',
+        ]);
+        if ($validator->fails()) {
+            $response = [
+                'error' => true,
+                'message' => $validator->errors()->first(),
+                'code' => 102,
+            ];
+            return response()->json($response);
+        }
+        try {
+
+            $user = $request->user();
+            $lesson = Lesson::find($request->lesson_id);
+
+            if ($this->purchaseService->isLessonAlreadyEnrolled($lesson, $user->id)) {
+                return response()->json([
+                    'error' => true,
+                    'message' => trans('lesson_already_enrolled'),
+                    'code' => 104,
+                ]);
+            }
+            $coupon = $this->couponService->redeemCoupon($user, $request->coupon_code, $lesson);
+            if (! $coupon['status']) {
+                $response = [
+                    'error' => true,
+                    'message' => $coupon['message'],
+                    'code' => 107,
+                ];
+            } else {
+                $this->purchaseService->enrollLesson($lesson, $user->id);
+                $response = [
+                    'error' => false,
+                    'message' => $coupon['message'],
+                    'code' => 200,
+                ];
+            }
+
+        } catch (Exception $e) {
+            report($e);
+            $response = [
+                'error' => true,
+                'message' => trans('error_occurred'),
+                'code' => 103,
+            ];
         }
         return response()->json($response);
     }

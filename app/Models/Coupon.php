@@ -16,7 +16,8 @@ class Coupon extends Model
     protected $guarded = [];
     protected $casts = [
         'type' => CouponTypeEnum::class,
-        'expiry_date' => 'datetime'
+        'expiry_date' => 'datetime',
+        'is_disabled' => 'boolean',
     ];
     public function usages()
     {
@@ -25,6 +26,11 @@ class Coupon extends Model
     public function onlyAppliedTo()
     {
         return $this->morphTo();
+    }
+    
+    public function teacher()
+    {
+        return $this->belongsTo(Teacher::class,'teacher_id');
     }
     
 }

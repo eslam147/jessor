@@ -8,7 +8,8 @@ use Illuminate\Database\Eloquent\Model;
 class Enrollment extends Model
 {
     use HasFactory;
-    
+    protected $guarded = ['id'];
+
     public function lesson()
     {
         return $this->belongsTo(Lesson::class);
@@ -18,6 +19,5 @@ class Enrollment extends Model
     {
         return $this->belongsTo(User::class);
     }
-
-
+    
 }

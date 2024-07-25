@@ -6,14 +6,8 @@ use Illuminate\Http\Resources\Json\ResourceCollection;
 
 class TimetableCollection extends ResourceCollection
 {
-    /**
-     * Transform the resource collection into an array.
-     *
-     * @param \Illuminate\Http\Request $request
-     * @return array|\Illuminate\Contracts\Support\Arrayable|\JsonSerializable
-     */
     public function toArray($request) {
-        $response = array();
+        $response = [];
         foreach ($this->collection as $key => $row) {
             $response[$key] = array(
                 "start_time" => $row['start_time'],

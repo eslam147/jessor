@@ -61,6 +61,10 @@ class User extends Authenticatable
     {
         return $this->hasOne(Students::class, 'user_id', 'id');
     }
+    public function enrollmentLessons()
+    {
+        return $this->belongsToMany(Lesson::class, Enrollment::class, 'user_id', 'lesson_id');
+    }
 
     public function parent()
     {
@@ -100,5 +104,11 @@ class User extends Authenticatable
     public function couponUsages()
     {
         return $this->morphMany(CouponUsage::class, 'used_by_user');
+    }
+    public function hasAccessToLesson($lessonId)
+    {
+        return $this->whereHas('enrollmentLessons', function ($q) use ($lessonId) {
+            return $q->where('lessons.id', $lessonId);
+        })->exists();
     }
 }

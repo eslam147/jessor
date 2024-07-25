@@ -15,16 +15,22 @@ class Subject extends Model
 
     protected $hidden = ["deleted_at", "created_at", "updated_at"];
 
-    public function medium() {
+    public function medium()
+    {
         return $this->belongsTo(Mediums::class)->withTrashed();
     }
-
     public function classSubjects()
     {
         return $this->hasMany(ClassSubject::class);
     }
 
-    public function scopeSubjectTeacher($query) {
+    public function lessons()
+    {
+        return $this->hasMany(Lesson::class);
+    }
+
+    public function scopeSubjectTeacher($query)
+    {
         $user = Auth::user();
         if ($user->hasRole('Teacher')) {
             $subjects_ids = $user->teacher->subjects()->pluck('subject_id');
@@ -34,7 +40,8 @@ class Subject extends Model
     }
 
     //Getter Attributes
-    public function getImageAttribute($value) {
+    public function getImageAttribute($value)
+    {
         return url(Storage::url($value));
     }
 }

@@ -6,12 +6,6 @@ use Illuminate\Http\Resources\Json\JsonResource;
 
 class UserResource extends JsonResource
 {
-    /**
-     * Transform the resource into an array.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return array
-     */
     public function toArray($request)
     {
         return [
@@ -19,8 +13,6 @@ class UserResource extends JsonResource
             'name' => $this->name,
             'email' => $this->email,
             'core_subject'=>$this->coreSubject
-//            'created_at' => $this->created_at,
-//            'updated_at' => $this->updated_at,
         ];
     }
 }

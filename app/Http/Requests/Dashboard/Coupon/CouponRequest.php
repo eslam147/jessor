@@ -13,24 +13,31 @@ class CouponRequest extends FormRequest
     private function onCreate(): array
     {
         return [
-            
+
             'coupons_count' => 'required|integer|min:1',
             'usage_limit' => 'required|integer|min:1',
-            
-            'price' => 'required|numeric|min:0',
-            
+
+
             'expiry_date' => 'nullable|date|after:today',
-            
+
             'teacher_id' => 'nullable|exists:teachers,id',
 
-            'topic_id' => 'nullable|exists:lesson_topics,id',
+            'lesson_id' => 'nullable|exists:lessons,id',
         ];
     }
     private function onUpdate(): array
     {
         return [
-            // 'coupon_id' => 'required|exists:coupons,id',
-            // 'course_id' => 'required|exists:courses,id',
+            'code' => 'required|string|unique:coupons,code,' . $this->coupon->id,
+            // 'coupons_coun/t' => 'required|integer|min:1',
+            'usage_limit' => 'required|integer|min:1',
+
+            'expiry_date' => 'nullable|date|after:today',
+            'expiry_time' => 'nullable|date_format:H:i',
+
+            'teacher_id' => 'nullable|exists:teachers,id',
+
+            'lesson_id' => 'nullable|exists:lessons,id',
         ];
     }
     private function onDelete(): array
@@ -43,10 +50,10 @@ class CouponRequest extends FormRequest
     public function rules(): ?array
     {
         return match ($this->method()) {
-            'POST'          => $this->onCreate(),
-            'PUT'           => $this->onUpdate(),
-            'DELETE'        => $this->onDelete(),
-            default         => abort(404),
+            'POST' => $this->onCreate(),
+            'PUT' => $this->onUpdate(),
+            'DELETE' => $this->onDelete(),
+            default => abort(404),
         };
     }
 }

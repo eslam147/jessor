@@ -2,18 +2,23 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
+use App\Enums\Lesson\LessonStatus;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Lesson extends Model
 {
     use HasFactory;
-
+    protected $guarded = [];
+    public $casts = [
+        'status' => LessonStatus::class,
+    ];
     protected $hidden = ["deleted_at", "created_at", "updated_at"];
 
-    protected static function boot() {
+    protected static function boot()
+    {
         parent::boot();
         static::deleting(function ($lesson) { // before delete() method call this
             if ($lesson->file) {
@@ -30,29 +35,35 @@ class Lesson extends Model
             }
         });
     }
-
+    public function scopeActive($query){
+        return $query->where('status', LessonStatus::PUBLISHED);
+    }
+    public function subject()
+    {
+        return $this->belongsTo(Subject::class)->withTrashed();
+    }
     public function enrollments()
     {
         return $this->hasMany(Enrollment::class);
     }
 
-    public function subject() {
-        return $this->belongsTo(Subject::class)->withTrashed();
-    }
-
-    public function class_section() {
+    public function class_section()
+    {
         return $this->belongsTo(ClassSection::class)->with('class', 'section');
     }
 
-    public function file() {
+    public function file()
+    {
         return $this->morphMany(File::class, 'modal');
     }
 
-    public function topic() {
+    public function topic()
+    {
         return $this->hasMany(LessonTopic::class);
     }
 
-    public function scopeLessonTeachers($query) {
+    public function scopeLessonTeachers($query)
+    {
         $user = Auth::user();
         if ($user->hasRole('Teacher')) {
             $teacher_id = $user->teacher()->select('id')->pluck('id')->first();

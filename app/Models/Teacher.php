@@ -51,6 +51,14 @@ class Teacher extends Model
     {
         return $this->hasMany(SubjectTeacher::class, 'teacher_id')->groupBy('class_section_id');
     }
+    public function lessons()
+    {
+        return $this->hasMany(Lesson::class, 'teacher_id');
+    }
+    public function lessonTopics()
+    {
+        return $this->hasManyThrough(LessonTopic::class, Lesson::class);
+    }
 
     //Getter Attributes
     public function getImageAttribute($value)

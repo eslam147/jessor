@@ -33,7 +33,8 @@ class LessonTopicController extends Controller
         }
         $class_section = ClassSection::SubjectTeacher()->with('class', 'section')->get();
         $subjects = Subject::SubjectTeacher()->orderBy('id', 'ASC')->get();
-        $lessons = Lesson::get();
+        $teacher = Auth::user()->load('teacher')->teacher;
+        $lessons = Lesson::where('teacher_id',$teacher->id)->get();
         return response(view('lessons.topic', compact('class_section', 'subjects', 'lessons')));
     }
 
