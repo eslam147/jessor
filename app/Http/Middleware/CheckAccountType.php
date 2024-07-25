@@ -20,7 +20,7 @@ class CheckAccountType
         if(Auth::user()->is_student == null){
             return $next($request);
         }else{
-            return redirect('student_dashboard');
+            return redirect()->route('home.index');
         }
     }
 }

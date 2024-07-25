@@ -9,6 +9,30 @@
 </style>
 @endsection
 @section('content')
+@php
+    function getYouTubeVideoId($url) {
+        // Parse the URL to get its components
+        $urlComponents = parse_url($url);
+        // Check if the host is YouTube
+        if (isset($urlComponents['host']) && (strpos($urlComponents['host'], 'youtube.com') !== false || strpos($urlComponents['host'], 'youtu.be') !== false)) {
+            // Check if the URL contains a 'v' query parameter (standard YouTube URL)
+            if (isset($urlComponents['query'])) {
+                parse_str($urlComponents['query'], $queryParams);
+                if (isset($queryParams['v'])) {
+                    return $queryParams['v'];
+                }
+            }
+
+            // Check if the URL is a shortened YouTube URL (youtu.be)
+            if (isset($urlComponents['path']) && strpos($urlComponents['host'], 'youtu.be') !== false) {
+                return ltrim($urlComponents['path'], '/');
+            }
+        }
+
+        // Return null if the URL is not a valid YouTube URL or does not contain a video ID
+        return null;
+    }
+@endphp
 <div class="content-wrapper">
     <div class="container-full">
       <!-- Main content -->
@@ -16,7 +40,7 @@
             <div class="row">
                 <div class="box">
                     <div class="box-header with-border">
-                      <h4 class="box-title">Nav Pills Tabs</h4>
+                      <h4 class="box-title">Lesson</h4>
                     </div>
                     <!-- /.box-header -->
                     <div class="box-body">
@@ -33,19 +57,13 @@
                                             <!-- Tab panes -->
                                             <div class="tab-content">
                                                 <div class="tab-pane active" id="home4" role="tabpanel">
-                                                    <div class="row" >
-                                                        <div class="col-12">
-                                                            <div class="plyr__video-embed" id="player">
-                                                                <iframe
-                                                                    src="https://www.youtube.com/embed/bTqVqk7FSmY?origin=https://plyr.io&amp;iv_load_policy=3&amp;modestbranding=1&amp;playsinline=1&amp;showinfo=0&amp;rel=0&amp;enablejsapi=1"
-                                                                    allowfullscreen
-                                                                    allowtransparency
-                                                                    allow="autoplay"
-
-                                                                ></iframe>
+                                                    @foreach ($videos as  $row)
+                                                        <div class="row" >
+                                                            <div class="col-12">
+                                                                <div id="player" data-plyr-provider="youtube" data-plyr-embed-id="{{ getYouTubeVideoId($row->file_url) }}"></div>
                                                             </div>
                                                         </div>
-                                                    </div>
+                                                     @endforeach
                                                 </div>
                                                 <div class="tab-pane" id="profile4" role="tabpanel">
                                                     <div class="p-15">
@@ -77,7 +95,9 @@
 @section('script')
 <script src="https://cdn.plyr.io/3.7.8/plyr.js"></script>
 <script src="path/to/plyr.js"></script>
+<script src="path/to/plyr.js"></script>
 <script>
+
   const player = new Plyr('#player');
 </script>
 @endsection

@@ -65,7 +65,6 @@ class LessonController extends Controller
                 'description' => 'required',
                 'class_section_id' => 'required|numeric',
                 'subject_id' => 'required|numeric',
-
                 'file' => 'nullable|array',
                 'file.*.type' => 'nullable|in:file_upload,youtube_link,video_upload,other_link',
                 'file.*.name' => 'required_with:file.*.type',
@@ -93,6 +92,7 @@ class LessonController extends Controller
             $lesson = new Lesson();
             $lesson->name = $request->name;
             $lesson->description = $request->description;
+            $lesson->teacher_id = Auth::user()->id;
             $lesson->class_section_id = $request->class_section_id;
             $lesson->subject_id = $request->subject_id;
             $lesson->save();

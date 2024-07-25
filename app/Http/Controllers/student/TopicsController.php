@@ -10,6 +10,7 @@ use App\Models\LessonTopic;
 use Illuminate\Http\Request;
 use App\Models\SubjectTeacher;
 use App\Http\Controllers\Controller;
+use App\Models\Enrollment;
 use Illuminate\Support\Facades\Auth;
 
 class TopicsController extends Controller
@@ -52,14 +53,17 @@ class TopicsController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function show($id){
+        $enrollment_count = Enrollment::where('user_id',Auth::user()->id)->where('lesson_id',$id)->get()->count();
+        if($enrollment_count == 0){
+            return redirect()->route('subjects.index');
+        }
         $topics = LessonTopic::where('lesson_id',$id)->get();
         $lesson_name = Lesson::findOrFail($id)->name;
-
         return view('student_dashboard.topics.index',compact('topics','lesson_name'));
     }
 
     public function topic_files($topic_id){
-        $videos = File::where('modal_type', 'App\Models\Lesson')->get();
+        $videos = File::where('modal_type', 'App\Models\Lesson')->where('modal_id',$topic_id)->get();
         $topic_videos = File::where('modal_type', 'App\Models\LessonTopic')->get();
         return view('student_dashboard.files.index',compact('videos','topic_videos'));
     }

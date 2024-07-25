@@ -24,8 +24,8 @@ class AddSuperAdminSeeder extends Seeder
         $user = User::updateOrCreate(['id' => 1], [
             'first_name' => 'super',
             'last_name' => 'admin',
-            'email' => 'superadmin@gmail.com',
-            'password' => Hash::make('superadmin'),
+            'email' => 'admin@gmail.com',
+            'password' => Hash::make('123456'),
             'gender' => 'Male',
             'image' => 'logo.svg',
             'mobile' => ""

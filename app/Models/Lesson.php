@@ -31,6 +31,11 @@ class Lesson extends Model
         });
     }
 
+    public function enrollments()
+    {
+        return $this->hasMany(Enrollment::class);
+    }
+
     public function subject() {
         return $this->belongsTo(Subject::class)->withTrashed();
     }

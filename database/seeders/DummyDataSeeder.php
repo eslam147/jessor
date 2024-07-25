@@ -26,9 +26,9 @@ class DummyDataSeeder extends Seeder {
      */
     public function run() {
         $medium = [
-            ['id' => 1, 'name' => 'Hindi'],
-            ['id' => 2, 'name' => 'English'],
-            ['id' => 3, 'name' => 'Gujarati'],
+            ['id' => 1, 'name' => 'British School'],
+            ['id' => 2, 'name' => 'American School'],
+            ['id' => 3, 'name' => 'French School'],
         ];
         Mediums::upsert($medium, ['id'], ['name']);
 
@@ -40,8 +40,8 @@ class DummyDataSeeder extends Seeder {
         Section::upsert($sections, ['id'], ['name']);
 
         $classes = [
-            ['id' => 1, 'name' => '9', 'medium_id' => 2],
-            ['id' => 2, 'name' => '10', 'medium_id' => 2],
+            ['id' => 1, 'name' => 'إولى ثانوي', 'medium_id' => 2],
+            ['id' => 2, 'name' => 'ثانيه ثانوي', 'medium_id' => 2],
         ];
         ClassSchool::upsert($classes, ['id'], ['name', 'medium_id']);
 
@@ -58,9 +58,9 @@ class DummyDataSeeder extends Seeder {
             ['id' => 1, 'name' => 'Maths', 'code' => 'MA', 'bg_color' => '#5031f7', 'image' => 'subject.png', 'medium_id' => 2, 'type' => 'Practical'],
             ['id' => 2, 'name' => 'Science', 'code' => 'SC', 'bg_color' => '#5031f7', 'image' => 'subject.png', 'medium_id' => 2, 'type' => 'Practical'],
             ['id' => 3, 'name' => 'English', 'code' => 'EN', 'bg_color' => '#5031f7', 'image' => 'subject.png', 'medium_id' => 2, 'type' => 'Theory'],
-            ['id' => 4, 'name' => 'Gujarati', 'code' => 'GJ', 'bg_color' => '#5031f7', 'image' => 'subject.png', 'medium_id' => 2, 'type' => 'Theory'],
-            ['id' => 5, 'name' => 'Sanskrit', 'code' => 'SN', 'bg_color' => '#5031f7', 'image' => 'subject.png', 'medium_id' => 2, 'type' => 'Theory'],
-            ['id' => 6, 'name' => 'Hindi', 'code' => 'HN', 'bg_color' => '#5031f7', 'image' => 'subject.png', 'medium_id' => 2, 'type' => 'Theory'],
+            ['id' => 4, 'name' => 'Physics', 'code' => 'GJ', 'bg_color' => '#5031f7', 'image' => 'subject.png', 'medium_id' => 2, 'type' => 'Theory'],
+            ['id' => 5, 'name' => 'Chimstry', 'code' => 'SN', 'bg_color' => '#5031f7', 'image' => 'subject.png', 'medium_id' => 2, 'type' => 'Theory'],
+            ['id' => 6, 'name' => 'French', 'code' => 'HN', 'bg_color' => '#5031f7', 'image' => 'subject.png', 'medium_id' => 2, 'type' => 'Theory'],
             ['id' => 7, 'name' => 'Computer', 'code' => 'CMP', 'bg_color' => '#5031f7', 'image' => 'subject.png', 'medium_id' => 2, 'type' => 'Practical'],
             ['id' => 8, 'name' => 'PT', 'code' => 'PT', 'bg_color' => '#5031f7', 'image' => 'subject.png', 'medium_id' => 2, 'type' => 'Practical'],
 
@@ -94,38 +94,38 @@ class DummyDataSeeder extends Seeder {
             [
                 'id' => 2,
                 'image' => 'parents/user.png',
-                'password' => Hash::make('01011999'),
-                'first_name' => 'Sachin',
-                'last_name' => 'Tendulkar',
+                'password' => Hash::make('123456'),
+                'first_name' => 'father',
+                'last_name' => 'account',
                 'email' => 'father@gmail.com',
                 'mobile' => 1234567890,
                 'gender' => 'Male',
-                'current_address' => 'Mumbai',
-                'permanent_address' => 'Mumbai'
+                'current_address' => 'Cairo',
+                'permanent_address' => 'Cairo'
             ],
             [
                 'id' => 3,
                 'image' => 'parents/user.png',
-                'password' => Hash::make('01011999'),
-                'first_name' => 'Anjali',
-                'last_name' => 'Tendulkar',
+                'password' => Hash::make('123456'),
+                'first_name' => 'Mother',
+                'last_name' => 'Account',
                 'email' => 'mother@gmail.com',
                 'mobile' => 1234567890,
                 'gender' => 'Female',
-                'current_address' => 'Mumbai',
-                'permanent_address' => 'Mumbai'
+                'current_address' => 'cairo',
+                'permanent_address' => 'cairo'
             ],
             [
                 'id' => 4,
                 'image' => 'students/user.png',
-                'password' => Hash::make('01011999'),
-                'first_name' => 'Arjun',
-                'last_name' => 'Tendulkar',
+                'password' => Hash::make('123456'),
+                'first_name' => 'Student',
+                'last_name' => 'Account',
                 'email' => 'student@gmail.com',
                 'mobile' => 1234567890,
                 'gender' => 'Male',
-                'current_address' => 'Mumbai',
-                'permanent_address' => 'Mumbai'
+                'current_address' => 'cairo',
+                'permanent_address' => 'cairo'
             ]
         ];
 

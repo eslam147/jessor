@@ -34,37 +34,37 @@
 									<p class="mb-0">{{ $row->description }}</p>
 								</div>
 								<div>
-                                    @if ($row->is_free == 1)
+                                    @if ($row->is_paid == 0)
                                         <p class="mb-5 fw-600">55%</p>
                                         <div class="progress progress-sm mb-0 w-100">
                                             <div class="progress-bar progress-bar-primary" role="progressbar" aria-valuenow="40" aria-valuemin="0" aria-valuemax="100" style="width: 55%">
                                             </div>
                                         </div>
                                     @else
-                                        @if($row->is_locked == 1)
-                                            <i style="font-size: 25px;" class="si-lock si text-danger" ></i>
-                                        @else
+                                    @if($row->enrollments_count > 0)
                                             <p class="mb-5 fw-600">55%</p>
                                             <div class="progress progress-sm mb-0 w-100">
                                                 <div class="progress-bar progress-bar-primary" role="progressbar" aria-valuenow="40" aria-valuemin="0" aria-valuemax="100" style="width: 55%">
                                                 </div>
                                             </div>
+                                        @else
+                                            <i style="font-size: 25px;" class="si-lock si text-danger" ></i>
                                         @endif
                                     @endif
 								</div>
 							</div>
                             <div class="bg-primary mt-5 rounded">
-                                @if($row->is_free == 1)
+                                @if($row->is_paid == 0)
                                     <a href="{{ route('topics.show',$row->id) }}" >
                                         <h5 class="text-white text-center p-10"> start now </h5>
                                     </a>
                                 @else
-                                    @if($row->is_locked == 1)
-                                        <a href="javascript:void(0)" data-bs-toggle="modal" data-bs-target="#modal-center" data-animation="shake" >
+                                    @if($row->enrollments_count > 0)
+                                        <a href="{{ route('topics.show',$row->id) }}" >
                                             <h5 class="text-white text-center p-10"> start now </h5>
                                         </a>
                                     @else
-                                        <a href="{{ route('topics.show',$row->id) }}" >
+                                        <a href="javascript:void(0)" data-bs-toggle="modal" data-bs-target="#modal-center" data-animation="shake" >
                                             <h5 class="text-white text-center p-10"> start now </h5>
                                         </a>
                                     @endif
