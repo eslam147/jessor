@@ -16,23 +16,21 @@ class AssignPermissionsToSuperAdminSeeder extends Seeder
      */
     public function run()
     {
-        Permission::firstOrCreate([
-            'name' => 'coupons-list',
-        ]);
-        Permission::firstOrCreate([
-            'name' => 'coupons-create',
-        ]);
-        Permission::firstOrCreate([
-            'name' => 'coupons-edit',
-        ]);
-        Permission::firstOrCreate([
-            'name' => 'coupons-delete',
-        ]);
-//         coupon-list
-// coupon-create
-// coupon-edit
-// coupon-delete
+        $permissions = [
+            'coupons-list',
+            'coupons-create',
+            'coupons-edit',
+            'coupons-delete',
+            /// -------------------------------
+            'enrollments-list',
+            'enrollments-create',
+            'enrollments-delete',
+        ];
+
+        foreach ($permissions as $permission) {
+            Permission::firstOrCreate(['name' => $permission]);
+        }
         $super_admin_role = Role::where('name', 'Super Admin')->first();
-        $super_admin_role->givePermissionTo('coupons-list', 'coupons-create', 'coupons-edit', 'coupons-delete');
+        $super_admin_role->givePermissionTo($permissions);
     }
 }
