@@ -211,8 +211,25 @@
                                 </a>
                             </li>
                         @endcan
+                        {{-- @can('coupon-purchased') --}}
+                        <li class="nav-item">
+                            <a href="{{ route('coupons.index', ['purchased' => '1']) }}" class="nav-link">
+                                {{ __('coupon_purchased') }}
+                            </a>
+                        </li>
+                        {{-- @endcan --}}
                     </ul>
                 </div>
+            </li>
+        @endcan
+        {{-- Purchased Lessons --}}
+        {{-- #TODO add Permission For Purchased --}}
+        @can('enrollments-list')
+            <li class="nav-item">
+                <a href="{{ route('enrollment.index') }}" class="nav-link">
+                    <i class="fa fa-shopping-cart menu-icon" style="margin: 0 1px 0 1px"></i>
+                    <span class="menu-title">{{ __('enrollments') }}</span>
+                </a>
             </li>
         @endcan
         {{-- teacher --}}

@@ -7,13 +7,13 @@
 			  <ul class="sidebar-menu" data-widget="tree">
 				<li class="header">Dashboard & Apps</li>
 				<li>
-				  <a href="{{ route('home.index') }}">
+				  <a href="./student_dashboard">
 					<i class="si-speedometer si"></i>
 					<span>Dashboard</span>
 				  </a>
 				</li>
 				<li>
-				  <a href="{{ route('subjects.index') }}">
+				  <a href="#">
 					<i class="si-book-open si"></i>
 					<span>Lessons</span>
 				  </a>

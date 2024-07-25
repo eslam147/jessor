@@ -58,20 +58,6 @@
                                 </div>
 
                                 <div class="form-group col-sm-12">
-                                    <label>{{ __('price') }}<span class="text-danger">*</span></label>
-                                    {!! Form::number('price', null, [
-                                        'required',
-                                        'min' => 1,
-                                        'step' => '0.01',
-                                        'placeholder' => __('price'),
-                                        'class' => 'form-control',
-                                    ]) !!}
-                                    @error('price')
-                                        <p class="text-danger" role="alert">{{ $message }}</p>
-                                    @enderror
-                                </div>
-
-                                <div class="form-group col-sm-12">
                                     <label>{{ __('expiry_date') }}<span class="text-danger">*</span></label>
                                     {!! Form::date('expiry_date', null, ['required', 'placeholder' => __('expiry_date'), 'class' => 'form-control']) !!}
                                     @error('expiry_date')
@@ -81,10 +67,11 @@
 
                                 <div class="form-group col-sm-12">
                                     <label>{{ __('teacher') }}</label>
-                                    {!! Form::select('teacher_id', $teachers, null, [
+                                    {!! Form::select('teacher_id', $teachers, old('teacher_id'), [
                                         'required',
                                         'placeholder' => __('select_teacher'),
                                         'class' => 'form-control',
+                                        'id' => 'teacher_id',
                                     ]) !!}
                                     @error('teacher_id')
                                         <p class="text-danger" role="alert">{{ $message }}</p>
@@ -92,13 +79,9 @@
                                 </div>
 
                                 <div class="form-group col-sm-12">
-                                    <label>{{ __('topic') }}</label>
-                                    {!! Form::select('topic_id', $topics, null, [
-                                        'required',
-                                        'placeholder' => __('select_topic'),
-                                        'class' => 'form-control',
-                                    ]) !!}
-                                    @error('topic_id')
+                                    <label>{{ __('lesson') }}</label>
+                                    <select name="lesson_id" id="lesson_id" class="form-control" required></select>
+                                    @error('lesson_id')
                                         <p class="text-danger" role="alert">{{ $message }}</p>
                                     @enderror
                                 </div>
@@ -115,4 +98,28 @@
 
 @endsection
 
-@section('script', '')
+@section('script')
+    <script>
+        const lessons = @json($lessons->groupBy('teacher_id')->toArray());
+
+        function setLessons(teacherID) {
+
+            $('#lesson_id').empty();
+            const teacherLessons = lessons[Number(teacherID)];
+            if(teacherLessons&& teacherLessons.length > 0){
+                for (let i = 0; i < teacherLessons.length; i++) {
+                    let item = teacherLessons[i];
+                    $('#lesson_id').append(`<option value="${item.id}">${item.name}</option>`);
+                }
+            }
+
+        }
+        $('#teacher_id').change(function() {
+            setLessons($(this).val());
+        });
+        if ($('#teacher_id').val()) {
+
+            setLessons($('#teacher_id').val());
+        }
+    </script>
+@endsection

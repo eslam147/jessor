@@ -22,7 +22,8 @@
                             method="POST" novalidate="novalidate" data-edit_id="{{ $coupon->id }}">
                             @csrf
                             @method('PUT')
-                            <input type="hidden" name="edit_id" class="edit_id" data-edit_id="{{ $coupon->id }}" value="{{ $coupon->id }}">
+                            <input type="hidden" name="edit_id" class="edit_id" data-edit_id="{{ $coupon->id }}"
+                                value="{{ $coupon->id }}">
                             <div class="row">
 
                                 <div class="form-group col-sm-12">
@@ -38,20 +39,20 @@
                                         <p class="text-danger" role="alert">{{ $message }}</p>
                                     @enderror
                                 </div>
-
                                 <div class="form-group col-sm-12">
-                                    <label>{{ __('price') }}<span class="text-danger">*</span></label>
-                                    {!! Form::number('price', $coupon->price, [
+                                    <label>{{ __('code') }}<span class="text-danger">*</span></label>
+                                    {!! Form::number('code', $coupon->code, [
                                         'required',
                                         'min' => 1,
-                                        'step' => '0.01',
-                                        'placeholder' => __('price'),
+                                        'step' => '1',
+                                        'placeholder' => __('code'),
                                         'class' => 'form-control',
                                     ]) !!}
-                                    @error('price')
+                                    @error('code')
                                         <p class="text-danger" role="alert">{{ $message }}</p>
                                     @enderror
                                 </div>
+
 
                                 <div class="form-group col-sm-12">
                                     <label>{{ __('expiry_date') }}<span class="text-danger">*</span></label>
@@ -83,6 +84,7 @@
                                         'required',
                                         'placeholder' => __('select_teacher'),
                                         'class' => 'form-control',
+                                        'id' => 'teacher_id',
                                     ]) !!}
                                     @error('teacher_id')
                                         <p class="text-danger" role="alert">{{ $message }}</p>
@@ -90,27 +92,51 @@
                                 </div>
 
                                 <div class="form-group col-sm-12">
-                                    <label for="topic_id">{{ __('topic') }}</label>
-                                    <div class="form-group">
-                                        <select required class="form-control" name="topic_id" id="topic_id">
-                                            <option readonly disabled>{{ __('select_topic') }}</option>
-                                            @foreach ($topics as $topic)
-                                                <option value="{{ $topic->id }}" @selected($coupon->onlyAppliedTo->is($topic))>
-                                                    {{ $topic->name }}</option>
-                                            @endforeach
-                                        </select>
-                                    </div>
-                                    @error('topic_id')
+                                    <label for="lesson_id">{{ __('lesson') }}</label>
+
+                                    <select name="lesson_id" id="lesson_id" class="form-control" required></select>
+                                    @error('lesson_id')
                                         <p class="text-danger" role="alert">{{ $message }}</p>
                                     @enderror
                                 </div>
                             </div>
-                            <input type="submit" class="btn btn-theme" value="{{ __('save') }}">
+                            <hr>
+                            <div class="text-center m-auto">
+                                <input class="btn btn-theme" type="submit" value="{{ __('save') }}">
+                            </div>
+
+
                         </form>
                     </div>
                 </div>
             </div>
         </div>
     </div>
+@endsection
 
+@section('script')
+    <script>
+        const lessons = @json($lessons->groupBy('teacher_id')->toArray());
+        console.log(lessons);
+
+        function setLessons(teacherID) {
+            $('#lesson_id').empty();
+
+            const teacherLessons = lessons[Number(teacherID)];
+
+            if (teacherLessons && teacherLessons.length > 0) {
+                for (let i = 0; i < teacherLessons.length; i++) {
+                    let item = teacherLessons[i];
+                    $('#lesson_id').append(`<option value="${item.id}">${item.name}</option>`);
+                }
+            }
+
+        }
+        $('#teacher_id').change(function() {
+            setLessons($(this).val());
+        });
+        if ($('#teacher_id').val()) {
+            setLessons($('#teacher_id').val());
+        }
+    </script>
 @endsection

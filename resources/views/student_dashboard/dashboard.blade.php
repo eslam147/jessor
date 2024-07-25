@@ -1,5 +1,6 @@
 @extends('student_dashboard.layout.app')
 @section('style')
+
 <style>
     .bg-green{
         background-color: #6AC977;
@@ -264,7 +265,7 @@
 
               </div>
               <div class="col-xl-4 col-12">
-                    <div class="box">
+                  <div class="box">
                       <div class="box-body">
                         <div class="box no-shadow mb-0">
                             <div class="box-body px-0 pt-0">
@@ -273,10 +274,9 @@
                         </div>
 
                         <h3 class="box-title mb-20 fw-500"> Latest Subjects </h3>
-                        @foreach ($subjects as $row)
 						<div class="box-body bg-primary-light mb-30 px-xl-5 px-xxl-20 pull-up">
-                            <div class="d-flex align-items-center ps-xl-20">
-                                <div class="me-20">
+							<div class="d-flex align-items-center ps-xl-20">
+								<div class="me-20">
 								    <svg class="circle-chart" viewBox="0 0 33.83098862 33.83098862" width="80" height="80">
 								      	<defs>
 								         	<pattern id="img" patternUnits="userSpaceOnUse" height="80" width="80">
@@ -288,7 +288,7 @@
 								   	</svg>
 								</div>
 								<div class="d-flex flex-column w-75">
-									<a href="#" class="text-dark hover-primary mb-5 fw-600 fs-18">{{ $row->name }}</a>
+									<a href="#" class="text-dark hover-primary mb-5 fw-600 fs-18">Biology Molecular</a>
 									<div class="row">
 										<div class="col-xxl-6 col-xl-12 col-lg-6 col-md-6 text-fade">
 											<p class="my-10"  ><i class="si-book-open si"></i> 21 lesson</p>
@@ -309,13 +309,47 @@
 								</div>
 							</div>
 						</div>
-                        @endforeach
 
+						<div class="box-body bg-primary-light mb-30 px-xl-5 px-xxl-20 pull-up">
+							<div class="d-flex align-items-center ps-xl-20">
+								<div class="me-20">
+								    <svg class="circle-chart" viewBox="0 0 33.83098862 33.83098862" width="80" height="80">
+								      	<defs>
+								         	<pattern id="img-1" patternUnits="userSpaceOnUse" height="80" width="80">
+								            	<image x="5" y="5" height="70%" width="70%" xlink:href="{{ asset('student/images/pro-2.png') }}"></image>
+								         	</pattern>
+								      	</defs>
+								      	<circle class="circle-chart__background" stroke="#efefef" stroke-width="2" cx="16.91549431" cy="16.91549431" r="15.91549431" fill="url(#img-1)"></circle>
+								      	<circle class="circle-chart__circle" stroke="#68CA77" stroke-width="2" stroke-dasharray="64" stroke-linecap="round" fill="none" cx="16.91549431" cy="16.91549431" r="15.91549431"></circle>
+								   	</svg>
+								</div>
+								<div class="d-flex flex-column w-75">
+									<a href="#" class="text-dark hover-primary fw-600 mb-5 fs-18">Color Theory</a>
+									<div class="row"  >
+										<div class="col-xxl-6 col-xl-12 col-lg-6 col-md-6 text-fade">
+											<p class="my-10"><i class="si-book-open si"></i> 10 lesson</p>
+											<p><i class="si-note si"></i> 2 Lectures</p>
+										</div>
+										<div class="col-xxl-6 col-xl-12 col-lg-6 col-md-6 text-fade">
+											<p class="my-10"><i class="si-clock si"></i> 40 Exams</p>
+											<p><i class="si-docs si"></i> 13 docs</p>
+										</div>
+									</div>
+								</div>
+							</div>
+							<div class="d-flex justify-content-between   mx-lg-10 mt-10">
+								<h2 class="my-5 c-green">64%</h2>
+								<div class="text-center">
+
+									<button type="button" class="waves-effect waves-light btn  bg-green mb-5 px-25 py-8">Lectures</button>
+								</div>
+							</div>
+						</div>
                         <div class="box-footer text-center p-10">
-                            <a href="{{ route('subjects.index') }}" class="btn w-p100 btn-primary-light p-5">View all</a>
+                            <a href="#" class="btn w-p100 btn-primary-light p-5">View all</a>
                         </div>
                       </div>
-                    </div>
+                  </div>
               </div>
 
           </div>

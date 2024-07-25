@@ -22,12 +22,15 @@
                             method="POST" novalidate="novalidate">
                             <div class="row">
                                 <div class="form-group col-sm-12 col-md-6">
-                                    <label>{{ __('class') . ' ' . __('section') }} <span class="text-danger">*</span></label>
-                                    <select name="class_section_id" id="class_section_id" class="class_section_id form-control">
+                                    <label>{{ __('class') . ' ' . __('section') }} <span
+                                            class="text-danger">*</span></label>
+                                    <select name="class_section_id" id="class_section_id"
+                                        class="class_section_id form-control">
                                         <option value="">--{{ __('select') }}--</option>
                                         @foreach ($class_section as $section)
                                             <option value="{{ $section->id }}" data-class="{{ $section->class->id }}">
-                                                {{ $section->class->name . ' ' . $section->section->name . ' - ' . $section->class->medium->name }} {{$section->class->streams->name ?? ''}}
+                                                {{ $section->class->name . ' ' . $section->section->name . ' - ' . $section->class->medium->name }}
+                                                {{ $section->class->streams->name ?? '' }}
                                             </option>
                                         @endforeach
                                     </select>
@@ -44,13 +47,53 @@
                             <div class="row">
                                 <div class="form-group col-sm-12 col-md-6">
                                     <label>{{ __('lesson_name') }} <span class="text-danger">*</span></label>
-                                    <input type="text" id="name" name="name" placeholder="{{ __('lesson_name') }}"
-                                        class="form-control" />
+                                    <input type="text" id="name" name="name"
+                                        placeholder="{{ __('lesson_name') }}" class="form-control" />
                                 </div>
 
                                 <div class="form-group col-sm-12 col-md-6">
                                     <label>{{ __('lesson_description') }} <span class="text-danger">*</span></label>
                                     <textarea id="description" name="description" placeholder="{{ __('lesson_description') }}" class="form-control"></textarea>
+                                </div>
+                                <div class="form-group col-sm-12 col-md-6">
+                                    <label>{{ __('paid_or_free') }} <span class="text-danger">*</span></label>
+                                    <div class="d-flex">
+                                        <div class="form-check form-check-inline">
+                                            <label class="form-check-label">
+                                                <input name="payment_status" type="radio" value="0">
+                                                Free
+                                                <i class="input-helper"></i></label>
+                                        </div>
+                                        <div class="form-check form-check-inline">
+                                            <label class="form-check-label">
+                                                <input name="payment_status" type="radio" value="1">
+                                                Paid
+                                                <i class="input-helper"></i></label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="form-group col-sm-12 col-md-6">
+                                    <label>{{ __('status') }} <span class="text-danger">*</span></label>
+                                    <div class="d-flex">
+                                        <div class="form-check form-check-inline">
+                                            <label class="form-check-label">
+                                                <input name="status" type="radio" value="draft">
+                                                Draft
+                                                <i class="input-helper"></i></label>
+                                        </div>
+                                        <div class="form-check form-check-inline">
+                                            <label class="form-check-label">
+                                                <input name="status" type="radio" value="published">
+                                                Published
+                                                <i class="input-helper"></i></label>
+                                        </div>
+                                        <div class="form-check form-check-inline">
+                                            <label class="form-check-label">
+                                                <input name="status" type="radio" value="archived">
+                                                Archived
+                                                <i class="input-helper"></i></label>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
 
@@ -77,13 +120,13 @@
                                     </div>
                                     <div class="form-group col-md-3" id="file_thumbnail_div" style="display: none">
                                         <label>{{ __('thumbnail') }} <span class="text-danger">*</span></label>
-                                        <input type="file" name="file[0][thumbnail]" class="file_thumbnail form-control"
-                                            required>
+                                        <input type="file" name="file[0][thumbnail]"
+                                            class="file_thumbnail form-control" required>
                                     </div>
                                     <div class="form-group col-md-3" id="file_div" style="display: none">
                                         <label>{{ __('file_upload') }} <span class="text-danger">*</span></label>
-                                        <input type="file" name="file[0][file]" class="file form-control" placeholder=""
-                                            required>
+                                        <input type="file" name="file[0][file]" class="file form-control"
+                                            placeholder="" required>
                                     </div>
                                     <div class="form-group col-md-3" id="file_link_div" style="display: none">
                                         <label>{{ __('link') }} <span class="text-danger">*</span></label>
@@ -129,7 +172,8 @@
                                         <option value="">{{ __('all') }}</option>
                                         @foreach ($class_section as $class)
                                             <option value="{{ $class->id }}">
-                                                {{ $class->class->name . '-' . $class->section->name .' '. $class->class->medium->name}} {{$class->class->streams->name ?? ''}}
+                                                {{ $class->class->name . '-' . $class->section->name . ' ' . $class->class->medium->name }}
+                                                {{ $class->class->streams->name ?? '' }}
                                             </option>
                                         @endforeach
                                     </select>
@@ -157,7 +201,7 @@
                             data-mobile-responsive="true" data-sort-name="id" data-sort-order="desc"
                             data-maintain-selected="true" data-export-types='["txt","excel"]'
                             data-query-params="CreateLessionQueryParams"
-                            data-export-options='{ "fileName": "lesson-list-<?= date('d-m-y') ?>" ,"ignoreColumn":
+                            data-export-options='{ "fileName": "lesson-list-{{ date('d-m-y') }}" ,"ignoreColumn":
                             ["operate"]}'
                             data-show-export="true">
                             <thead>
@@ -168,16 +212,22 @@
                                     <th scope="col" data-field="name" data-sortable="true">{{ __('name') }}</th>
                                     <th scope="col" data-field="description" data-sortable="true">
                                         {{ __('description') }}</th>
-                                    <th scope="col" data-field="class_section_name" data-sortable="true">
+                                    <th scope="col" data-field="class_section_name" data-sortable="fa;se">
                                         {{ __('class_section') }}</th>
                                     <th scope="col" data-field="subject_name" data-sortable="true">
                                         {{ __('subject') }}</th>
                                     <th scope="col" data-field="file" data-formatter="fileFormatter"
-                                        data-sortable="true">{{ __('file') }}</th>
-                                    <th scope="col" data-field="created_at" data-sortable="true"
+                                        data-sortable="false">{{ __('file') }}</th>
+                                    <th scope="col" data-field="purchased_count" data-sortable="true">
+                                        {{ __('purchased_count') }}</th>
+                                    <th scope="col" data-field="payment_status" data-sortable="false">
+                                        {{ __('payment_status') }}</th>
+                                    <th scope="col" data-field="status_name" data-sortable="false">
+                                        {{ __('status') }}</th>
+                                    {{-- <th scope="col" data-field="created_at" data-sortable="true"
                                         data-visible="false"> {{ __('created_at') }}</th>
                                     <th scope="col" data-field="updated_at" data-sortable="true"
-                                        data-visible="false"> {{ __('updated_at') }}</th>
+                                        data-visible="false"> {{ __('updated_at') }}</th> --}}
                                     <th scope="col" data-field="operate" data-sortable="false"
                                         data-events="lessonEvents">{{ __('action') }}</th>
                                 </tr>
@@ -225,7 +275,8 @@
                                         <select name="subject_id" id="edit_subject_id" class="subject_id form-control">
                                             <option value="">--{{ __('select') }}--</option>
                                             @foreach ($subjects as $subject)
-                                                <option value="{{ $subject->id }}">{{ $subject->name.' - '.$subject->type }}</option>
+                                                <option value="{{ $subject->id }}">
+                                                    {{ $subject->name . ' - ' . $subject->type }}</option>
                                             @endforeach
                                         </select>
                                     </div>
@@ -243,12 +294,52 @@
                                         <textarea id="edit_description" name="description" placeholder="{{ __('lesson_description') }}"
                                             class="form-control"></textarea>
                                     </div>
+                                    <div class="form-group col-sm-12 col-md-6">
+                                        <label>{{ __('paid_or_free') }} <span class="text-danger">*</span></label>
+                                        <div class="d-flex">
+                                            <div class="form-check form-check-inline">
+                                                <label class="form-check-label">
+                                                    <input name="payment_status" type="radio" value="0">
+                                                    Free
+                                                    <i class="input-helper"></i></label>
+                                            </div>
+                                            <div class="form-check form-check-inline">
+                                                <label class="form-check-label">
+                                                    <input name="payment_status" type="radio" value="1">
+                                                    Paid
+                                                    <i class="input-helper"></i></label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="form-group col-sm-12 col-md-6">
+                                        <label>{{ __('status') }} <span class="text-danger">*</span></label>
+                                        <div class="d-flex">
+                                            <div class="form-check form-check-inline">
+                                                <label class="form-check-label">
+                                                    <input name="status" type="radio" value="draft">
+                                                    Draft
+                                                    <i class="input-helper"></i></label>
+                                            </div>
+                                            <div class="form-check form-check-inline">
+                                                <label class="form-check-label">
+                                                    <input name="status" type="radio" value="published">
+                                                    Published
+                                                    <i class="input-helper"></i></label>
+                                            </div>
+                                            <div class="form-check form-check-inline">
+                                                <label class="form-check-label">
+                                                    <input name="status" type="radio" value="archived">
+                                                    Archived
+                                                    <i class="input-helper"></i></label>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
 
                                 <h4 class="mb-3">{{ __('files') }}</h4>
                                 <div class="row edit_file_type_div" id="edit_file_type_div">
                                     <input type="hidden" id="edit_file_id" name="edit_file[0][id]" />
-                                    <div class="form-group col-md-2"  style="pointer-events: none">
+                                    <div class="form-group col-md-2" style="pointer-events: none">
                                         <label>{{ __('type') }}</label>
                                         <select id="edit_file_type" name="edit_file[0][type]"
                                             class="form-control file_type">
