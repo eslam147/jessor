@@ -16,11 +16,6 @@ use Illuminate\Support\Facades\Auth;
 
 class SubjectController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
     public function index()
     {
         $class_section_id = Students::where('user_id',Auth::user()->id)->first()->class_section_id;
