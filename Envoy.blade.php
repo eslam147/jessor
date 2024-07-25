@@ -14,7 +14,7 @@
     php artisan optimize:clear
 @endtask
 @task('deploy', ['on' => 'main'])
-    cd /home/jesoor.online/jesoor.online/
+    cd /home/jesoor.online/public_html/
     git pull origin main
     composer install --optimize-autoloader --no-dev
 

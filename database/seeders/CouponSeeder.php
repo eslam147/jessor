@@ -6,7 +6,6 @@ use App\Models\Lesson;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 use App\Services\Coupon\CouponService;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 
 class CouponSeeder extends Seeder
 {
@@ -21,12 +20,10 @@ class CouponSeeder extends Seeder
         for ($i = 0; $i < 3; $i++) {
             $lesson = Lesson::inRandomOrder()->first();
             DB::transaction(function () use ($lesson, &$ids) {
-                // $expiryDate = now()->addDays(rand(1, 30));
-
                 for ($i = 0; $i < rand(1, 10); $i++) {
                     $services = [
                         'lesson_id' => $lesson->id,
-                        'expiry_date' => fake()->date('Y-m-d'),
+                        'expiry_date' => now()->addDays(rand(1, 30))->toDateString(),
                         'coupons_count' => rand(1, 10),
                         'teacher_id' => $lesson->teacher_id,
                         'price' => rand(100, 1000),
@@ -37,7 +34,6 @@ class CouponSeeder extends Seeder
 
             });
         }
-        // $this->couponService->storePurchaseCoupon();
-        // $couponService = new CouponService();
+
     }
 }
