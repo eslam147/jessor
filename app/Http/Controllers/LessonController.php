@@ -337,10 +337,10 @@ class LessonController extends Controller
             ]
         );
         if ($validator->fails()) {
-            $response = array(
+            $response = [
                 'error' => true,
                 'message' => $validator->errors()->first(),
-            );
+            ];
             return response()->json($response);
         }
         try {

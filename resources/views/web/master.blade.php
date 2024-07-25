@@ -25,7 +25,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <title>{{ config('app.name') }}</title>
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <link rel="shortcut icon" href="{{ url(Storage::url(env('FAVICON'))) }}"/>
+    <link rel="shortcut icon" href="{{ url(Storage::url(settingByType('favicon'))) }}"/>
     @yield('css')
 
 </head>

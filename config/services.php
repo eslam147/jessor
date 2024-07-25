@@ -30,4 +30,23 @@ return [
         'region' => env('AWS_DEFAULT_REGION', 'us-east-1'),
     ],
 
+    'razorpay' => [
+        'webhook_url' => env('RAZORPAY_WEBHOOK_URL'),
+        'webhook_secret' => env('RAZORPAY_WEBHOOK_SECRET'),
+        'api_key' => env('RAZORPAY_API_KEY'),
+        'secret_key' => env('RAZORPAY_SECRET_KEY'),
+    ],
+
+    'stripe' => [
+        'webhook_url' => env('STRIPE_WEBHOOK_URL'),
+        'webhook_secret' => env('STRIPE_WEBHOOK_SECRET'),
+        'publishable_key' => env('STRIPE_PUBLISHABLE_KEY'),
+        'secret_key' => env('STRIPE_SECRET_KEY'),
+    ],
+
+    'paystack' => [
+        'webhook_url' => env('PAYSTACK_WEBHOOK_URL'),
+        'secret_key' => env('PAYSTACK_SECRET_KEY'),
+        'public_key' => env('PAYSTACK_PUBLIC_KEY'),
+    ],
 ];

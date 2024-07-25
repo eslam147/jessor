@@ -24,13 +24,9 @@
                         <div class="col-md-8 col-lg-4">
                             <div class="auth-content-wrapper auth">
                                 <div class="auth-form-light text-left p-5">
-                                    @if(env('DEMO_MODE'))
-                                        <div class="alert alert-info text-center" role="alert">
-                                            NOTE : <a target="_blank" href="{{ route('login') }}">-- Click Here --</a> If you Can't Login.
-                                        </div>
-                                    @endif
+
                                     <div class="brand-logo text-center">
-                                        <img src="{{ env('LOGO2') ? url(Storage::url(env('LOGO2'))) :url('assets/logo.svg') }}" alt="logo">
+                                        <img src="{{ settingByType('logo2') ? url(Storage::url(settingByType('logo2'))) :url('assets/logo.svg') }}" alt="logo">
                                     </div>
                                     <form action="{{ route('login') }}" id="frmLogin" method="POST" class="pt-3">
                                         @csrf
@@ -65,30 +61,8 @@
                                             <input type="submit" name="btnlogin" id="login_btn" value="{{ __('login') }}" class="btn btn-block btn-theme btn-lg font-weight-medium auth-form-btn"/>
                                         </div>
                                     </form>
-                                    @if(env('DEMO_MODE'))
-                                        <div class="row mt-2">
-                                            <hr class="w-100">
-                                            <div class="col-12 text-center mb-2 text-black-50">Demo Credentials</div>
-                                        </div>
-                                        <div class="row mt-2">
-                                            <div class="col-md-6">
-                                                <button class="btn btn-block btn-success mt-2" id="superadmin_btn">Super Admin</button>
-                                            </div>
-                                            <div class="col-md-6">
-                                                <button class="btn btn-block btn-danger mt-2" id="teacher_btn">Teacher</button>
-                                            </div>
-                                        </div>
-                                        <div class="row mt-2 text-center">
-                                            <div class="col-md-3">
-                                            </div>
-                                            <div class="col-md-6">
-                                                <button class="btn btn-block btn-info mt-2" id="staff_btn">Staff</button>
-                                            </div>
-                                            <div class="col-md-3">
-                                            </div>
-                                        </div>
-
-                                    @endif
+                     
+                                    
                                 </div>
                             </div>
                         </div>
@@ -148,31 +122,6 @@
             $('#togglePassword').addClass('fa-eye');
         }
     });
-
-    @if(env('DEMO_MODE'))
-    $('#superadmin_btn').on('click', function (e) {
-        $('#email').val('superadmin@gmail.com');
-        $('#password').val('superadmin');
-        $('#login_btn').attr('disabled', true);
-        $(this).attr('disabled', true);
-        $('#frmLogin').submit();
-    })
-    $('#teacher_btn').on('click', function (e) {
-        $('#email').val('teacher@gmail.com');
-        $('#password').val('teacher123');
-        $('#login_btn').attr('disabled', true);
-        $(this).attr('disabled', true);
-        $('#frmLogin').submit();
-    })
-    $('#staff_btn').on('click', function (e) {
-        $('#email').val('staff@gmail.com');
-        $('#password').val('14081980');
-        $('#login_btn').attr('disabled', true);
-        $(this).attr('disabled', true);
-        $('#frmLogin').submit();
-    })
-    @endif
-
 </script>
 </body>
 

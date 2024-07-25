@@ -16,7 +16,7 @@ class LessonResource extends JsonResource
             'description' => $this->description,
             'status' => $this->status,
             'is_enrolled' => boolval($this->is_enrolled),
-            'is_paid' => boolval($this->is_paid),
+            'is_paid' => boolval(!$this->isFree()),
             'files' => $this->when($this->is_enrolled, function () {
                 return FileResource::collection($this->file);
             }, null),

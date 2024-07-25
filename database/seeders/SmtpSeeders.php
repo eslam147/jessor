@@ -20,6 +20,10 @@ class SmtpSeeders extends Seeder
             'message' => 'smtp.gmail.com',
         ]);
         Settings::create([
+            'type'    => 'mail_mailer',
+            'message' => 'smtp',
+        ]);
+        Settings::create([
             'type'    => 'mail_port',
             'message' => '587',
         ]);

@@ -93,9 +93,7 @@
                     <div class="col-lg-4 mx-auto">
                         <div class="auth-form-light text-left p-5">
                             <div class="brand-logo text-center">
-                                {{-- <img src="{{asset(config('global.LOGO1')) }}" alt="logo"> --}}
-                                {{-- <img src="{{ asset('logo.svg') }}" alt="logo"> --}}
-                                <img src="{{ asset('storage/' . env('LOGO1')) }}" alt="logo">
+                                <img src="{{ asset('storage/' . getSettings('logo1')) }}" alt="logo">
                             </div>
 
                             <form method="POST" action="{{ route('password.update') }}">
@@ -125,7 +123,6 @@
                                 </div>
                                 <div class="form-group">
                                     <label>{{ __('confirm_password') }}</label>
-                                    {{-- <input type="password" name="password" required class="form-control form-control-lg" placeholder="{{__('password')}}"> --}}
 
                                     <div class="input-group">
                                         <input id="password-confirm" type="password"

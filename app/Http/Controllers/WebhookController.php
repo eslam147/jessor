@@ -27,9 +27,9 @@ class WebhookController extends Controller
 
             // gets the signature from header
             $webhookSignature = $request->header('X-Razorpay-Signature');
-            $webhookSecret = env('RAZORPAY_WEBHOOK_SECRET');
+            $webhookSecret = config('services.razorpay.webhook_secret');
 
-            $api = new Api(env('RAZORPAY_API_KEY'), env('RAZORPAY_SECRET_KEY'));
+            $api = new Api(config('services.razorpay.api_key'), config('services.razorpay.secret_key'));
 
             // get the metadata
             $parent_id = $data->payload->payment->entity->notes->parent_id;
@@ -48,7 +48,7 @@ class WebhookController extends Controller
             $current_date = Carbon::now()->format('Y-m-d');
 
             //get the payment_id
-            $payment_id  = $data->payload->payment->entity->id;
+            $payment_id = $data->payload->payment->entity->id;
 
             Log::error(json_encode($data->event));
 
@@ -67,7 +67,7 @@ class WebhookController extends Controller
 
                 // udpate data in payment transaction table local
                 $transaction_db = PaymentTransaction::find($payment_transaction_id);
-                if (!empty($transaction_db)) {
+                if (! empty($transaction_db)) {
                     Log::error("INSIDE TRANSACTION DB");
                     if ($transaction_db->status != 1) {
                         Log::error("INSIDE TRANSACTION DB STATUS");
@@ -90,15 +90,12 @@ class WebhookController extends Controller
                             $add_due_charges->save();
                         }
 
-                        if(isset($installment_paid_data) && !empty($installment_paid_data)){
+                        if (isset($installment_paid_data) && ! empty($installment_paid_data)) {
                             Log::info("Paid Installment Fee Status Updated");
-                            foreach($installment_paid_data as $row)
-                            {
-                                $db =  PaidInstallmentFee::find($row);
-                                if(!empty($db))
-                                {
-                                    if($db->status != 1)
-                                    {
+                            foreach ($installment_paid_data as $row) {
+                                $db = PaidInstallmentFee::find($row);
+                                if (! empty($db)) {
+                                    if ($db->status != 1) {
                                         $db->status = 1;
                                         $db->save();
                                     }
@@ -106,37 +103,34 @@ class WebhookController extends Controller
                                 }
                             }
 
-                        }else{
+                        } else {
                             Log::info('NO INSTALLMENT DATA');
                         }
 
-                        if(isset($optional_paid_data) && !empty($optional_paid_data)){
+                        if (isset($optional_paid_data) && ! empty($optional_paid_data)) {
                             Log::info("Optional Fees Status Updated");
-                            foreach($optional_paid_data as $row)
-                            {
-                                $db =  FeesChoiceable::find($row);
-                                if(!empty($db))
-                                {
-                                    if($db->status != 1)
-                                    {
+                            foreach ($optional_paid_data as $row) {
+                                $db = FeesChoiceable::find($row);
+                                if (! empty($db)) {
+                                    if ($db->status != 1) {
                                         $db->status = 1;
                                         $db->save();
                                     }
                                     // Log::error("FeesChoiceable status updated", ['id' => $db->id, 'status' => $db->status]);
                                 }
                             }
-                        }else{
+                        } else {
                             Log::info('NO OPTIONAL DATA');
                         }
 
                         // add data in fees paid table local
-                        $update_fees_paid_query = FeesPaid::where(['student_id'=> $student_id, 'class_id' => $class_id , 'session_year_id' => $session_year_id]);
-                        if($update_fees_paid_query->count()){
+                        $update_fees_paid_query = FeesPaid::where(['student_id' => $student_id, 'class_id' => $class_id, 'session_year_id' => $session_year_id]);
+                        if ($update_fees_paid_query->count()) {
                             $update_fee_paid_data = FeesPaid::findOrFail($update_fees_paid_query->first()->id);
                             $update_fee_paid_data->total_amount = ($update_fees_paid_query->first()->total_amount + $total_amount);
                             $update_fee_paid_data->is_fully_paid = $is_fully_paid;
                             $update_fee_paid_data->save();
-                        }else{
+                        } else {
                             $fees_paid_db = new FeesPaid();
                             $fees_paid_db->parent_id = $parent_id;
                             $fees_paid_db->student_id = $student_id;
@@ -164,8 +158,7 @@ class WebhookController extends Controller
                         $notification->date = Carbon::now();
                         $notification->is_custom = 0;
                         $notification->save();
-                        foreach($user as $data)
-                        {
+                        foreach ($user as $data) {
                             $user_notification = new UserNotification();
                             $user_notification->notification_id = $notification->id;
                             $user_notification->user_id = $data;
@@ -173,7 +166,7 @@ class WebhookController extends Controller
                         }
 
                         send_notification($user, 'Payment Success', $body, $type, $image, $userinfo);
-                    }else{
+                    } else {
                         Log::error("Transaction Already Successed --->");
                         return false;
                     }
@@ -186,15 +179,15 @@ class WebhookController extends Controller
             //if the transaction is failed
             if (isset($data->event) && $data->event == 'payment.failed') {
                 $transaction_db = PaymentTransaction::find($payment_transaction_id);
-                if (!empty($transaction_db)) {
+                if (! empty($transaction_db)) {
                     $total_amount = $transaction_db->total_amount;
                     $transaction_db->payment_id = $payment_id;
                     $transaction_db->payment_status = 0;
                     $transaction_db->save();
                     http_response_code(400);
 
-                    FeesChoiceable::where('payment_transaction_id',$payment_transaction_id)->where('status',0)->delete();
-                    PaidInstallmentFee::where('payment_transaction_id',$payment_transaction_id)->where('status',0)->delete();
+                    FeesChoiceable::where('payment_transaction_id', $payment_transaction_id)->where('status', 0)->delete();
+                    PaidInstallmentFee::where('payment_transaction_id', $payment_transaction_id)->where('status', 0)->delete();
 
                     $user = Parents::where('id', $parent_id)->pluck('user_id');
                     $body = 'Amount :- ' . $total_amount;
@@ -211,19 +204,18 @@ class WebhookController extends Controller
                     $notification->is_custom = 0;
                     $notification->save();
 
-                    foreach($user as $data)
-                    {
+                    foreach ($user as $data) {
                         $user_notification = new UserNotification();
                         $user_notification->notification_id = $notification->id;
                         $user_notification->user_id = $data;
                         $user_notification->save();
                     }
                     send_notification($user, 'Payment Failed', $body, $type, $image, $userinfo);
-                }else{
+                } else {
                     Log::error("Payment Transaction id not found --->");
                     return false;
                 }
-            }else{
+            } else {
                 Log::error('Failed Else');
             }
         } catch (\Throwable $th) {
@@ -235,10 +227,10 @@ class WebhookController extends Controller
     public function stripe(Request $request)
     {
         // This is your test secret API key.
-        $stripe = new \Stripe\StripeClient(env('STRIPE_SECRET_KEY'));
+        $stripe = new \Stripe\StripeClient(config('services.stripe.secret_key'));
 
         // You can find your endpoint's secret in your webhook settings
-        $endpoint_secret = env('STRIPE_WEBHOOK_SECRET');
+        $endpoint_secret = config('services.stripe.webhook_secret');
 
         $payload = @file_get_contents('php://input');
         $sig_header = $_SERVER['HTTP_STRIPE_SIGNATURE'];
@@ -248,14 +240,16 @@ class WebhookController extends Controller
         // See https://stripe.com/docs/webhooks/signatures for more information.
         try {
             $event = \Stripe\Webhook::constructEvent(
-                $payload, $sig_header, $endpoint_secret
+                $payload,
+                $sig_header,
+                $endpoint_secret
             );
-        } catch(\UnexpectedValueException $e) {
+        } catch (\UnexpectedValueException $e) {
             // Invalid payload
             Log::error("Payload Mismatch");
             http_response_code(400);
             exit();
-        } catch(\Stripe\Exception\SignatureVerificationException $e) {
+        } catch (\Stripe\Exception\SignatureVerificationException $e) {
             // Invalid signature
             Log::error("Signature Verification Failed");
             http_response_code(400);
@@ -285,7 +279,7 @@ class WebhookController extends Controller
 
                 // update the values in transaction table local
                 $transaction_db = PaymentTransaction::find($payment_transaction_id);
-                if (!empty($transaction_db)) {
+                if (! empty($transaction_db)) {
                     if ($transaction_db->status != 1) {
 
                         //get the total from transaction table local
@@ -303,38 +297,32 @@ class WebhookController extends Controller
                             $add_due_charges->is_due_charges = 1;
                             $add_due_charges->total_amount = $due_charges;
                             $add_due_charges->session_year_id = $session_year_id;
-                            $add_due_charges->status= 1;
+                            $add_due_charges->status = 1;
                             $add_due_charges->save();
                         }
 
-                        if(isset($installment_paid_data) && !empty($installment_paid_data)){
+                        if (isset($installment_paid_data) && ! empty($installment_paid_data)) {
                             Log::info("Paid Installment Fee Status Updated");
-                            foreach($installment_paid_data as $row)
-                            {
-                                $db =  PaidInstallmentFee::find($row);
-                                if(!empty($db))
-                                {
-                                    if($db->status != 1)
-                                    {
+                            foreach ($installment_paid_data as $row) {
+                                $db = PaidInstallmentFee::find($row);
+                                if (! empty($db)) {
+                                    if ($db->status != 1) {
                                         $db->status = 1;
                                         $db->save();
                                     }
                                     // Log::error("Installment status updated", ['id' => $db->id, 'status' => $db->status]);
                                 }
                             }
-                        }else{
+                        } else {
                             Log::info('NO INSTALLMENT DATA');
                         }
 
-                        if(isset($optional_paid_data) && !empty($optional_paid_data)){
+                        if (isset($optional_paid_data) && ! empty($optional_paid_data)) {
                             Log::info("Optional Fees Status Updated");
-                            foreach($optional_paid_data as $row)
-                            {
-                                $db =  FeesChoiceable::find($row);
-                                if(!empty($db))
-                                {
-                                    if($db->status != 1)
-                                    {
+                            foreach ($optional_paid_data as $row) {
+                                $db = FeesChoiceable::find($row);
+                                if (! empty($db)) {
+                                    if ($db->status != 1) {
                                         $db->status = 1;
                                         $db->save();
                                     }
@@ -342,18 +330,18 @@ class WebhookController extends Controller
                                 }
                             }
 
-                        }else{
+                        } else {
                             Log::info('NO OPTIONAL DATA');
                         }
 
                         // add the data in fees paid table local
-                        $update_fees_paid_query = FeesPaid::where(['student_id'=> $student_id, 'class_id' => $class_id , 'session_year_id' => $session_year_id]);
-                        if($update_fees_paid_query->count()){
+                        $update_fees_paid_query = FeesPaid::where(['student_id' => $student_id, 'class_id' => $class_id, 'session_year_id' => $session_year_id]);
+                        if ($update_fees_paid_query->count()) {
                             $update_fee_paid_data = FeesPaid::findOrFail($update_fees_paid_query->first()->id);
                             $update_fee_paid_data->total_amount = ($update_fees_paid_query->first()->total_amount + $total_amount);
                             $update_fee_paid_data->is_fully_paid = $is_fully_paid;
                             $update_fee_paid_data->save();
-                        }else{
+                        } else {
                             $fees_paid_db = new FeesPaid();
                             $fees_paid_db->parent_id = $parent_id;
                             $fees_paid_db->student_id = $student_id;
@@ -381,8 +369,7 @@ class WebhookController extends Controller
                         $notification->is_custom = 0;
                         $notification->save();
 
-                        foreach($user as $data)
-                        {
+                        foreach ($user as $data) {
                             $user_notification = new UserNotification();
                             $user_notification->notification_id = $notification->id;
                             $user_notification->user_id = $data;
@@ -405,14 +392,14 @@ class WebhookController extends Controller
             case 'payment_intent.payment_failed':
                 // update the data in transaction table local
                 $transaction_db = PaymentTransaction::find($payment_transaction_id);
-                if (!empty($transaction_db)) {
+                if (! empty($transaction_db)) {
                     $total_amount = $transaction_db->total_amount;
                     $transaction_db->payment_status = 0;
                     $transaction_db->save();
                     http_response_code(400);
 
-                    FeesChoiceable::where('payment_transaction_id',$payment_transaction_id)->where('status',0)->delete();
-                    PaidInstallmentFee::where('payment_transaction_id',$payment_transaction_id)->where('status',0)->delete();
+                    FeesChoiceable::where('payment_transaction_id', $payment_transaction_id)->where('status', 0)->delete();
+                    PaidInstallmentFee::where('payment_transaction_id', $payment_transaction_id)->where('status', 0)->delete();
 
                     $user = Parents::where('id', $parent_id)->pluck('user_id');
                     $body = 'Amount :- ' . $total_amount;
@@ -428,8 +415,7 @@ class WebhookController extends Controller
                     $notification->date = Carbon::now();
                     $notification->is_custom = 0;
                     $notification->save();
-                    foreach($user as $data)
-                    {
+                    foreach ($user as $data) {
                         $user_notification = new UserNotification();
                         $user_notification->notification_id = $notification->id;
                         $user_notification->user_id = $data;
@@ -452,12 +438,12 @@ class WebhookController extends Controller
 
     public function paystack(Request $request)
     {
-        try{
+        try {
             $webhookBody = $request->getContent();
             $webhookBody = file_get_contents('php://input');
 
             $webhookSignature = $request->header('x-paystack-signature');
-            $paystackSecretKey = env('PAYSTACK_SECRET_KEY');
+            $paystackSecretKey = config('services.paystack.secret_key');
 
             $expectedSignature = hash_hmac('sha512', $webhookBody, $paystackSecretKey);
 
@@ -465,8 +451,7 @@ class WebhookController extends Controller
             Log::error("Header Signature --->" . $webhookSignature);
 
             // validate event do all at once to avoid timing attack
-            if($webhookSignature == $expectedSignature)
-            {
+            if ($webhookSignature == $expectedSignature) {
                 Log::error("Signature Matched --->");
             }
             $current_date = Carbon::now()->format('Y-m-d');
@@ -491,11 +476,9 @@ class WebhookController extends Controller
             $type_of_fee = $transaction_db->type_of_fee;
             $email = $payload->email;
 
-            if($event && isset($event->event))
-            {
-                if($event->event === 'charge.success')
-                {
-                    if (!empty($transaction_db)) {
+            if ($event && isset($event->event)) {
+                if ($event->event === 'charge.success') {
+                    if (! empty($transaction_db)) {
                         if ($transaction_db->status != 1) {
 
                             //get the total from transaction table local
@@ -514,18 +497,15 @@ class WebhookController extends Controller
                                 $add_due_charges->is_due_charges = 1;
                                 $add_due_charges->total_amount = $due_charges;
                                 $add_due_charges->session_year_id = $session_year_id;
-                                $add_due_charges->status= 1;
+                                $add_due_charges->status = 1;
                                 $add_due_charges->save();
                             }
 
-                            if(isset($installment_paid_data) && !empty($installment_paid_data)){
-                                foreach($installment_paid_data as $row)
-                                {
-                                    $db =  PaidInstallmentFee::find($row);
-                                    if(!empty($db))
-                                    {
-                                        if($db->status != 1)
-                                        {
+                            if (isset($installment_paid_data) && ! empty($installment_paid_data)) {
+                                foreach ($installment_paid_data as $row) {
+                                    $db = PaidInstallmentFee::find($row);
+                                    if (! empty($db)) {
+                                        if ($db->status != 1) {
                                             $db->status = 1;
                                             $db->save();
                                             Log::info("Paid Installment Fee Status Updated");
@@ -533,18 +513,15 @@ class WebhookController extends Controller
                                         Log::error("Installment status updated", ['id' => $db->id, 'status' => $db->status]);
                                     }
                                 }
-                            }else{
+                            } else {
                                 Log::info('NO INSTALLMENT DATA');
                             }
 
-                            if(isset($optional_paid_data) && !empty($optional_paid_data)){
-                                foreach($optional_paid_data as $row)
-                                {
-                                    $db =  FeesChoiceable::find($row);
-                                    if(!empty($db))
-                                    {
-                                        if($db->status != 1)
-                                        {
+                            if (isset($optional_paid_data) && ! empty($optional_paid_data)) {
+                                foreach ($optional_paid_data as $row) {
+                                    $db = FeesChoiceable::find($row);
+                                    if (! empty($db)) {
+                                        if ($db->status != 1) {
                                             $db->status = 1;
                                             $db->save();
                                             Log::info("Optional Fees Status Updated");
@@ -553,18 +530,18 @@ class WebhookController extends Controller
                                     }
                                 }
 
-                            }else{
+                            } else {
                                 Log::info('NO OPTIONAL DATA');
                             }
 
                             // add the data in fees paid table local
-                            $update_fees_paid_query = FeesPaid::where(['student_id'=> $student_id, 'class_id' => $class_id , 'session_year_id' => $session_year_id]);
-                            if($update_fees_paid_query->count()){
+                            $update_fees_paid_query = FeesPaid::where(['student_id' => $student_id, 'class_id' => $class_id, 'session_year_id' => $session_year_id]);
+                            if ($update_fees_paid_query->count()) {
                                 $update_fee_paid_data = FeesPaid::findOrFail($update_fees_paid_query->first()->id);
                                 $update_fee_paid_data->total_amount = ($update_fees_paid_query->first()->total_amount + $total_amount);
                                 $update_fee_paid_data->is_fully_paid = $is_fully_paid;
                                 $update_fee_paid_data->save();
-                            }else{
+                            } else {
                                 $fees_paid_db = new FeesPaid();
                                 $fees_paid_db->parent_id = $parent_id;
                                 $fees_paid_db->student_id = $student_id;
@@ -592,8 +569,7 @@ class WebhookController extends Controller
                             $notification->is_custom = 0;
                             $notification->save();
 
-                            foreach($user as $data)
-                            {
+                            foreach ($user as $data) {
                                 $user_notification = new UserNotification();
                                 $user_notification->notification_id = $notification->id;
                                 $user_notification->user_id = $data;
@@ -613,7 +589,7 @@ class WebhookController extends Controller
                 }
             }
 
-        }catch (\Exception $e) {
+        } catch (\Exception $e) {
             // Handle exceptions if any
             Log::error("Error: " . $e->getMessage());
             Log::error('PayStack --> Webhook Error Accured');
