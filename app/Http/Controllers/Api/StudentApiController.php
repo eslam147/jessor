@@ -167,7 +167,7 @@ class StudentApiController extends Controller
 
             $compulsory_fees_mode = getSettings('compulsory_fee_payment_mode');
 
-            $compulsory_fees_mode = $compulsory_fees_mode['compulsory_fee_payment_mode'];
+            $compulsory_fees_mode = $compulsory_fees_mode['compulsory_fee_payment_mode'] ?? 0;
 
             $session_year = SessionYear::where('id', $session_year_id)->first();
             $isInstallment = $session_year->include_fee_installments;
