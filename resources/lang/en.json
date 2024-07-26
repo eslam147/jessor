@@ -617,6 +617,7 @@
     "coupon_error_limited": "This coupon usage limit has been reached.",
     "coupon_error_already_used": "This coupon has already been used.",
     "coupon_error_insufficient": "The coupon requirements are not met.",
+    "coupon_errors_is_not_available" : "This coupon is not available.",
 
     "coupon_is_available": "The coupon is available.",
     "coupon_errors.is_not_available": "The coupon is not available.",

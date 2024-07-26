@@ -44,9 +44,9 @@ class CouponService
             return $this->responseContent(__('coupon_errors_already_used'), false);
         }
         
-        if ($coupon->usages()->whereMorphedTo('usedByUser', $user)->sum('amount') >= $coupon->price) {
-            return $this->responseContent(__('coupon_errors_insufficient'), false);
-        }
+        // if ($coupon->usages()->whereMorphedTo('usedByUser', $user)->sum('amount') >= $coupon->price) {
+        //     return $this->responseContent(__('coupon_errors_insufficient'), false);
+        // }
 
         return $this->responseContent(__('coupon_is_available'), true);
     }
