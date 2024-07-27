@@ -270,7 +270,7 @@ $(document).on('click', '.delete-form', function (e) {
                 showErrorToast(response.message);
             }
 
-            ajaxRequest('DELETE', url, data, null, successCallback, errorCallback);
+            ajaxRequest('POST', url, data, null, successCallback, errorCallback);
         }
     })
 })
