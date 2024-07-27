@@ -124,8 +124,7 @@ class CouponService
 
     public function exportCouponCode($coupons)
     {
-        $fileName = 'coupons.xlsx';
-        $filePath = "exports/{$fileName}";
+        $filePath = "exports/coupons.xlsx";
         Excel::store(new CouponExport($coupons), $filePath, 'public');
         return asset(Storage::url($filePath));
     }
