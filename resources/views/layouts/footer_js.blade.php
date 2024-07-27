@@ -85,6 +85,9 @@
                 $.ajax({
                     url: $(this).attr('data-url'),
                     type: "DELETE",
+                    data:{
+                        _token: "{{ csrf_token() }}",
+                    },
                     success: function(response) {
                         if (response['error'] == false) {
                             showSuccessToast(response['message']);
