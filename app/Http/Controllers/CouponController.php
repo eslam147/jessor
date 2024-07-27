@@ -5,10 +5,11 @@ namespace App\Http\Controllers;
 use App\Models\Coupon;
 use App\Models\Lesson;
 use App\Models\Teacher;
-use App\Models\LessonTopic;
+use App\Models\ClassSection;
 use Illuminate\Http\Request;
 use App\Services\Coupon\CouponService;
 use App\Http\Requests\Dashboard\Coupon\CouponRequest;
+use App\Models\ClassSubject;
 
 class CouponController extends Controller
 {
@@ -17,7 +18,7 @@ class CouponController extends Controller
     ) {
         $this->middleware('permission:coupons-list', ['only' => ['index']]);
         $this->middleware('permission:coupons-create', ['only' => ['create', 'store']]);
-        $this->middleware('permission:coupons-edit', ['only' => ['edit', 'update','changeStatus']]);
+        $this->middleware('permission:coupons-edit', ['only' => ['edit', 'update', 'changeStatus']]);
         $this->middleware('permission:coupons-delete', ['only' => ['destroy']]);
     }
     public function index()
@@ -56,26 +57,33 @@ class CouponController extends Controller
         $total = $coupons->count();
 
         $findOrderKey = in_array($sort, array_keys($mappedOrderKeys));
-
+     
         $coupons->when($purchased, fn($q) => $q->has('usages'));
         $coupons
+            ->withCount('usages')
+            ->with('classSection.class','classSection.section','classSection.class.medium','classSection.class.streams', 'subject:id,name')
             ->when($findOrderKey, fn($q) => $q->orderBy($mappedOrderKeys[$sort], $order))
             ->skip($offset)
             ->take($limit);
 
 
         $res = $coupons->get();
-
+    // dd(
+    //     $res
+    // );
         $bulkData = [];
         $bulkData['total'] = $total;
         $rows = [];
         $tempRow = [];
         $no = 1;
         foreach ($res as $row) {
+
             $tempRow['id'] = $row->id;
             $tempRow['no'] = $no++;
             $tempRow['code'] = $row->code;
-            $tempRow['used_count'] = $row->usages()->count();
+            $tempRow['used_count'] = $row->usages_count;
+            $tempRow['class_name'] = optional($row->classSection)->class?->name . "-" . optional($row->classSection)->section?->name . " - " . optional($row->classSection)->class?->medium?->name . " " . optional($row->classSection)->class?->streams?->name;
+            $tempRow['subject_name'] = optional($row->subject)->name;
             $tempRow['expiry_date'] = $row->expiry_date->toDateString();
             $tempRow['price'] = number_format($row->price, 2);
             $tempRow['maximum_usage'] = $row->maximum_usage;
@@ -92,22 +100,32 @@ class CouponController extends Controller
 
     public function create()
     {
-        $teachers = Teacher::select("id", "user_id")->with('user:id,first_name,last_name')->get();
-        $teachers = $teachers->map(function ($teacher) {
-            return [
-                'id' => $teacher->id,
-                'name' => "{$teacher->user->first_name} {$teacher->user->last_name}"
-            ];
-        })->pluck('name', 'id');
+        $subjects = ClassSubject::with('subject')->orderByDesc('id')->get();
 
-        $lessons = Lesson::select('name', 'teacher_id', 'id')->get();
+        $classes = ClassSection::with('class', 'section', 'streams')->get();
+        $teachers = Teacher::with('user', 'subjects')->get();
 
-        return view('coupons.create', compact('teachers', 'lessons'));
+        $lessons = Lesson::select('name', 'teacher_id', 'class_section_id', 'id')->get();
+
+        return view('coupons.create', compact('teachers', 'lessons', 'subjects', 'classes'));
     }
 
     public function store(CouponRequest $request)
     {
-        $this->couponService->savePurchaseCoupons($request);
+        $couponIds = $this->couponService->savePurchaseCoupons($request);
+
+        // if ($request->post('action') == 'save_and_print') {
+        //     // dd(
+        //     //     $this->couponService->exportCouponCode($couponIds)
+        //     // );
+        //     return $this->couponService->exportCouponCode($couponIds);
+        //     // return [
+        //     //     'error' => false,
+        //     //     'message' => trans('data_store_successfully'),
+        //     //     'file_url' => $this->couponService->exportCouponCode($couponIds),
+        //     //     'file_name' => 'coupon-code.xlsx'
+        //     // ];
+        // }
 
         return response()->json([
             'error' => false,
@@ -117,7 +135,7 @@ class CouponController extends Controller
 
     public function show(Coupon $coupon)
     {
-        $coupon->load('onlyAppliedTo', 'usages','teacher.user');
+        $coupon->load('onlyAppliedTo', 'usages', 'teacher.user');
         return response()->json([
             'error' => false,
             'data' => [

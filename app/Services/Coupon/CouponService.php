@@ -5,12 +5,16 @@ namespace App\Services\Coupon;
 use App\Models\User;
 use App\Models\Coupon;
 use App\Models\Lesson;
+use App\Exports\CouponExport;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use App\Enums\Course\CouponTypeEnum;
+use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Traits\Conditionable;
 use App\Http\Requests\Dashboard\Coupon\CouponRequest;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class CouponService
 {
@@ -24,7 +28,7 @@ class CouponService
         return $this->model->where('code', $couponId)->first();
     }
 
-    public function isCouponAvailable(Coupon $coupon, User $user, Model $action): array
+    public function isCouponAvailable(Coupon $coupon, User $user, Lesson $action): array
     {
         $coupon->loadCount(['usages']);
         if ($coupon->is_disabled) {
@@ -39,14 +43,22 @@ class CouponService
         if ($coupon->usages_count >= $coupon->maximum_usage) {
             return $this->responseContent(__('coupon_errors_limited'), false);
         }
-        
+
         if ($coupon->usages()->whereMorphedTo('usedByUser', $user)->whereMorphedTo('appliedTo', $action)->exists()) {
             return $this->responseContent(__('coupon_errors_already_used'), false);
         }
-        
-        // if ($coupon->usages()->whereMorphedTo('usedByUser', $user)->sum('amount') >= $coupon->price) {
-        //     return $this->responseContent(__('coupon_errors_insufficient'), false);
-        // }
+
+        if ($coupon->teacher_id != $action->teacher_id) {
+            return $this->responseContent(__('coupon_errors_not_related_to_teacher'), false);
+        }
+
+        if ($coupon->subject_id != $action->subject_id) {
+            return $this->responseContent(__('coupon_errors_not_related_to_subject'), false);
+        }
+
+        if ($coupon->class_section_id != $action->class_section_id) {
+            return $this->responseContent(__('coupon_errors_not_related_to_class'), false);
+        }
 
         return $this->responseContent(__('coupon_is_available'), true);
     }
@@ -68,7 +80,6 @@ class CouponService
             'used_by_user_id' => $user->id,
             'used_by_user_type' => get_class($user),
         ]);
-        
         return $this->responseContent(__('coupon_applied_successfully'), true);
     }
 
@@ -89,23 +100,33 @@ class CouponService
 
         $couponData = [
             'teacher_id' => $request->teacher_id,
+            'subject_id' => $request->subject_id,
+            'class_section_id' => $request->class_id,
+
             'code' => $request->code,
             'expiry_date' => $expiryDate->toDateTimeString(),
             'price' => null,
             'type' => CouponTypeEnum::PURCHASE,
             'maximum_usage' => $maxUsegeLimit,
         ];
-        
+        // ----------------------------------------------- #
         $lesson = Lesson::find($request->lesson_id);
-        if($lesson){
+        if ($lesson) {
             if ($coupon->onlyAppliedTo()->isNot($lesson)) {
                 $couponData['only_applied_to_id'] = $lesson->id;
                 $couponData['only_applied_to_type'] = get_class($lesson);
             }
         }
-        return tap($coupon,function ($coupon) use ($couponData) {
+        return tap($coupon, function ($coupon) use ($couponData) {
             $coupon->update($couponData);
         });
+    }
+
+    public function exportCouponCode($coupons)
+    {
+        $fileName = 'coupons_' . time() . '.xlsx';
+        $filePath = "exports/{$fileName}";
+        return Excel::download(new CouponExport($coupons), $fileName);
     }
 
     public function savePurchaseCoupons($request)
@@ -118,6 +139,8 @@ class CouponService
             for ($i = 0; $i < $request->coupons_count; $i++) {
                 $ids[] = $this->storePurchaseCoupon(
                     $request->teacher_id,
+                    $request->class_id,
+                    $request->subject_id,
                     $expiryDate,
                     $request->price,
                     $request->usage_limit,
@@ -129,10 +152,12 @@ class CouponService
 
         return $ids;
     }
-    private function storePurchaseCoupon($teacherId, ?Carbon $expiryDate, $price, $maxUsegeLimit, $appliedTo = null)
+    private function storePurchaseCoupon($teacherId = null, $subjectId = null, $classSectionId = null, ?Carbon $expiryDate, $price, $maxUsegeLimit, $appliedTo = null)
     {
         $couponData = [
             'teacher_id' => $teacherId,
+            'subject_id' => $subjectId,
+            'class_section_id' => $classSectionId,
             'code' => $this->generateCouponCode(),
             'expiry_date' => $expiryDate->toDateString(),
             // 'price' => $price,

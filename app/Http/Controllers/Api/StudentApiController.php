@@ -186,7 +186,7 @@ class StudentApiController extends Controller
             $due_date = $session_year->fee_due_date;
             $free_app_use_date = $session_year->free_app_use_date;
 
-            $current_date = Carbon::now()->toDateString();
+            $current_date = now()->toDateString();
             //        if (Auth::attempt(['email' => $request->email, 'password' => $request->password])) {
             //Here Email Field is referenced as a GR Number for Student
             $auth = Auth::user();
@@ -329,7 +329,6 @@ class StudentApiController extends Controller
                 'message' => 'User logged-in!',
                 'token' => $token,
                 'data' => $data,
-
                 'code' => 100,
             );
             return response()->json($response, 200);

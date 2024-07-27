@@ -55,22 +55,21 @@ class LessonTopicController extends Controller
             );
             return response()->json($response);
         }
-        $validator = Validator::make(
-            $request->all(),
-            [
+        $validator = Validator::make($request->all(),[
                 'class_section_id' => 'required|numeric',
                 'subject_id' => 'required|numeric',
                 'lesson_id' => 'required|numeric',
                 'name' => ['required', new uniqueTopicInLesson($request->lesson_id)],
                 'description' => 'required',
-
+                // --------------------------------------------------- \\
                 'edit_file' => 'nullable|array',
                 'edit_file.*.type' => 'nullable|in:file_upload,youtube_link,video_upload,other_link',
                 'edit_file.*.name' => 'required_with:edit_file.*.type',
                 'edit_file.*.thumbnail' => 'required_if:edit_file.*.type,youtube_link,video_upload,other_link',
+                // --------------------------------------------------- \\
                 //Regex for Youtube Link
                 'edit_file.*.link' => ['nullable','required_if:edit_file.*.type,youtube_link', new YouTubeUrl],
-
+                // --------------------------------------------------- \\
                 'file' => 'nullable|array',
                 'file.*.type' => 'nullable|in:file_upload,youtube_link,video_upload,other_link',
                 'file.*.name' => 'required_with:file.*.type',
@@ -84,11 +83,11 @@ class LessonTopicController extends Controller
         );
 
         if ($validator->fails()) {
-            $response = array(
+            // $response = ;
+            return response()->json([
                 'error' => true,
                 'message' => $validator->errors()->first(),
-            );
-            return response()->json($response);
+            ]);
         }
         try {
             $topic = new LessonTopic();

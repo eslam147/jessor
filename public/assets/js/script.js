@@ -25,7 +25,7 @@ function showSuccessToast(message) {
     });
 }
 
-function ajaxRequest(type, url, data, beforeSendCallback, successCallback, errorCallback, finalCallback, processData = false) {
+function ajaxRequest(type, url, data, beforeSendCallback, successCallback, errorCallback, finalCallback, processData = false, xhrFields = {}) {
     /*
     * @param
     * beforeSendCallback : This function will be executed before Ajax sends its request
@@ -41,6 +41,7 @@ function ajaxRequest(type, url, data, beforeSendCallback, successCallback, error
         processData: processData,
         contentType: false,
         dataType: 'json',
+        xhrFields: xhrFields,
         beforeSend: function () {
             if (beforeSendCallback != null) {
                 beforeSendCallback();

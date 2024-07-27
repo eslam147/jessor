@@ -49,6 +49,12 @@
                                             <th scope="col" data-field="expiry_date" data-sortable="true">
                                                 {{ __('expiry_date') }}
                                             </th>
+                                            <th scope="col" data-field="class_name" data-sortable="true">
+                                                {{ __('class_name') }}
+                                            </th>
+                                            <th scope="col" data-field="subject_name" data-sortable="true">
+                                                {{ __('subject') }}
+                                            </th>
 
                                             <th scope="col" data-field="maximum_usage" data-sortable="true">
                                                 {{ __('maximum_usage') }}

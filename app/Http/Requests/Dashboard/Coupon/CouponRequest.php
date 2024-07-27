@@ -13,19 +13,26 @@ class CouponRequest extends FormRequest
 
     private function onCreate(): array
     {
+        // ------------------------------------------------ \\
         return [
             'coupons_count' => 'required|integer|min:1',
+            // ------------------------------------------------ \\
             'usage_limit' => 'required|integer|min:1',
             'expiry_date' => 'nullable|date|after:today',
+            // ------------------------------------------------ \\
             'teacher_id' => 'nullable|exists:teachers,id',
             'lesson_id' => 'nullable|exists:lessons,id',
+            // ------------------------------------------------ \\
+            'subject_id' => 'nullable|exists:subjects,id',
+            'class_id' => 'nullable|exists:class_sections,id',
         ];
+        // ------------------------------------------------ \\
     }
     private function onUpdate(): array
     {
         // ------------------------------------------------ \\
         return [
-            'code' => 'required|string|unique:coupons,code,' . $this->coupon->id,
+            'code' => 'required|string|unique:coupons,code,' . $this->route('id'),
             // ------------------------------------------------ \\
             'usage_limit' => 'required|integer|min:1',
             'expiry_date' => 'nullable|date|after:today',
@@ -33,6 +40,10 @@ class CouponRequest extends FormRequest
             // ------------------------------------------------ \\
             'teacher_id' => 'nullable|exists:teachers,id',
             'lesson_id' => 'nullable|exists:lessons,id',
+            // ------------------------------------------------ \\
+            'subject_id' => 'nullable|exists:subjects,id',
+            'class_id' => 'nullable|exists:class_sections,id',
+            // ------------------------------------------------ \\
         ];
         // ------------------------------------------------ \\
     }

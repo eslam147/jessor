@@ -32,5 +32,13 @@ class Coupon extends Model
     {
         return $this->belongsTo(Teacher::class,'teacher_id');
     }
+    public function classSection()
+    {
+        return $this->belongsTo(ClassSection::class,'class_section_id');
+    }
+    public function subject()
+    {
+        return $this->belongsTo(Subject::class,'subject_id');
+    }
     
 }
