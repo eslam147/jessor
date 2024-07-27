@@ -34,6 +34,7 @@ use Barryvdh\DomPDF\Facade\Pdf;
 use App\Models\PaymentTransaction;
 use Illuminate\Support\Facades\DB;
 use Spatie\Permission\Models\Role;
+use Illuminate\Support\Facades\Log;
 use App\Models\AssignmentSubmission;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -41,6 +42,7 @@ use Illuminate\Support\Facades\Mail;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Models\OnlineExamStudentAnswer;
 use App\Models\StudentOnlineExamStatus;
+use Illuminate\Auth\Events\Validated;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 
@@ -144,7 +146,7 @@ class StudentController extends Controller
         $request->validate([
             'first_name' => 'required',
             'last_name' => 'required',
-            'mobile' => 'nullable|numeric|regex:/^[0-9]{7,16}$/',
+            'mobile' => 'nullable|numeric',
             'image' => 'mimes:jpeg,png,jpg|image|max:2048',
             'dob' => 'required',
             'class_section_id' => 'required',
@@ -402,9 +404,8 @@ class StudentController extends Controller
         }
         return response()->json($response);
     }
-
-    public function store(Request $request)
-    {
+    public function store(Request $request){
+         #check if admin has permission
         if (!Auth::user()->can('student-create') || !Auth::user()->can('student-edit')) {
             $response = array(
                 'message' => trans('no_permission_message')
@@ -412,502 +413,232 @@ class StudentController extends Controller
             return response()->json($response);
         }
 
-        $request->validate([
-            'first_name' => 'required',
-            'last_name' => 'required',
-            'mobile' => 'nullable|numeric|regex:/^[0-9]{7,16}$/',
-            'image' => 'mimes:jpeg,png,jpg|image|max:2048',
-            'dob' => 'required',
-            'class_section_id' => 'required',
-            'category_id' => 'required',
-            'admission_no' => 'required|unique:users,email',
-            'admission_date' => 'required',
-            'current_address' => 'required',
-            'permanent_address' => 'required',
-            'parent' => 'required_without:guardian',
-            'guardian' => 'required_without:parent'
-        ],
-        ['mobile.regex' => 'The mobile number must be a length of 7 to 15 digits.'
-        ]);
 
-        $response = [];
-        try {
-            $parentRole = Role::where('name', 'Parent')->first();
-            $studentRole = Role::where('name', 'Student')->first();
-            //Add Father in User and Parent table data
+
+        //Add Father in User and Parent table data
+            //check if isset parent
             if(isset($request->parent)){
-                if (!intval($request->father_email)) {
-                    $request->validate([
-                        'father_email' => 'required|email|regex:/^([a-z0-9\+_\-]+)(\.[a-z0-9\+_\-]+)*@([a-z0-9\-]+\.)+[a-z]{2,6}$/ix|unique:users,email|unique:parents,email',
-                        'father_image' => 'required|mimes:jpeg,png,jpg|image|max:2048',
-                    ]);
-                }
+                //validate parent's data
+                $validator = Validator::make($request->all(),[
+                    //father
+                    'father_email'          => 'required|email',
+                    'father_first_name'     => 'required|string',
+                    'father_last_name'      => 'required|string',
+                    'father_mobile'         => 'required|regex:/^([0-9\s\-\+\(\)]*)$/|min:10|max:15',
+                    'father_password'       => 'required|string|min:6',
+                    //mother
+                    'mother_email'          => 'required|email',
+                    'mother_first_name'     => 'required|string',
+                    'mother_last_name'      => 'required|string',
+                    'mother_mobile'         => 'required|regex:/^([0-9\s\-\+\(\)]*)$/|min:10|max:15',
+                    'mother_password'       => 'required|string|min:6',
+                ]);
 
-                if (!intval($request->mother_email)) {
-                    $request->validate([
-                        'mother_email' => 'required|email|regex:/^([a-z0-9\+_\-]+)(\.[a-z0-9\+_\-]+)*@([a-z0-9\-]+\.)+[a-z]{2,6}$/ix|unique:users,email|unique:parents,email',
-                        'mother_image' => 'required|mimes:jpeg,png,jpg|image|max:2048',
-                    ]);
-                }
-                $father_plaintext_password = str_replace('-', '', date('d-m-Y', strtotime($request->father_dob)));
-                if (!intval($request->father_email)) {
-                    $father_email = $request->father_email;
-                    $father_user = new User();
-
-                    $father_image = $request->file('father_image');
-                    // made file name with combination of current time
-                    $file_name = time() . '-' . $father_image->getClientOriginalName();
-                    //made file path to store in database
-                    $file_path = 'parents/' . $file_name;
-                    //resized image
-                    resizeImage($father_image);
-                    //stored image to storage/public/parents folder
-                    $destinationPath = storage_path('app/public/parents');
-                    $father_image->move($destinationPath, $file_name);
-
-                    $father_user->image = $file_path;
-                    $father_user->password = Hash::make($father_plaintext_password);
-                    $father_user->first_name = $request->father_first_name;
-                    $father_user->last_name = $request->father_last_name;
-                    $father_user->email = $father_email;
-                    $father_user->mobile = $request->father_mobile;
-                    $father_user->dob = date('Y-m-d', strtotime($request->father_dob));
-                    $father_user->gender = 'Male';
-                    $father_user->save();
-                    $father_user->assignRole($parentRole);
-
-                    $father_parent = new Parents();
-                    //Parent Dynamic FormField
-                    $fatherFields = FormField::where('for',2)->orderBy('rank', 'ASC')->get();
-                    $data = array();
-                    $status = 0;
-                    $dynamic_data = json_decode( $father_parent->dynamic_field_values, true);
-
-                    foreach ($fatherFields as $form_field) {
-
-                        // INPUT TYPE CHECKBOX
-                        if ($form_field->type == 'checkbox') {
-                            if ($status == 0) {
-                                $data[] = $request->input('father_checkbox',[]);
-                                $status = 1;
-                            }
-                        } else if ($form_field->type == 'file') {
-                            // INPUT TYPE FILE
-                            $get_file = '';
-                            $field = "father_" . str_replace(" ", "_", $form_field->name);
-                            if ($dynamic_data && count($dynamic_data) > 0) {
-                                foreach ($dynamic_data as $field_data) {
-                                    if (isset($field_data[$field])) { // GET OLD FILE IF EXISTS
-                                        $get_file = $field_data[$field];
-                                    }
-                                }
-                            }
-                            $hidden_file_name = 'file-' . $field;
-
-                            if ($request->hasFile($field)) {
-                                if ($get_file) {
-                                    Storage::disk('public')->delete($get_file); // DELETE OLD FILE IF NEW FILE IS SELECT
-                                }
-                                $data[] = [str_replace(" ", "_", $form_field->name) => $request->file($field)->store('parent', 'public')];
-                            } else {
-                                if ($request->$hidden_file_name) {
-                                    $data[] = [str_replace(" ", "_", $form_field->name) => $request->$hidden_file_name];
-                                }
-                            }
-                        } else {
-                            $field = "father_" . str_replace(" ", "_", $form_field->name);
-                            $data[] = [str_replace(" ", "_", $form_field->name) => $request->$field];
-                        }
-                    }
-                    // End Parent Dynamic FormField
-                    $father_parent->user_id = $father_user->id;
-                    $father_parent->first_name = $request->father_first_name;
-                    $father_parent->last_name = $request->father_last_name;
-                    $father_parent->image = $father_user->getRawOriginal('image');
-                    $father_parent->occupation = $request->father_occupation;
-                    $father_parent->mobile = $request->father_mobile;
-                    $father_parent->email = $request->father_email;
-                    $father_parent->dob = date('Y-m-d', strtotime($request->father_dob));
-                    $father_parent->gender = 'Male';
-                    $father_parent->dynamic_fields = json_encode($data);
-                    $father_parent->save();
-                    $father_parent_id = $father_parent->id;
-                    $father_email = $request->father_email;
-                    $father_name = $request->father_first_name;
+                //add Parents
+                if($validator->fails()){
+                    $response = array(
+                        'error' => true,
+                        'message' => $validator->messages()->all()[0],
+                    );
+                    return response()->json($response);
                 } else {
-                $father_parent_id = $request->father_email;
-                    $father_email = Parents::where('id', $request->father_email)->pluck('email')->first();
-                    $father_name = Parents::where('id', $request->father_email)->pluck('first_name')->first();
-                }
+                    //check if the email is exist
+                    $fatherExists = User::where('email', $request->father_email)->exists();
+                    if ($fatherExists) {
+                        $response = array(
+                            'error' => true,
+                            'message' => 'the father email you are using is alredy exist',
+                        );
+                        return response()->json($response);
+                    } else {
+                        $father = User::create([
+                            'first_name'    => $request->father_first_name,
+                            'last_name'     => $request->father_last_name,
+                            'gender'        => 'Male',
+                            'email'         => $request->father_email,
+                            'password'      => Hash::make($request->password),
+                            'mobile'        => $request->father_mobile,
 
-                //Add Mother in User and Parent table data
-                $mother_plaintext_password = str_replace('-', '', date('d-m-Y', strtotime($request->mother_dob)));
-                if (!intval($request->mother_email)) {
-                    $mother_email = $request->mother_email;
-                    $mother_user = new User();
+                        ]);
 
-                    $mother_image = $request->file('mother_image');
-                    // made file name with combination of current time
-                    $file_name = time() . '-' . $mother_image->getClientOriginalName();
-                    //made file path to store in database
-                    $file_path = 'parents/' . $file_name;
-                    //resized image
-                    resizeImage($mother_image);
-                    //stored image to storage/public/parents folder
-                    $destinationPath = storage_path('app/public/parents');
-                    $mother_image->move($destinationPath, $file_name);
-
-                    $mother_user->image = $file_path;
-                    $mother_user->password = Hash::make($mother_plaintext_password);
-                    $mother_user->first_name = $request->mother_first_name;
-                    $mother_user->last_name = $request->mother_last_name;
-                    $mother_user->email = $mother_email;
-                    $mother_user->mobile = $request->mother_mobile;
-                    $mother_user->dob = date('Y-m-d', strtotime($request->mother_dob));
-                    $mother_user->gender = 'Female';
-                    $mother_user->save();
-                    $mother_user->assignRole($parentRole);
-
-                    $mother_parent = new Parents();
-
-                    //Parent Dynamic FormField
-                    $motherFields = FormField::where('for',2)->orderBy('rank', 'ASC')->get();
-                    $data = array();
-                    $status = 0;
-                    $dynamic_data = json_decode( $mother_parent->dynamic_field_values, true);
-
-                    foreach ($motherFields as $form_field) {
-
-                        // INPUT TYPE CHECKBOX
-                        if ($form_field->type == 'checkbox') {
-                            if ($status == 0) {
-                                $data[] = $request->input('mother_checkbox',[]);
-                                $status = 1;
-                            }
-                        } else if ($form_field->type == 'file') {
-                            // INPUT TYPE FILE
-                            $get_file = '';
-                            $field = "mother_" . str_replace(" ", "_", $form_field->name);
-                            if ($dynamic_data && count($dynamic_data) > 0) {
-                                foreach ($dynamic_data as $field_data) {
-                                    if (isset($field_data[$field])) { // GET OLD FILE IF EXISTS
-                                        $get_file = $field_data[$field];
-                                    }
-                                }
-                            }
-                            $hidden_file_name = 'file-' . $field;
-
-                            if ($request->hasFile($field)) {
-                                if ($get_file) {
-                                    Storage::disk('public')->delete($get_file); // DELETE OLD FILE IF NEW FILE IS SELECT
-                                }
-                                $data[] = [str_replace(" ", "_", $form_field->name) => $request->file($field)->store('parent', 'public')];
-                            } else {
-                                if ($request->$hidden_file_name) {
-                                    $data[] = [str_replace(" ", "_", $form_field->name) => $request->$hidden_file_name];
-                                }
-                            }
-                        } else {
-                            $field = "mother_" . str_replace(" ", "_", $form_field->name);
-                            $data[] = [str_replace(" ", "_", $form_field->name) => $request->$field];
-                        }
-                    }
-                    // End Parent Dynamic FormField
-
-                    $mother_parent->user_id = $mother_user->id;
-                    $mother_parent->first_name = $request->mother_first_name;
-                    $mother_parent->last_name = $request->mother_last_name;
-                    $mother_parent->image = $mother_user->getRawOriginal('image');
-                    $mother_parent->occupation = $request->mother_occupation;
-                    $mother_parent->mobile = $request->mother_mobile;
-                    $mother_parent->email = $request->mother_email;
-                    $mother_parent->dob = date('Y-m-d', strtotime($request->mother_dob));
-                    $mother_parent->gender = 'Female';
-                    $mother_parent->dynamic_fields = json_encode($data);
-                    $mother_parent->save();
-                    $mother_parent_id = $mother_parent->id;
-                    $mother_email = $request->mother_email;
-                    $mother_name = $request->mother_first_name;
-                } else {
-                    $mother_parent_id = $request->mother_email;
-                    $mother_email = Parents::where('id', $request->mother_email)->pluck('email')->first();
-                    $mother_name = Parents::where('id', $request->mother_email)->pluck('first_name')->first();
-                }
-            }else{
-                $father_parent_id = null;
-                $mother_parent_id = null;
-            }
-            if(isset($request->guardian))
-            {
-                if (isset($request->guardian_email)) {
-                    if (isset($request->guardian_email) && !intval($request->guardian_email)) {
-                        $request->validate([
-                            'guardian_email' => 'required|email|regex:/^([a-z0-9\+_\-]+)(\.[a-z0-9\+_\-]+)*@([a-z0-9\-]+\.)+[a-z]{2,6}$/ix|unique:parents,email',
-                            'guardian_image' => 'required|mimes:jpeg,png,jpg|image|max:2048',
+                        //add father to parent table
+                        Parents::create([
+                            'user_id'       => $father->id,
+                            'first_name'    => $request->father_first_name,
+                            'last_name'     => $request->father_last_name,
+                            'gender'        => 'Male',
+                            'email'         => $request->father_email,
+                            'password'      => Hash::make($request->password),
+                            'mobile'        => $request->father_mobile,
                         ]);
                     }
-                    $guardian_plaintext_password = str_replace('-', '', date('d-m-Y', strtotime($request->guardian_dob)));
-                    if (!intval($request->guardian_email)) {
-                        $guardian_email = $request->guardian_email;
-                        $guardian_user = new User();
-
-                        $guardian_image = $request->file('guardian_image');
-                        // made file name with combination of current time
-                        $file_name = time() . '-' . $guardian_image->getClientOriginalName();
-                        //made file path to store in database
-                        $file_path = 'parents/' . $file_name;
-                        //resized image
-                        resizeImage($guardian_image);
-                        //stored image to storage/public/parents folder
-                        $destinationPath = storage_path('app/public/parents');
-                        $guardian_image->move($destinationPath, $file_name);
-
-                        $guardian_user->image = $file_path;
-                        $guardian_user->password = Hash::make($guardian_plaintext_password);
-                        $guardian_user->first_name = $request->guardian_first_name;
-                        $guardian_user->last_name = $request->guardian_last_name;
-                        $guardian_user->email = $guardian_email;
-                        $guardian_user->mobile = $request->guardian_mobile;
-                        $guardian_user->dob = date('Y-m-d', strtotime($request->guardian_dob));
-                        $guardian_user->gender = $request->guardian_gender;
-                        $guardian_user->save();
-                        $guardian_user->assignRole($parentRole);
-
-                        $guardian_parent = new Parents();
-
-                          //Parent Dynamic FormField
-                    $guardianFields = FormField::where('for',2)->orderBy('rank', 'ASC')->get();
-                    $data = array();
-                    $status = 0;
-                    $dynamic_data = json_decode( $guardian_parent->dynamic_field_values, true);
-
-                    foreach ($guardianFields as $form_field) {
-
-                        // INPUT TYPE CHECKBOX
-                        if ($form_field->type == 'checkbox') {
-                            if ($status == 0) {
-                                $data[] = $request->input('guardian_checkbox',[]);
-                                $status = 1;
-                            }
-                        } else if ($form_field->type == 'file') {
-                            // INPUT TYPE FILE
-                            $get_file = '';
-                            $field = "guardian_" . str_replace(" ", "_", $form_field->name);
-                            if ($dynamic_data && count($dynamic_data) > 0) {
-                                foreach ($dynamic_data as $field_data) {
-                                    if (isset($field_data[$field])) { // GET OLD FILE IF EXISTS
-                                        $get_file = $field_data[$field];
-                                    }
-                                }
-                            }
-                            $hidden_file_name = 'file-' . $field;
-
-                            if ($request->hasFile($field)) {
-                                if ($get_file) {
-                                    Storage::disk('public')->delete($get_file); // DELETE OLD FILE IF NEW FILE IS SELECT
-                                }
-                                $data[] = [str_replace(" ", "_", $form_field->name) => $request->file($field)->store('parent', 'public')];
-                            } else {
-                                if ($request->$hidden_file_name) {
-                                    $data[] = [str_replace(" ", "_", $form_field->name) => $request->$hidden_file_name];
-                                }
-                            }
-                        } else {
-                            $field = "guardian_" . str_replace(" ", "_", $form_field->name);
-                            $data[] = [str_replace(" ", "_", $form_field->name) => $request->$field];
-                        }
-                    }
-                    // End Parent Dynamic FormField
-
-                        $guardian_parent->user_id = $guardian_user->id;
-                        $guardian_parent->first_name = $request->guardian_first_name;
-                        $guardian_parent->last_name = $request->guardian_last_name;
-                        $guardian_parent->image = $guardian_user->getRawOriginal('image');
-                        $guardian_parent->occupation = $request->guardian_occupation;
-                        $guardian_parent->mobile = $request->guardian_mobile;
-                        $guardian_parent->email = $guardian_email;
-                        $guardian_parent->dob = date('Y-m-d', strtotime($request->guardian_dob));
-                        $guardian_parent->gender = $request->guardian_gender;
-                        $guardian_parent->dynamic_fields = json_encode($data);
-                        $guardian_parent->save();
-                        $guardian_parent_id = $guardian_parent->id;
-                        $guardian_name = $request->guardian_first_name;
+                    //add mother to user table
+                    //check if the email is exist
+                    $motherExists = User::where('email', $request->mother_email)->exists();
+                    if ($motherExists) {
+                        $response = array(
+                            'error' => true,
+                            'message' => 'the mother email you are using is alredy exist',
+                        );
+                        return response()->json($response);
                     } else {
-                        $guardian_parent_id = Parents::where('id', $request->guardian_email)->pluck('id')->first();
-                        $guardian_email = Parents::where('id', $request->guardian_email)->pluck('email')->first();
-                        $guardian_name = Parents::where('id', $request->guardian_email)->pluck('first_name')->first();
+                        $mother = User::create([
+                            'first_name'    => $request->mother_first_name,
+                            'last_name'     => $request->mother_last_name,
+                            'gender'        => 'Male',
+                            'email'         => $request->mother_email,
+                            'password'      => Hash::make($request->password),
+                            'mobile'        => $request->mother_mobile,
+
+                        ]);
+
+                        //add Mother to parent table
+                        Parents::create([
+                            'user_id'       => $mother->id,
+                            'first_name'    => $request->mother_first_name,
+                            'last_name'     => $request->mother_last_name,
+                            'gender'        => 'Male',
+                            'email'         => $request->mother_email,
+                            'mobile'        => $request->mother_mobile,
+                        ]);
                     }
+
                 }
-            }else {
-                $guardian_parent_id = null;
+
+
+
             }
+            //check if isset guardian
+            if(isset($request->guardian)){
+                $validate = Validator::make($request->all(),[
+                    //father
+                    'guardian_email'          => 'required|email',
+                    'guardian_first_name'     => 'required|string',
+                    'guardian_last_name'      => 'required|string',
+                    'guardian_mobile'         => 'required|regex:/^([0-9\s\-\+\(\)]*)$/|min:10|max:15',
+                    'guardian_password'       => 'required|string|min:6',
+                ]);
 
-            //Create Student User First
-
-            $user = new User();
-
-            //roll number
-            $roll_number_db = Students::select(DB::raw('max(roll_number)'))->where('class_section_id',$request->class_section_id)->first();
-            $roll_number_db = $roll_number_db['max(roll_number)'];
-            $roll_number = $roll_number_db + 1;
-
-            $child_plaintext_password = str_replace('-', '', date('d-m-Y', strtotime($request->dob)));
-
-            $student_image = $request->file('image');
-            // made file name with combination of current time
-            $file_name = time() . '-' . $student_image->getClientOriginalName();
-            //made file path to store in database
-            $file_path = 'students/' . $file_name;
-            //resized image
-            resizeImage($student_image);
-            //stored image to storage/public/students folder
-            $destinationPath = storage_path('app/public/students');
-            $student_image->move($destinationPath, $file_name);
-
-
-            $user->image = $file_path;
-            $user->password = Hash::make($child_plaintext_password);
-            $user->first_name = $request->first_name;
-            $user->last_name = $request->last_name;
-            //            $user->email = (isset($request->email)) ? $request->email : "";
-            $user->email = $request->admission_no;
-            $user->gender = $request->gender;
-            $user->mobile = $request->mobile;
-            $user->dob = date('Y-m-d', strtotime($request->dob));
-            $user->current_address = $request->current_address;
-            $user->permanent_address = $request->permanent_address;
-            $user->save();
-            $user->assignRole($studentRole);
-
-            $student = new Students();
-
-            // Student dynamic fields
-            $studentFields = FormField::where('for',1)->orderBy('rank', 'ASC')->get();
-            $data = array();
-            $status = 0;
-            $dynamic_data = json_decode($student->dynamic_field_values, true);
-            foreach ($studentFields as $form_field) {
-                // INPUT TYPE CHECKBOX
-                if ($form_field->type == 'checkbox') {
-                    if ($status == 0) {
-                        $data[] = $request->input('checkbox',[]);
-                        $status = 1;
-                    }
-                } else if ($form_field->type == 'file') {
-                    // INPUT TYPE FILE
-                    $get_file = '';
-                    $field = str_replace(" ", "_", $form_field->name);
-                    if ($dynamic_data && count($dynamic_data) > 0) {
-                        foreach ($dynamic_data as $field_data) {
-                            if (isset($field_data[$field])) { // GET OLD FILE IF EXISTS
-                                $get_file = $field_data[$field];
-                            }
-                        }
-                    }
-                    $hidden_file_name = 'file-' . $field;
-
-                    if ($request->hasFile($field)) {
-                        if ($get_file) {
-                            Storage::disk('public')->delete($get_file); // DELETE OLD FILE IF NEW FILE IS SELECT
-                        }
-                        $data[] = [str_replace(" ", "_", $form_field->name) => $request->file($field)->store('student', 'public')];
-                    } else {
-                        if ($request->$hidden_file_name) {
-                            $data[] = [str_replace(" ", "_", $form_field->name) => $request->$hidden_file_name];
-                        }
-                    }
+                if($validator->fails()){
+                    $response = array(
+                        'error' => true,
+                        'message' => $validator->messages()->all()[0],
+                    );
+                    return response()->json($response);
                 } else {
-                    $field = str_replace(" ", "_", $form_field->name);
-                    $data[] = [str_replace(" ", "_", $form_field->name) => $request->$field];
+                    $guardian = User::create([
+                        'first_name'    => $request->guardian_first_name,
+                        'last_name'     => $request->guardian_last_name,
+                        'gender'        => $request->guardian_gender,
+                        'email'         => $request->guardian_email,
+                        'password'      => Hash::make($request->password),
+                        'mobile'        => $request->guardian_mobile,
+                    ]);
+
+                    //add Mother to parent table
+                    Parents::create([
+                        'user_id'       => $guardian->id,
+                        'first_name'    => $request->guardian_first_name,
+                        'last_name'     => $request->guardian_last_name,
+                        'gender'        => 'Male',
+                        'email'         => $request->guardian_email,
+                        'password'      => Hash::make($request->password),
+                        'mobile'        => $request->guardian_mobile,
+                    ]);
                 }
             }
 
-            // End student dynamic field
-            $student->user_id = $user->id;
-            $student->class_section_id = $request->class_section_id;
-            $student->category_id = $request->category_id;
-            $student->admission_no = $request->admission_no;
-            $student->roll_number = $roll_number;
-            $student->caste = $request->caste;
-            $student->religion = $request->religion;
-            $student->admission_date = date('Y-m-d', strtotime($request->admission_date));
-            $student->blood_group = $request->blood_group;
-            $student->height = $request->height;
-            $student->weight = $request->weight;
-            $student->father_id = $father_parent_id;
-            $student->mother_id = $mother_parent_id;
-            $student->guardian_id = $guardian_parent_id;
-            $student->dynamic_fields = json_encode($data);
-            $student->save();
 
-            //Send User Credentials via Email
-            $school_name = getSettings('school_name');
-            if(isset($request->parent)){
-                $father_data = [
-                    'subject' => 'Welcome to ' . $school_name['school_name'],
-                    'email' => $father_email,
-                    'name' => ' ' . $father_name,
-                    'username' => ' ' . $father_email,
-                    'password' => ' ' . $father_plaintext_password,
-                    'child_name' => ' ' . $request->first_name,
-                    'child_grnumber' => ' ' . $request->admission_no,
-                    'child_password' => ' ' . $child_plaintext_password,
-                ];
-                Mail::send('students.email', $father_data, function ($message) use ($father_data) {
-                    $message->to($father_data['email'])->subject($father_data['subject']);
-                });
+            //check student data
+            $validator = Validator::make($request->all(),[
+                //students
+                'first_name'        => 'required|string',
+                'last_name'         => 'required|string',
+                'student_password'  => 'required|string|min:6',
+                'gender'            => 'required|string',
+                'student_email'     => 'required|string',
+            ]);
 
-                $mother_data = [
-                    'subject' => 'Welcome to ' . $school_name['school_name'],
-                    'email' => $mother_email,
-                    'name' => ' ' . $mother_name,
-                    'username' => ' ' . $mother_email,
-                    'password' => ' ' . $mother_plaintext_password,
-                    'child_name' => ' ' . $request->first_name,
-                    'child_grnumber' => ' ' . $request->admission_no,
-                    'child_password' => ' ' . $child_plaintext_password,
-                ];
-                Mail::send('students.email', $mother_data, function ($message) use ($mother_data) {
-                    $message->to($mother_data['email'])->subject($mother_data['subject']);
-                });
-            }else{
-                $guardian_data = [
-                    'subject' => 'Welcome to ' . $school_name['school_name'],
-                    'email' => $guardian_email,
-                    'name' => ' ' . $guardian_name,
-                    'username' => ' ' . $guardian_email,
-                    'password' => ' ' . $guardian_plaintext_password,
-                    'child_name' => ' ' . $request->first_name,
-                    'child_grnumber' => ' ' . $request->admission_no,
-                    'child_password' => ' ' . $child_plaintext_password,
-                ];
-                Mail::send('students.email', $guardian_data, function ($message) use ($guardian_data) {
-                    $message->to($guardian_data['email'])->subject($guardian_data['subject']);
-                });
-            }
-
-            $response = [
-                'error' => false,
-                'message' => trans('data_store_successfully')
-            ];
-        } catch (Throwable $e) {
-            if (Str::contains($e->getMessage(), ['Failed', 'Mail', 'Mailer', 'MailManager'])) {
-                $response = array(
-                    'error' => false,
-                    'message' => trans('email_not_send'),
-                    'data' => $e
-                );
-            } else {
-                DB::rollback();
+            if($validator->fails()){
                 $response = array(
                     'error' => true,
-                    'message' => trans('error_occurred'),
-                    'data' => $e
+                    'message' => $validator->messages()->all()[0],
                 );
+                return response()->json($response);
+            } else {
+                //add student to users table
+                $student = User::create([
+                    'first_name'    => $request->first_name,
+                    'last_name'     => $request->last_name,
+                    'gender'        => $request->gender,
+                    'email'         => $request->student_email,
+                    'is_student'    => 'yes',
+                    'password'      => Hash::make($request->student_password)
+                ]);
+
+                //add students to students table
+                Students::create([
+                    'user_id'           => $student->id,
+                    'class_section_id'  => $request->class_section_id,
+                    'category_id'       => $request->category_id,
+                    'father_id'         => $father->id,
+                    'mother_id'         => $mother->id,
+                    'guardian_id'       => $guardian->id,
+                ]);
+
+                $response = array(
+                    'error' => false,
+                    'message' => 'student has been added successfully!',
+                );
+                return response()->json($response);
             }
-        }
-        return response()->json($response);
+
     }
+
+
+
+
+    private function createOrUpdateParent($request, $type, $parentRole)
+    {
+        $plaintext_password = str_replace('-', '', date('d-m-Y', strtotime($request->input("{$type}_dob"))));
+        $user = User::create([
+            'image' => $this->handleFileUpload($request->file("{$type}_image"), 'parents'),
+            'password' => Hash::make($plaintext_password),
+            'first_name' => $request->input("{$type}_first_name"),
+            'last_name' => $request->input("{$type}_last_name"),
+            'email' => $request->input("{$type}_email"),
+            'mobile' => $request->input("{$type}_mobile"),
+            'dob' => date('Y-m-d', strtotime($request->input("{$type}_dob"))),
+            'gender' => ucfirst($type === 'father' ? 'male' : 'female')
+        ]);
+
+        $user->assignRole($parentRole);
+
+        $dynamic_fields = $this->processDynamicFields($request, $type);
+
+        return Parents::create([
+            'user_id' => $user->id,
+            'first_name' => $request->input("{$type}_first_name"),
+            'last_name' => $request->input("{$type}_last_name"),
+            'image' => $user->getRawOriginal('image'),
+            'occupation' => $request->input("{$type}_occupation"),
+            'mobile' => $request->input("{$type}_mobile"),
+            'email' => $request->input("{$type}_email"),
+            'dob' => date('Y-m-d', strtotime($request->input("{$type}_dob"))),
+            'gender' => ucfirst($type === 'father' ? 'male' : 'female'),
+            'dynamic_fields' => json_encode($dynamic_fields)
+        ])->id;
+    }
+
+
+
+
+
+
+
+
+
+
 
     /**
      * Display the specified resource.
@@ -1336,6 +1067,7 @@ class StudentController extends Controller
                 $student->class_section_id = $class_section_id;
                 $student->is_new_admission = 0;
                 $student->save();
+                
                 $student_session = new StudentSessions;
                 $student_session->student_id = $student->id;
                 $student_session->class_section_id = $class_section_id;
