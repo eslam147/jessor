@@ -5,8 +5,6 @@ use Illuminate\Support\Facades\File;
 return [
     'icon' => 'assets/logo.svg',
 
-//    'background' => 'assets/logo.svg',
-
     'support_url' => 'https://join.skype.com/invite/ur5Wrt8RIAxJ',
 
     'server' => [
