@@ -350,21 +350,21 @@ class ClassSchoolController extends Controller
                     $q->where('title', 'LIKE', "%$search%");
                 });
         }
-        if ($_GET['medium_id']) {
-            $sql = $sql->where('medium_id', $_GET['medium_id']);
+        if (request('medium_id')) {
+            $sql = $sql->where('medium_id', request('medium_id'));
         }
-        if ($_GET['shift_id']) {
-            $sql = $sql->where('shift_id', $_GET['shift_id']);
+        if (request('shift_id')) {
+            $sql = $sql->where('shift_id', request('shift_id'));
         }
         $total = $sql->count();
 
         $sql->orderBy($sort, $order)->skip($offset)->take($limit);
         $res = $sql->get();
 
-        $bulkData = array();
+        $bulkData = [];
         $bulkData['total'] = $total;
-        $rows = array();
-        $tempRow = array();
+        $rows = [];
+        $tempRow = [];
         $no = 1;
         foreach ($res as $row) {
             $operate = '<a href=' . route('class.edit', $row->id) . ' class="btn btn-xs btn-gradient-primary btn-rounded btn-icon edit-data" data-id=' . $row->id . ' title="Edit" data-toggle="modal" data-target="#editModal"><i class="fa fa-edit"></i></a>&nbsp;&nbsp;';

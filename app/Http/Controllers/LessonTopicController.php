@@ -221,29 +221,29 @@ class LessonTopicController extends Controller
                 });
             });
         }
-        if ($_GET['subject_id']) {
+        if (request('subject_id')) {
 
             $sql = $sql->whereHas('lesson', function ($q) {
-                $q->where('subject_id', $_GET['subject_id']);
+                $q->where('subject_id', request('subject_id'));
             });
         }
-        if ($_GET['class_id']) {
+        if (request('class_id')) {
 
             $sql = $sql->whereHas('lesson', function ($q) {
-                $q->where('class_section_id', $_GET['class_id']);
+                $q->where('class_section_id', request('class_id'));
             });
         }
-        if ($_GET['lesson_id']) {
-            $sql = $sql->where('lesson_id', $_GET['lesson_id']);
+        if (request('lesson_id')) {
+            $sql = $sql->where('lesson_id', request('lesson_id'));
         }
         $total = $sql->count();
 
         $sql->orderBy($sort, $order)->skip($offset)->take($limit);
         $res = $sql->get();
-        $bulkData = array();
+        $bulkData = [];
         $bulkData['total'] = $total;
-        $rows = array();
-        $tempRow = array();
+        $rows = [];
+        $tempRow = [];
         $no = 1;
         foreach ($res as $row) {
 

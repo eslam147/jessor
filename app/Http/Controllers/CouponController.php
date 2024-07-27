@@ -74,7 +74,6 @@ class CouponController extends Controller
         $tempRow = [];
         $no = 1;
         foreach ($res as $row) {
-
             $tempRow['id'] = $row->id;
             $tempRow['no'] = $no++;
             $tempRow['code'] = $row->code;

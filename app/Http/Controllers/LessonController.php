@@ -229,11 +229,14 @@ class LessonController extends Controller
         if (filled(request('subject_id'))) {
             $sql = $sql->where('subject_id', request('subject_id'));
         }
-        if ($_GET['class_id']) {
-            $sql = $sql->where('class_section_id', $_GET['class_id']);
+        if (request('class_id')) {
+            $sql = $sql->where('class_section_id', request('class_id'));
         }
-        if ($_GET['lesson_id']) {
-            $sql = $sql->where('id', $_GET['lesson_id']);
+        if (request('lesson_id')) {
+            $sql = $sql->where(
+                'id',
+                request('lesson_id')
+            );
         }
         $total = $sql->count();
 
@@ -297,7 +300,7 @@ class LessonController extends Controller
             );
             return response()->json($response);
         }
-        
+
         $validator = Validator::make(
             $request->all(),
             [

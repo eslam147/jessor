@@ -122,8 +122,8 @@ class ClassTeacherController extends Controller
                     $q->whereRaw("concat(users.first_name,' ',users.last_name) LIKE '%" . $search . "%'")->orwhere('users.first_name', 'LIKE', "%$search%")->orwhere('users.last_name', 'LIKE', "%$search%");
                 });
         }
-        if ($_GET['class_id']) {
-            $sql = $sql->where('class_id', $_GET['class_id']);
+        if (request('class_id')) {
+            $sql = $sql->where('class_id', request('class_id'));
         }
         $total = $sql->count();
 

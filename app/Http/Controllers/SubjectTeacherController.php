@@ -172,14 +172,14 @@ class SubjectTeacherController extends Controller
                 });
         }
 
-        if ($_GET['class_id']) {
-            $sql = $sql->where('class_section_id', $_GET['class_id']);
+        if (request('class_id')) {
+            $sql = $sql->where('class_section_id', request('class_id'));
         }
-        if ($_GET['teacher_id']) {
-            $sql = $sql->where('teacher_id', $_GET['teacher_id']);
+        if (request('teacher_id')) {
+            $sql = $sql->where('teacher_id', request('teacher_id'));
         }
-        if ($_GET['subject_id']) {
-            $sql = $sql->where('subject_id', $_GET['subject_id']);
+        if (request('subject_id')) {
+            $sql = $sql->where('subject_id', request('subject_id'));
         }
 
         $total = $sql->count();
