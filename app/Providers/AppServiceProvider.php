@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\ServiceProvider;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
@@ -36,7 +37,9 @@ class AppServiceProvider extends ServiceProvider
      * @return void
      */
     public function boot() {
-        //
+        if (config('app.env') !== 'local') {
+            URL::forceScheme('https');
+        }
         Schema::defaultStringLength(191);
     }
 }
