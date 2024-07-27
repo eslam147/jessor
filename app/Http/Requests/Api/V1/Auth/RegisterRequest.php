@@ -27,24 +27,28 @@ class RegisterRequest extends ApiRequest
             'guardian' => 'required_without:parent',
             'password' => 'required|min:6|confirmed',
         ];
+        $rules['gender'] = 'required|string|in:male,female';
 
         if (isset($this->father_email)) {
             $rules['father_first_name'] = 'required|string|min:3|max:255';
             $rules['father_last_name'] = 'required|string|min:3|max:255';
 
-            // $rules['father_name'] = 'required|string|min:3|max:255';
             $rules['father_email'] = 'required|different:guardian_email|different:mother_email|email|regex:/^([a-z0-9\+_\-]+)(\.[a-z0-9\+_\-]+)*@([a-z0-9\-]+\.)+[a-z]{2,6}$/ix|unique:users,email|unique:parents,email';
+            $rules['father_mobile'] = 'required|numeric|regex:/^[0-9]{7,16}$/|unique:users,mobile|unique:parents,mobile';
         }
 
         if (isset($this->mother_email)) {
             $rules['mother_first_name'] = 'required|string|min:3|max:255';
             $rules['mother_last_name'] = 'required|string|min:3|max:255';
 
-
+            $rules['mother_mobile'] = 'required|numeric|regex:/^[0-9]{7,16}$/|unique:users,mobile|unique:parents,mobile';
             $rules['mother_email'] = 'required|different:guardian_email|different:father_email|email|regex:/^([a-z0-9\+_\-]+)(\.[a-z0-9\+_\-]+)*@([a-z0-9\-]+\.)+[a-z]{2,6}$/ix|unique:users,email|unique:parents,email';
         }
+
+        
         if (isset($this->guardian_email)) {
             $rules['guardian_email'] = 'required|different:mother_email|different:father_email|email|regex:/^([a-z0-9\+_\-]+)(\.[a-z0-9\+_\-]+)*@([a-z0-9\-]+\.)+[a-z]{2,6}$/ix|unique:parents,email';
+            $rules['guardian_gender'] = 'required|string|in:male,female';
             $rules['guardian_first_name'] = 'required|string|min:3|max:255';
             $rules['guardian_last_name'] = 'required|string|min:3|max:255';
 

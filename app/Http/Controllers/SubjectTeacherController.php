@@ -152,7 +152,7 @@ class SubjectTeacherController extends Controller
         if (isset($_GET['order']))
             $order = $_GET['order'];
 
-        $sql = SubjectTeacher::SubjectTeacher()->with('class_section', 'subject', 'teacher');
+        $sql = SubjectTeacher::SubjectTeacher()->with('class_section.class', 'subject', 'teacher');
         if (isset($_GET['search']) && !empty($_GET['search'])) {
             $search = $_GET['search'];
             $sql->where('id', 'LIKE', "%$search%")
@@ -204,7 +204,7 @@ class SubjectTeacherController extends Controller
             $tempRow['stream_id'] = $row->class_section->class->streams->id ?? '-';
             $tempRow['stream_name'] = $row->class_section->class->streams->name ?? '-';
             $tempRow['subject_id'] = $row->subject_id;
-            $tempRow['subject_name'] = $row->subject->name . ' ( ' .$row->subject->type . ' ) ';
+            $tempRow['subject_name'] = $row->subject->name . " ( {$row->subject->type} ) ";
             $tempRow['teacher_id'] = $row->teacher_id;
             $tempRow['teacher_name'] = ($row->teacher) ? ($row->teacher->user->first_name . ' ' . $row->teacher->user->last_name) : '';
             $tempRow['operate'] = $operate;

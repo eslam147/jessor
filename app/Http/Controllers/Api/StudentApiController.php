@@ -1,7 +1,6 @@
 <?php
 
 namespace App\Http\Controllers\Api;
-
 use Exception;
 use Carbon\Carbon;
 use App\Models\Exam;
@@ -74,10 +73,11 @@ use App\Services\Purchase\PurchaseService;
 use App\Http\Resources\TimetableCollection;
 use Symfony\Component\HttpFoundation\Response;
 use App\Http\Requests\Api\V1\Auth\RegisterRequest;
-use App\Http\Resources\Student\Lesson\LessonResource;
-use App\Http\Resources\Student\LessonTopic\LessonTopicResource;
+use App\Http\Resources\Student\ClassSchoolResource;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use App\Http\Resources\Student\Lesson\LessonResource;
 use App\Http\Resources\Student\Teacher\TeacherResource;
+use App\Http\Resources\Student\LessonTopic\LessonTopicResource;
 
 class StudentApiController extends Controller
 {
@@ -86,6 +86,17 @@ class StudentApiController extends Controller
         private CouponService $couponService,
         private PurchaseService $purchaseService
     ) {
+    }
+    public function getClassSections(){
+        $classSections = ClassSchool::get();
+        
+        return response()->json([
+            'error' => false,
+            'message' => 'Retrived Successfully!',
+            'data' => ClassSchoolResource::collection($classSections),
+            'code' => 100,
+        ], Response::HTTP_OK);
+        
     }
     public function register(RegisterRequest $request)
     {
@@ -2468,7 +2479,7 @@ class StudentApiController extends Controller
             $session_year_id = $session_year['session_year'];
 
             $compulsory_fees_mode = getSettings('compulsory_fee_payment_mode');
-            $compulsory_fees_mode = $compulsory_fees_mode['compulsory_fee_payment_mode'];
+            $compulsory_fees_mode = $compulsory_fees_mode['compulsory_fee_payment_mode'] ?? 0;
 
             $session_year = SessionYear::where('id', $session_year_id)->first();
             $isInstallment = $session_year->include_fee_installments;
@@ -2476,11 +2487,11 @@ class StudentApiController extends Controller
             $due_date = $session_year->fee_due_date;
             $free_app_use_date = $session_year->free_app_use_date;
 
-            $current_date = Carbon::now()->toDateString();
+            $current_date = now()->toDateString();
 
             $user = Auth::user()->load(['student.class_section', 'student.category']);
             //Set Class Section name
-            $classSectionName = $user->student->class_section->class->name . " " . $user->student->class_section->section->name;
+            $classSectionName = "{$user->student->class_section->class->name} {$user->student->class_section->section->name}";
 
             // Set Class Section name
             $streamName = $user->student->class_section->class->streams->name ?? null;
@@ -2584,14 +2595,15 @@ class StudentApiController extends Controller
 
             $data = array_merge($user, ['dynamic_fields' => $dynamicFields ?? null]);
 
-            $response = array(
+            $response = [
                 'error' => false,
                 'message' => 'Data Fetched Successfully',
                 'data' => $data,
                 'code' => 100,
-            );
+            ];
 
         } catch (Exception $e) {
+            report($e);
             $response = array(
                 'error' => true,
                 'message' => trans('error_occurred'),

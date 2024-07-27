@@ -2,6 +2,7 @@
 namespace App\Services\Auth;
 
 use App\Models\{
+    FeesPaid,
     User,
     Parents,
     Students,
@@ -15,6 +16,8 @@ use Illuminate\Support\Facades\Storage;
 class RegisterAuthService
 {
     private static $parentRole;
+    const FEMALE = 'female';
+    const MALE = 'male'; 
     public function __construct()
     {
         self::$parentRole = Role::where('name', 'Parent')->first();
@@ -77,7 +80,7 @@ class RegisterAuthService
 
         //Parent Dynamic FormField
         $father = new Parents();
-        $fatherFields = FormField::where('for', 2)->orderBy('rank', 'ASC')->get();
+        $fatherFields = FormField::where('for', 2)->orderBy('rank')->get();
 
         $status = 0;
         $dynamic_data = json_decode($father->dynamic_field_values, true);
@@ -89,14 +92,15 @@ class RegisterAuthService
         );
 
         // End Parent Dynamic FormField
+        // --------------------------------------------------- \\
         $father->user_id = $user->id;
         $father->first_name = $request->father_first_name;
         $father->last_name = $request->father_last_name;
-
         $father->mobile = $request->father_mobile;
         $father->email = $request->father_email;
         $father->gender = $gender;
         $father->dynamic_fields = json_encode($parentFormData);
+        // --------------------------------------------------- \\
 
         $father->save();
 

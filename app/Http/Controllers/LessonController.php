@@ -163,9 +163,8 @@ class LessonController extends Controller
                 'message' => trans('data_store_successfully')
             );
         } catch (Exception $e) {
-            dd(
-                $e
-            );
+            report($e);
+
             $response = array(
                 'error' => true,
                 'message' => trans('error_occurred'),
