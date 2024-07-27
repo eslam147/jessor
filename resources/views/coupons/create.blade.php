@@ -71,7 +71,7 @@
                                         @foreach ($classes as $section)
                                             <option value="{{ $section->id }}" @selected(old('class_id'))
                                                 data-class="{{ $section->class->id }}">
-                                                {{ $section->class->name }} - {{ $section->section->name }}
+                                                {{ $section->class->name }} - {{ $section->section->name }} - {{ $section->class->medium->name }}
                                                 {{ optional($section->class->streams)->name }}
                                             </option>
                                         @endforeach
@@ -221,7 +221,7 @@
             $('#subject_id').empty();
             $('#subject_id').removeAttr('readonly');
 
-            const subjects = classSubjects.filter(classSubject => classSubject.subject.id == Number(classId));
+            const subjects = classSubjects.filter(classSubject => classSubject.class_id == Number(classId));
 
             if (subjects && subjects.length > 0) {
                 for (let i = 0; i < subjects.length; i++) {

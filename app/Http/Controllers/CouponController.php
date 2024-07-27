@@ -98,7 +98,7 @@ class CouponController extends Controller
     {
         $subjects = ClassSubject::with('subject')->orderByDesc('id')->get();
 
-        $classes = ClassSection::with('class', 'section', 'streams')->get();
+        $classes = ClassSection::with('class','class.medium', 'section', 'streams')->get();
         $teachers = Teacher::with('user', 'subjects')->get();
 
         $lessons = Lesson::select('name', 'teacher_id', 'class_section_id', 'id')->get();
