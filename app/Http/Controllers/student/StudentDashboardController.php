@@ -20,7 +20,6 @@ class StudentDashboardController extends Controller
         $subjects = ClassSubject::where('class_id', $class_id)->with('subject')->latest()->take(3)->get()->pluck('subject');
 
         //get the time table of the student
-
         return view('student_dashboard.dashboard');
     }
 

@@ -20,7 +20,8 @@ class SubjectController extends Controller
         $class_id = ClassSection::whereId($class_section_id)->valueOrFail('class_id');
 
         $subjects = Subject::whereHas('classSubjects', fn($q) => $q->where('class_id', $class_id))
-            ->latest()->get();
+            ->latest()
+            ->get();
 
         return view('student_dashboard.subject.index', compact('subjects'));
     }

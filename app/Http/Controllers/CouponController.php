@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Coupon;
 use App\Models\Lesson;
+use App\Models\Mediums;
 use App\Models\Teacher;
 use App\Models\ClassSection;
 use Illuminate\Http\Request;
@@ -97,13 +98,27 @@ class CouponController extends Controller
     public function create()
     {
         $subjects = ClassSubject::with('subject')->orderByDesc('id')->get();
+        $mediums = Mediums::with([
+            'classSections' => fn($q) => $q->orderByDesc('id')->with('class','class.medium', 'section', 'streams')
+        ])->orderByDesc('id')->get();
+        $mediums =  $mediums->map(function ($medium){
+            return (object)[
+                'id' => $medium->id,
+                'name' => $medium->name,
+                'classes' => $medium->classSections->map(function ($class){
+                    return [
+                        'id' => $class->id,
+                        'name' =>   "{$class->class?->name} - {$class->section?->name} - {$class->class->streams?->name}"
+                    ];
+                })
+            ];
 
-        $classes = ClassSection::with('class','class.medium', 'section', 'streams')->get();
+        });
         $teachers = Teacher::with('user', 'subjects')->get();
 
         $lessons = Lesson::select('name', 'teacher_id', 'class_section_id', 'id')->get();
 
-        return view('coupons.create', compact('teachers', 'lessons', 'subjects', 'classes'));
+        return view('coupons.create', compact('teachers', 'lessons','mediums', 'subjects'));
     }
 
     public function store(CouponRequest $request)

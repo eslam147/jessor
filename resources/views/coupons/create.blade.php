@@ -65,16 +65,24 @@
                                     @enderror
                                 </div>
                                 <div class="form-group col-sm-12">
-                                    <label>{{ __('class') }}</label>
+                                    <label>{{ __('medium') }}</label>
 
-                                    <select name="class_id" id="class_id" class="form-control">
-                                        @foreach ($classes as $section)
-                                            <option value="{{ $section->id }}" @selected(old('class_id'))
-                                                data-class="{{ $section->class->id }}">
-                                                {{ $section->class->name }} - {{ $section->section->name }} - {{ $section->class->medium->name }}
-                                                {{ optional($section->class->streams)->name }}
+                                    <select name="medium_id" id="medium_id" class="form-control">
+                                        @foreach ($mediums as $medium)
+                                            <option value="{{ $medium->id }}" @selected(old('medium_id') == $medium->id)>
+                                                {{ $medium->name }}
                                             </option>
                                         @endforeach
+                                    </select>
+                                    @error('class_id')
+                                        <p class="text-danger" role="alert">{{ $message }}</p>
+                                    @enderror
+                                </div>
+                                <div class="form-group col-sm-12">
+                                    <label>{{ __('class') }}</label>
+
+                                    <select name="class_id" id="class_id" readonly class="form-control">
+
                                     </select>
                                     @error('class_id')
                                         <p class="text-danger" role="alert">{{ $message }}</p>
@@ -120,7 +128,7 @@
                             <div class="d-flex justify-content-between">
                                 <input class="btn btn-theme action_btn" data-value="save" type="submit"
                                     value="{{ __('save') }}">
-                                    <input class="btn btn-success action_btn" data-value="save_and_print" type="submit"
+                                <input class="btn btn-success action_btn" data-value="save_and_print" type="submit"
                                     value="{{ __('save_and_print') }}">
 
                             </div>
@@ -152,13 +160,13 @@
             let data = new FormData(this);
 
             function successCallback(response) {
-                    var a = document.createElement('a');
+                var a = document.createElement('a');
 
-                    a.href = response.data.file_url;
-                    a.download = response.data.file_name;
-                    document.body.appendChild(a);
-                    a.click();
-                    a.remove();
+                a.href = response.data.file_url;
+                a.download = response.data.file_name;
+                document.body.appendChild(a);
+                a.click();
+                a.remove();
 
                 formElement[0].reset();
             }
@@ -195,6 +203,7 @@
             }
         })
 
+        const classes = @json($mediums->pluck('classes','id')->toArray());
         const classSubjects = @json($subjects);
         const teachers = @json($teachers);
         const lessons = @json($lessons->groupBy('teacher_id')->toArray());
@@ -249,6 +258,25 @@
                 }
             }
 
+        }
+        function setClasses(mediumId) {
+            $('#class_id').removeAttr('readonly');
+            $('#class_id').empty();
+            const classSections = classes[Number(mediumId)];
+            console.log(classSections);
+            if (classSections && classSections.length > 0) {
+                for (let i = 0; i < classSections.length; i++) {
+                    let item = classSections[i];
+                    $('#class_id').append(`<option value="${item.id}">${item.name}</option>`);
+                }
+            }
+
+        }
+        $('#medium_id').change(function() {
+            setClasses($(this).val());
+        });
+        if (medium = $('#medium_id').val()) {
+            setClasses(medium);
         }
         $('#teacher_id').change(function() {
             setLessons($(this).val());
