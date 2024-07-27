@@ -637,5 +637,6 @@
 
     "coupon_is_available": "القسيمة متاحة.",
     "coupon_errors.is_not_available": "القسيمة غير متاحة.",
-    "coupon_applied_successfully": "تم تطبيق القسيمة بنجاح."
+    "coupon_applied_successfully": "تم تطبيق القسيمة بنجاح.",
+    "save_and_print": "حفظ وطباعة"
 }

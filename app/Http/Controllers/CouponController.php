@@ -57,20 +57,17 @@ class CouponController extends Controller
         $total = $coupons->count();
 
         $findOrderKey = in_array($sort, array_keys($mappedOrderKeys));
-     
+
         $coupons->when($purchased, fn($q) => $q->has('usages'));
         $coupons
             ->withCount('usages')
-            ->with('classSection.class','classSection.section','classSection.class.medium','classSection.class.streams', 'subject:id,name')
+            ->with('classSection.class', 'classSection.section', 'classSection.class.medium', 'classSection.class.streams', 'subject:id,name')
             ->when($findOrderKey, fn($q) => $q->orderBy($mappedOrderKeys[$sort], $order))
             ->skip($offset)
             ->take($limit);
 
 
         $res = $coupons->get();
-    // dd(
-    //     $res
-    // );
         $bulkData = [];
         $bulkData['total'] = $total;
         $rows = [];
@@ -114,18 +111,16 @@ class CouponController extends Controller
     {
         $couponIds = $this->couponService->savePurchaseCoupons($request);
 
-        // if ($request->post('action') == 'save_and_print') {
-        //     // dd(
-        //     //     $this->couponService->exportCouponCode($couponIds)
-        //     // );
-        //     return $this->couponService->exportCouponCode($couponIds);
-        //     // return [
-        //     //     'error' => false,
-        //     //     'message' => trans('data_store_successfully'),
-        //     //     'file_url' => $this->couponService->exportCouponCode($couponIds),
-        //     //     'file_name' => 'coupon-code.xlsx'
-        //     // ];
-        // }
+        if ($request->post('action') == 'save_and_print') {
+            return response()->json([
+                'error' => false,
+                'message' => trans('data_store_successfully'),
+                'data' => [
+                    'file_url' => $this->couponService->exportCouponCode($couponIds),
+                    'file_name' => "couponcode".time().".xlsx"
+                ]
+            ]);
+        }
 
         return response()->json([
             'error' => false,

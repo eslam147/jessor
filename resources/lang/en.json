@@ -640,5 +640,7 @@
 
     "published": "Published",
     "archived": "Archived",
-    "draft": "Draft"
+    "draft": "Draft",
+    "save_and_print": "Save and Print"
+
 }

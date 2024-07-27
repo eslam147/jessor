@@ -24,7 +24,7 @@
                         <h4 class="card-title">
                             {{ __('create_coupon') }}
                         </h4>
-                        <form id="create-form" class="pt-3 coupon-create-form" action="{{ route('coupons.store') }}"
+                        <form id="coupon-create-form" class="pt-3 coupon-create-form" action="{{ route('coupons.store') }}"
                             method="POST" novalidate="novalidate">
                             @csrf
                             <div class="row">
@@ -120,6 +120,8 @@
                             <div class="d-flex justify-content-between">
                                 <input class="btn btn-theme action_btn" data-value="save" type="submit"
                                     value="{{ __('save') }}">
+                                    <input class="btn btn-success action_btn" data-value="save_and_print" type="submit"
+                                    value="{{ __('save_and_print') }}">
 
                             </div>
                         </form>
@@ -134,13 +136,64 @@
 
 @section('script')
     <script>
-        $('.action_btn').click(function() {
+        $('.action_btn').click(function(e) {
             let type = $(this).data('value');
             if (type != 'save') {
                 $('input[name="action"]').val(type);
             }
         });
-    
+        $('.coupon-create-form').on('submit', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            let formElement = $(this);
+
+            let submitButtonElement = $(this).find(':submit');
+            let url = $(this).attr('action');
+            let data = new FormData(this);
+
+            function successCallback(response) {
+                    var a = document.createElement('a');
+
+                    a.href = response.data.file_url;
+                    a.download = response.data.file_name;
+                    document.body.appendChild(a);
+                    a.click();
+                    a.remove();
+
+                formElement[0].reset();
+            }
+            // To Remove Red Border from the Validation tag.
+            formElement.find('.has-danger').removeClass("has-danger");
+            formElement.validate();
+            if (formElement.valid()) {
+                let submitButtonText = submitButtonElement.val();
+
+                function beforeSendCallback() {
+                    submitButtonElement.attr('disabled', true);
+                }
+
+                function mainSuccessCallback(response) {
+                    showSuccessToast(response.message);
+                    if (successCallback != null) {
+                        successCallback(response);
+                    }
+                }
+
+                function mainErrorCallback(response) {
+                    showErrorToast(response.message);
+                    if (errorCallback != null) {
+                        errorCallback(response);
+                    }
+                }
+
+                function finalCallback(response) {
+                    submitButtonElement.attr('disabled', false);
+                }
+
+                ajaxRequest("POST", url, data, beforeSendCallback, mainSuccessCallback, mainErrorCallback,
+                    finalCallback, false)
+            }
+        })
 
         const classSubjects = @json($subjects);
         const teachers = @json($teachers);

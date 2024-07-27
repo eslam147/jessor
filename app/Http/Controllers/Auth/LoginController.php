@@ -48,7 +48,6 @@ class LoginController extends Controller
      */
     protected function authenticated(Request $request, $user)
     {
-        
         if ($user->hasRole('Student')) {
             return to_route('home.index');
         } else {
