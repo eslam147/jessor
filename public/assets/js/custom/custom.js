@@ -257,10 +257,9 @@ $(document).on('click', '.delete-form', function (e) {
     }).then((result) => {
         if (result.isConfirmed) {
             let url = $(this).attr('href');
-            let data = {
-                _method: "DELETE",
-                _token: $('meta[name="csrf-token"]').attr('content')
-            };
+            let data = new FormData();
+            data.append("_method", "DELETE");
+            data.append("_token", $("meta[name=csrf-token]").attr("content"));
 
             function successCallback(response) {
                 $('#table_list').bootstrapTable('refresh');
