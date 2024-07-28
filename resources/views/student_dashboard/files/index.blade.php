@@ -40,6 +40,11 @@
             return null;
         }
     @endphp
+    <style>
+        .vtabs .tab-content iframe {
+            height: 400px;
+        }
+    </style>
     <div class="content-wrapper">
         <div class="container-full">
             <!-- Main content -->
@@ -55,8 +60,8 @@
                             <div class="tab-content">
                                 <div id="navpills2-2" class="tab-pane active">
                                     <div class="row">
-                                        <div class="col-12">
-                                            <div class="vtabs">
+                                        <div class="">
+                                            <div class="col-12 vtabs">
                                                 <ul class="nav nav-tabs tabs-vertical" role="tablist">
                                                     <li class="nav-item"> <a class="nav-link active" data-bs-toggle="tab"
                                                             href="#home4" role="tab"><span class="hidden-sm-up"><i
@@ -71,11 +76,15 @@
                                                 <div class="tab-content">
                                                     <div class="tab-pane active" id="home4" role="tabpanel">
                                                         @foreach ($videos as $row)
-                                                            <div class="row">
-                                                                <div class="col-12">
-                                                                    <div id="player" data-plyr-provider="youtube"
-                                                                        data-plyr-embed-id="{{ getYouTubeVideoId($row->file_url) }}">
-                                                                    </div>
+                                                            <div class="row"style="width: -webkit-fill-available;">
+                                                                <div class="col-12"style="width: -webkit-fill-available;">
+                                                                    @if ($row->isYoutubeVideo())
+                                                                        <div id="player" data-plyr-provider="youtube"
+                                                                            data-plyr-embed-id="{{ getYouTubeVideoId($row->file_url) }}">
+                                                                        </div>
+                                                                    @elseif($row->isVideoCorner())
+                                                                        <iframe src="{{ $row->file_url }}" class="" style="width: -webkit-fill-available;"frameborder="0"></iframe>
+                                                                    @endif
                                                                 </div>
                                                             </div>
                                                         @endforeach

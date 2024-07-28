@@ -59,7 +59,7 @@
                                     <div class="bg-primary mt-5 rounded">
                                         @if ($row->isFree())
                                             <a href="{{ route('topics.show', $row->id) }}">
-                                                <h5 class="text-white text-center p-10"> start now </h5>
+                                                <h5 class="text-white text-center p-10"> Start Now </h5>
                                             </a>
                                         @else
                                             @if ($row->enrollments_count > 0)
