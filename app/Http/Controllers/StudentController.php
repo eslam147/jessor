@@ -586,9 +586,9 @@ class StudentController extends Controller
                 'user_id' => $student->id,
                 'class_section_id' => $request->class_section_id,
                 'category_id' => $request->category_id,
-                'father_id' => $father?->id,
-                'mother_id' =>  $mother?->id,
-                'guardian_id' => $guardian->id,
+                'father_id' => isset($father) ? $father->id : null,
+                'mother_id' => isset($mother) ? $mother->id : null,
+                'guardian_id' => isset($guardian) ? $guardian->id : null,
             ]);
 
             $response = [
