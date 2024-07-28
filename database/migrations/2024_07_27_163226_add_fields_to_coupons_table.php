@@ -9,16 +9,17 @@ return new class extends Migration
     public function up()
     {
         Schema::table('coupons', function (Blueprint $table) {
-            $table->foreignId('class_section_id')->nullable()->constrained('class_sections')->nullOnDelete();
-            $table->foreignId('subject_id')->nullable()->constrained('subjects')->nullOnDelete();
+            $table->foreignId('class_id')->after('type')->nullable()->constrained('classes')->nullOnDelete();
+            $table->foreignId('subject_id')->after('type')->nullable()->constrained('subjects')->nullOnDelete();
         });
     }
 
     public function down()
     {
         Schema::table('coupons', function (Blueprint $table) {
-            $table->dropForeign(['class_section_id','subject_id']);
-            $table->dropColumn(['class_section_id','subject_id']);
+            $table->dropForeign(['class_id']);
+            $table->dropForeign(['subject_id']);
+            $table->dropColumn(['class_id','subject_id']);
         });
     }
 };

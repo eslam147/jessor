@@ -31,6 +31,7 @@ class CouponService
     public function isCouponAvailable(Coupon $coupon, User $user, Lesson $action): array
     {
         $coupon->loadCount(['usages']);
+        $action->load(['teacher', 'subject', 'classModel.allSubjects']);
         if ($coupon->is_disabled) {
             return $this->responseContent(__('coupon_errors_disabled'), false);
         }
@@ -51,13 +52,11 @@ class CouponService
         if ($coupon->teacher_id != $action->teacher_id) {
             return $this->responseContent(__('coupon_errors_not_related_to_teacher'), false);
         }
-
-        if ($coupon->subject_id != $action->subject_id) {
-            return $this->responseContent(__('coupon_errors_not_related_to_subject'), false);
-        }
-
-        if ($coupon->class_section_id != $action->class_section_id) {
+        if ($this->model->classModel->id != $action->classModel->class_id) {
             return $this->responseContent(__('coupon_errors_not_related_to_class'), false);
+        }
+        if (isset($coupon->subject_id) && $coupon->subject_id != $action->subject_id && empty($this->model->classModel->allSubjects->firstWhere('subject_id', $coupon->subject_id))) {
+            return $this->responseContent(__('coupon_errors_not_related_to_subject'), false);
         }
 
         return $this->responseContent(__('coupon_is_available'), true);
@@ -101,10 +100,10 @@ class CouponService
         $couponData = [
             'teacher_id' => $request->teacher_id,
             'subject_id' => $request->subject_id,
-            'class_section_id' => $request->class_id,
+            'class_id' => $request->class_id,
 
             'code' => $request->code,
-            'expiry_date' => $expiryDate->toDateTimeString(),
+            'expiry_date' => optional($expiryDate)->toDateTimeString(),
             'price' => null,
             'type' => CouponTypeEnum::PURCHASE,
             'maximum_usage' => $maxUsegeLimit,
@@ -117,6 +116,7 @@ class CouponService
                 $couponData['only_applied_to_type'] = get_class($lesson);
             }
         }
+        // ----------------------------------------------- #
         return tap($coupon, function ($coupon) use ($couponData) {
             $coupon->update($couponData);
         });
@@ -138,13 +138,13 @@ class CouponService
 
             for ($i = 0; $i < $request->coupons_count; $i++) {
                 $ids[] = $this->storePurchaseCoupon(
-                    $request->teacher_id,
-                    $request->class_id,
-                    $request->subject_id,
-                    $expiryDate,
-                    $request->price,
-                    $request->usage_limit,
-                    $lesson
+                    teacherId: $request->teacher_id,
+                    classId: $request->class_id,
+                    subjectId: $request->subject_id,
+                    expiryDate: $expiryDate,
+                    price: $request->price,
+                    maxUsageLimit: $request->usage_limit,
+                    appliedTo: $lesson
                 )->id;
             }
 
@@ -152,19 +152,17 @@ class CouponService
 
         return $ids;
     }
-    private function storePurchaseCoupon($teacherId = null, $subjectId = null, $classSectionId = null, ?Carbon $expiryDate, $price, $maxUsegeLimit, $appliedTo = null)
+    private function storePurchaseCoupon($teacherId = null, $subjectId = null, $classId = null, ?Carbon $expiryDate, $price, $maxUsageLimit, $appliedTo = null)
     {
         $couponData = [
             'teacher_id' => $teacherId,
             'subject_id' => $subjectId,
-            'class_section_id' => $classSectionId,
+            'class_id' => $classId,
             'code' => $this->generateCouponCode(),
             'expiry_date' => $expiryDate->toDateString(),
-            // 'price' => $price,
-            'price' => 0,
-
+            // 'price' => 0,
             'type' => CouponTypeEnum::PURCHASE,
-            'maximum_usage' => $maxUsegeLimit,
+            'maximum_usage' => $maxUsageLimit,
         ];
 
         if (! is_null($appliedTo)) {

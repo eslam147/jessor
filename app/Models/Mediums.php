@@ -20,6 +20,6 @@ class Mediums extends Model
     }
     public function classSections(): HasManyThrough
     {
-        return $this->hasManyThrough(ClassSection::class, ClassSchool::class, 'medium_id', 'id');
+        return $this->hasManyThrough(ClassSection::class, ClassSchool::class, 'medium_id','class_id');
     }
 }

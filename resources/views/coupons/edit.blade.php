@@ -24,82 +24,7 @@
                             @method('PUT')
                             <input type="hidden" name="edit_id" class="edit_id" data-edit_id="{{ $coupon->id }}"
                                 value="{{ $coupon->id }}">
-                            <div class="row">
-
-                                <div class="form-group col-sm-12">
-                                    <label>{{ __('usage_limit') }}<span class="text-danger">*</span></label>
-                                    {!! Form::number('usage_limit', $coupon->maximum_usage, [
-                                        'required',
-                                        'min' => 1,
-                                        'step' => '1',
-                                        'placeholder' => __('usage_limit'),
-                                        'class' => 'form-control',
-                                    ]) !!}
-                                    @error('usage_limit')
-                                        <p class="text-danger" role="alert">{{ $message }}</p>
-                                    @enderror
-                                </div>
-                                <div class="form-group col-sm-12">
-                                    <label>{{ __('code') }}<span class="text-danger">*</span></label>
-                                    {!! Form::number('code', $coupon->code, [
-                                        'required',
-                                        'min' => 1,
-                                        'step' => '1',
-                                        'placeholder' => __('code'),
-                                        'class' => 'form-control',
-                                    ]) !!}
-                                    @error('code')
-                                        <p class="text-danger" role="alert">{{ $message }}</p>
-                                    @enderror
-                                </div>
-
-
-                                <div class="form-group col-sm-12">
-                                    <label>{{ __('expiry_date') }}<span class="text-danger">*</span></label>
-                                    {!! Form::date('expiry_date', $coupon->expiry_date->toDateString(), [
-                                        'required',
-                                        'placeholder' => __('expiry_date'),
-                                        'class' => 'form-control',
-                                    ]) !!}
-                                    @error('expiry_date')
-                                        <p class="text-danger" role="alert">{{ $message }}</p>
-                                    @enderror
-                                </div>
-
-                                <div class="form-group col-sm-12">
-                                    <label>{{ __('expiry_time') }}<span class="text-danger">*</span></label>
-                                    {!! Form::time('expiry_time', $coupon->expiry_date->format('H:i'), [
-                                        'required',
-                                        'placeholder' => __('expiry_time'),
-                                        'class' => 'form-control',
-                                    ]) !!}
-                                    @error('expiry_time')
-                                        <p class="text-danger" role="alert">{{ $message }}</p>
-                                    @enderror
-                                </div>
-
-                                <div class="form-group col-sm-12">
-                                    <label>{{ __('teacher') }}</label>
-                                    {!! Form::select('teacher_id', $teachers, $coupon->teacher_id, [
-                                        'required',
-                                        'placeholder' => __('select_teacher'),
-                                        'class' => 'form-control',
-                                        'id' => 'teacher_id',
-                                    ]) !!}
-                                    @error('teacher_id')
-                                        <p class="text-danger" role="alert">{{ $message }}</p>
-                                    @enderror
-                                </div>
-
-                                <div class="form-group col-sm-12">
-                                    <label for="lesson_id">{{ __('lesson') }}</label>
-
-                                    <select name="lesson_id" id="lesson_id" class="form-control" required></select>
-                                    @error('lesson_id')
-                                        <p class="text-danger" role="alert">{{ $message }}</p>
-                                    @enderror
-                                </div>
-                            </div>
+                            @include('coupons.partials.form', ['coupon' => $coupon])
                             <hr>
                             <div class="text-center m-auto">
                                 <input class="btn btn-theme" type="submit" value="{{ __('save') }}">
@@ -116,27 +41,159 @@
 
 @section('script')
     <script>
+        const selectedTeacherId = {{ isset($coupon) ? $coupon->teacher_id : null }};
+        const selectedSubjecId = {{ isset($coupon) ? $coupon->class_id : null }};
+        $('.action_btn').click(function(e) {
+            let type = $(this).data('value');
+            if (type != 'save') {
+                $('input[name="action"]').val(type);
+            }
+        });
+        $('.coupon-create-form').on('submit', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            let formElement = $(this);
+
+            let submitButtonElement = $(this).find(':submit');
+            let url = $(this).attr('action');
+            let data = new FormData(this);
+
+            function successCallback(response) {
+                var a = document.createElement('a');
+
+                a.href = response.data.file_url;
+                a.download = response.data.file_name;
+                document.body.appendChild(a);
+                a.click();
+                a.remove();
+
+                formElement[0].reset();
+            }
+            // To Remove Red Border from the Validation tag.
+            formElement.find('.has-danger').removeClass("has-danger");
+            formElement.validate();
+            if (formElement.valid()) {
+                let submitButtonText = submitButtonElement.val();
+
+                function beforeSendCallback() {
+                    submitButtonElement.attr('disabled', true);
+                }
+
+                function mainSuccessCallback(response) {
+                    showSuccessToast(response.message);
+                    if (successCallback != null) {
+                        successCallback(response);
+                    }
+                }
+
+                function mainErrorCallback(response) {
+                    showErrorToast(response.message);
+                    if (errorCallback != null) {
+                        errorCallback(response);
+                    }
+                }
+
+                function finalCallback(response) {
+                    submitButtonElement.attr('disabled', false);
+                }
+
+                ajaxRequest("POST", url, data, beforeSendCallback, mainSuccessCallback, mainErrorCallback,
+                    finalCallback, false)
+            }
+        })
+
+        const classes = @json($mediums->pluck('classes','id')->toArray());
+        const classSubjects = @json($subjects);
+        const teachers = @json($teachers);
         const lessons = @json($lessons->groupBy('teacher_id')->toArray());
-        console.log(lessons);
 
-        function setLessons(teacherID) {
+        function setTeachers(classSubjectId) {
+            $('#teacher_id').empty();
+            $('#teacher_id').removeAttr('readonly');
+
+            const teachersBySubject = teachers.filter(teacher => teacher.subjects.filter(subject => subject.id ==
+                classSubjectId));
+            if (teachersBySubject && teachersBySubject.length > 0) {
+                for (let i = 0; i < teachersBySubject.length; i++) {
+                    let item = teachersBySubject[i];
+
+                    $('#teacher_id').append(
+                        `<option value="${item.id}">${item.user.first_name + ' ' + item.user.last_name}</option>`
+                    );
+                }
+            }
+            setLessons()
+        }
+
+        function setSubjects(classId) {
+            $('#subject_id').empty();
+            $('#subject_id').removeAttr('readonly');
+
+            const subjects = classSubjects.filter(classSubject => classSubject.class_id == Number(classId));
+
+            if (subjects && subjects.length > 0) {
+                for (let i = 0; i < subjects.length; i++) {
+                    let item = subjects[i];
+                    $('#subject_id').append(
+                        `<option data-class_subject-id="${item.id}" value="${item.subject_id}">${item.subject.name}</option>`
+                    );
+                }
+            }
+            if ($('#subject_id').val()) {
+                setTeachers($('#subject_id option:selected').data('class_subject-id'));
+            }
+        }
+
+        function setLessons(teacherID, classSectionId) {
+            $('#lesson_id').removeAttr('readonly');
             $('#lesson_id').empty();
-
             const teacherLessons = lessons[Number(teacherID)];
-
             if (teacherLessons && teacherLessons.length > 0) {
                 for (let i = 0; i < teacherLessons.length; i++) {
                     let item = teacherLessons[i];
-                    $('#lesson_id').append(`<option value="${item.id}">${item.name}</option>`);
+                    if (itemsclass_section_id == Number(classSectionId)) {
+                        $('#lesson_id').append(`<option value="${item.id}">${item.user.name}</option>`);
+                    }
                 }
             }
 
         }
+        function setClasses(mediumId) {
+            $('#class_m_id').removeAttr('readonly');
+            $('#class_m_id').empty();
+            const classSections = classes[Number(mediumId)];
+            console.log(classSections);
+            if (classSections && classSections.length > 0) {
+                for (let i = 0; i < classSections.length; i++) {
+                    let item = classSections[i];
+                    $('#class_m_id').append(`<option value="${item.id}">${item.name}</option>`);
+                }
+            }
+
+        }
+        $('#medium_id').change(function() {
+            setClasses($(this).val());
+        });
+        if (medium = $('#medium_id').val()) {
+            setClasses(medium);
+        }
         $('#teacher_id').change(function() {
             setLessons($(this).val());
         });
-        if ($('#teacher_id').val()) {
-            setLessons($('#teacher_id').val());
+        if (selectedTeacherId) {
+            setLessons(selectedTeacherId);
+        }
+        $('#class_m_id').change(function() {
+            setSubjects($(this).val());
+        });
+        if ($('#class_m_id').val()) {
+            setSubjects($('#class_m_id').val());
+        }
+        $('#subject_id').change(function() {
+            setTeachers($(this).data('class_subject-id'));
+        });
+        if (selectedSubjecId) {
+            setTeachers(selectedSubjecId);
         }
     </script>
 @endsection

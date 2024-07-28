@@ -27,102 +27,7 @@
                         <form id="coupon-create-form" class="pt-3 coupon-create-form" action="{{ route('coupons.store') }}"
                             method="POST" novalidate="novalidate">
                             @csrf
-                            <div class="row">
-                                <div class="form-group col-sm-12">
-                                    <label>{{ __('coupons_count') }}<span class="text-danger">*</span></label>
-                                    {!! Form::number('coupons_count', null, [
-                                        'required',
-                                        'min' => 1,
-                                        'max' => 50,
-                                        'step' => '1',
-                                        'placeholder' => __('coupons_count'),
-                                        'class' => 'form-control',
-                                    ]) !!}
-                                    @error('coupons_count')
-                                        <p class="text-danger" role="alert">{{ $message }}</p>
-                                    @enderror
-                                </div>
-
-                                <div class="form-group col-sm-12">
-                                    <label>{{ __('usage_limit') }}<span class="text-danger">*</span></label>
-                                    {!! Form::number('usage_limit', null, [
-                                        'required',
-                                        'min' => 1,
-                                        'step' => '1',
-                                        'placeholder' => __('usage_limit'),
-                                        'class' => 'form-control',
-                                    ]) !!}
-                                    @error('usage_limit')
-                                        <p class="text-danger" role="alert">{{ $message }}</p>
-                                    @enderror
-                                </div>
-
-                                <div class="form-group col-sm-12">
-                                    <label>{{ __('expiry_date') }}<span class="text-danger">*</span></label>
-                                    {!! Form::date('expiry_date', null, ['required', 'placeholder' => __('expiry_date'), 'class' => 'form-control']) !!}
-                                    @error('expiry_date')
-                                        <p class="text-danger" role="alert">{{ $message }}</p>
-                                    @enderror
-                                </div>
-                                <div class="form-group col-sm-12">
-                                    <label>{{ __('medium') }}</label>
-
-                                    <select name="medium_id" id="medium_id" class="form-control">
-                                        @foreach ($mediums as $medium)
-                                            <option value="{{ $medium->id }}" @selected(old('medium_id') == $medium->id)>
-                                                {{ $medium->name }}
-                                            </option>
-                                        @endforeach
-                                    </select>
-                                    @error('class_id')
-                                        <p class="text-danger" role="alert">{{ $message }}</p>
-                                    @enderror
-                                </div>
-                                <div class="form-group col-sm-12">
-                                    <label>{{ __('class') }}</label>
-
-                                    <select name="class_id" id="class_id" readonly class="form-control">
-
-                                    </select>
-                                    @error('class_id')
-                                        <p class="text-danger" role="alert">{{ $message }}</p>
-                                    @enderror
-                                </div>
-                                <div class="form-group col-sm-12">
-                                    <label>{{ __('subject') }}</label>
-                                    {!! Form::select('subject_id', [], old('subject_id'), [
-                                        'required',
-                                        'readonly',
-                                        'placeholder' => __('select_subject'),
-                                        'class' => 'form-control',
-                                        'id' => 'subject_id',
-                                    ]) !!}
-                                    @error('subject_id')
-                                        <p class="text-danger" role="alert">{{ $message }}</p>
-                                    @enderror
-                                </div>
-                                <div class="form-group col-sm-12">
-                                    <label>{{ __('teacher') }}</label>
-                                    {!! Form::select('teacher_id', [], old('teacher_id'), [
-                                        'readonly',
-                                    
-                                        'placeholder' => __('select_teacher'),
-                                        'class' => 'form-control',
-                                        'id' => 'teacher_id',
-                                    ]) !!}
-                                    @error('teacher_id')
-                                        <p class="text-danger" role="alert">{{ $message }}</p>
-                                    @enderror
-                                </div>
-
-                                <div class="form-group col-sm-12">
-                                    <label>{{ __('lesson') }}</label>
-                                    <select name="lesson_id" id="lesson_id" class="form-control" readonly></select>
-                                    @error('lesson_id')
-                                        <p class="text-danger" role="alert">{{ $message }}</p>
-                                    @enderror
-                                </div>
-                            </div>
+                            @include('coupons.partials.form')
                             <hr>
                             <input type="hidden" name="action" value="save">
                             <div class="d-flex justify-content-between">
@@ -260,14 +165,14 @@
 
         }
         function setClasses(mediumId) {
-            $('#class_id').removeAttr('readonly');
-            $('#class_id').empty();
+            $('#class_m_id').removeAttr('readonly');
+            $('#class_m_id').empty();
             const classSections = classes[Number(mediumId)];
             console.log(classSections);
             if (classSections && classSections.length > 0) {
                 for (let i = 0; i < classSections.length; i++) {
                     let item = classSections[i];
-                    $('#class_id').append(`<option value="${item.id}">${item.name}</option>`);
+                    $('#class_m_id').append(`<option value="${item.id}">${item.name}</option>`);
                 }
             }
 
@@ -284,11 +189,11 @@
         if ($('#teacher_id').val()) {
             setLessons($('#teacher_id').val());
         }
-        $('#class_id').change(function() {
+        $('#class_m_id').change(function() {
             setSubjects($(this).val());
         });
-        if ($('#class_id').val()) {
-            setSubjects($('#class_id').val());
+        if ($('#class_m_id').val()) {
+            setSubjects($('#class_m_id').val());
         }
         $('#subject_id').change(function() {
             setTeachers($(this).data('class_subject-id'));

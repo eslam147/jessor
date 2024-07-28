@@ -30,6 +30,7 @@ use App\Models\ElectiveSubjectGroup;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 use App\Http\Resources\ClassSubjectCollection;
+use Exception;
 
 class ClassSchoolController extends Controller
 {
@@ -40,18 +41,18 @@ class ClassSchoolController extends Controller
      */
     public function index()
     {
-        if (!Auth::user()->can('class-list')) {
+        if (! Auth::user()->can('class-list')) {
             $response = array(
                 'message' => trans('no_permission_message')
             );
             return redirect(route('home'))->withErrors($response);
         }
-        $classes = ClassSchool::orderBy('id', 'DESC')->with('medium', 'sections','streams')->get();
+        $classes = ClassSchool::orderBy('id', 'DESC')->with('medium', 'sections', 'streams')->get();
         $sections = Section::orderBy('id', 'ASC')->get();
         $mediums = Mediums::orderBy('id', 'ASC')->get();
-        $streams = Stream::orderBy('id','ASC')->get();
-        $shifts=Shift::where('status',1)->get();
-        return response(view('class.index', compact('classes', 'sections', 'mediums','streams','shifts')));
+        $streams = Stream::orderBy('id', 'ASC')->get();
+        $shifts = Shift::where('status', 1)->get();
+        return response(view('class.index', compact('classes', 'sections', 'mediums', 'streams', 'shifts')));
     }
 
     /**
@@ -62,7 +63,7 @@ class ClassSchoolController extends Controller
      */
     public function store(Request $request)
     {
-        if (!Auth::user()->can('class-create')) {
+        if (! Auth::user()->can('class-create')) {
             $response = array(
                 'error' => true,
                 'message' => trans('no_permission_message')
@@ -84,8 +85,7 @@ class ClassSchoolController extends Controller
             return response()->json($response);
         }
         try {
-            if(!$request->stream_id)
-            {
+            if (! $request->stream_id) {
                 $class = new ClassSchool();
                 $class->name = $request->name;
                 $class->medium_id = $request->medium_id;
@@ -103,15 +103,14 @@ class ClassSchoolController extends Controller
                     'error' => false,
                     'message' => trans('data_store_successfully'),
                 );
-            }
-            else{
+            } else {
                 $classes = [];
                 foreach ($request->stream_id as $stream_id) {
                     $classes[] = [
                         'name' => $request->name,
                         'medium_id' => $request->medium_id,
                         'stream_id' => $stream_id,
-                        'shift_id'  => $request->shift_id,
+                        'shift_id' => $request->shift_id,
                     ];
                 }
 
@@ -155,7 +154,7 @@ class ClassSchoolController extends Controller
      */
     public function update(Request $request, $id)
     {
-        if (!Auth::user()->can('class-edit')) {
+        if (! Auth::user()->can('class-edit')) {
             $response = array(
                 'error' => true,
                 'message' => trans('no_permission_message')
@@ -181,14 +180,11 @@ class ClassSchoolController extends Controller
             $class->name = $request->name;
             $class->medium_id = $request->medium_id;
             $class->shift_id = $request->shift_id;
-            if($request->stream_id!= null)
-            {
-                $existingrow= ClassSchool::where('name',$request->name)->where('medium_id',$request->medium_id)->where('shift_id',$request->shift_id)->where('stream_id',$request->stream_id)->first();
-                if(! $existingrow)
-                {
+            if ($request->stream_id != null) {
+                $existingrow = ClassSchool::where('name', $request->name)->where('medium_id', $request->medium_id)->where('shift_id', $request->shift_id)->where('stream_id', $request->stream_id)->first();
+                if (! $existingrow) {
                     $class->stream_id = $request->stream_id;
-                }
-                else{
+                } else {
                     $response = array(
                         'error' => true,
                         'message' => trans('class_with_stream_already_exists'),
@@ -201,7 +197,7 @@ class ClassSchoolController extends Controller
             $delete_class_section = $class->sections->pluck('id')->toArray();
             $class_section = array();
             foreach ($request->section_id as $key => $section_id) {
-                if (!in_array($section_id, $all_section_ids)) {
+                if (! in_array($section_id, $all_section_ids)) {
                     $class_section[] = array(
                         'class_id' => $class->id,
                         'section_id' => $section_id
@@ -213,22 +209,22 @@ class ClassSchoolController extends Controller
             ClassSection::insert($class_section);
 
             // check wheather the id in $delete_class_section is assosiated with other data ..
-            $assignemnts = Assignment::whereIn('class_section_id',$delete_class_section)->count();
-            $attendances = Attendance::whereIn('class_section_id',$delete_class_section)->count();
-            $exam_result = ExamResult::whereIn('class_section_id',$delete_class_section)->count();
-            $lessons = Lesson::whereIn('class_section_id',$delete_class_section)->count();
-            $student_session = StudentSessions::whereIn('class_section_id',$delete_class_section)->count();
-            $students = Students::whereIn('class_section_id',$delete_class_section)->count();
-            $subject_teachers = SubjectTeacher::whereIn('class_section_id',$delete_class_section)->count();
-            $timetables = Timetable::whereIn('class_section_id',$delete_class_section)->count();
+            $assignemnts = Assignment::whereIn('class_section_id', $delete_class_section)->count();
+            $attendances = Attendance::whereIn('class_section_id', $delete_class_section)->count();
+            $exam_result = ExamResult::whereIn('class_section_id', $delete_class_section)->count();
+            $lessons = Lesson::whereIn('class_section_id', $delete_class_section)->count();
+            $student_session = StudentSessions::whereIn('class_section_id', $delete_class_section)->count();
+            $students = Students::whereIn('class_section_id', $delete_class_section)->count();
+            $subject_teachers = SubjectTeacher::whereIn('class_section_id', $delete_class_section)->count();
+            $timetables = Timetable::whereIn('class_section_id', $delete_class_section)->count();
 
-            if($assignemnts || $attendances || $exam_result || $lessons || $student_session || $students || $subject_teachers || $timetables){
+            if ($assignemnts || $attendances || $exam_result || $lessons || $student_session || $students || $subject_teachers || $timetables) {
                 $response = array(
                     'error' => true,
                     'message' => trans('cannot_delete_beacuse_data_is_associated_with_other_data')
                 );
                 return response()->json($response);
-            }else{
+            } else {
                 //Remaining Data in $delete_class_section should be deleted
                 ClassSection::whereIn('section_id', $delete_class_section)->where('class_id', $id)->delete();
             }
@@ -255,7 +251,7 @@ class ClassSchoolController extends Controller
      */
     public function destroy($id)
     {
-        if (!Auth::user()->can('class-delete')) {
+        if (! Auth::user()->can('class-delete')) {
             $response = array(
                 'error' => true,
                 'message' => trans('no_permission_message')
@@ -268,32 +264,32 @@ class ClassSchoolController extends Controller
             $class_exam = ExamClass::where('class_id', $id)->count();
             $class_fees = FeesClass::where('class_id', $id)->count();
 
-            if($class_subject || $class_exam || $class_fees){
+            if ($class_subject || $class_exam || $class_fees) {
                 $response = array(
                     'error' => true,
                     'message' => trans('cannot_delete_beacuse_data_is_associated_with_other_data')
                 );
-            }else{
+            } else {
                 $class = ClassSchool::find($id);
                 $class_section = ClassSection::where('class_id', $class->id);
 
                 // check the class section id exists with other table ...
                 $class_section_id = $class_section->pluck('id');
-                $assignemnts = Assignment::whereIn('class_section_id',$class_section_id)->count();
-                $attendances = Attendance::whereIn('class_section_id',$class_section_id)->count();
-                $exam_result = ExamResult::whereIn('class_section_id',$class_section_id)->count();
-                $lessons = Lesson::whereIn('class_section_id',$class_section_id)->count();
-                $student_session = StudentSessions::whereIn('class_section_id',$class_section_id)->count();
-                $students = Students::whereIn('class_section_id',$class_section_id)->count();
-                $subject_teachers = SubjectTeacher::whereIn('class_section_id',$class_section_id)->count();
-                $timetables = Timetable::whereIn('class_section_id',$class_section_id)->count();
+                $assignemnts = Assignment::whereIn('class_section_id', $class_section_id)->count();
+                $attendances = Attendance::whereIn('class_section_id', $class_section_id)->count();
+                $exam_result = ExamResult::whereIn('class_section_id', $class_section_id)->count();
+                $lessons = Lesson::whereIn('class_section_id', $class_section_id)->count();
+                $student_session = StudentSessions::whereIn('class_section_id', $class_section_id)->count();
+                $students = Students::whereIn('class_section_id', $class_section_id)->count();
+                $subject_teachers = SubjectTeacher::whereIn('class_section_id', $class_section_id)->count();
+                $timetables = Timetable::whereIn('class_section_id', $class_section_id)->count();
 
-                if($assignemnts || $attendances || $exam_result || $lessons || $student_session || $students || $subject_teachers || $timetables){
+                if ($assignemnts || $attendances || $exam_result || $lessons || $student_session || $students || $subject_teachers || $timetables) {
                     $response = array(
                         'error' => true,
                         'message' => trans('cannot_delete_beacuse_data_is_associated_with_other_data')
                     );
-                }else{
+                } else {
                     $class_section->delete();
                     $class->delete();
                     $response = array(
@@ -314,7 +310,7 @@ class ClassSchoolController extends Controller
 
     public function show()
     {
-        if (!Auth::user()->can('class-list')) {
+        if (! Auth::user()->can('class-list')) {
             $response = array(
                 'error' => true,
                 'message' => trans('no_permission_message')
@@ -336,8 +332,8 @@ class ClassSchoolController extends Controller
         if (isset($_GET['order']))
             $order = $_GET['order'];
         DB::enableQueryLog();
-        $sql = ClassSchool::with('sections', 'medium','streams','shifts');
-        if (isset($_GET['search']) && !empty($_GET['search'])) {
+        $sql = ClassSchool::with('sections', 'medium', 'streams', 'shifts');
+        if (isset($_GET['search']) && ! empty($_GET['search'])) {
             $search = $_GET['search'];
             $sql->where('id', 'LIKE', "%$search%")->orwhere('name', 'LIKE', "%$search%")
                 ->orWhereHas('sections', function ($q) use ($search) {
@@ -377,9 +373,9 @@ class ClassSchoolController extends Controller
             $tempRow['medium_name'] = $row->medium->name;
             $tempRow['shift_id'] = $row->shifts->id ?? '';
             $tempRow['shift_name'] = $row->shifts->title ?? '-';
-            $sections=$row->sections;
-            $tempRow['section_id']=$sections->pluck('id');
-            $tempRow['section_name']=$sections->pluck('name');
+            $sections = $row->sections;
+            $tempRow['section_id'] = $sections->pluck('id');
+            $tempRow['section_name'] = $sections->pluck('name');
             $tempRow['stream_id'] = $row->streams->id ?? ' ';
             $tempRow['stream_name'] = $row->streams->name ?? '-';
             $tempRow['created_at'] = convertDateFormat($row->created_at, 'd-m-Y H:i:s');
@@ -393,7 +389,7 @@ class ClassSchoolController extends Controller
     }
     public function subject()
     {
-        if (!Auth::user()->can('class-list')) {
+        if (! Auth::user()->can('class-list')) {
             $response = array(
                 'message' => trans('no_permission_message')
             );
@@ -473,7 +469,7 @@ class ClassSchoolController extends Controller
 
                     //Assign Elective Subjects to this Subject Group
                     foreach ($subject_group['subject_id'] as $key => $subject_id) {
-                        if (isset($subject_group['class_subject_id'][$key]) && !empty($subject_group['class_subject_id'][$key])) {
+                        if (isset($subject_group['class_subject_id'][$key]) && ! empty($subject_group['class_subject_id'][$key])) {
                             //If class_subject_id exists then its old subject so edit that row
                             $elective_subject = ClassSubject::findOrFail($subject_group['class_subject_id'][$key]);
                         } else {
@@ -528,7 +524,7 @@ class ClassSchoolController extends Controller
 
     public function subject_list()
     {
-        if (!Auth::user()->can('class-list')) {
+        if (! Auth::user()->can('class-list')) {
             $response = array(
                 'error' => true,
                 'message' => trans('no_permission_message')
@@ -550,13 +546,13 @@ class ClassSchoolController extends Controller
         if (isset($_GET['order']))
             $order = $_GET['order'];
 
-        $sql = ClassSchool::with('sections', 'medium','streams', 'coreSubject', 'electiveSubjectGroup.electiveSubjects.subject');
-        if (isset($_GET['search']) && !empty($_GET['search'])) {
+        $sql = ClassSchool::with('sections', 'medium', 'streams', 'coreSubject', 'electiveSubjectGroup.electiveSubjects.subject');
+        if (isset($_GET['search']) && ! empty($_GET['search'])) {
             $search = $_GET['search'];
             $sql->where('id', 'LIKE', "%$search%")
                 ->orwhere('name', 'LIKE', "%$search%");
         }
-        if (isset($_GET['medium_id']) && !empty($_GET['medium_id'])) {
+        if (isset($_GET['medium_id']) && ! empty($_GET['medium_id'])) {
             $sql = $sql->where('medium_id', $_GET['medium_id']);
         }
         $total = $sql->count();
@@ -571,7 +567,7 @@ class ClassSchoolController extends Controller
 
         foreach ($res as $row) {
 
-            $row = (object)$row;
+            $row = (object) $row;
             $operate = '<a href=' . route('class.edit', $row->id) . ' class="btn btn-xs btn-gradient-primary btn-rounded btn-icon edit-data" data-id=' . $row->id . ' title="Edit" data-toggle="modal" data-target="#editModal"><i class="fa fa-edit"></i></a>&nbsp;&nbsp;';
 
             $tempRow['id'] = $row->id;
@@ -606,16 +602,16 @@ class ClassSchoolController extends Controller
         // }
         try {
             //check wheather the class subject exists in other table
-            $online_exam_questions = OnlineExamQuestion::where('class_subject_id',$id)->count();
-            $online_exams = OnlineExam::where('subject_id',$id)->count();
-            if($online_exam_questions || $online_exams){
-                $response = array(
+            $online_exam_questions = OnlineExamQuestion::where('class_subject_id', $id)->count();
+            $online_exams = OnlineExam::where('subject_id', $id)->count();
+            if ($online_exam_questions || $online_exams) {
+                $response = [
                     'error' => true,
                     'message' => trans('cannot_delete_beacuse_data_is_associated_with_other_data')
-                );
-            }else{
+                ];
+            } else {
                 $class_subject = ClassSubject::findOrFail($id);
-                if ($class_subject->type == "Elective"  ) {
+                if ($class_subject->type == "Elective") {
                     $subject_group = ElectiveSubjectGroup::findOrFail($class_subject->elective_subject_group_id);
                     $subject_group->total_subjects = $subject_group->total_subjects - 1;
                     if ($subject_group->total_subjects > 0) {
@@ -625,16 +621,17 @@ class ClassSchoolController extends Controller
                     }
                 }
                 $class_subject->delete();
-                $response = array(
+                $response = [
                     'error' => false,
                     'message' => trans('data_delete_successfully')
-                );
+                ];
             }
-        } catch (\Throwable $e) {
-            $response = array(
+        } catch (Exception $e) {
+            report($e);
+            $response = [
                 'error' => true,
                 'message' => trans('error_occurred')
-            );
+            ];
         }
         return response()->json($response);
     }
@@ -652,15 +649,15 @@ class ClassSchoolController extends Controller
             $subject_group = ElectiveSubjectGroup::findOrFail($id);
 
             // check wheather the class subject exists in other table..
-            $class_subject_id = ClassSubject::where('elective_subject_group_id',$id)->pluck('id');
-            $online_exam_questions = OnlineExamQuestion::whereIn('class_subject_id',$class_subject_id)->count();
-            $online_exams = OnlineExam::whereIn('subject_id',$class_subject_id)->count();
-            if($online_exam_questions || $online_exams){
+            $class_subject_id = ClassSubject::where('elective_subject_group_id', $id)->pluck('id');
+            $online_exam_questions = OnlineExamQuestion::whereIn('class_subject_id', $class_subject_id)->count();
+            $online_exams = OnlineExam::whereIn('subject_id', $class_subject_id)->count();
+            if ($online_exam_questions || $online_exams) {
                 $response = array(
                     'error' => true,
                     'message' => trans('cannot_delete_beacuse_data_is_associated_with_other_data')
                 );
-            }else{
+            } else {
                 $subject_group->electiveSubjects()->delete();
                 $subject_group->delete();
                 $response = array(

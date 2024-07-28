@@ -24,7 +24,7 @@ class CouponRequest extends FormRequest
             'lesson_id' => 'nullable|exists:lessons,id',
             // ------------------------------------------------ \\
             'subject_id' => 'nullable|exists:subjects,id',
-            'class_id' => 'nullable|exists:class_sections,id',
+            'class_id' => 'nullable|exists:classes,id',
         ];
         // ------------------------------------------------ \\
     }
@@ -42,7 +42,7 @@ class CouponRequest extends FormRequest
             'lesson_id' => 'nullable|exists:lessons,id',
             // ------------------------------------------------ \\
             'subject_id' => 'nullable|exists:subjects,id',
-            'class_id' => 'nullable|exists:class_sections,id',
+            'class_id' => 'nullable|exists:classes,id',
             // ------------------------------------------------ \\
         ];
         // ------------------------------------------------ \\

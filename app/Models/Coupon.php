@@ -12,7 +12,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Coupon extends Model
 {
-    use HasFactory,SoftDeletes;
+    use HasFactory, SoftDeletes;
     protected $guarded = [];
     protected $casts = [
         'type' => CouponTypeEnum::class,
@@ -27,18 +27,17 @@ class Coupon extends Model
     {
         return $this->morphTo();
     }
-    
+
     public function teacher()
     {
-        return $this->belongsTo(Teacher::class,'teacher_id');
+        return $this->belongsTo(Teacher::class, 'teacher_id');
     }
-    public function classSection()
+    public function classModel()
     {
-        return $this->belongsTo(ClassSection::class,'class_section_id');
+        return $this->belongsTo(ClassSchool::class, 'class_id');
     }
     public function subject()
     {
-        return $this->belongsTo(Subject::class,'subject_id');
+        return $this->belongsTo(Subject::class, 'subject_id');
     }
-    
 }

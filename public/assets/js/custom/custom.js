@@ -304,7 +304,7 @@ $('.add-new-core-subject').on('click', function (e) {
 $(document).on('click', '.remove-core-subject', function (e) {
     e.preventDefault();
     let $this = $(this);
-    if ($(this).data('id')) {
+    if ($this.data('id')) {
         Swal.fire({
             title: 'Are you sure?',
             text: "You won't be able to revert this!",
@@ -318,6 +318,10 @@ $(document).on('click', '.remove-core-subject', function (e) {
                 let id = $this.data('id');
                 let url = baseUrl + '/class/subject/' + id;
 
+                let data = new FormData();
+                data.append("_method", "DELETE");
+                data.append("_token", $("meta[name=csrf-token]").attr("content"));
+
                 function successCallback() {
                     $('#table_list').bootstrapTable('refresh');
                     $this.parent().parent().remove();
@@ -327,13 +331,14 @@ $(document).on('click', '.remove-core-subject', function (e) {
                     showErrorToast(response.message);
                 }
 
-                ajaxRequest('DELETE', url, null, null, successCallback, errorCallback);
+                ajaxRequest('POST', url, data, null, successCallback, errorCallback);
             }
-        })
+        });
     } else {
-        $(this).parent().parent().remove();
+        $this.parent().parent().remove();
     }
 });
+
 
 $(document).on('click', '.add-new-elective-subject', function (e) {
     e.preventDefault();
@@ -367,6 +372,10 @@ $(document).on('click', '.remove-elective-subject', function (e) {
                 let id = $this.data('id');
                 let url = baseUrl + '/class/subject/' + id;
 
+                let data = new FormData();
+                data.append("_method", "DELETE");
+                data.append("_token", $("meta[name=csrf-token]").attr("content"));
+
                 function successCallback() {
                     let max = $this.parent().siblings('.elective-subject-div').length - 1;
                     $(total_selectable_subject).rules("add", {
@@ -377,7 +386,11 @@ $(document).on('click', '.remove-elective-subject', function (e) {
                     $this.parent().remove();
                 }
 
-                ajaxRequest('DELETE', url, null, null, successCallback);
+                function errorCallback(response) {
+                    showErrorToast(response.message);
+                }
+
+                ajaxRequest('POST', url, data, null, successCallback, errorCallback);
             }
         })
     } else {
@@ -399,7 +412,7 @@ $(document).on('click', '.add-elective-subject-group', function (e) {
 $(document).on('click', '.remove-elective-subject-group', function (e) {
     e.preventDefault();
     let $this = $(this);
-    if ($(this).data('id')) {
+    if ($this.data('id')) {
         Swal.fire({
             title: 'Are you sure?',
             text: "You won't be able to revert this!",
@@ -413,6 +426,10 @@ $(document).on('click', '.remove-elective-subject-group', function (e) {
                 let id = $this.data('id');
                 let url = baseUrl + '/class/subject-group/' + id;
 
+                let data = new FormData();
+                data.append("_method", "DELETE");
+                data.append("_token", $("meta[name=csrf-token]").attr("content"));
+
                 function successCallback() {
                     $('#table_list').bootstrapTable('refresh');
                     $this.parent().parent().remove();
@@ -422,14 +439,14 @@ $(document).on('click', '.remove-elective-subject-group', function (e) {
                     showErrorToast(response.message);
                 }
 
-                ajaxRequest('DELETE', url, null, null, successCallback, errorCallback);
+                ajaxRequest('POST', url, data, null, successCallback, errorCallback);
             }
-        })
+        });
     } else {
-        $(this).parent().parent().remove();
+        $this.parent().parent().remove();
     }
-
 });
+
 
 $('#show-guardian-details').on('change', function () {
     if ($(this).is(':checked')) {
@@ -570,7 +587,10 @@ $(document).on('click', '.remove-lesson-file', function (e) {
         }).then((result) => {
             if (result.isConfirmed) {
                 let url = baseUrl + '/file/delete/' + file_id;
-                let data = null;
+
+                let data = new FormData();
+                data.append("_method", "DELETE");
+                data.append("_token", $("meta[name=csrf-token]").attr("content"));
 
                 function successCallback(response) {
                     $this.parent().parent().remove();
@@ -586,14 +606,15 @@ $(document).on('click', '.remove-lesson-file', function (e) {
                     showErrorToast(response.message);
                 }
 
-                ajaxRequest('DELETE', url, data, null, successCallback, errorCallback);
+                ajaxRequest('POST', url, data, null, successCallback, errorCallback);
             }
         })
     } else {
-        // If button don't have any Data Id then simply remove that row from DOM
+        // If button doesn't have any Data Id then simply remove that row from DOM
         $(this).parent().parent().remove();
     }
 });
+
 
 $('#topic_class_section_id').on('change', function () {
     let html = "<option value=''>--Select Lesson--</option>";
@@ -688,7 +709,10 @@ $(document).on('click', '.remove-assignment-file', function (e) {
     }).then((result) => {
         if (result.isConfirmed) {
             let url = baseUrl + '/file/delete/' + file_id;
-            let data = null;
+
+            let data = new FormData();
+            data.append("_method", "DELETE");
+            data.append("_token", $("meta[name=csrf-token]").attr("content"));
 
             function successCallback(response) {
                 $this.parent().remove();
@@ -700,10 +724,11 @@ $(document).on('click', '.remove-assignment-file', function (e) {
                 showErrorToast(response.message);
             }
 
-            ajaxRequest('DELETE', url, data, null, successCallback, errorCallback);
+            ajaxRequest('POST', url, data, null, successCallback, errorCallback);
         }
     })
 });
+
 
 $(document).on('click', '.add-exam-timetable', function (e) {
     e.preventDefault();
@@ -742,7 +767,7 @@ $(document).on('click', '.edit-exam-timetable', function (e) {
 $(document).on('click', '.remove-exam-timetable', function (e) {
     e.preventDefault();
     let $this = $(this);
-    // If button has Data ID then Call ajax function to delete file
+    // If button has Data ID then call ajax function to delete file
     if ($(this).data('id')) {
         let timetable_id = $(this).data('id');
 
@@ -758,6 +783,10 @@ $(document).on('click', '.remove-exam-timetable', function (e) {
             if (result.isConfirmed) {
                 let url = baseUrl + '/exams/delete-timetable/' + timetable_id;
 
+                let data = new FormData();
+                data.append("_method", "DELETE");
+                data.append("_token", $("meta[name=csrf-token]").attr("content"));
+
                 function successCallback(response) {
                     $this.parent().parent().remove();
                     $('#table_list').bootstrapTable('refresh');
@@ -768,11 +797,11 @@ $(document).on('click', '.remove-exam-timetable', function (e) {
                     showErrorToast(response.message);
                 }
 
-                ajaxRequest('DELETE', url, null, null, successCallback, errorCallback);
+                ajaxRequest('POST', url, data, null, successCallback, errorCallback);
             }
         })
     } else {
-        // If button don't have any Data Id then simply remove that row from DOM
+        // If button doesn't have any Data Id then simply remove that row from DOM
         $(this).parent().parent().remove();
     }
 });
@@ -1438,14 +1467,21 @@ $(document).on('click', '.remove-grades', function (e) {
                 let id = $this.data('id');
                 let url = baseUrl + '/destroy-grades/' + id;
 
+                let data = new FormData();
+                data.append("_method", "DELETE");
+                data.append("_token", $("meta[name=csrf-token]").attr("content"));
+
                 function successCallback() {
                     $this.parent().parent().remove();
                     window.location.reload();
                     checkAddNewRowBtn();
                 }
 
-                ajaxRequest('DELETE', url, null, null, successCallback);
+                function errorCallback(response) {
+                    showErrorToast(response.message);
+                }
 
+                ajaxRequest('POST', url, data, null, successCallback, errorCallback);
             }
         })
     } else {
@@ -1467,6 +1503,7 @@ $(document).on('click', '.remove-grades', function (e) {
         });
     }
 });
+
 
 $('.assign_subject_teacher').on('submit', function (e) {
     e.preventDefault();
@@ -1704,6 +1741,10 @@ $(document).on('click', '.remove-fees-type', function (e) {
                 let id = $(this).data('id');
                 let url = baseUrl + '/class/fees-type/' + id;
 
+                let data = new FormData();
+                data.append("_method", "DELETE");
+                data.append("_token", $("meta[name=csrf-token]").attr("content"));
+
                 function successCallback(response) {
                     showSuccessToast(response['message']);
                     setTimeout(function () {
@@ -1716,13 +1757,14 @@ $(document).on('click', '.remove-fees-type', function (e) {
                     showErrorToast(response['message']);
                 }
 
-                ajaxRequest('DELETE', url, null, null, successCallback, errorCallback);
+                ajaxRequest('POST', url, data, null, successCallback, errorCallback);
             }
         })
     } else {
         $(this).parent().parent().remove();
     }
 });
+
 $('.mode').on('change', function (e) {
     e.preventDefault();
     let mode_val = $(this).val();
@@ -1771,10 +1813,12 @@ $(document).on('click', '.remove-paid-choiceable-fees', function (e) {
     }).then((result) => {
         if (result.isConfirmed) {
             let amount = $(this).data("amount");
-            // let url = $(this).attr('href');
             let id = $(this).data("id");
             let url = baseUrl + '/fees/paid/remove-choiceable-fees/' + id;
-            let data = null;
+            
+            let data = new FormData();
+            data.append("_method", "DELETE");
+            data.append("_token", $("meta[name=csrf-token]").attr("content"));
 
             function successCallback(response) {
                 $('#table_list').bootstrapTable('refresh');
@@ -1788,10 +1832,11 @@ $(document).on('click', '.remove-paid-choiceable-fees', function (e) {
                 showErrorToast(response.message);
             }
 
-            ajaxRequest('DELETE', url, data, null, successCallback, errorCallback);
+            ajaxRequest('POST', url, data, null, successCallback, errorCallback);
         }
     })
-})
+});
+
 $('#create-fees-config-form').on('submit', function (e) {
     e.preventDefault();
     let formElement = $(this);
@@ -2188,6 +2233,10 @@ $(document).on('click', '.remove-edit-option', function (e) {
                 let id = $(this).data('id');
                 let url = baseUrl + '/online-exam-question/remove-option/' + id;
 
+                let data = new FormData();
+                data.append("_method", "DELETE");
+                data.append("_token", $("meta[name=csrf-token]").attr("content"));
+
                 function successCallback(response) {
                     $('#editModal').modal('hide');
                     setTimeout(function () {
@@ -2199,16 +2248,18 @@ $(document).on('click', '.remove-edit-option', function (e) {
                 function errorCallback(response) {
                     showErrorToast(response.message);
                 }
-                ajaxRequest('DELETE', url, null, null, successCallback, errorCallback);
+                
+                ajaxRequest('POST', url, data, null, successCallback, errorCallback);
             }
         })
     } else {
         $(this).parent().parent().remove();
-        $('.edit_answer_select').find('.edit_answer_option:last').remove()
+        $('.edit_answer_select').find('.edit_answer_option:last').remove();
         $('.edit_option_container').find('.form-group:last').find('.remove-edit-option-content').css('display', 'block');
         $('.edit_eoption_container').find('.form-group:last').find('.remove-edit-option-content').css('display', 'block');
     }
 });
+
 $(document).on('click', '.remove-answers', function (e) {
     e.preventDefault();
     Swal.fire({
@@ -2224,21 +2275,27 @@ $(document).on('click', '.remove-answers', function (e) {
             let id = $(this).data('id');
             let url = baseUrl + '/online-exam-question/remove-answer/' + id;
 
+            let data = new FormData();
+            data.append("_method", "DELETE");
+            data.append("_token", $("meta[name=csrf-token]").attr("content"));
+
             function successCallback(response) {
                 $('#editModal').modal('hide');
                 setTimeout(function () {
                     $('#table_list_questions').bootstrapTable('refresh');
-                }, 500)
+                }, 500);
                 showSuccessToast(response.message);
             }
+
             function errorCallback(response) {
                 showErrorToast(response.message);
             }
 
-            ajaxRequest('DELETE', url, null, null, successCallback, errorCallback);
+            ajaxRequest('POST', url, data, null, successCallback, errorCallback);
         }
-    })
+    });
 });
+
 $('#add-new-question-online-exam').on('submit', function (e) {
     e.preventDefault();
     for (var equation_editor in CKEDITOR.instances) {
@@ -2337,23 +2394,29 @@ $(document).on('click', '.remove-row', function (e) {
             if (result.isConfirmed) {
                 let url = baseUrl + '/online-exam/remove-choiced-question/' + edit_id;
 
+                let data = new FormData();
+                data.append("_method", "DELETE");
+                data.append("_token", $("meta[name=csrf-token]").attr("content"));
+
                 function successCallback(response) {
                     showSuccessToast(response.message);
                     $this.parent().parent().parent().remove();
                     $('#table_list_exam_questions').bootstrapTable('refresh');
                 }
+
                 function errorCallback(response) {
                     showErrorToast(response.message);
                 }
 
-                ajaxRequest('DELETE', url, null, null, successCallback, errorCallback);
+                ajaxRequest('POST', url, data, null, successCallback, errorCallback);
             }
         })
     } else {
         $(this).parent().parent().parent().remove();
-        $('#table_list_exam_questions').bootstrapTable('uncheckBy', { field: 'question_id', values: [id] })
+        $('#table_list_exam_questions').bootstrapTable('uncheckBy', { field: 'question_id', values: [id] });
     }
-})
+});
+
 $('#store-assign-questions-form').on('submit', function (e) {
     e.preventDefault();
     let formElement = $(this);
@@ -2402,7 +2465,10 @@ $(document).on('click', '.delete-question-form', function (e) {
     }).then((result) => {
         if (result.isConfirmed) {
             let url = $(this).attr('href');
-            let data = null;
+            
+            let data = new FormData();
+            data.append("_method", "DELETE");
+            data.append("_token", $("meta[name=csrf-token]").attr("content"));
 
             function successCallback(response) {
                 $('#table_list_questions').bootstrapTable('refresh');
@@ -2413,10 +2479,11 @@ $(document).on('click', '.delete-question-form', function (e) {
                 showErrorToast(response.message);
             }
 
-            ajaxRequest('DELETE', url, data, null, successCallback, errorCallback);
+            ajaxRequest('POST', url, data, null, successCallback, errorCallback);
         }
     })
-})
+});
+
 $('#table_list_questions').on('load-success.bs.table', function () {
     createCkeditor();
 });
@@ -2577,7 +2644,7 @@ $('.add-extra-fee-installment-data').on('click', function (e) {
 $(document).on('click', '.remove-edit-fee-installment-content', function (e) {
     e.preventDefault();
     let $this = $(this);
-    if ($(this).data('id')) {
+    if ($this.data('id')) {
         Swal.fire({
             title: 'Are you sure?',
             text: "You won't be able to revert this!",
@@ -2591,6 +2658,10 @@ $(document).on('click', '.remove-edit-fee-installment-content', function (e) {
                 let id = $this.data('id');
                 let url = baseUrl + '/remove-installment-data/' + id;
 
+                let data = new FormData();
+                data.append("_method", "DELETE");
+                data.append("_token", $("meta[name=csrf-token]").attr("content"));
+
                 function successCallback(response) {
                     $('#table_list').bootstrapTable('refresh');
                     setTimeout(function () {
@@ -2603,14 +2674,14 @@ $(document).on('click', '.remove-edit-fee-installment-content', function (e) {
                     showErrorToast(response.message);
                 }
 
-                ajaxRequest('DELETE', url, null, null, successCallback,errorCallback);
-
+                ajaxRequest('POST', url, data, null, successCallback, errorCallback);
             }
         })
     } else {
-        $(this).parent().parent().parent().remove();
+        $this.parent().parent().parent().remove();
     }
 });
+
 $('.pay_optional_fees_offline').on('submit', function (e) {
     e.preventDefault();
     let formElement = $(this);
@@ -2632,7 +2703,7 @@ $('.pay_optional_fees_offline').on('submit', function (e) {
 $(document).on('click', '.remove-optional-fees-paid', function (e) {
     e.preventDefault();
     let $this = $(this);
-    if ($(this).data('id')) {
+    if ($this.data('id')) {
         Swal.fire({
             title: 'Are you sure?',
             text: "You won't be able to revert this!",
@@ -2646,25 +2717,29 @@ $(document).on('click', '.remove-optional-fees-paid', function (e) {
                 let id = $this.data('id');
                 let url = baseUrl + '/fees/paid/remove-choiceable-fees/' + id;
 
+                let data = new FormData();
+                data.append("_method", "DELETE");
+                data.append("_token", $("meta[name=csrf-token]").attr("content"));
+
                 function successCallback() {
                     $('#table_list').bootstrapTable('refresh');
                     setTimeout(() => {
                         $('#optionalModal').modal('hide');
                     }, 500);
-
                 }
 
                 function errorCallback(response) {
                     showErrorToast(response.message);
                 }
 
-                ajaxRequest('DELETE', url, null, null, successCallback, errorCallback);
+                ajaxRequest('POST', url, data, null, successCallback, errorCallback);
             }
-        })
+        });
     } else {
-        $(this).parent().parent().remove();
+        $this.parent().parent().remove();
     }
 });
+
 $(document).on('click','.pay_in_installment' ,function(e){
     if ($(this).is(':checked')) {
         $('#installment_mode').val(1)
@@ -2707,7 +2782,7 @@ $('.pay_compulsory_fees_offline').on('submit', function (e) {
 $(document).on('click', '.remove-installment-fees-paid', function (e) {
     e.preventDefault();
     let $this = $(this);
-    if ($(this).data('id')) {
+    if ($this.data('id')) {
         Swal.fire({
             title: 'Are you sure?',
             text: "You won't be able to revert this!",
@@ -2721,24 +2796,28 @@ $(document).on('click', '.remove-installment-fees-paid', function (e) {
                 let id = $this.data('id');
                 let url = baseUrl + '/fees/paid/remove-installment-fees/' + id;
 
+                let data = new FormData();
+                data.append("_method", "DELETE");
+                data.append("_token", $("meta[name=csrf-token]").attr("content"));
+
                 function successCallback(response) {
                     showSuccessToast(response.message);
                     $('#table_list').bootstrapTable('refresh');
                     setTimeout(() => {
                         $('#compulsoryModal').modal('hide');
                     }, 500);
-
                 }
 
                 function errorCallback(response) {
                     showErrorToast(response.message);
                 }
 
-                ajaxRequest('DELETE', url, null, null, successCallback, errorCallback);
+                ajaxRequest('POST', url, data, null, successCallback, errorCallback);
             }
         })
     }
 });
+
 
 $(function() {
     $(".daterange").daterangepicker({
@@ -2908,12 +2987,11 @@ $('.add-multiple-event-group-div').on('click', function (e) {
     initializeTimerangePicker(html);
 })
 
-$(document).on('click','.edit-remove-multiple-event-group',function (e){
+$(document).on('click', '.edit-remove-multiple-event-group', function (e) {
     e.preventDefault();
 
     let $this = $(this);
-    // console.log($this);
-    if ($(this).data('id')) {
+    if ($this.data('id')) {
         Swal.fire({
             title: 'Are you sure?',
             text: "You won't be able to revert this!",
@@ -2927,6 +3005,10 @@ $(document).on('click','.edit-remove-multiple-event-group',function (e){
                 let id = $this.data('id');
                 let url = baseUrl + '/multiple-event/' + id;
 
+                let data = new FormData();
+                data.append("_method", "DELETE");
+                data.append("_token", $("meta[name=csrf-token]").attr("content"));
+
                 function successCallback() {
                     $('#table_list').bootstrapTable('refresh');
                     $this.parent().parent().remove();
@@ -2936,18 +3018,19 @@ $(document).on('click','.edit-remove-multiple-event-group',function (e){
                     showErrorToast(response.message);
                 }
 
-                ajaxRequest('DELETE', url, null, null, successCallback, errorCallback);
+                ajaxRequest('POST', url, data, null, successCallback, errorCallback);
             }
-        })
+        });
+
         var rowCount = $('.edit-multiple-event-group-div').length - 1;
         if (rowCount <= 2) {
             $('.edit-remove-multiple-event-group').attr('disabled', true);
         }
     } else {
-
-        $(this).parent().parent().remove();
+        $this.parent().parent().remove();
     }
-})
+});
+
 
 $('.add-more-default-values').on('click', function (e) {
     e.preventDefault();
@@ -3537,7 +3620,6 @@ $("#staff-edit-form").submit(function (e) {
     formAjaxRequest('POST', url, data, formElement, submitButtonElement, successCallback, errorCallback);
 });
 
-
 $(document).on('click', '.image-delete', function (e) {
     e.preventDefault();
     Swal.fire({
@@ -3551,12 +3633,15 @@ $(document).on('click', '.image-delete', function (e) {
     }).then((result) => {
         if (result.isConfirmed) {
             let url = $(this).attr('href');
-            let data = null;
+
+            let data = new FormData();
+            data.append("_method", "DELETE");
+            data.append("_token", $("meta[name=csrf-token]").attr("content"));
 
             function successCallback(response) {
                 setTimeout(function () {
                     location.reload();
-                }, 1000)
+                }, 1000);
                 showSuccessToast(response.message);
             }
 
@@ -3564,10 +3649,11 @@ $(document).on('click', '.image-delete', function (e) {
                 showErrorToast(response.message);
             }
 
-            ajaxRequest('DELETE', url, data, null, successCallback, errorCallback);
+            ajaxRequest('POST', url, data, null, successCallback, errorCallback);
         }
-    })
-})
+    });
+});
+
 
 $("#edit-video").submit(function (e) {
     e.preventDefault();
@@ -3621,26 +3707,29 @@ $(document).on('click', '.student-id-card-settings', function (e) {
         confirmButtonText: 'Yes, delete it!'
     }).then((result) => {
         if (result.isConfirmed) {
-                let url = link + type;
-                let data = null;
+            let url = link + type;
 
-                function successCallback(response) {
-                    $('#'+type).hide(500);
-                    setTimeout(function () {
-                        location.reload();
-                    }, 1000)
-                    showSuccessToast(response.message);
-                }
+            let data = new FormData();
+            data.append("_method", "DELETE");
+            data.append("_token", $("meta[name=csrf-token]").attr("content"));
 
-                function errorCallback(response) {
-                    showErrorToast(response.message);
-                }
+            function successCallback(response) {
+                $('#' + type).hide(500);
+                setTimeout(function () {
+                    location.reload();
+                }, 1000);
+                showSuccessToast(response.message);
+            }
 
-                ajaxRequest('DELETE', url, data, null, successCallback, errorCallback);
+            function errorCallback(response) {
+                showErrorToast(response.message);
+            }
+
+            ajaxRequest('POST', url, data, null, successCallback, errorCallback);
         }
-    })
+    });
+});
 
-})
 
 $("#leave-setting").submit(function (e) {
     e.preventDefault();

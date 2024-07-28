@@ -6,7 +6,6 @@ use App\Models\Coupon;
 use App\Models\Lesson;
 use App\Models\Mediums;
 use App\Models\Teacher;
-use App\Models\ClassSection;
 use Illuminate\Http\Request;
 use App\Services\Coupon\CouponService;
 use App\Http\Requests\Dashboard\Coupon\CouponRequest;
@@ -62,7 +61,7 @@ class CouponController extends Controller
         $coupons->when($purchased, fn($q) => $q->has('usages'));
         $coupons
             ->withCount('usages')
-            ->with('classSection.class', 'classSection.section', 'classSection.class.medium', 'classSection.class.streams', 'subject:id,name')
+            ->with('classModel', 'classModel.medium', 'classModel.streams', 'subject:id,name')
             ->when($findOrderKey, fn($q) => $q->orderBy($mappedOrderKeys[$sort], $order))
             ->skip($offset)
             ->take($limit);
@@ -79,7 +78,7 @@ class CouponController extends Controller
             $tempRow['no'] = $no++;
             $tempRow['code'] = $row->code;
             $tempRow['used_count'] = $row->usages_count;
-            $tempRow['class_name'] = optional($row->classSection)->class?->name . "-" . optional($row->classSection)->section?->name . " - " . optional($row->classSection)->class?->medium?->name . " " . optional($row->classSection)->class?->streams?->name;
+            $tempRow['class_name'] = optional($row->classModel)->name . "-" . optional($row->classModel)->section?->name . " - " . optional($row->classModel)?->medium?->name . " " . optional($row->classModel)?->streams?->name;
             $tempRow['subject_name'] = optional($row->subject)->name;
             $tempRow['expiry_date'] = $row->expiry_date->toDateString();
             $tempRow['price'] = number_format($row->price, 2);
@@ -98,27 +97,28 @@ class CouponController extends Controller
     public function create()
     {
         $subjects = ClassSubject::with('subject')->orderByDesc('id')->get();
-        $mediums = Mediums::with([
-            'classSections' => fn($q) => $q->orderByDesc('id')->with('class','class.medium', 'section', 'streams')
-        ])->orderByDesc('id')->get();
-        $mediums =  $mediums->map(function ($medium){
-            return (object)[
+        $mediums = Mediums::withWhereHas('class', fn($q) => $q->has('allSubjects'))
+            ->orderByDesc('id')->has('class')->get();
+
+        $mediums = $mediums->map(function ($medium) {
+            return (object) [
                 'id' => $medium->id,
                 'name' => $medium->name,
-                'classes' => $medium->classSections->map(function ($class){
+                'classes' => $medium->class->map(function ($class) {
                     return [
                         'id' => $class->id,
-                        'name' =>   "{$class->class?->name} - {$class->section?->name} - {$class->class->streams?->name}"
+                        'name' => "{$class->name}" . optional($class->section, function ($section) {
+                            return " - {$section->name}";
+                        }) . " -{$class->streams?->name}"
                     ];
                 })
             ];
 
         });
+
         $teachers = Teacher::with('user', 'subjects')->get();
-
         $lessons = Lesson::select('name', 'teacher_id', 'class_section_id', 'id')->get();
-
-        return view('coupons.create', compact('teachers', 'lessons','mediums', 'subjects'));
+        return view('coupons.create', compact('teachers', 'lessons', 'mediums', 'subjects'));
     }
 
     public function store(CouponRequest $request)
@@ -131,7 +131,7 @@ class CouponController extends Controller
                 'message' => trans('data_store_successfully'),
                 'data' => [
                     'file_url' => $this->couponService->exportCouponCode($couponIds),
-                    'file_name' => "couponcode".time().".xlsx"
+                    'file_name' => "couponcode" . time() . ".xlsx"
                 ]
             ]);
         }
@@ -180,18 +180,32 @@ class CouponController extends Controller
     public function edit(Coupon $coupon)
     {
         $coupon->load('onlyAppliedTo');
+        $subjects = ClassSubject::with('subject')->orderByDesc('id')->get();
+        $mediums = Mediums::withWhereHas('class')->orderByDesc('id')->has('class')->get();
 
-        $teachers = Teacher::select("id", "user_id")->with('user:id,first_name,last_name')->get();
-        $teachers = $teachers->map(function ($teacher) {
-            return [
-                'id' => $teacher->id,
-                'name' => "{$teacher->user->first_name} {$teacher->user->last_name}"
+        $mediums = $mediums->map(function ($medium) {
+            return (object) [
+                'id' => $medium->id,
+                'name' => $medium->name,
+                'classes' => $medium->class->map(function ($class) {
+                    return [
+                        'id' => $class->id,
+                        'name' => "{$class->name}" . optional($class->section, function ($section) {
+                            return " - {$section->name}";
+                        }) . " -{$class->streams?->name}"
+                    ];
+                })
             ];
-        })->pluck('name', 'id');
 
-        $lessons = Lesson::select('id', 'teacher_id', 'name')->get();
+        });
 
-        return view('coupons.edit', compact('coupon', 'teachers', 'lessons'));
+
+        $teachers = Teacher::with('user', 'subjects')->get();
+
+        $lessons = Lesson::select('name', 'teacher_id', 'class_section_id', 'id')->get();
+
+
+        return view('coupons.edit', compact('coupon', 'teachers', 'subjects', 'mediums', 'lessons'));
     }
 
     public function update(CouponRequest $request, Coupon $coupon)
