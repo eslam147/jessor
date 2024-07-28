@@ -162,7 +162,7 @@
                                 <div class="d-flex">
                                     <div class="form-check form-check-inline">
                                         <label class="form-check-label">
-                                            <input type="checkbox" name="parent" value="Parent" class="form-check-input parent-check" id="show-parents-details" checked>{{ __('parents_details') }}
+                                            <input type="checkbox" name="parent" value="Parent" class="form-check-input parent-check" id="show-parents-details">{{ __('parents_details') }}
                                         </label>
                                     </div>
                                     <div class="form-check form-check-inline">
