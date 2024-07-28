@@ -15,9 +15,9 @@ class CouponRequest extends FormRequest
     {
         // ------------------------------------------------ \\
         return [
-            'coupons_count' => 'required|integer|min:1',
+            'coupons_count' => 'required|integer|min:1|max:1000',
             // ------------------------------------------------ \\
-            'usage_limit' => 'required|integer|min:1',
+            'usage_limit' => 'required|integer|min:1|max:100',
             'expiry_date' => 'nullable|date|after:today',
             // ------------------------------------------------ \\
             'teacher_id' => 'nullable|exists:teachers,id',

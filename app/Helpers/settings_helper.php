@@ -6,16 +6,11 @@ use App\Models\Settings;
 use Intervention\Image\Facades\Image;
 
 
-if (! function_exists('settingByType')) {
-    function settingByType($type)
-    {
-        app()->singleton(Settings::class, function () {
-            return Settings::get();
-        });
-        return app(Settings::class)->firstWhere('type', $type)?->message;
+if(! function_exists('settingByType')) {
+    function settingByType($type){
+        return Settings::where('type', $type)->value("message");
     }
 }
-
 if (! function_exists('getSettings')) {
     function getSettings($type = '')
     {

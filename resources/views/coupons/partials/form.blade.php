@@ -5,7 +5,7 @@
             {!! Form::number('coupons_count', null, [
                 'required',
                 'min' => 1,
-                'max' => 50,
+                'max' => 1000,
                 'step' => '1',
                 'placeholder' => __('coupons_count'),
                 'class' => 'form-control',
