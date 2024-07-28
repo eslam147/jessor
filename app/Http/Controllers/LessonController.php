@@ -37,6 +37,8 @@ class LessonController extends Controller
             );
             return redirect(route('home'))->withErrors($response);
         }
+
+        $teacher = Auth::user()->load('teacher')->teacher;
         $class_section = ClassSection::SubjectTeacher()->with('class.medium', 'section','class.streams')->get();
         $subjects = Subject::SubjectTeacher()->orderBy('id', 'ASC')->get();
         $lessons = Lesson::where('teacher_id', $teacher->id)->withCount('enrollments')->with('file')->get();
