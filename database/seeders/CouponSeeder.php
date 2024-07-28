@@ -29,6 +29,7 @@ class CouponSeeder extends Seeder
                         'price' => rand(100, 1000),
                         'usage_limit' => rand(1, 10),
                         'class_id' => $lesson->class_section->class_id,
+                        'subject_id' => $lesson->subject_id,
                     ];
                     $this->couponService->savePurchaseCoupons((object) $services);
                 }
