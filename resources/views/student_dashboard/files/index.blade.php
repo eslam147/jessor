@@ -86,6 +86,8 @@
                                                                             data-plyr-embed-id="{{ getYouTubeVideoId($row->file_url) }}">
                                                                         </div>
                                                                     @elseif($row->isVideoCorner())
+                                                                        <input type="hidden" id="title_for_browser" value="{{ $row->file_name }}">
+                                                                        <input type="hidden" id="download_for_browser" value="{{ $row->video_download_link }}">
                                                                         <iframe src="{{ $row->file_url }}" class="" style="width: -webkit-fill-available;"frameborder="0"></iframe>
                                                                     @endif
                                                                 </div>
