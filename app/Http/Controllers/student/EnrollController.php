@@ -23,8 +23,9 @@ class EnrollController extends Controller
     {
         $this->couponService = $couponService;
     }
+
     public function store(Request $request)
-    {
+    { 
         $validator = Validator::make($request->all(), [
             'purchase_code' => 'required|string',
             'lesson_id' => 'required|exists:lessons,id'
@@ -81,4 +82,6 @@ class EnrollController extends Controller
 
         }
     }
+
+
 }

@@ -28,10 +28,11 @@ class SubjectController extends Controller
 
     public function show(Subject $subject)
     {
+
         $class_section_id = Students::where('user_id', Auth::user()->id)->value('class_section_id');
         $show_teachers = Settings::where('type', 'show_teachers')->value('message');
 
-        if ($show_teachers == 'allow') {
+        if ($show_teachers == 'allow') { 
             $subjectTeachers = SubjectTeacher::where('subject_id', $subject->id)->where('class_section_id', $class_section_id)->with('teacher.user')->get()->pluck('teacher');
             return view('student_dashboard.teachers.index', compact('subjectTeachers', 'subject'));
         }

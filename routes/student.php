@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\student\EnrollController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\student\TopicsController;
 use App\Http\Controllers\student\SubjectController;
@@ -23,5 +24,6 @@ Route::prefix('student_dashboard')->group(function () {
         });
 
         Route::get('/teacher_lessons/{teacher_id}/subject/{subject_id}', [TeachersController::class, 'teacher_lessons'])->name('teacher.lessons');
+        Route::resource('/enroll',EnrollController::class);
     });
 });

@@ -16,6 +16,7 @@ use App\Models\ClassSection;
 use App\Models\ClassSubject;
 use Illuminate\Support\Carbon;
 use Illuminate\Database\Seeder;
+use Spatie\Permission\Models\Role;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 
@@ -93,7 +94,7 @@ class DummyDataSeeder extends Seeder
 
 
         //Users
-        $user = [
+        $users = [
             [
                 'id' => 2,
                 'image' => 'parents/user.png',
@@ -132,7 +133,19 @@ class DummyDataSeeder extends Seeder
             ]
         ];
 
-        User::upsert($user, ['id'], ['image', 'password', 'first_name', 'last_name', 'email', 'mobile', 'current_address', 'permanent_address']);
+        $studentRole = Role::where('name', 'Student')->first();
+
+        // Upsert users
+        User::upsert($users, ['id'], ['image', 'password', 'first_name', 'last_name', 'email', 'mobile', 'current_address', 'permanent_address']);
+
+        // Assign role to users
+        foreach ($users as $user) {
+            $userModel = User::find($user['id']);
+            if ($userModel) {
+                $userModel->assignRole($studentRole);
+            }
+        }
+
 
         //Parents
         $parent = [
