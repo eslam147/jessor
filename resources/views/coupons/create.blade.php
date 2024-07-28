@@ -132,8 +132,9 @@
         }
 
         function setSubjects(classId) {
-            $('#subject_id').empty();
-            $('#subject_id').removeAttr('readonly');
+            const $this = $('#subject_id');
+            $this.empty();
+            $this.removeAttr('readonly');
 
             const subjects = classSubjects.filter(classSubject => classSubject.class_id == Number(classId));
 
@@ -148,11 +149,14 @@
             if ($('#subject_id').val()) {
                 setTeachers($('#subject_id option:selected').data('class_subject-id'));
             }
+            $this.trigger('change');
+
         }
 
         function setLessons(teacherID, classSectionId) {
-            $('#lesson_id').removeAttr('readonly');
-            $('#lesson_id').empty();
+            const $this = $('#lesson_id');
+            $this.removeAttr('readonly');
+            $this.empty();
             const teacherLessons = lessons[Number(teacherID)];
             if (teacherLessons && teacherLessons.length > 0) {
                 for (let i = 0; i < teacherLessons.length; i++) {
@@ -162,11 +166,12 @@
                     }
                 }
             }
-
+            $this.trigger('change');
         }
         function setClasses(mediumId) {
-            $('#class_m_id').removeAttr('readonly');
-            $('#class_m_id').empty();
+            const $this = $('#class_m_id');
+            $this.removeAttr('readonly');
+            $this.empty();
             const classSections = classes[Number(mediumId)];
             console.log(classSections);
             if (classSections && classSections.length > 0) {
@@ -175,7 +180,7 @@
                     $('#class_m_id').append(`<option value="${item.id}">${item.name}</option>`);
                 }
             }
-
+            $this.trigger('change');
         }
         $('#medium_id').change(function() {
             setClasses($(this).val());
