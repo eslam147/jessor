@@ -19,13 +19,13 @@ class SettingsSeeder extends Seeder
         $school_phone = Settings::where('type','school_phone')->first();
         $school_email = Settings::where('type','school_email')->first();
         $school_name->update([
-            'message' => 'jessor',
+            'message' => 'Infinity School',
         ]);
         $school_phone->update([
-            'message' => '01090250088',
+            'message' => '123456789',
         ]);
         $school_email->update([
-            'message' => 'info@jesoor.online',
+            'message' => 'info@infinityschool.net',
         ]);
         Settings::create([
             'type'      => "show_teachers",
