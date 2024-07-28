@@ -38,7 +38,7 @@
 <script src="{{ asset('/assets/js/custom/validate.js') }}"></script>
 <script src="{{ asset('/assets/js/jquery-additional-methods.min.js') }}"></script>
 <script src="{{ asset('/assets/js/custom/function.js') }}?v=1.0.4""></script>
-<script src="{{ asset('/assets/js/custom/custom.js') }}?v=1.0.4"></script>
+<script src="{{ asset('/assets/js/custom/custom.js') }}?v=1.0.5"></script>
 <script src="{{ asset('/assets/js/custom/custom-bootstrap-table.js') }}"></script>
 
 <script src="{{ asset('/assets/ckeditor-4/ckeditor.js') }}"></script>

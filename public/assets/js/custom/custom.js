@@ -507,28 +507,58 @@ $(document).on('change', '.file_type', function () {
         parent.siblings('#file_thumbnail_div').hide();
         parent.siblings('#file_div').show();
         parent.siblings('#file_link_div').hide();
-    } else if (type == "video_upload") {
+        parent.siblings('#video_corner_url_div').hide();
+        parent.siblings('#video_corner_download_div').hide();
+        parent.siblings('#video_corner_download_link_div').hide();
+   } else if (type == "video_upload") {
         parent.siblings('#file_name_div').show();
         parent.siblings('#file_thumbnail_div').show();
         parent.siblings('#file_div').show();
         parent.siblings('#file_link_div').hide();
-    } else if (type == "youtube_link") {
+        parent.siblings('#video_corner_url_div').hide();
+        parent.siblings('#video_corner_download_div').hide();
+        parent.siblings('#video_corner_download_link_div').hide();
+   } else if (type == "youtube_link") {
         parent.siblings('#file_name_div').show();
         parent.siblings('#file_thumbnail_div').show();
         parent.siblings('#file_div').hide();
         parent.siblings('#file_link_div').show();
+        parent.siblings('#video_corner_url_div').hide();
+        parent.siblings('#video_corner_download_div').hide();
+        parent.siblings('#video_corner_download_link_div').hide();
     } else if (type == "other_link") {
         parent.siblings('#file_name_div').show();
         parent.siblings('#file_thumbnail_div').show();
         parent.siblings('#file_div').hide();
         parent.siblings('#file_link_div').show();
+        parent.siblings('#video_corner_url_div').hide();
+        parent.siblings('#video_corner_download_div').hide();
+        parent.siblings('#video_corner_download_link_div').hide();
+    } else if (type == "video_corner_link") {
+        parent.siblings('#file_name_div').show();
+        parent.siblings('#file_thumbnail_div').show();
+        parent.siblings('#file_div').hide();
+        parent.siblings('#file_link_div').hide();
+        parent.siblings('#video_corner_url_div').show();
+        parent.siblings('#video_corner_download_div').hide();
+        parent.siblings('#video_corner_download_link_div').hide();
+    } else if (type == "video_corner_download_link") {
+        parent.siblings('#file_name_div').show();
+        parent.siblings('#file_thumbnail_div').show();
+        parent.siblings('#file_div').hide();
+        parent.siblings('#file_link_div').hide();
+        parent.siblings('#video_corner_url_div').show();
+        parent.siblings('#video_corner_download_link_div').show();
     } else {
         parent.siblings('#file_name_div').hide();
         parent.siblings('#file_thumbnail_div').hide();
         parent.siblings('#file_div').hide();
         parent.siblings('#file_link_div').hide();
+        parent.siblings('#video_corner_url_div').hide();
+        parent.siblings('#video_corner_download_div').hide();
+        parent.siblings('#video_corner_download_link_div').hide();
     }
-})
+});
 
 
 $(document).on('click', '.add-lesson-file', function (e) {
