@@ -1,5 +1,5 @@
 <div class="row">
-    @isset($coupon)
+    @unless(isset($coupon))
         <div class="form-group col-sm-12">
             <label>{{ __('coupons_count') }}<span class="text-danger">*</span></label>
             {!! Form::number('coupons_count', null, [
@@ -14,7 +14,7 @@
                 <p class="text-danger" role="alert">{{ $message }}</p>
             @enderror
         </div>
-    @endisset
+    @endunless
 
     <div class="form-group col-sm-12">
         <label>{{ __('usage_limit') }}<span class="text-danger">*</span></label>
