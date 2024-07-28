@@ -124,28 +124,33 @@ class HomeController extends Controller
         if (Auth::user()->hasRole('Super Admin')) {
 
             $rankers = ExamResult::with('student', 'class_section')
-            ->select('class_section_id', 'student_id', 'percentage', 'grade', DB::raw('MAX(percentage) as max_percentage'))
-            ->groupBy('class_section_id')
-            ->whereNot('grade','Fail')
-            ->get();
+                ->select('class_section_id', 'student_id', 'percentage', 'grade', DB::raw('MAX(percentage) as max_percentage'))
+                ->groupBy('class_section_id')
+                ->whereNot('grade', 'Fail')
+                ->get();
         }
         if (Auth::user()->hasRole('Super Admin')) {
-            $attendance = Attendance::with('class_section')->select('class_section_id','type','date', DB::raw('COUNT(*) as total_attendance'),
-                DB::raw('SUM(CASE WHEN type = 1 THEN 1 ELSE 0 END) as total_present'))->groupby('class_section_id')->get();
+            $attendance = Attendance::with('class_section')->select(
+                'class_section_id',
+                'type',
+                'date',
+                DB::raw('COUNT(*) as total_attendance'),
+                DB::raw('SUM(CASE WHEN type = 1 THEN 1 ELSE 0 END) as total_present')
+            )->groupby('class_section_id')->get();
         }
-        if(Auth::user()->hasRole('Teacher'))
-        {
+        if (Auth::user()->hasRole('Teacher')) {
             $teacher_id = Auth::user()->teacher->id;
-            $class_section_id = ClassTeacher::select('class_section_id')->where('class_teacher_id',$teacher_id)->get();
+            $class_section_id = ClassTeacher::select('class_section_id')->where('class_teacher_id', $teacher_id)->get();
             if ($class_section_id) {
-
-                $class_sections = ClassSection::with('class','section','class.medium','class.streams')->whereIn('id',$class_section_id)->get();
+                $class_sections = ClassSection::with('class', 'section', 'class.medium', 'class.streams')
+                    ->whereIn('id', $class_section_id->pluck('class_section_id'))
+                    ->get();
             }
         }
         $date_format = "d-m-Y H:i:s";
         $announcement = Announcement::where('table_type', "")->limit(5)->get();
 
-        return view('home', compact('teacher', 'parent', 'student', 'announcement', 'teachers', 'boys', 'girls','class_sections','date_format','rankers','attendance'));
+        return view('home', compact('teacher', 'parent', 'student', 'announcement', 'teachers', 'boys', 'girls', 'class_sections', 'date_format', 'rankers', 'attendance'));
     }
 
     public function logout(Request $request)
@@ -159,8 +164,7 @@ class HomeController extends Controller
     public function getSubjectByClassSection(Request $request)
     {
         $class_section = ClassSection::select('class_id')->where('id', $request->class_section_id)->first();
-        if($class_section != null)
-        {
+        if ($class_section) {
             $subjects = ClassSubject::SubjectTeacher()->where('class_id', $class_section->class_id)->with('subject')->get();
         }
 
@@ -173,7 +177,7 @@ class HomeController extends Controller
         $teacher_exists = SubjectTeacher::where(['class_section_id' => $request->class_section_id, 'subject_id' => $request->subject_id])->pluck('teacher_id')->toArray();
         if (sizeof($teacher_exists)) {
             // if data is edited then find teachers according to it
-            if (isset($request->edit_id) && !empty($request->edit_id)) {
+            if (isset($request->edit_id) && ! empty($request->edit_id)) {
                 $teacher_id = SubjectTeacher::where('id', $request->edit_id)->pluck('teacher_id')->first();
                 unset($teacher_exists[array_search($teacher_id, $teacher_exists)]);
                 array_values($teacher_exists);
@@ -202,20 +206,24 @@ class HomeController extends Controller
 
     public function updateProfile(Request $request)
     {
-        $validator = Validator::make($request->all(), [
-            'id' => 'required',
-            'first_name' => 'required',
-            'last_name' => 'required',
-            'mobile' => 'required|numeric|regex:/^[0-9]{7,16}$/',
-            'gender' => 'required',
-            'dob' => 'required',
-            'email' => 'required|email',
-            'image' => 'nullable|mimes:jpeg,png,jpg|image|max:5048',
-            'current_address' => 'required',
-            'permanent_address' => 'required',
-        ],
-        ['mobile.regex' => 'The mobile number must be a length of 7 to 15 digits.'
-        ]);
+        $validator = Validator::make(
+            $request->all(),
+            [
+                'id' => 'required',
+                'first_name' => 'required',
+                'last_name' => 'required',
+                'mobile' => 'required|numeric|regex:/^[0-9]{7,16}$/',
+                'gender' => 'required',
+                'dob' => 'required',
+                'email' => 'required|email',
+                'image' => 'nullable|mimes:jpeg,png,jpg|image|max:5048',
+                'current_address' => 'required',
+                'permanent_address' => 'required',
+            ],
+            [
+                'mobile.regex' => 'The mobile number must be a length of 7 to 15 digits.'
+            ]
+        );
         if ($validator->fails()) {
             $response = array(
                 'error' => true,
@@ -233,7 +241,7 @@ class HomeController extends Controller
             $user_db->email = $request->email;
             $user_db->current_address = $request->current_address;
             $user_db->permanent_address = $request->permanent_address;
-            if (!empty($request->image)) {
+            if (! empty($request->image)) {
                 if (Storage::disk('public')->exists($user_db->getRawOriginal('image'))) {
                     Storage::disk('public')->delete($user_db->getRawOriginal('image'));
                 }
@@ -264,7 +272,8 @@ class HomeController extends Controller
         }
         return response()->json($response);
     }
-    public function updateWarningModal(Request $request){
+    public function updateWarningModal(Request $request)
+    {
         try {
             $data = array(
                 'type' => 'update_warning_modal',
@@ -272,7 +281,7 @@ class HomeController extends Controller
             );
             Settings::insert($data);
             return redirect()->back();
-        }catch (Throwable $e) {
+        } catch (Throwable $e) {
             $response = array(
                 'error' => true,
                 'message' => trans('error_occurred')

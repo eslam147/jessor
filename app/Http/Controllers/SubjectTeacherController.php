@@ -15,22 +15,16 @@ use Throwable;
 
 class SubjectTeacherController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
     public function index()
     {
-        if (!Auth::user()->can('subject-teacher-list')) {
-            $response = array(
+        if (! Auth::user()->can('subject-teacher-list')) {
+            return to_route('home')->withErrors([
                 'message' => trans('no_permission_message')
-            );
-            return redirect(route('home'))->withErrors($response);
+            ]);
         }
-        $subjects = Subject::orderBy('id', 'DESC')->get();
+        $subjects = Subject::orderByDesc('id')->get();
 
-        $class_section = ClassSection::with('class', 'section','streams')->get();
+        $class_section = ClassSection::with('class', 'section', 'streams')->get();
         $teachers = Teacher::with('user')->get();
 
         return view('subject.teacher', compact('class_section', 'teachers', 'subjects'));
@@ -46,7 +40,7 @@ class SubjectTeacherController extends Controller
     public function store(Request $request)
     {
 
-        if (!Auth::user()->can('subject-teacher-create') || !Auth::user()->can('subject-teacher-edit')) {
+        if (! Auth::user()->can('subject-teacher-create') || ! Auth::user()->can('subject-teacher-edit')) {
             $response = array(
                 'error' => true,
                 'message' => trans('no_permission_message')
@@ -62,7 +56,7 @@ class SubjectTeacherController extends Controller
         try {
 
             foreach ($request->teacher_id as $teacher_id) {
-                if (isset($request->id) && $request->id != '') {
+                if (!empty($request->id)) {
                     $subject_teacher = SubjectTeacher::find($request->id);
                 } else {
                     $subject_teacher = new SubjectTeacher();
@@ -89,7 +83,7 @@ class SubjectTeacherController extends Controller
     public function update(Request $request)
     {
 
-        if (!Auth::user()->can('subject-teacher-edit')) {
+        if (! Auth::user()->can('subject-teacher-edit')) {
             $response = array(
                 'error' => true,
                 'message' => trans('no_permission_message')
@@ -130,7 +124,7 @@ class SubjectTeacherController extends Controller
      */
     public function show()
     {
-        if (!Auth::user()->can('subject-teacher-list')) {
+        if (! Auth::user()->can('subject-teacher-list')) {
             $response = array(
                 'error' => true,
                 'message' => trans('no_permission_message')
@@ -153,8 +147,8 @@ class SubjectTeacherController extends Controller
             $order = $_GET['order'];
 
         $sql = SubjectTeacher::SubjectTeacher()->with('class_section.class', 'subject', 'teacher');
-        if (isset($_GET['search']) && !empty($_GET['search'])) {
-            $search = $_GET['search'];
+        if (!empty(request('search'))) {
+            $search = request('search');
             $sql->where('id', 'LIKE', "%$search%")
                 ->orWhereHas('class_section.class', function ($q) use ($search) {
 
@@ -200,7 +194,7 @@ class SubjectTeacherController extends Controller
             $tempRow['id'] = $row->id;
             $tempRow['no'] = $no++;
             $tempRow['class_section_id'] = $row->class_section_id;
-            $tempRow['class_section_name'] = $row->class_section->class->name . ' - ' . $row->class_section->section->name . ' ' . $row->class_section->class->medium->name;
+            $tempRow['class_section_name'] = $row->class_section?->class->name . ' - ' . $row->class_section?->section->name . ' ' . $row->class_section?->class->medium->name;
             $tempRow['stream_id'] = $row->class_section->class->streams->id ?? '-';
             $tempRow['stream_name'] = $row->class_section->class->streams->name ?? '-';
             $tempRow['subject_id'] = $row->subject_id;
@@ -235,7 +229,7 @@ class SubjectTeacherController extends Controller
      */
     public function destroy($id)
     {
-        if (!Auth::user()->can('subject-teacher-delete')) {
+        if (! Auth::user()->can('subject-teacher-delete')) {
             $response = array(
                 'error' => true,
                 'message' => trans('no_permission_message')
@@ -243,13 +237,13 @@ class SubjectTeacherController extends Controller
             return response()->json($response);
         }
         try {
-            $timetables = Timetable::where('subject_teacher_id',$id)->count();
-            if($timetables){
+            $timetables = Timetable::where('subject_teacher_id', $id)->count();
+            if ($timetables) {
                 $response = array(
                     'error' => true,
                     'message' => trans('cannot_delete_beacuse_data_is_associated_with_other_data')
                 );
-            }else{
+            } else {
                 SubjectTeacher::find($id)->delete();
                 $response = [
                     'error' => false,

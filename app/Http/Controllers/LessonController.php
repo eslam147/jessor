@@ -77,23 +77,22 @@ class LessonController extends Controller
         );
 
         if ($validator->fails()) {
-            $response = array(
+            return response()->json([
                 'error' => true,
                 'message' => $validator->errors()->first(),
-            );
-            return response()->json($response);
+            ]);
         }
         try {
             $teacher = auth()->user()->load('teacher')->teacher;
 
-            $lesson = new Lesson();
-            $lesson->name = $request->name;
-            $lesson->description = $request->description;
-            $lesson->class_section_id = $request->class_section_id;
-            $lesson->subject_id = $request->subject_id;
-            $lesson->teacher_id = $teacher->id;
-            $lesson->is_paid = ($request->payment_status == 'paid');
-            $lesson->save();
+            $lesson = Lesson::create([
+                'name' => $request->name,
+                'description' => $request->description,
+                'class_section_id' => $request->class_section_id,
+                'subject_id' => $request->subject_id,
+                'teacher_id' => $teacher->id,
+                'is_paid' => ($request->payment_status == 'paid'),
+            ]);
 
             foreach ($request->file as $key => $file) {
                 if ($file['type']) {
@@ -158,18 +157,18 @@ class LessonController extends Controller
                 }
             }
 
-            $response = array(
+            $response = [
                 'error' => false,
                 'message' => trans('data_store_successfully')
-            );
+            ];
         } catch (Exception $e) {
             report($e);
 
-            $response = array(
+            $response = [
                 'error' => true,
                 'message' => trans('error_occurred'),
                 'exception' => $e
-            );
+            ];
         }
         return response()->json($response);
     }
@@ -217,12 +216,12 @@ class LessonController extends Controller
                     ->orwhere('created_at', 'LIKE', "%" . date('Y-m-d H:i:s', strtotime($search)) . "%")
                     ->orwhere('updated_at', 'LIKE', "%" . date('Y-m-d H:i:s', strtotime($search)) . "%")
                     ->orWhereHas('class_section.section', function ($q) use ($search) {
-                        $q->where('name', 'LIKE', "%$search%");
+                        $q->where('name', 'LIKE', "%{$search}%");
                     })
                     ->orWhereHas('class_section.class', function ($q) use ($search) {
-                        $q->where('name', 'LIKE', "%$search%");
+                        $q->where('name', 'LIKE', "%{$search}%");
                     })->orWhereHas('subject', function ($q) use ($search) {
-                        $q->where('name', 'LIKE', "%$search%");
+                        $q->where('name', 'LIKE', "%{$search}%");
                     });
             });
         }
