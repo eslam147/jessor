@@ -36,7 +36,7 @@ class TeacherSeeder extends Seeder
         $user->gender = fake()->randomElement(['Male', 'Female']);
         $user->current_address = fake()->address();
         $user->permanent_address = fake()->address();
-        $user->email = fake()->safeEmail();
+        $user->email = "teacher@gmail.com";
         $user->mobile = fake()->phoneNumber();
         $user->dob = fake()->date();
         $user->save();
