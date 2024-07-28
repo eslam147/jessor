@@ -78,6 +78,9 @@
                                             <option value="file_upload">{{ __('file_upload') }}</option>
                                             <option value="youtube_link">{{ __('youtube_link') }}</option>
                                             <option value="video_upload">{{ __('video_upload') }}</option>
+                                            <option value="video_corner_link">{{ __('video_corner_link') }}</option>
+                                            <option value="video_corner_download_link">{{ __('video_corner_download_link') }}</option>
+
                                             {{-- <option value="other_link">{{ __('other_link') }}</option> --}}
                                         </select>
                                     </div>
@@ -95,12 +98,22 @@
                                         <input type="file" name="file[0][file]" class="form-control" placeholder=""
                                             required>
                                     </div>
+                                    <div class="form-group col-md-3" id="video_corner_url_div" style="display: none">
+                                        <label>{{ __('link') }} <span class="text-danger">*</span></label>
+                                        <input type="text" name="file[0][video_corner_url]" class="video_corner_url form-control"
+                                            placeholder="{{ __('link') }}" required>
+                                    </div>
                                     <div class="form-group col-md-3" id="file_link_div" style="display: none">
                                         <label>{{ __('link') }} <span class="text-danger">*</span></label>
                                         <input type="text" name="file[0][link]" class="form-control"
                                             placeholder="{{ __('link') }}" required>
                                     </div>
 
+                                    <div class="form-group col-md-3" id="video_corner_download_link_div" style="display: none">
+                                        <label>{{ __('video_corner_download_link') }} <span class="text-danger">*</span></label>
+                                        <input type="text" name="file[0][video_corner_download_link]" class="video_corner_download_link form-control"
+                                            placeholder="{{ __('video_corner_download_link') }}" required>
+                                    </div>
                                     <div class="form-group col-md-1 col-md-1 pl-0 mt-4">
                                         <button type="button" class="btn btn-inverse-success btn-icon add-lesson-file">
                                             <i class="fa fa-plus"></i>

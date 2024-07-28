@@ -110,6 +110,9 @@
                                             <option value="file_upload">{{ __('file_upload') }}</option>
                                             <option value="youtube_link">{{ __('youtube_link') }}</option>
                                             <option value="video_upload">{{ __('video_upload') }}</option>
+                                            <option value="video_corner_link">{{ __('video_corner_link') }}</option>
+                                            <option value="video_corner_download_link">
+                                                {{ __('video_corner_download_link') }}</option>
                                             {{-- <option value="other_link">{{ __('other_link') }}</option> --}}
                                         </select>
                                     </div>
@@ -133,7 +136,20 @@
                                         <input type="text" name="file[0][link]" class="file_link form-control"
                                             placeholder="{{ __('link') }}" required>
                                     </div>
-
+                                    <div class="form-group col-md-3" id="video_corner_url_div" style="display: none">
+                                        <label>{{ __('link') }} <span class="text-danger">*</span></label>
+                                        <input type="text" name="file[0][video_corner_url]"
+                                            class="video_corner_url form-control" placeholder="{{ __('link') }}"
+                                            required>
+                                    </div>
+                                    <div class="form-group col-md-3" id="video_corner_download_link_div"
+                                        style="display: none">
+                                        <label>{{ __('video_corner_download_link') }} <span
+                                                class="text-danger">*</span></label>
+                                        <input type="text" name="file[0][video_corner_download_link]"
+                                            class="video_corner_download_link form-control"
+                                            placeholder="{{ __('video_corner_download_link') }}" required>
+                                    </div>
                                     <div class="form-group col-md-1 col-md-1 pl-0 mt-4">
                                         <button type="button" class="btn btn-inverse-success btn-icon add-lesson-file">
                                             <i class="fa fa-plus"></i>
@@ -201,7 +217,7 @@
                             data-mobile-responsive="true" data-sort-name="id" data-sort-order="desc"
                             data-maintain-selected="true" data-export-types='["txt","excel"]'
                             data-query-params="CreateLessionQueryParams"
-                            data-export-options='{ "fileName": "lesson-list-{{ date('d-m-y') }}" ,"ignoreColumn":
+                            data-export-options='{ "fileName": "lesson-list-<?= date('d-m-y') ?>" ,"ignoreColumn":
                             ["operate"]}'
                             data-show-export="true">
                             <thead>
@@ -212,23 +228,22 @@
                                     <th scope="col" data-field="name" data-sortable="true">{{ __('name') }}</th>
                                     <th scope="col" data-field="description" data-sortable="true">
                                         {{ __('description') }}</th>
-                                    <th scope="col" data-field="class_section_name" data-sortable="fa;se">
+                                    <th scope="col" data-field="class_section_name" data-sortable="true">
                                         {{ __('class_section') }}</th>
                                     <th scope="col" data-field="subject_name" data-sortable="true">
                                         {{ __('subject') }}</th>
                                     <th scope="col" data-field="file" data-formatter="fileFormatter"
-                                        data-sortable="false">{{ __('file') }}</th>
+                                        data-sortable="true">{{ __('file') }}</th>
                                     <th scope="col" data-field="purchased_count" data-sortable="true">
                                         {{ __('purchased_count') }}</th>
                                     <th scope="col" data-field="payment_status" data-sortable="false">
                                         {{ __('payment_status') }}</th>
                                     <th scope="col" data-field="status_name" data-sortable="false">
                                         {{ __('status') }}</th>
-                                    {{-- <th scope="col" data-field="created_at" data-sortable="true"
-                                        data-visible="false"> {{ __('created_at') }}</th>
+                                    <th scope="col" data-field="created_at" data-sortable="true" {{--  data-visible="false"> {{ __('created_at') }}</th>
                                     <th scope="col" data-field="updated_at" data-sortable="true"
-                                        data-visible="false"> {{ __('updated_at') }}</th> --}}
-                                    <th scope="col" data-field="operate" data-sortable="false"
+                                        data-visible="false"> {{ __('updated_at') }}</th>  --}}
+                                        <th scope="col" data-field="operate" data-sortable="false"
                                         data-events="lessonEvents">{{ __('action') }}</th>
                                 </tr>
                             </thead>
@@ -334,6 +349,7 @@
                                             </div>
                                         </div>
                                     </div>
+
                                 </div>
 
                                 <h4 class="mb-3">{{ __('files') }}</h4>

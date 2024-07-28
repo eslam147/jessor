@@ -18,6 +18,7 @@ storage/*.key
 Homestead.yaml
 Homestead.json
 /.vagrant
+/.history
 .phpunit.result.cache
 /package-lock.json
 /.idea
