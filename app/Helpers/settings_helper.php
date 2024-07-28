@@ -6,11 +6,16 @@ use App\Models\Settings;
 use Intervention\Image\Facades\Image;
 
 
-if(! function_exists('settingByType')) {
-    function settingByType($type){
-        return Settings::where('type', $type)->value("message");
+if (! function_exists('settingByType')) {
+    function settingByType($type)
+    {
+        app()->singleton(Settings::class, function () {
+            return Settings::get();
+        });
+        return app(Settings::class)->firstWhere('type', $type)?->message;
     }
 }
+
 if (! function_exists('getSettings')) {
     function getSettings($type = '')
     {
@@ -125,62 +130,62 @@ if (! function_exists('flattenMyModel')) {
         return $data;
     }
 }
-if (! function_exists('changeEnv')) {
-    function changeEnv($data = array())
-    {
-        if (count($data) > 0) {
+// if (! function_exists('changeEnv')) {
+//     function changeEnv($data = array())
+//     {
+//         if (count($data) > 0) {
 
-            // Read .env-file
-            $env = file_get_contents(base_path() . '/.env');
-            // Split string on every " " and write into array
-            $env = explode(PHP_EOL, $env);
-            // $env = preg_split('/\s+/', $env);
-            foreach ($env as $env_key => $env_value) {
-                $entry = explode("=", $env_value);
-                $temp_env_keys[] = $entry[0];
+//             // Read .env-file
+//             $env = file_get_contents(base_path() . '/.env');
+//             // Split string on every " " and write into array
+//             $env = explode(PHP_EOL, $env);
+//             // $env = preg_split('/\s+/', $env);
+//             foreach ($env as $env_key => $env_value) {
+//                 $entry = explode("=", $env_value);
+//                 $temp_env_keys[] = $entry[0];
 
-            }
-            // Loop through given data
-            foreach ((array) $data as $key => $value) {
-                $key_value = $key . "=" . $value;
+//             }
+//             // Loop through given data
+//             foreach ((array) $data as $key => $value) {
+//                 $key_value = $key . "=" . $value;
 
-                if (in_array($key, $temp_env_keys)) {
-                    // Loop through .env-data
-                    foreach ($env as $env_key => $env_value) {
-                        // Turn the value into an array and stop after the first split
-                        // So it's not possible to split e.g. the App-Key by accident
-                        $entry = explode("=", $env_value);
-                        // // Check, if new key fits the actual .env-key
-                        if ($entry[0] == $key) {
+//                 if (in_array($key, $temp_env_keys)) {
+//                     // Loop through .env-data
+//                     foreach ($env as $env_key => $env_value) {
+//                         // Turn the value into an array and stop after the first split
+//                         // So it's not possible to split e.g. the App-Key by accident
+//                         $entry = explode("=", $env_value);
+//                         // // Check, if new key fits the actual .env-key
+//                         if ($entry[0] == $key) {
 
-                            // If yes, overwrite it with the new one
+//                             // If yes, overwrite it with the new one
 
-                            if ($key != 'APP_NAME') {
-                                $env[$env_key] = $key . "=" . str_replace('"', '', $value);
-                            } else {
-                                $env[$env_key] = $key . "=" . $value;
-                            }
+//                             if ($key != 'APP_NAME') {
+//                                 $env[$env_key] = $key . "=" . str_replace('"', '', $value);
+//                             } else {
+//                                 $env[$env_key] = $key . "=" . $value;
+//                             }
 
-                        } else {
-                            // If not, keep the old one
-                            $env[$env_key] = $env_value;
-                        }
-                    }
-                } else {
-                    $env[] = $key_value;
-                }
-            }
-            // Turn the array back to an String
-            $env = implode("\n", $env);
+//                         } else {
+//                             // If not, keep the old one
+//                             $env[$env_key] = $env_value;
+//                         }
+//                     }
+//                 } else {
+//                     $env[] = $key_value;
+//                 }
+//             }
+//             // Turn the array back to an String
+//             $env = implode("\n", $env);
 
-            // And overwrite the .env with the new data
-            file_put_contents(base_path() . '/.env', $env);
+//             // And overwrite the .env with the new data
+//             file_put_contents(base_path() . '/.env', $env);
 
-            return true;
-        } 
-        return false;
-    }
-}
+//             return true;
+//         } 
+//         return false;
+//     }
+// }
 
 if (! function_exists('findExamGrade')) {
     function findExamGrade($percentage)
