@@ -50,7 +50,7 @@ class StudentController extends Controller
 {
     public function index()
     {
-        if (!Auth::user()->can('student-list')) {
+        if (! Auth::user()->can('student-list')) {
             $response = array(
                 'message' => trans('no_permission_message')
             );
@@ -59,18 +59,18 @@ class StudentController extends Controller
         $class_section = ClassSection::with('class', 'section', 'streams')->get();
         $category = Category::where('status', 1)->get();
         $formFields = FormField::where('for', 1)->orderBy('rank', 'ASC')->get();
-        return view('students.details', compact('class_section', 'category','formFields'));
+        return view('students.details', compact('class_section', 'category', 'formFields'));
     }
 
     public function create()
     {
-        if (!Auth::user()->can('student-create')) {
+        if (! Auth::user()->can('student-create')) {
             $response = array(
                 'message' => trans('no_permission_message')
             );
             return redirect(route('home'))->withErrors($response);
         }
-        $class_section = ClassSection::with('class', 'section','streams')->get();
+        $class_section = ClassSection::with('class', 'section', 'streams')->get();
         $studentFields = FormField::where('for', 1)->orderBy('rank', 'ASC')->get();
         $parentFields = FormField::where('for', 2)->orderBy('rank', 'ASC')->get();
         $category = Category::where('status', 1)->get();
@@ -84,7 +84,7 @@ class StudentController extends Controller
 
     public function createBulkData()
     {
-        if (!Auth::user()->can('student-create')) {
+        if (! Auth::user()->can('student-create')) {
             $response = array(
                 'message' => trans('no_permission_message')
             );
@@ -102,7 +102,7 @@ class StudentController extends Controller
 
     public function storeBulkData(Request $request)
     {
-        if (!Auth::user()->can('student-create') || !Auth::user()->can('student-edit')) {
+        if (! Auth::user()->can('student-create') || ! Auth::user()->can('student-edit')) {
             $response = array(
                 'message' => trans('no_permission_message')
             );
@@ -137,48 +137,51 @@ class StudentController extends Controller
 
     public function update(Request $request)
     {
-        if (!Auth::user()->can('student-create') || !Auth::user()->can('student-edit')) {
+        if (! Auth::user()->can('student-create') || ! Auth::user()->can('student-edit')) {
             $response = array(
                 'message' => trans('no_permission_message')
             );
             return response()->json($response);
         }
-        $request->validate([
-            'first_name' => 'required',
-            'last_name' => 'required',
-            'mobile' => 'nullable|numeric',
-            'image' => 'mimes:jpeg,png,jpg|image|max:2048',
-            'dob' => 'required',
-            'class_section_id' => 'required',
-            'category_id' => 'required',
-            'admission_no' => 'required|unique:users,email,' . $request->edit_id,
-            'roll_number' => 'required',
-            'admission_date' => 'required',
-            'current_address' => 'required',
-            'permanent_address' => 'required',
-            'parent' => 'required_without:guardian',
-            'guardian' => 'required_without:parent',
-        ],
-        ['mobile.regex' => 'The mobile number must be a length of 7 to 15 digits.'
-        ]);
+        $request->validate(
+            [
+                'first_name' => 'required',
+                'last_name' => 'required',
+                'mobile' => 'nullable|numeric',
+                'image' => 'mimes:jpeg,png,jpg|image|max:2048',
+                'dob' => 'required',
+                'class_section_id' => 'required',
+                'category_id' => 'required',
+                'admission_no' => 'required|unique:users,email,' . $request->edit_id,
+                'roll_number' => 'required',
+                'admission_date' => 'required',
+                'current_address' => 'required',
+                'permanent_address' => 'required',
+                'parent' => 'required_without:guardian',
+                'guardian' => 'required_without:parent',
+            ],
+            [
+                'mobile.regex' => 'The mobile number must be a length of 7 to 15 digits.'
+            ]
+        );
         // dd($request->all());
         try {
             //Add Father in User and Parent table data
-            if(isset($request->parent)){
-                if (!intval($request->father_email)) {
+            if (isset($request->parent)) {
+                if (! intval($request->father_email)) {
                     $request->validate([
-                        'father_email' => 'required|email|regex:/^([a-z0-9\+_\-]+)(\.[a-z0-9\+_\-]+)*@([a-z0-9\-]+\.)+[a-z]{2,6}$/ix|unique:users,email,' . $request->father_email.'|unique:parents,email,' . $request->father_email,
+                        'father_email' => 'required|email|regex:/^([a-z0-9\+_\-]+)(\.[a-z0-9\+_\-]+)*@([a-z0-9\-]+\.)+[a-z]{2,6}$/ix|unique:users,email,' . $request->father_email . '|unique:parents,email,' . $request->father_email,
                         'father_image' => 'required|mimes:jpeg,png,jpg|image|max:2048',
                     ]);
                 }
 
-                if (!intval($request->mother_email)) {
+                if (! intval($request->mother_email)) {
                     $request->validate([
                         'mother_email' => 'required|email|regex:/^([a-z0-9\+_\-]+)(\.[a-z0-9\+_\-]+)*@([a-z0-9\-]+\.)+[a-z]{2,6}$/ix|unique:users,email,' . $request->mother_email . '|unique:parents,email,' . $request->mother_email,
                         'mother_image' => 'required|mimes:jpeg,png,jpg|image|max:2048',
                     ]);
                 }
-                if (!intval($request->father_email)) {
+                if (! intval($request->father_email)) {
                     $father_user = new User();
                     $father_user->image = $request->file('father_image')->store('parents', 'public');
                     $father_user->password = Hash::make(str_replace('/', '', $request->father_dob));
@@ -208,7 +211,7 @@ class StudentController extends Controller
                 }
 
                 //Add Mother in User and Parent table data
-                if (!intval($request->mother_email)) {
+                if (! intval($request->mother_email)) {
                     $mother_user = new User();
                     $mother_user->image = $request->file('mother_image')->store('parents', 'public');
                     $mother_user->password = Hash::make(str_replace('/', '', $request->mother_dob));
@@ -237,15 +240,15 @@ class StudentController extends Controller
                     $mother_parent_id = $request->mother_email;
                 }
             }
-            if(isset($request->guardian)){
-                if (isset($request->guardian_email) && !intval($request->guardian_email)) {
+            if (isset($request->guardian)) {
+                if (isset($request->guardian_email) && ! intval($request->guardian_email)) {
                     $request->validate([
                         'guardian_email' => 'required|email|regex:/^([a-z0-9\+_\-]+)(\.[a-z0-9\+_\-]+)*@([a-z0-9\-]+\.)+[a-z]{2,6}$/ix|unique:parents,email,' . $request->guardian_email,
                         'guardian_image' => 'required|mimes:jpeg,png,jpg|image|max:2048',
                     ]);
                 }
                 if (isset($request->guardian_email)) {
-                    if (!intval($request->guardian_email)) {
+                    if (! intval($request->guardian_email)) {
                         $guardian_email = $request->guardian_email;
                         $guardian_user = new User();
 
@@ -261,7 +264,8 @@ class StudentController extends Controller
                         $guardian_image->move($destinationPath, $file_name);
 
                         $guardian_user->image = $file_path;
-                        $guardian_user->password = Hash::make(str_replace('/', '', $request->guardian_dob));;
+                        $guardian_user->password = Hash::make(str_replace('/', '', $request->guardian_dob));
+                        ;
                         $guardian_user->first_name = $request->guardian_first_name;
                         $guardian_user->last_name = $request->guardian_last_name;
                         $guardian_user->email = $guardian_email;
@@ -274,7 +278,8 @@ class StudentController extends Controller
                         $guardian_parent->user_id = $guardian_user->id;
                         $guardian_parent->first_name = $request->guardian_first_name;
                         $guardian_parent->last_name = $request->guardian_last_name;
-                        $guardian_parent->image = $request->file('guardian_image')->store('parents', 'public');;
+                        $guardian_parent->image = $request->file('guardian_image')->store('parents', 'public');
+                        ;
                         $guardian_parent->occupation = $request->guardian_occupation;
                         $guardian_parent->mobile = $request->guardian_mobile;
                         $guardian_parent->email = $request->guardian_email;
@@ -336,20 +341,20 @@ class StudentController extends Controller
                 // INPUT TYPE CHECKBOX
                 if ($form_field->type == 'checkbox') {
                     if ($status == 0) {
-                        $data[] = $request->input('checkbox',[]);
+                        $data[] = $request->input('checkbox', []);
                         $status = 1;
                     }
-                }else if ($form_field->type == 'file') {
+                } else if ($form_field->type == 'file') {
                     // INPUT TYPE FILE
                     $get_file = '';
                     $field = str_replace(" ", "_", $form_field->name);
-                    if (!is_null($dynamic_data)) {
-                    foreach ($dynamic_data as $field_data) {
-                        if (isset($field_data[$field])) { // GET OLD FILE IF EXISTS
-                            $get_file = $field_data[$field];
+                    if (! is_null($dynamic_data)) {
+                        foreach ($dynamic_data as $field_data) {
+                            if (isset($field_data[$field])) { // GET OLD FILE IF EXISTS
+                                $get_file = $field_data[$field];
+                            }
                         }
                     }
-                }
                     $hidden_file_name = $field;
 
                     if ($request->hasFile($field)) {
@@ -360,11 +365,11 @@ class StudentController extends Controller
                             str_replace(" ", "_", $form_field->name) => $request->file($field)->store('students', 'public')
                         ];
                     } else {
-                    if ($request->$hidden_file_name) {
-                        $data[] = [
-                            str_replace(" ", "_", $form_field->name) => $request->$hidden_file_name
-                        ];
-                    }
+                        if ($request->$hidden_file_name) {
+                            $data[] = [
+                                str_replace(" ", "_", $form_field->name) => $request->$hidden_file_name
+                            ];
+                        }
                     }
                 } else {
                     $field = str_replace(" ", "_", $form_field->name);
@@ -404,9 +409,10 @@ class StudentController extends Controller
         }
         return response()->json($response);
     }
-    public function store(Request $request){
-         #check if admin has permission
-        if (!Auth::user()->can('student-create') || !Auth::user()->can('student-edit')) {
+    public function store(Request $request)
+    {
+        #check if admin has permission
+        if (! Auth::user()->can('student-create') || ! Auth::user()->can('student-edit')) {
             $response = array(
                 'message' => trans('no_permission_message')
             );
@@ -416,181 +422,181 @@ class StudentController extends Controller
 
 
         //Add Father in User and Parent table data
-            //check if isset parent
-            if(isset($request->parent)){
-                //validate parent's data
-                $validator = Validator::make($request->all(),[
-                    //father
-                    'father_email'          => 'required|email',
-                    'father_first_name'     => 'required|string',
-                    'father_last_name'      => 'required|string',
-                    'father_mobile'         => 'required|regex:/^([0-9\s\-\+\(\)]*)$/|min:10|max:15',
-                    'father_password'       => 'required|string|min:6',
-                    //mother
-                    'mother_email'          => 'required|email',
-                    'mother_first_name'     => 'required|string',
-                    'mother_last_name'      => 'required|string',
-                    'mother_mobile'         => 'required|regex:/^([0-9\s\-\+\(\)]*)$/|min:10|max:15',
-                    'mother_password'       => 'required|string|min:6',
-                ]);
-
-                //add Parents
-                if($validator->fails()){
-                    $response = array(
-                        'error' => true,
-                        'message' => $validator->messages()->all()[0],
-                    );
-                    return response()->json($response);
-                } else {
-                    //check if the email is exist
-                    $fatherExists = User::where('email', $request->father_email)->exists();
-                    if ($fatherExists) {
-                        $response = array(
-                            'error' => true,
-                            'message' => 'the father email you are using is alredy exist',
-                        );
-                        return response()->json($response);
-                    } else {
-                        $father = User::create([
-                            'first_name'    => $request->father_first_name,
-                            'last_name'     => $request->father_last_name,
-                            'gender'        => 'Male',
-                            'email'         => $request->father_email,
-                            'password'      => Hash::make($request->password),
-                            'mobile'        => $request->father_mobile,
-
-                        ]);
-
-                        //add father to parent table
-                        Parents::create([
-                            'user_id'       => $father->id,
-                            'first_name'    => $request->father_first_name,
-                            'last_name'     => $request->father_last_name,
-                            'gender'        => 'Male',
-                            'email'         => $request->father_email,
-                            'password'      => Hash::make($request->password),
-                            'mobile'        => $request->father_mobile,
-                        ]);
-                    }
-                    //add mother to user table
-                    //check if the email is exist
-                    $motherExists = User::where('email', $request->mother_email)->exists();
-                    if ($motherExists) {
-                        $response = array(
-                            'error' => true,
-                            'message' => 'the mother email you are using is alredy exist',
-                        );
-                        return response()->json($response);
-                    } else {
-                        $mother = User::create([
-                            'first_name'    => $request->mother_first_name,
-                            'last_name'     => $request->mother_last_name,
-                            'gender'        => 'Male',
-                            'email'         => $request->mother_email,
-                            'password'      => Hash::make($request->password),
-                            'mobile'        => $request->mother_mobile,
-
-                        ]);
-
-                        //add Mother to parent table
-                        Parents::create([
-                            'user_id'       => $mother->id,
-                            'first_name'    => $request->mother_first_name,
-                            'last_name'     => $request->mother_last_name,
-                            'gender'        => 'Male',
-                            'email'         => $request->mother_email,
-                            'mobile'        => $request->mother_mobile,
-                        ]);
-                    }
-
-                }
-
-
-
-            }
-            //check if isset guardian
-            if(isset($request->guardian)){
-                $validate = Validator::make($request->all(),[
-                    //father
-                    'guardian_email'          => 'required|email',
-                    'guardian_first_name'     => 'required|string',
-                    'guardian_last_name'      => 'required|string',
-                    'guardian_mobile'         => 'required|regex:/^([0-9\s\-\+\(\)]*)$/|min:10|max:15',
-                    'guardian_password'       => 'required|string|min:6',
-                ]);
-
-                if($validator->fails()){
-                    $response = array(
-                        'error' => true,
-                        'message' => $validator->messages()->all()[0],
-                    );
-                    return response()->json($response);
-                } else {
-                    $guardian = User::create([
-                        'first_name'    => $request->guardian_first_name,
-                        'last_name'     => $request->guardian_last_name,
-                        'gender'        => $request->guardian_gender,
-                        'email'         => $request->guardian_email,
-                        'password'      => Hash::make($request->password),
-                        'mobile'        => $request->guardian_mobile,
-                    ]);
-
-                    //add Mother to parent table
-                    Parents::create([
-                        'user_id'       => $guardian->id,
-                        'first_name'    => $request->guardian_first_name,
-                        'last_name'     => $request->guardian_last_name,
-                        'gender'        => 'Male',
-                        'email'         => $request->guardian_email,
-                        'password'      => Hash::make($request->password),
-                        'mobile'        => $request->guardian_mobile,
-                    ]);
-                }
-            }
-
-
-            //check student data
-            $validator = Validator::make($request->all(),[
-                //students
-                'first_name'        => 'required|string',
-                'last_name'         => 'required|string',
-                'student_password'  => 'required|string|min:6',
-                'gender'            => 'required|string',
-                'student_email'     => 'required|string',
+        //check if isset parent
+        if (isset($request->parent)) {
+            //validate parent's data
+            $validator = Validator::make($request->all(), [
+                //father
+                'father_email' => 'required|email',
+                'father_first_name' => 'required|string',
+                'father_last_name' => 'required|string',
+                'father_mobile' => 'required|regex:/^([0-9\s\-\+\(\)]*)$/|min:10|max:15',
+                'father_password' => 'required|string|min:6',
+                //mother
+                'mother_email' => 'required|email',
+                'mother_first_name' => 'required|string',
+                'mother_last_name' => 'required|string',
+                'mother_mobile' => 'required|regex:/^([0-9\s\-\+\(\)]*)$/|min:10|max:15',
+                'mother_password' => 'required|string|min:6',
             ]);
 
-            if($validator->fails()){
+            //add Parents
+            if ($validator->fails()) {
                 $response = array(
                     'error' => true,
                     'message' => $validator->messages()->all()[0],
                 );
                 return response()->json($response);
             } else {
-                //add student to users table
-                $student = User::create([
-                    'first_name'    => $request->first_name,
-                    'last_name'     => $request->last_name,
-                    'gender'        => $request->gender,
-                    'email'         => $request->student_email,
-                    'password'      => Hash::make($request->student_password)
-                ]);
+                //check if the email is exist
+                $fatherExists = User::where('email', $request->father_email)->exists();
+                if ($fatherExists) {
+                    $response = array(
+                        'error' => true,
+                        'message' => 'the father email you are using is alredy exist',
+                    );
+                    return response()->json($response);
+                } else {
+                    $father = User::create([
+                        'first_name' => $request->father_first_name,
+                        'last_name' => $request->father_last_name,
+                        'gender' => 'Male',
+                        'email' => $request->father_email,
+                        'password' => Hash::make($request->password),
+                        'mobile' => $request->father_mobile,
 
-                //add students to students table
-                Students::create([
-                    'user_id'           => $student->id,
-                    'class_section_id'  => $request->class_section_id,
-                    'category_id'       => $request->category_id,
-                    'father_id'         => $father->id,
-                    'mother_id'         => $mother->id,
-                    'guardian_id'       => $guardian->id,
-                ]);
+                    ]);
 
+                    //add father to parent table
+                    Parents::create([
+                        'user_id' => $father->id,
+                        'first_name' => $request->father_first_name,
+                        'last_name' => $request->father_last_name,
+                        'gender' => 'Male',
+                        'email' => $request->father_email,
+                        'password' => Hash::make($request->password),
+                        'mobile' => $request->father_mobile,
+                    ]);
+                }
+                //add mother to user table
+                //check if the email is exist
+                $motherExists = User::where('email', $request->mother_email)->exists();
+                if ($motherExists) {
+                    $response = array(
+                        'error' => true,
+                        'message' => 'the mother email you are using is alredy exist',
+                    );
+                    return response()->json($response);
+                } else {
+                    $mother = User::create([
+                        'first_name' => $request->mother_first_name,
+                        'last_name' => $request->mother_last_name,
+                        'gender' => 'Male',
+                        'email' => $request->mother_email,
+                        'password' => Hash::make($request->password),
+                        'mobile' => $request->mother_mobile,
+
+                    ]);
+
+                    //add Mother to parent table
+                    Parents::create([
+                        'user_id' => $mother->id,
+                        'first_name' => $request->mother_first_name,
+                        'last_name' => $request->mother_last_name,
+                        'gender' => 'Male',
+                        'email' => $request->mother_email,
+                        'mobile' => $request->mother_mobile,
+                    ]);
+                }
+
+            }
+
+
+
+        }
+        //check if isset guardian
+        if (isset($request->guardian)) {
+            $validate = Validator::make($request->all(), [
+                //father
+                'guardian_email' => 'required|email',
+                'guardian_first_name' => 'required|string',
+                'guardian_last_name' => 'required|string',
+                'guardian_mobile' => 'required|regex:/^([0-9\s\-\+\(\)]*)$/|min:10|max:15',
+                'guardian_password' => 'required|string|min:6',
+            ]);
+
+            if ($validator->fails()) {
                 $response = array(
-                    'error' => false,
-                    'message' => 'student has been added successfully!',
+                    'error' => true,
+                    'message' => $validator->messages()->all()[0],
                 );
                 return response()->json($response);
+            } else {
+                $guardian = User::create([
+                    'first_name' => $request->guardian_first_name,
+                    'last_name' => $request->guardian_last_name,
+                    'gender' => $request->guardian_gender,
+                    'email' => $request->guardian_email,
+                    'password' => Hash::make($request->password),
+                    'mobile' => $request->guardian_mobile,
+                ]);
+
+                //add Mother to parent table
+                Parents::create([
+                    'user_id' => $guardian->id,
+                    'first_name' => $request->guardian_first_name,
+                    'last_name' => $request->guardian_last_name,
+                    'gender' => 'Male',
+                    'email' => $request->guardian_email,
+                    'password' => Hash::make($request->password),
+                    'mobile' => $request->guardian_mobile,
+                ]);
             }
+        }
+
+
+        //check student data
+        $validator = Validator::make($request->all(), [
+            //students
+            'first_name' => 'required|string',
+            'last_name' => 'required|string',
+            'student_password' => 'required|string|min:6',
+            'gender' => 'required|string',
+            'student_email' => 'required|string',
+        ]);
+
+        if ($validator->fails()) {
+            $response = array(
+                'error' => true,
+                'message' => $validator->messages()->all()[0],
+            );
+            return response()->json($response);
+        } else {
+            //add student to users table
+            $student = User::create([
+                'first_name' => $request->first_name,
+                'last_name' => $request->last_name,
+                'gender' => $request->gender,
+                'email' => $request->student_email,
+                'password' => Hash::make($request->student_password)
+            ]);
+
+            //add students to students table
+            Students::create([
+                'user_id' => $student->id,
+                'class_section_id' => $request->class_section_id,
+                'category_id' => $request->category_id,
+                'father_id' => optional($father)->id,
+                'mother_id' => optional($mother)->id,
+                'guardian_id' => $guardian->id,
+            ]);
+
+            $response = [
+                'error' => false,
+                'message' => 'student has been added successfully!',
+            ];
+            return response()->json($response);
+        }
 
     }
 
@@ -648,7 +654,7 @@ class StudentController extends Controller
 
     public function show()
     {
-        if (!Auth::user()->can('student-list')) {
+        if (! Auth::user()->can('student-list')) {
             $response = array(
                 'message' => trans('no_permission_message')
             );
@@ -663,7 +669,7 @@ class StudentController extends Controller
         $sql = Students::with('user', 'class_section', 'category', 'father', 'mother', 'guardian')->ofTeacher()
             //search query
             ->when($search, function ($query) use ($search) {
-                $query->where(function ($query) use ($search){
+                $query->where(function ($query) use ($search) {
                     $query->where('user_id', 'LIKE', "%$search%")
                         ->orWhere('class_section_id', 'LIKE', "%$search%")
                         ->orWhere('category_id', 'LIKE', "%$search%")
@@ -702,7 +708,7 @@ class StudentController extends Controller
                             $q->where('name', 'LIKE', "%$search%");
                         });
                 });
-            //class filter data
+                //class filter data
             })->when(request('class_id') != null, function ($query) {
                 $classId = request('class_id');
                 $query->where(function ($query) use ($classId) {
@@ -731,11 +737,10 @@ class StudentController extends Controller
                 $operate .= '<a class="btn btn-xs btn-gradient-danger btn-rounded btn-icon deletedata" data-id=' . $row->id . ' data-user_id=' . $row->user_id . ' data-url=' . url('students', $row->user_id) . ' title="Delete"><i class="fa fa-trash"></i></a>&nbsp;&nbsp;';
             }
 
-            if(Auth::user()->can('generate-document'))
-            {
+            if (Auth::user()->can('generate-document')) {
                 $operate .= '<div class="dropdown"><button class="btn btn-xs btn-gradient-success btn-rounded btn-icon dropdown-toggle" type="button" data-toggle="dropdown" title="Generate Document"><i class="fa fa-file-pdf-o"></i></button><div class="dropdown-menu">';
-                $operate .= '<a href="' . route('bonafide.certificate.index', $row->id) . '" class="compulsory-data dropdown-item" data-id=' . $row->id . ' title="' . trans('bonafide') . ' ' . trans('certificate') . '"><i class="fa fa-file-text text-success mr-2"></i>'.trans('bonafide').' '.trans('certificate').'</a><div class="dropdown-divider"></div>';
-                $operate .= '<a href="' . route('leaving.certificate.index', $row->id) . '" class="optional-data dropdown-item" data-id="' . $row->id . '" title="' . trans('leaving') . ' ' . trans('certificate') . '"><i class="fa fa-file-text text-success mr-2"></i>'.trans('leaving').' '.trans('certificate').'</a>';
+                $operate .= '<a href="' . route('bonafide.certificate.index', $row->id) . '" class="compulsory-data dropdown-item" data-id=' . $row->id . ' title="' . trans('bonafide') . ' ' . trans('certificate') . '"><i class="fa fa-file-text text-success mr-2"></i>' . trans('bonafide') . ' ' . trans('certificate') . '</a><div class="dropdown-divider"></div>';
+                $operate .= '<a href="' . route('leaving.certificate.index', $row->id) . '" class="optional-data dropdown-item" data-id="' . $row->id . '" title="' . trans('leaving') . ' ' . trans('certificate') . '"><i class="fa fa-file-text text-success mr-2"></i>' . trans('leaving') . ' ' . trans('certificate') . '</a>';
                 $operate .= '</div></div>&nbsp;&nbsp;';
 
             }
@@ -752,7 +757,7 @@ class StudentController extends Controller
             $tempRow['image_link'] = $row->user->image;
             $tempRow['class_section_id'] = $row->class_section_id;
             $tempRow['class_section_name'] = $row->class_section->class->name . "-" . $row->class_section->section->name;
-            $tempRow['stream_name']= $row->class_section->class->streams->name ?? '';
+            $tempRow['stream_name'] = $row->class_section->class->streams->name ?? '';
             $tempRow['category_id'] = $row->category_id;
             $tempRow['category_name'] = $row->category->name;
             $tempRow['admission_no'] = $row->admission_no;
@@ -769,38 +774,38 @@ class StudentController extends Controller
             $tempRow['dynamic_data_field'] = json_decode($row->dynamic_fields);
 
             // Father Data
-            $tempRow['father_id'] = !empty($row->father) ? $row->father->id : '';
-            $tempRow['father_email'] = !empty($row->father) ? $row->father->email : '';
-            $tempRow['father_first_name'] = !empty($row->father) ? $row->father->first_name : '-';
-            $tempRow['father_last_name'] = !empty($row->father) ? $row->father->last_name : '';
-            $tempRow['father_mobile'] = !empty($row->father) ? $row->father->mobile : '-';
-            $tempRow['father_dob'] = !empty($row->father) ? $row->father->dob : '';
-            $tempRow['father_occupation'] = !empty($row->father) ? $row->father->occupation  : '';
-            $tempRow['father_image'] = !empty($row->father) ? $row->father->image : '';
-            $tempRow['father_image_link'] = !empty($row->father) ? $row->father->image : '';
+            $tempRow['father_id'] = ! empty($row->father) ? $row->father->id : '';
+            $tempRow['father_email'] = ! empty($row->father) ? $row->father->email : '';
+            $tempRow['father_first_name'] = ! empty($row->father) ? $row->father->first_name : '-';
+            $tempRow['father_last_name'] = ! empty($row->father) ? $row->father->last_name : '';
+            $tempRow['father_mobile'] = ! empty($row->father) ? $row->father->mobile : '-';
+            $tempRow['father_dob'] = ! empty($row->father) ? $row->father->dob : '';
+            $tempRow['father_occupation'] = ! empty($row->father) ? $row->father->occupation : '';
+            $tempRow['father_image'] = ! empty($row->father) ? $row->father->image : '';
+            $tempRow['father_image_link'] = ! empty($row->father) ? $row->father->image : '';
 
             // Mother Data
-            $tempRow['mother_id'] = !empty($row->mother) ? $row->mother->id : '';
-            $tempRow['mother_email'] = !empty($row->mother) ? $row->mother->email : '';
-            $tempRow['mother_first_name'] = !empty($row->mother) ? $row->mother->first_name : '-';
-            $tempRow['mother_last_name'] = !empty($row->mother) ? $row->mother->last_name : '';
-            $tempRow['mother_mobile'] = !empty($row->mother) ? $row->mother->mobile : '';
-            $tempRow['mother_dob'] = !empty($row->mother) ? $row->mother->dob : '';
-            $tempRow['mother_occupation'] = !empty($row->mother) ? $row->mother->occupation : '';
-            $tempRow['mother_image'] = !empty($row->mother) ? $row->mother->image : '';
-            $tempRow['mother_image_link'] = !empty($row->mother) ? $row->mother->image : '';
+            $tempRow['mother_id'] = ! empty($row->mother) ? $row->mother->id : '';
+            $tempRow['mother_email'] = ! empty($row->mother) ? $row->mother->email : '';
+            $tempRow['mother_first_name'] = ! empty($row->mother) ? $row->mother->first_name : '-';
+            $tempRow['mother_last_name'] = ! empty($row->mother) ? $row->mother->last_name : '';
+            $tempRow['mother_mobile'] = ! empty($row->mother) ? $row->mother->mobile : '';
+            $tempRow['mother_dob'] = ! empty($row->mother) ? $row->mother->dob : '';
+            $tempRow['mother_occupation'] = ! empty($row->mother) ? $row->mother->occupation : '';
+            $tempRow['mother_image'] = ! empty($row->mother) ? $row->mother->image : '';
+            $tempRow['mother_image_link'] = ! empty($row->mother) ? $row->mother->image : '';
 
             // Guardian Data
-            $tempRow['guardian_id'] = !empty($row->guardian) ? $row->guardian->id : '';
-            $tempRow['guardian_email'] = !empty($row->guardian) ? $row->guardian->email : '';
-            $tempRow['guardian_first_name'] = !empty($row->guardian) ? $row->guardian->first_name : '-';
-            $tempRow['guardian_last_name'] = !empty($row->guardian) ? $row->guardian->last_name : '';
-            $tempRow['guardian_mobile'] = !empty($row->guardian) ? $row->guardian->mobile : '-';
-            $tempRow['guardian_gender'] = !empty($row->guardian) ? $row->guardian->gender : '';
-            $tempRow['guardian_dob'] = !empty($row->guardian) ? $row->guardian->dob : '';
-            $tempRow['guardian_occupation'] = !empty($row->guardian) ? $row->guardian->occupation : '';
-            $tempRow['guardian_image'] = !empty($row->guardian) ? $row->guardian->image : '';
-            $tempRow['guardian_image_link'] = !empty($row->guardian) ? $row->guardian->image : '';
+            $tempRow['guardian_id'] = ! empty($row->guardian) ? $row->guardian->id : '';
+            $tempRow['guardian_email'] = ! empty($row->guardian) ? $row->guardian->email : '';
+            $tempRow['guardian_first_name'] = ! empty($row->guardian) ? $row->guardian->first_name : '-';
+            $tempRow['guardian_last_name'] = ! empty($row->guardian) ? $row->guardian->last_name : '';
+            $tempRow['guardian_mobile'] = ! empty($row->guardian) ? $row->guardian->mobile : '-';
+            $tempRow['guardian_gender'] = ! empty($row->guardian) ? $row->guardian->gender : '';
+            $tempRow['guardian_dob'] = ! empty($row->guardian) ? $row->guardian->dob : '';
+            $tempRow['guardian_occupation'] = ! empty($row->guardian) ? $row->guardian->occupation : '';
+            $tempRow['guardian_image'] = ! empty($row->guardian) ? $row->guardian->image : '';
+            $tempRow['guardian_image_link'] = ! empty($row->guardian) ? $row->guardian->image : '';
 
             $tempRow['operate'] = $operate;
             $rows[] = $tempRow;
@@ -819,7 +824,7 @@ class StudentController extends Controller
      */
     public function destroy($id)
     {
-        if (!Auth::user()->can('student-delete')) {
+        if (! Auth::user()->can('student-delete')) {
             $response = array(
                 'message' => trans('no_permission_message')
             );
@@ -830,24 +835,24 @@ class StudentController extends Controller
             $student_id = Students::select('id')->where('user_id', $id)->pluck('id')->first();
 
             // find that student is associate with other tables ..
-            $assignment_submissions = AssignmentSubmission::where('student_id',$student_id)->count();
-            $attendances = Attendance::where('student_id',$student_id)->count();
-            $exam_marks = ExamMarks::where('student_id',$student_id)->count();
-            $exam_results = ExamResult::where('student_id',$student_id)->count();
-            $fees_choiceables = FeesChoiceable::where('student_id',$student_id)->count();
-            $fees_paids = FeesPaid::where('student_id',$student_id)->count();
-            $online_exam_answers = OnlineExamStudentAnswer::where('student_id',$student_id)->count();
-            $payment_transactions = PaymentTransaction::where('student_id',$student_id)->count();
-            $online_exam_status = StudentOnlineExamStatus::where('student_id',$student_id)->count();
-            $student_sessions = StudentSessions::where('student_id',$student_id)->count();
-            $student_subjects = StudentSubject::where('student_id',$student_id)->count();
+            $assignment_submissions = AssignmentSubmission::where('student_id', $student_id)->count();
+            $attendances = Attendance::where('student_id', $student_id)->count();
+            $exam_marks = ExamMarks::where('student_id', $student_id)->count();
+            $exam_results = ExamResult::where('student_id', $student_id)->count();
+            $fees_choiceables = FeesChoiceable::where('student_id', $student_id)->count();
+            $fees_paids = FeesPaid::where('student_id', $student_id)->count();
+            $online_exam_answers = OnlineExamStudentAnswer::where('student_id', $student_id)->count();
+            $payment_transactions = PaymentTransaction::where('student_id', $student_id)->count();
+            $online_exam_status = StudentOnlineExamStatus::where('student_id', $student_id)->count();
+            $student_sessions = StudentSessions::where('student_id', $student_id)->count();
+            $student_subjects = StudentSubject::where('student_id', $student_id)->count();
 
-            if($assignment_submissions || $attendances || $exam_marks || $exam_results || $fees_choiceables || $fees_paids || $online_exam_answers || $payment_transactions || $online_exam_status || $student_sessions || $student_subjects){
+            if ($assignment_submissions || $attendances || $exam_marks || $exam_results || $fees_choiceables || $fees_paids || $online_exam_answers || $payment_transactions || $online_exam_status || $student_sessions || $student_subjects) {
                 $response = array(
                     'error' => true,
                     'message' => trans('cannot_delete_beacuse_data_is_associated_with_other_data')
                 );
-            }else{
+            } else {
                 $user = User::find($id);
                 if ($user->image != "" && Storage::disk('public')->exists($user->image)) {
                     Storage::disk('public')->delete($user->image);
@@ -881,7 +886,7 @@ class StudentController extends Controller
 
     public function reset_password()
     {
-        if (!Auth::user()->can('reset-password-list')) {
+        if (! Auth::user()->can('reset-password-list')) {
             $response = array(
                 'message' => trans('no_permission_message')
             );
@@ -904,7 +909,7 @@ class StudentController extends Controller
 
         $sql = User::where('reset_request', 1);
 
-        if (isset($_GET['search']) && !empty($_GET['search'])) {
+        if (isset($_GET['search']) && ! empty($_GET['search'])) {
             $search = $_GET['search'];
             $sql->where(function ($query) use ($search) {
                 $query->where('id', 'LIKE', "%$search%")
@@ -912,8 +917,8 @@ class StudentController extends Controller
                     ->orWhere('first_name', 'LIKE', "%$search%")
                     ->orWhere('last_name', 'LIKE', "%$search%")
                     ->orWhereRaw("concat(first_name, ' ', last_name) LIKE '%$search%'");
-                });
-            }
+            });
+        }
         $total = $sql->count();
 
 
@@ -942,7 +947,7 @@ class StudentController extends Controller
 
     public function change_password(Request $request)
     {
-        if (!Auth::user()->can('student-change-password')) {
+        if (! Auth::user()->can('student-change-password')) {
             $response = array(
                 'message' => trans('no_permission_message')
             );
@@ -996,7 +1001,7 @@ class StudentController extends Controller
         $class_id = $request->class_id;
         $get_class_section_id = ClassSection::select('id')->where('class_id', $class_id)->get()->pluck('id');
         $sql = Students::with('user:id,first_name,last_name,image', 'class_section')->whereIn('class_section_id', $get_class_section_id)->where('is_new_admission', 1);
-        if (isset($_GET['search']) && !empty($_GET['search'])) {
+        if (isset($_GET['search']) && ! empty($_GET['search'])) {
             $search = $_GET['search'];
             $sql->where('id', 'LIKE', "%$search%")
                 ->orWhere('user_id', 'LIKE', "%$search%")
@@ -1066,7 +1071,7 @@ class StudentController extends Controller
                 $student->class_section_id = $class_section_id;
                 $student->is_new_admission = 0;
                 $student->save();
-                
+
                 $student_session = new StudentSessions;
                 $student_session->student_id = $student->id;
                 $student_session->class_section_id = $class_section_id;
@@ -1089,7 +1094,7 @@ class StudentController extends Controller
     }
     public function indexStudentRollNumber()
     {
-        if (!Auth::user()->can('student-create')) {
+        if (! Auth::user()->can('student-create')) {
             $response = array(
                 'message' => trans('no_permission_message')
             );
@@ -1101,14 +1106,14 @@ class StudentController extends Controller
     }
     public function listStudentRollNumber(Request $request)
     {
-        if (!Auth::user()->can('student-create')) {
+        if (! Auth::user()->can('student-create')) {
             $response = array(
                 'message' => trans('no_permission_message')
             );
             return redirect(route('home'))->withErrors($response);
         }
         try {
-            if (!Auth::user()->can('student-list')) {
+            if (! Auth::user()->can('student-list')) {
                 $response = array(
                     'message' => trans('no_permission_message')
                 );
@@ -1119,13 +1124,13 @@ class StudentController extends Controller
             $sql = $sql->whereHas('student', function ($q) use ($class_section_id) {
                 $q->where('class_section_id', $class_section_id);
             });
-            if (isset($_GET['search']) && !empty($_GET['search'])) {
+            if (isset($_GET['search']) && ! empty($_GET['search'])) {
                 $search = $_GET['search'];
                 $sql->where('first_name', 'LIKE', "%$search%")
                     ->orwhere('last_name', 'LIKE', "%$search%")
                     ->orwhere('email', 'LIKE', "%$search%")
                     ->orwhere('dob', 'LIKE', "%$search%")
-                    ->orWhereHas('student',function($q)use($search){
+                    ->orWhereHas('student', function ($q) use ($search) {
                         $q->where('id', 'LIKE', "%$search%")
                             ->orWhere('user_id', 'LIKE', "%$search%")
                             ->orWhere('class_section_id', 'LIKE', "%$search%")
@@ -1160,7 +1165,7 @@ class StudentController extends Controller
                 $tempRow['old_roll_number'] = $row->student->roll_number;
 
                 // for edit roll number comment below line
-                $tempRow['new_roll_number'] = "<input type='hidden' name='roll_number_data[" . $index . "][student_id]' class='form-control' readonly value=" . $row->student->id . "> <input type='hidden' name='roll_number_data[" . $index . "][roll_number]' class='form-control' value=" . $roll . ">".$roll;
+                $tempRow['new_roll_number'] = "<input type='hidden' name='roll_number_data[" . $index . "][student_id]' class='form-control' readonly value=" . $row->student->id . "> <input type='hidden' name='roll_number_data[" . $index . "][roll_number]' class='form-control' value=" . $roll . ">" . $roll;
 
                 // and uncomment below line
                 // $tempRow['new_roll_number'] = "<input type='hidden' name='roll_number_data[" . $index . "][student_id]' class='form-control' readonly value=" . $row->student->id . "> <input type='text' name='roll_number_data[" . $index . "][roll_number]' class='form-control' value=" . $roll . ">";
@@ -1191,7 +1196,7 @@ class StudentController extends Controller
     }
     public function storeStudentRollNumber(Request $request)
     {
-        if (!Auth::user()->can('student-create')) {
+        if (! Auth::user()->can('student-create')) {
             $response = array(
                 'message' => trans('no_permission_message')
             );
@@ -1214,7 +1219,7 @@ class StudentController extends Controller
             return response()->json($response);
         }
         $i = 1;
-        if (!is_null($request->roll_number_data)) {
+        if (! is_null($request->roll_number_data)) {
             foreach ($request->roll_number_data as $data) {
                 $student = Students::find($data['student_id']);
 
@@ -1238,8 +1243,7 @@ class StudentController extends Controller
                 'error' => false,
                 'message' => trans('data_store_successfully')
             ];
-        }else
-        {
+        } else {
             $response = [
                 'error' => true,
                 'message' => trans('no_data_found')
@@ -1251,7 +1255,7 @@ class StudentController extends Controller
 
     public function generateIdCardIndex()
     {
-        if (!Auth::user()->can('student-list')) {
+        if (! Auth::user()->can('student-list')) {
             $response = array(
                 'message' => trans('no_permission_message')
             );
@@ -1264,7 +1268,7 @@ class StudentController extends Controller
 
     public function idCardSettingIndex()
     {
-        if (!Auth::user()->can('student-list')) {
+        if (! Auth::user()->can('student-list')) {
             $response = array(
                 'message' => trans('no_permission_message')
             );
@@ -1272,39 +1276,46 @@ class StudentController extends Controller
         }
 
         $settings = getSettings();
-        $settings['student_id_card_fields'] = explode(",",$settings['student_id_card_fields'] ?? '');
+        $settings['student_id_card_fields'] = explode(",", $settings['student_id_card_fields'] ?? '');
 
         return view('students.id_card_settings', compact('settings'));
     }
 
     public function updateIdCardSetting(Request $request)
     {
-        if (!Auth::user()->can('setting-create')) {
+        if (! Auth::user()->can('setting-create')) {
             $response = array(
                 'message' => trans('no_permission_message')
             );
             return redirect(route('home'))->withErrors($response);
         }
         $request->validate([
-            'header_color'              => 'required',
-            'footer_color'              => 'required',
-            'header_footer_text_color'  => 'required',
-            'layout_type'               => 'required',
-            'profile_image_style'       => 'required',
-            'card_width'                => 'required',
-            'card_height'               => 'required',
-            'student_id_card_fields'    => 'required',
-            'background_image'          => 'nullable|image|max:2048',
-            'signature'                 => 'nullable',
-        ],[
+            'header_color' => 'required',
+            'footer_color' => 'required',
+            'header_footer_text_color' => 'required',
+            'layout_type' => 'required',
+            'profile_image_style' => 'required',
+            'card_width' => 'required',
+            'card_height' => 'required',
+            'student_id_card_fields' => 'required',
+            'background_image' => 'nullable|image|max:2048',
+            'signature' => 'nullable',
+        ], [
             'student_id_card_fields.required' => 'Please Select at least one field.'
         ]);
 
         $settings = [
-            'header_color', 'footer_color', 'header_footer_text_color', 'layout_type', 'profile_image_style', 'card_width', 'card_height', 'student_id_card_fields'
+            'header_color',
+            'footer_color',
+            'header_footer_text_color',
+            'layout_type',
+            'profile_image_style',
+            'card_width',
+            'card_height',
+            'student_id_card_fields'
         ];
         try {
-            foreach ($settings as $row ) {
+            foreach ($settings as $row) {
                 if (Settings::where('type', $row)->exists()) {
 
                     // removing the double unnecessary double quotes in school name
@@ -1312,7 +1323,7 @@ class StudentController extends Controller
                         $data = [
                             'message' => implode(",", $request->student_id_card_fields)
                         ];
-                    }else{
+                    } else {
                         $data = [
                             'message' => $request->$row
                         ];
@@ -1370,7 +1381,7 @@ class StudentController extends Controller
                 'message' => trans('data_update_successfully'),
             );
 
-        }catch (Throwable $e) {
+        } catch (Throwable $e) {
             $response = array(
                 'error' => true,
                 'message' => trans('error_occurred'),
@@ -1407,14 +1418,14 @@ class StudentController extends Controller
 
     public function generateIdCard(Request $request)
     {
-        $ids = explode(",",$request->user_id);
+        $ids = explode(",", $request->user_id);
         $settings = getSettings();
 
-        if (!isset($settings['student_id_card_fields'])) {
-            return redirect()->route('id_card_setting.index')->with('error',trans('settings_not_found'));
+        if (! isset($settings['student_id_card_fields'])) {
+            return redirect()->route('id_card_setting.index')->with('error', trans('settings_not_found'));
         }
 
-        $settings['student_id_card_fields'] = explode(",",$settings['student_id_card_fields']);
+        $settings['student_id_card_fields'] = explode(",", $settings['student_id_card_fields']);
 
         $data = explode("storage/", $settings['signature'] ?? '');
         $settings['signature'] = end($data);
@@ -1427,11 +1438,11 @@ class StudentController extends Controller
         $height = $settings['card_height'] * 2.8346456693;
         $width = $settings['card_width'] * 2.8346456693;
         // $customPaper = array(0,0,360,200);
-        $customPaper = array(0,0,$width,$height);
-        $students = Students::select('admission_no', 'roll_number', 'blood_group','user_id','class_section_id','guardian_id','father_id')->with('user:id,first_name,last_name,gender,image,dob,permanent_address', 'class_section.class:id,name,medium_id,stream_id','class_section.class.medium:id,name','class_section.class.streams:id,name','father:id,first_name,last_name,mobile','guardian:id,first_name,last_name,mobile')->whereIn('id', $ids)->get();
+        $customPaper = array(0, 0, $width, $height);
+        $students = Students::select('admission_no', 'roll_number', 'blood_group', 'user_id', 'class_section_id', 'guardian_id', 'father_id')->with('user:id,first_name,last_name,gender,image,dob,permanent_address', 'class_section.class:id,name,medium_id,stream_id', 'class_section.class.medium:id,name', 'class_section.class.streams:id,name', 'father:id,first_name,last_name,mobile', 'guardian:id,first_name,last_name,mobile')->whereIn('id', $ids)->get();
 
 
-        $settings['card_height'] = ($settings['card_height'] * 3.7795275591).'px';
+        $settings['card_height'] = ($settings['card_height'] * 3.7795275591) . 'px';
 
         $pdf = PDF::loadView('students.id_card_template', compact('students', 'sessionYear', 'settings'));
 
@@ -1442,20 +1453,20 @@ class StudentController extends Controller
 
     public function bonafideCertificateIndex($id)
     {
-        if (!Auth::user()->can('generate-document')) {
+        if (! Auth::user()->can('generate-document')) {
             $response = array(
                 'message' => trans('no_permission_message')
             );
             return redirect(route('home'))->withErrors($response);
         }
-        $student = Students::where('id',$id)->first();
+        $student = Students::where('id', $id)->first();
         return view('students.bonafide_certificate', compact('student'));
     }
 
     public function generateBonafideCertificate(Request $request)
     {
 
-        if (!Auth::user()->can('generate-document')) {
+        if (! Auth::user()->can('generate-document')) {
             $response = array(
                 'message' => trans('no_permission_message')
             );
@@ -1468,42 +1479,41 @@ class StudentController extends Controller
 
         $settings = getSettings();
         $sessionYear = SessionYear::select('name')->where('id', $settings['session_year'])->pluck('name')->first();
-        $student = Students::select('roll_number','admission_no', 'user_id','class_section_id','guardian_id','father_id')->with('user:id,first_name,last_name,dob', 'class_section.class:id,name,medium_id,stream_id','class_section.class.medium:id,name','class_section.class.streams:id,name','father:id,first_name,last_name','guardian:id,first_name,last_name')->where('id', $id)->first();
+        $student = Students::select('roll_number', 'admission_no', 'user_id', 'class_section_id', 'guardian_id', 'father_id')->with('user:id,first_name,last_name,dob', 'class_section.class:id,name,medium_id,stream_id', 'class_section.class.medium:id,name', 'class_section.class.streams:id,name', 'father:id,first_name,last_name', 'guardian:id,first_name,last_name')->where('id', $id)->first();
 
-        $student_name = $student->user->first_name .' ' .$student->user->last_name;
-        if($student->father)
-        {
-            $guardian_name = $student->father->first_name .' '. $student->father->last_name;
-        }else{
-            $guardian_name = $student->guardian->first_name .' '. $student->guardian->last_name;
+        $student_name = $student->user->first_name . ' ' . $student->user->last_name;
+        if ($student->father) {
+            $guardian_name = $student->father->first_name . ' ' . $student->father->last_name;
+        } else {
+            $guardian_name = $student->guardian->first_name . ' ' . $student->guardian->last_name;
         }
         $gr_no = $student->admission_no;
         $dob = date('d-m-Y', strtotime($student->user->dob));
         $roll_number = $student->roll_number;
-        $class_section = $student->class_section->class->name .' '. $student->class_section->section->name .' '. $student->class_section->class->medium->name .' '. ($student->class_section->class->streams->name ?? '');
+        $class_section = $student->class_section->class->name . ' ' . $student->class_section->section->name . ' ' . $student->class_section->class->medium->name . ' ' . ($student->class_section->class->streams->name ?? '');
 
 
-        $pdf = PDF::loadView('students.bonafide_template', compact('student_name', 'guardian_name', 'gr_no', 'dob' ,'roll_number', 'class_section', 'sessionYear', 'settings', 'reason', 'valid_upto', 'date'));
+        $pdf = PDF::loadView('students.bonafide_template', compact('student_name', 'guardian_name', 'gr_no', 'dob', 'roll_number', 'class_section', 'sessionYear', 'settings', 'reason', 'valid_upto', 'date'));
 
         return $pdf->stream('bonafide_certificate.pdf');
     }
 
     public function leavingCertificateIndex($id)
     {
-        if (!Auth::user()->can('generate-document')) {
+        if (! Auth::user()->can('generate-document')) {
             $response = array(
                 'message' => trans('no_permission_message')
             );
             return redirect(route('home'))->withErrors($response);
         }
-        $student = Students::where('id',$id)->first();
+        $student = Students::where('id', $id)->first();
         return view('students.leaving_certificate', compact('student'));
     }
 
     public function generateLeavingCertificate(Request $request)
     {
 
-        if (!Auth::user()->can('generate-document')) {
+        if (! Auth::user()->can('generate-document')) {
             $response = array(
                 'message' => trans('no_permission_message')
             );
@@ -1522,49 +1532,47 @@ class StudentController extends Controller
 
         $settings = getSettings();
         $sessionYear = SessionYear::select('name')->where('id', $settings['session_year'])->pluck('name')->first();
-        $student = Students::select('roll_number','admission_no','admission_date', 'user_id','class_section_id','guardian_id','father_id','mother_id')->with('user:id,first_name,last_name,dob', 'class_section.class:id,name,medium_id,stream_id','class_section.class.medium:id,name','class_section.class.streams:id,name','father:id,first_name,last_name','guardian:id,first_name,last_name')->where('id', $id)->first();
+        $student = Students::select('roll_number', 'admission_no', 'admission_date', 'user_id', 'class_section_id', 'guardian_id', 'father_id', 'mother_id')->with('user:id,first_name,last_name,dob', 'class_section.class:id,name,medium_id,stream_id', 'class_section.class.medium:id,name', 'class_section.class.streams:id,name', 'father:id,first_name,last_name', 'guardian:id,first_name,last_name')->where('id', $id)->first();
 
-        $student_name = $student->user->first_name .' ' .$student->user->last_name;
+        $student_name = $student->user->first_name . ' ' . $student->user->last_name;
 
-        if($student->father)
-        {
-            $father_name = $student->father->first_name .' '. $student->father->last_name;
-            $mother_name = $student->mother->first_name .' '. $student->mother->last_name;
+        if ($student->father) {
+            $father_name = $student->father->first_name . ' ' . $student->father->last_name;
+            $mother_name = $student->mother->first_name . ' ' . $student->mother->last_name;
 
         }
 
-        if($student->guardian)
-        {
-            $guardian_name = $student->guardian->first_name .' '. $student->guardian->last_name;
+        if ($student->guardian) {
+            $guardian_name = $student->guardian->first_name . ' ' . $student->guardian->last_name;
         }
         $admission_date = $student->admission_date;
         $gr_no = $student->admission_no;
         $dob = date('d-m-Y', strtotime($student->user->dob));
         $roll_number = $student->roll_number;
-        $class_section = $student->class_section->class->name .' '. $student->class_section->section->name .' '. $student->class_section->class->medium->name .' '. ($student->class_section->class->streams->name ?? '');
+        $class_section = $student->class_section->class->name . ' ' . $student->class_section->section->name . ' ' . $student->class_section->class->medium->name . ' ' . ($student->class_section->class->streams->name ?? '');
 
 
-        $pdf = PDF::loadView('students.leaving_template', compact('student_name', 'guardian_name', 'gr_no', 'dob' ,'roll_number', 'class_section', 'sessionYear', 'settings', 'reason', 'promoted_to', 'date', 'general_conduct', 'remarks','admission_date', 'father_name', 'mother_name'));
+        $pdf = PDF::loadView('students.leaving_template', compact('student_name', 'guardian_name', 'gr_no', 'dob', 'roll_number', 'class_section', 'sessionYear', 'settings', 'reason', 'promoted_to', 'date', 'general_conduct', 'remarks', 'admission_date', 'father_name', 'mother_name'));
 
         return $pdf->stream('leaving_certificate.pdf');
     }
 
     public function resultIndex()
     {
-        if (!Auth::user()->can('generate-result')) {
+        if (! Auth::user()->can('generate-result')) {
             $response = array(
                 'message' => trans('no_permission_message')
             );
             return redirect(route('home'))->withErrors($response);
         }
 
-            $classes = ClassSection::with('class','section','class.medium','streams')->get();
+        $classes = ClassSection::with('class', 'section', 'class.medium', 'streams')->get();
         return view('students.generate_result', compact('classes'));
     }
 
     public function generateResult(Request $request, $id)
     {
-        if (!Auth::user()->can('generate-result')) {
+        if (! Auth::user()->can('generate-result')) {
             $response = array(
                 'message' => trans('no_permission_message')
             );
@@ -1580,30 +1588,30 @@ class StudentController extends Controller
         $settings = getSettings();
         $sessionYear = SessionYear::select('name')->where('id', $settings['session_year'])->pluck('name')->first();
 
-        $student = Students::select('id','roll_number','admission_no','admission_date', 'user_id','class_section_id','guardian_id','father_id','mother_id')
-            ->with('user:id,first_name,last_name,dob', 'class_section.class:id,name,medium_id,stream_id','class_section.class.medium:id,name','class_section.class.streams:id,name','father:id,first_name,last_name','guardian:id,first_name,last_name')
+        $student = Students::select('id', 'roll_number', 'admission_no', 'admission_date', 'user_id', 'class_section_id', 'guardian_id', 'father_id', 'mother_id')
+            ->with('user:id,first_name,last_name,dob', 'class_section.class:id,name,medium_id,stream_id', 'class_section.class.medium:id,name', 'class_section.class.streams:id,name', 'father:id,first_name,last_name', 'guardian:id,first_name,last_name')
             ->where('id', $id)
             ->first();
 
-        $student_name = $student->user->first_name .' ' .$student->user->last_name;
+        $student_name = $student->user->first_name . ' ' . $student->user->last_name;
 
-        if($student->father) {
-            $father_name = $student->father->first_name .' '. $student->father->last_name;
+        if ($student->father) {
+            $father_name = $student->father->first_name . ' ' . $student->father->last_name;
         }
 
-        if($student->guardian) {
-            $guardian_name = $student->guardian->first_name .' '. $student->guardian->last_name;
+        if ($student->guardian) {
+            $guardian_name = $student->guardian->first_name . ' ' . $student->guardian->last_name;
         }
         $admission_date = $student->admission_date;
         $gr_no = $student->admission_no;
         $dob = date('d-m-Y', strtotime($student->user->dob));
         $roll_number = $student->roll_number;
-        $class_section = $student->class_section->class->name .' '. $student->class_section->section->name .' '. $student->class_section->class->medium->name .' '. ($student->class_section->class->streams->name ?? '');
+        $class_section = $student->class_section->class->name . ' ' . $student->class_section->section->name . ' ' . $student->class_section->class->medium->name . ' ' . ($student->class_section->class->streams->name ?? '');
 
         $class_id = $student->class_section->class->id;
 
         $student_subject = $student->subjects();
-        $core_subjects = array_column($student_subject["core_subject"],'subject_id');
+        $core_subjects = array_column($student_subject["core_subject"], 'subject_id');
         $elective_subjects = $student_subject["elective_subject"] ?? [];
         if ($elective_subjects) {
             $elective_subjects = $elective_subjects->pluck('subject_id')->toArray();
@@ -1612,17 +1620,21 @@ class StudentController extends Controller
 
         $subjects = Subject::whereIn('id', $subject_id)->get();
 
-        $exams = Exam::with(['exam_classes' => function ($q) use ($class_id) {
-            $q->where('class_id', $class_id);
-        }])
-        ->with(['timetable' => function ($q) use ($class_id, $subject_id) {
-            $q->where('class_id', $class_id)->whereIn('subject_id', $subject_id);
-        }])
-        ->where('session_year_id', $settings['session_year'])
-        ->where('publish', 1)
-        ->whereHas('timetable', function ($q) use ($class_id, $subject_id) {
-            $q->where('class_id', $class_id)->whereIn('subject_id', $subject_id);
-        })->get();
+        $exams = Exam::with([
+            'exam_classes' => function ($q) use ($class_id) {
+                $q->where('class_id', $class_id);
+            }
+        ])
+            ->with([
+                'timetable' => function ($q) use ($class_id, $subject_id) {
+                    $q->where('class_id', $class_id)->whereIn('subject_id', $subject_id);
+                }
+            ])
+            ->where('session_year_id', $settings['session_year'])
+            ->where('publish', 1)
+            ->whereHas('timetable', function ($q) use ($class_id, $subject_id) {
+                $q->where('class_id', $class_id)->whereIn('subject_id', $subject_id);
+            })->get();
 
         $examarray = [];
 
@@ -1651,7 +1663,7 @@ class StudentController extends Controller
                 }
             }
 
-            if (!empty($filtered_timetable)) {
+            if (! empty($filtered_timetable)) {
                 $examarray[] = array(
                     'id' => $exam->id,
                     'name' => $exam->name,
@@ -1672,8 +1684,7 @@ class StudentController extends Controller
             $subjectType = $subject->type;
 
             foreach ($examarray as $exam_data) {
-                if($exam_data['timetable'])
-                {
+                if ($exam_data['timetable']) {
                     foreach ($exam_data['timetable'] as $timetable) {
                         if ($timetable['subject_id'] == $subject->id) {
                             $exam_marks = $timetable['exam_marks'];
@@ -1755,7 +1766,7 @@ class StudentController extends Controller
 
     public function studentList(Request $request)
     {
-        if (!Auth::user()->can('student-list')) {
+        if (! Auth::user()->can('student-list')) {
             $response = array(
                 'message' => trans('no_permission_message')
             );
@@ -1782,17 +1793,17 @@ class StudentController extends Controller
         foreach ($res as $row) {
             $operate = '';
             if (Auth::user()->can('generate-result')) {
-                $operate = '<a href="' . route('generate.result', $row->id) . '" class="btn btn-xs btn-gradient-primary btn-rounded btn-icon" data-id="'.$row->id.'" title="Generate Result"><i class="fa fa-file-pdf-o"></i></a>&nbsp;&nbsp;';
+                $operate = '<a href="' . route('generate.result', $row->id) . '" class="btn btn-xs btn-gradient-primary btn-rounded btn-icon" data-id="' . $row->id . '" title="Generate Result"><i class="fa fa-file-pdf-o"></i></a>&nbsp;&nbsp;';
             }
 
             $tempRow['id'] = $row->id;
             $tempRow['no'] = $no++;
             $tempRow['user_id'] = $row->user_id;
-            $tempRow['student_name'] = $row->user->first_name .' '.$row->user->last_name;
+            $tempRow['student_name'] = $row->user->first_name . ' ' . $row->user->last_name;
             $tempRow['dob'] = date($data['date_formate'], strtotime($row->user->dob));
             $tempRow['admission_no'] = $row->admission_no;
             $tempRow['class_section_id'] = $row->class_section_id;
-            $tempRow['class_section_name'] = $row->class_section->class->name .' '. $row->class_section->section->name .' '. $row->class_section->class->medium->name .' '. ($row->class_section->class->streams->name ?? '');
+            $tempRow['class_section_name'] = $row->class_section->class->name . ' ' . $row->class_section->section->name . ' ' . $row->class_section->class->medium->name . ' ' . ($row->class_section->class->streams->name ?? '');
             $tempRow['roll_number'] = $row->roll_number;
             $tempRow['operate'] = $operate;
             $rows[] = $tempRow;

@@ -29,7 +29,6 @@ class User extends Authenticatable
         'first_name',
         'last_name',
         'mobile',
-        'is_student'
     ];
     // protected $appends =[
     //     'original_image'

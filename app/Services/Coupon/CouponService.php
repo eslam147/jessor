@@ -23,7 +23,7 @@ class CouponService
     {
     }
 
-    public function findCoupon($couponId)
+    public function findCoupon($couponId) : ?Coupon
     {
         return $this->model->where('code', $couponId)->first();
     }
