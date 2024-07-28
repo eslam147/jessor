@@ -562,7 +562,7 @@ class StudentController extends Controller
             'last_name' => 'required|string',
             'student_password' => 'required|string|min:6',
             'gender' => 'required|string',
-            'student_email' => 'required|string',
+            'student_email' => 'required|email|unique:users,email',
         ]);
 
         if ($validator->fails()) {
@@ -586,8 +586,8 @@ class StudentController extends Controller
                 'user_id' => $student->id,
                 'class_section_id' => $request->class_section_id,
                 'category_id' => $request->category_id,
-                'father_id' => optional($father)->id,
-                'mother_id' => optional($mother)->id,
+                'father_id' => $father?->id,
+                'mother_id' =>  $mother?->id,
                 'guardian_id' => $guardian->id,
             ]);
 
