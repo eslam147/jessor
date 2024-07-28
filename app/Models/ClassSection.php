@@ -12,45 +12,47 @@ class ClassSection extends Model
 {
     use SoftDeletes;
     use HasFactory;
+    protected $guarded = [];
 
-    protected $fillable=[
-        'id',
-        'class_id',
-        'section_id',
-    ];
     protected $hidden = ["deleted_at", "created_at", "updated_at"];
 
-    public function class() {
+    public function class()
+    {
         return $this->belongsTo(ClassSchool::class)->withTrashed();
     }
 
-    public function section() {
+    public function section()
+    {
         return $this->belongsTo(Section::class)->withTrashed();
     }
 
     public function classTeachers()
     {
-        return $this->belongsToMany(Teacher::class, 'class_teachers','class_section_id','class_teacher_id');
+        return $this->belongsToMany(Teacher::class, 'class_teachers', 'class_section_id', 'class_teacher_id');
     }
 
     public function class_teachers()
     {
-        return $this->hasMany(ClassTeacher::class,'class_section_id')->select('class_teacher_id');
+        return $this->hasMany(ClassTeacher::class, 'class_section_id')->select('class_teacher_id');
     }
 
-    public function streams(){
+    public function streams()
+    {
         return $this->belongsTo(Stream::class)->withTrashed();
     }
 
-    public function announcement() {
+    public function announcement()
+    {
         return $this->morphMany(Announcement::class, 'table');
     }
 
-    public function subject_teachers() {
+    public function subject_teachers()
+    {
         return $this->hasMany(SubjectTeacher::class);
     }
 
-    public function scopeClassTeacher($query) {
+    public function scopeClassTeacher($query)
+    {
         $user = Auth::user();
         if ($user->hasRole('Teacher')) {
             $teacher = $user->teacher;
@@ -59,7 +61,8 @@ class ClassSection extends Model
         return $query;
     }
 
-    public function scopeSubjectTeacher($query) {
+    public function scopeSubjectTeacher($query)
+    {
         $user = Auth::user();
         if ($user->hasRole('Teacher')) {
             $class_section_ids = $user->teacher->subjects()->pluck('class_section_id');

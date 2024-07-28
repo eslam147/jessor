@@ -11,6 +11,7 @@ class FeesClass extends Model
     use HasFactory;
     use SoftDeletes;
     protected $hidden = ["deleted_at", "created_at", "updated_at"];
+    protected $guarded = [];
 
     public function fees_type(){
         return $this->belongsTo(FeesType::class ,'fees_type_id');

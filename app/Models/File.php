@@ -10,7 +10,7 @@ class File extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['id','modal_type' , 'modal_id', 'file_name', 'file_thumbnail', 'type', 'file_url','video_download_link'];
+    protected $fillable = ['id','modal_type' , 'modal_id', 'file_name', 'file_thumbnail', 'type', 'file_url'];
     protected $hidden = ["deleted_at", "created_at", "updated_at"];
     protected $appends = array('file_extension', 'type_detail');
 

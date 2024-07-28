@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Auth;
 class AssignmentSubmission extends Model
 {
     use HasFactory;
+    protected $guarded = [];
 
     public function file() {
         return $this->morphMany(File::class, 'modal');

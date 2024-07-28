@@ -11,6 +11,7 @@ class ClassTeacher extends Model
 {
     use HasFactory;
 
+    protected $guarded = [];
 
     public function classSections()
     {

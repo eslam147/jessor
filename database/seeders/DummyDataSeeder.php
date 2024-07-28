@@ -173,7 +173,7 @@ class DummyDataSeeder extends Seeder
             ]
         ];
         Parents::upsert($parent, ['id'], ['user_id', 'first_name', 'last_name', 'image', 'occupation', 'email', 'mobile', 'dob', 'gender']);
-        $class_section = ClassSection::whereId(3)->first();
+        $class_section = ClassSection::find(3);
         ClassSubject::create([
             'class_id' => $class_section->class_id,
             'subject_id' => Subject::inRandomOrder()->value('id'),

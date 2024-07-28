@@ -497,27 +497,26 @@ class ClassSchoolController extends Controller
 
                     //Assign Elective Subjects to this Subject Group
                     foreach ($subject_group['subject_id'] as $subject_id) {
-                        $elective_subject = array(
+                        ClassSubject::create([
                             'class_id' => $request->class_id,
                             'type' => "Elective",
                             'subject_id' => $subject_id,
                             'elective_subject_group_id' => $elective_subject_group->id,
-                        );
-                        ClassSubject::insert($elective_subject);
+                        ]);
                     }
                 }
             }
 
-            $response = array(
+            $response = [
                 'error' => false,
                 'message' => trans('data_store_successfully'),
-            );
-        } catch (\Throwable $e) {
-            $response = array(
+            ];
+        } catch (Exception $e) {
+            $response = [
                 'error' => true,
                 'message' => trans('error_occurred'),
                 'data' => $e
-            );
+            ];
         }
         return response()->json($response);
     }

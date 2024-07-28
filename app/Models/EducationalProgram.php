@@ -9,6 +9,8 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 class EducationalProgram extends Model
 {
     use HasFactory;
+    protected $guarded = [];
+
 
     public function getImageAttribute($value){
         return url(Storage::url($value));

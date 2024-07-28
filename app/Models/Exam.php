@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 class Exam extends Model
 {
     use HasFactory;
+    protected $guarded = [];
 
     protected $hidden = ["deleted_at", "created_at", "updated_at"];
 

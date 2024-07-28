@@ -76,9 +76,6 @@
                                                 <div class="tab-content">
                                                     <div class="tab-pane active" id="home4" role="tabpanel">
                                                         @foreach ($videos as $row)
-                                                        {{--  @dd($row->isYoutubeVideo(),
-                                                        $row->isVideoCorner()
-                                                        )  --}}
                                                             <div class="row"style="width: -webkit-fill-available;">
                                                                 <div class="col-12"style="width: -webkit-fill-available;">
                                                                     @if ($row->isYoutubeVideo())
@@ -123,12 +120,14 @@
                     </div>
                 </div>
             </section>
-        @endsection
-        @section('script')
-            <script src="https://cdn.plyr.io/3.7.8/plyr.js"></script>
-            <script src="path/to/plyr.js"></script>
-            <script src="path/to/plyr.js"></script>
-            <script>
-                const player = new Plyr('#player');
-            </script>
-        @endsection
+        </div>
+    </div>
+@endsection
+@section('script')
+    <script src="https://cdn.plyr.io/3.7.8/plyr.js"></script>
+    <script src="path/to/plyr.js"></script>
+    <script src="path/to/plyr.js"></script>
+    <script>
+        const player = new Plyr('#player');
+    </script>
+@endsection

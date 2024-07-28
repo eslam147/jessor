@@ -60,6 +60,7 @@ class TeacherSeeder extends Seeder
 
         // $user->assignRole(2);
         SubjectTeacher::create([
+            'class_section_id' => 3,
             'subject_id' => Subject::inRandomOrder()->value('id'),
             'teacher_id' => $teacher->id
         ]);

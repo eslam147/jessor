@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 class WebSetting extends Model
 {
     use HasFactory;
+    protected $guarded = [];
 
     public function getImageAttribute($value){
         if($value)

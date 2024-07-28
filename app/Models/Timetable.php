@@ -9,6 +9,8 @@ class Timetable extends Model
 {
     protected $hidden = ["deleted_at", "created_at", "updated_at"];
     use SoftDeletes;
+    protected $guarded = [];
+
 
     public function subject_teacher() {
         return $this->belongsTo(SubjectTeacher::class)->with('subject', 'teacher.user:id,first_name,last_name')->withTrashed();

@@ -11,6 +11,7 @@ class Announcement extends Model
     use SoftDeletes;
 
     protected $hidden = ["deleted_at", "updated_at"];
+    protected $guarded = [];
 
     public function table() {
         return $this->morphTo()->withTrashed();

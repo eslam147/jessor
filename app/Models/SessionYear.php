@@ -10,6 +10,8 @@ class SessionYear extends Model
 {
     use SoftDeletes;
     use HasFactory;
+    protected $guarded = [];
+
 
     public function fee_installments() {
         return $this->hasMany(InstallmentFee::class, 'session_year_id');
