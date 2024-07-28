@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 class MediaFile extends Model
 {
     use HasFactory;
+    protected $guarded = [];
 
     public function getFileUrlAttribute($value){
         return url(Storage::url($value));

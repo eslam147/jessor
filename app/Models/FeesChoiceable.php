@@ -10,6 +10,7 @@ class FeesChoiceable extends Model
 {
     use HasFactory;
     protected $hidden = ["deleted_at", "created_at", "updated_at"];
+    protected $guarded = [];
 
     public function fees_type(){
         return $this->belongsTo(FeesType::class ,'fees_type_id');

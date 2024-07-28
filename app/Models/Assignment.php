@@ -12,6 +12,7 @@ class Assignment extends Model
     use HasFactory;
 
     protected $hidden = ["deleted_at", "updated_at"];
+    protected $guarded = [];
 
     protected static function boot() {
         parent::boot();

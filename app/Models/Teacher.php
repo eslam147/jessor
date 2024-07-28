@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Storage;
 class Teacher extends Model
 {
     use SoftDeletes;
+    protected $guarded = [];
 
     protected $hidden = ["deleted_at", "created_at", "updated_at"];
 

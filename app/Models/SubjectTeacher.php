@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Auth;
 class SubjectTeacher extends Model
 {
     use SoftDeletes;
+    protected $guarded = [];
 
     protected $hidden = ["deleted_at", "created_at", "updated_at"];
 

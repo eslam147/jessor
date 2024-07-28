@@ -13,6 +13,7 @@ class Media extends Model
 
     protected $table = 'medias';
 
+    protected $guarded = [];
     protected $appends = [
         'embeded_url'
     ];

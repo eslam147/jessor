@@ -10,6 +10,7 @@ class Attendance extends Model
 {
     use SoftDeletes;
     use HasFactory;
+    protected $guarded = [];
     protected $hidden = ["remark","deleted_at","created_at","updated_at"];
 
     public function student()

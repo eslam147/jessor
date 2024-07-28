@@ -11,6 +11,7 @@ class ClassSchool extends Model
 {
     use SoftDeletes;
     use HasFactory;
+    protected $guarded = [];
 
     protected $table = 'classes';
     protected $hidden = ["deleted_at", "created_at", "updated_at"];

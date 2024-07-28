@@ -23,20 +23,18 @@ use Illuminate\Support\Facades\Validator;
 
 class AssignmentController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function index() {
-        if (!Auth::user()->can('assignment-list')) {
-            $response = array(
+
+    public function index()
+    {
+        if (! Auth::user()->can('assignment-list')) {
+            return to_route('home')->withErrors([
                 'message' => trans('no_permission_message')
-            );
-            return redirect(route('home'))->withErrors($response);
+            ]);
         }
-        $class_section = ClassSection::SubjectTeacher()->with('class.medium', 'section','class.streams')->get();
-        $subjects = Subject::SubjectTeacher()->orderBy('id', 'ASC')->get();
+
+        $class_section = ClassSection::SubjectTeacher()->with('class.medium', 'section', 'class.streams')->get();
+
+        $subjects = Subject::SubjectTeacher()->orderBy('id')->get();
         return response(view('assignment.index', compact('class_section', 'subjects')));
     }
 
@@ -46,8 +44,9 @@ class AssignmentController extends Controller
      * @param int $id
      * @return \Illuminate\Http\Response
      */
-    public function show() {
-        if (!Auth::user()->can('assignment-list')) {
+    public function show()
+    {
+        if (! Auth::user()->can('assignment-list')) {
             $response = array(
                 'error' => true,
                 'message' => trans('no_permission_message')
@@ -62,38 +61,38 @@ class AssignmentController extends Controller
         $search = request('search');
 
         $sql = Assignment::assignmentteachers()->with('class_section', 'file', 'subject')
-        ->when($search, function ($query) use ($search) {
-            $query->where(function ($query) use ($search) {
-                $query->where('id', 'LIKE', "%$search%")
-                ->orwhere('name', 'LIKE', "%$search%")
-                ->orwhere('instructions', 'LIKE', "%$search%")
-                ->orwhere('points', 'LIKE', "%$search%")
-                ->orwhere('session_year_id', 'LIKE', "%$search%")
-                ->orwhere('extra_days_for_resubmission', 'LIKE', "%$search%")
-                ->orwhere('due_date', 'LIKE', "%" . date('Y-m-d H:i:s', strtotime($search)) . "%")
-                ->orwhere('created_at', 'LIKE', "%" . date('Y-m-d H:i:s', strtotime($search)) . "%")
-                ->orwhere('updated_at', 'LIKE', "%" . date('Y-m-d H:i:s', strtotime($search)) . "%")
-                ->orWhereHas('class_section.class', function ($q) use ($search) {
-                    $q->where('name', 'LIKE', "%$search%");
-                })->orWhereHas('class_section.section', function ($q) use ($search) {
-                    $q->where('name', 'LIKE', "%$search%");
-                })->orWhereHas('subject', function ($q) use ($search) {
-                    $q->where('name', 'LIKE', "%$search%");
+            ->when($search, function ($query) use ($search) {
+                $query->where(function ($query) use ($search) {
+                    $query->where('id', 'LIKE', "%$search%")
+                        ->orwhere('name', 'LIKE', "%$search%")
+                        ->orwhere('instructions', 'LIKE', "%$search%")
+                        ->orwhere('points', 'LIKE', "%$search%")
+                        ->orwhere('session_year_id', 'LIKE', "%$search%")
+                        ->orwhere('extra_days_for_resubmission', 'LIKE', "%$search%")
+                        ->orwhere('due_date', 'LIKE', "%" . date('Y-m-d H:i:s', strtotime($search)) . "%")
+                        ->orwhere('created_at', 'LIKE', "%" . date('Y-m-d H:i:s', strtotime($search)) . "%")
+                        ->orwhere('updated_at', 'LIKE', "%" . date('Y-m-d H:i:s', strtotime($search)) . "%")
+                        ->orWhereHas('class_section.class', function ($q) use ($search) {
+                            $q->where('name', 'LIKE', "%$search%");
+                        })->orWhereHas('class_section.section', function ($q) use ($search) {
+                            $q->where('name', 'LIKE', "%$search%");
+                        })->orWhereHas('subject', function ($q) use ($search) {
+                            $q->where('name', 'LIKE', "%$search%");
+                        });
+                });
+            })
+            ->when(request('subject_id') != null, function ($query) {
+                $subject_id = request('subject_id');
+                $query->where(function ($query) use ($subject_id) {
+                    $query->where('subject_id', $subject_id);
+                });
+            })
+            ->when(request('class_id') != null, function ($query) {
+                $class_id = request('class_id');
+                $query->where(function ($query) use ($class_id) {
+                    $query->where('class_section_id', $class_id);
                 });
             });
-        })
-        ->when(request('subject_id') != null, function ($query) {
-            $subject_id = request('subject_id');
-            $query->where(function ($query) use ($subject_id) {
-                $query->where('subject_id', $subject_id);
-            });
-        })
-        ->when(request('class_id') != null , function ($query){
-            $class_id = request('class_id');
-            $query->where(function ($query) use ($class_id) {
-                $query->where('class_section_id', $class_id);
-            });
-        });
         $total = $sql->count();
 
         $sql->orderBy($sort, $order)->skip($offset)->take($limit);
@@ -106,16 +105,16 @@ class AssignmentController extends Controller
 
         foreach ($res as $row) {
 
-            $row = (object)$row;
+            $row = (object) $row;
             $operate = '<a href=' . route('assignment.edit', $row->id) . ' class="btn btn-xs btn-gradient-primary btn-rounded btn-icon edit-data" data-id=' . $row->id . ' title="Edit" data-toggle="modal" data-target="#editModal"><i class="fa fa-edit"></i></a>&nbsp;&nbsp;';
             $operate .= '<a href=' . route('assignment.destroy', $row->id) . ' class="btn btn-xs btn-gradient-danger btn-rounded btn-icon delete-form" data-id=' . $row->id . '><i class="fa fa-trash"></i></a>';
 
             $tempRow['id'] = $row->id;
             $tempRow['no'] = $no++;
             $tempRow['class_section_id'] = $row->class_section_id;
-            $tempRow['class_section_name'] = $row->class_section->class->name . ' ' . $row->class_section->section->name.' - '.$row->class_section->class->medium->name.' '. ($row->class_section->class->streams->name  ?? '');
+            $tempRow['class_section_name'] = $row->class_section->class->name . ' ' . $row->class_section->section->name . ' - ' . $row->class_section->class->medium->name . ' ' . ($row->class_section->class->streams->name ?? '');
             $tempRow['subject_id'] = $row->subject_id;
-            $tempRow['subject_name'] = isset($row->subject) ? $row->subject->name.' - '.$row->subject->type : '-';
+            $tempRow['subject_name'] = isset($row->subject) ? $row->subject->name . ' - ' . $row->subject->type : '-';
             $tempRow['name'] = $row->name;
             $tempRow['instructions'] = $row->instructions;
             $tempRow['file'] = $row['file'];
@@ -141,8 +140,9 @@ class AssignmentController extends Controller
      * @param int $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id) {
-        if (!Auth::user()->can('assignment-edit')) {
+    public function update(Request $request, $id)
+    {
+        if (! Auth::user()->can('assignment-edit')) {
             $response = array(
                 'error' => true,
                 'message' => trans('no_permission_message')
@@ -206,8 +206,7 @@ class AssignmentController extends Controller
             $notification->is_custom = 0;
             $notification->save();
 
-            foreach($user as $data)
-            {
+            foreach ($user as $data) {
                 $user_notification = new UserNotification();
                 $user_notification->notification_id = $notification->id;
                 $user_notification->user_id = $data;
@@ -248,8 +247,9 @@ class AssignmentController extends Controller
      * @param \Illuminate\Http\Request $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request) {
-        if (!Auth::user()->can('assignment-create')) {
+    public function store(Request $request)
+    {
+        if (! Auth::user()->can('assignment-create')) {
             $response = array(
                 'error' => true,
                 'message' => trans('no_permission_message')
@@ -269,7 +269,7 @@ class AssignmentController extends Controller
 
             // 'file_upload' => 'required|numeric',
             // 'video_upload' => 'required|numeric',
-        ],[
+        ], [
             'subject_id.numeric' => 'The Subject id is Required'
         ]);
 
@@ -340,8 +340,7 @@ class AssignmentController extends Controller
             $notification->is_custom = 0;
             $notification->save();
 
-            foreach($user as $data)
-            {
+            foreach ($user as $data) {
                 $user_notification = new UserNotification();
                 $user_notification->notification_id = $notification->id;
                 $user_notification->user_id = $data;
@@ -382,8 +381,9 @@ class AssignmentController extends Controller
      * @param int $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id) {
-        if (!Auth::user()->can('assignment-delete')) {
+    public function destroy($id)
+    {
+        if (! Auth::user()->can('assignment-delete')) {
             $response = array(
                 'error' => true,
                 'message' => trans('no_permission_message')
@@ -430,8 +430,9 @@ class AssignmentController extends Controller
         return response()->json($response);
     }
 
-    public function viewAssignmentSubmission() {
-        if (!Auth::user()->can('assignment-submission')) {
+    public function viewAssignmentSubmission()
+    {
+        if (! Auth::user()->can('assignment-submission')) {
             $response = array(
                 'message' => trans('no_permission_message')
             );
@@ -442,8 +443,9 @@ class AssignmentController extends Controller
         return response(view('assignment.submission', compact('class_section', 'subjects')));
     }
 
-    public function assignmentSubmissionList() {
-        if (!Auth::user()->can('assignment-submission')) {
+    public function assignmentSubmissionList()
+    {
+        if (! Auth::user()->can('assignment-submission')) {
             $response = array(
                 'error' => true,
                 'message' => trans('no_permission_message')
@@ -478,10 +480,10 @@ class AssignmentController extends Controller
                 });
             })
             //subject filter data
-            ->when(request('subject_id') != null,function($query){
+            ->when(request('subject_id') != null, function ($query) {
                 $subject_id = request('subject_id');
                 $query->where(function ($query) use ($subject_id) {
-                    $query->whereHas('assignment', function ($q) use($subject_id) {
+                    $query->whereHas('assignment', function ($q) use ($subject_id) {
                         $q->where('subject_id', $subject_id);
                     });
                 });
@@ -497,7 +499,7 @@ class AssignmentController extends Controller
         $tempRow = array();
         $no = 1;
         foreach ($res as $row) {
-            $row = (object)$row;
+            $row = (object) $row;
             $operate = '<a href=' . route('class.edit', $row->id) . ' class="btn btn-xs btn-gradient-primary btn-rounded btn-icon edit-data" data-id=' . $row->id . ' title="Edit" data-toggle="modal" data-target="#editModal"><i class="fa fa-edit"></i></a>&nbsp;&nbsp;';
 
             $tempRow['id'] = $row->id;
@@ -505,7 +507,7 @@ class AssignmentController extends Controller
             $tempRow['assignment_id'] = $row->assignment_id;
             $tempRow['assignment_name'] = $row->assignment->name;
             $tempRow['assignment_points'] = $row->assignment->points;
-            $tempRow['subject'] = $row->assignment->subject->name .' - '.$row->assignment->subject->type;
+            $tempRow['subject'] = $row->assignment->subject->name . ' - ' . $row->assignment->subject->type;
 
             $tempRow['student_id'] = $row->student_id;
             $tempRow['student_name'] = $row->student->user->first_name . ' ' . $row->student->user->last_name;
@@ -528,8 +530,9 @@ class AssignmentController extends Controller
     }
 
 
-    public function updateAssignmentSubmission(Request $request, $id) {
-        if (!Auth::user()->can('assignment-submission')) {
+    public function updateAssignmentSubmission(Request $request, $id)
+    {
+        if (! Auth::user()->can('assignment-submission')) {
             $response = array(
                 'error' => true,
                 'message' => trans('no_permission_message')
@@ -583,8 +586,7 @@ class AssignmentController extends Controller
             $notification->is_custom = 0;
             $notification->save();
 
-            foreach($user as $data)
-            {
+            foreach ($user as $data) {
                 $user_notification = new UserNotification();
                 $user_notification->notification_id = $notification->id;
                 $user_notification->user_id = $data;

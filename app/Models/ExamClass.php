@@ -9,6 +9,7 @@ class ExamClass extends Model
 {
     use HasFactory;
     use \Awobaz\Compoships\Compoships;
+    protected $guarded = [];
 
     protected $hidden = ["deleted_at", "created_at", "updated_at"];
 

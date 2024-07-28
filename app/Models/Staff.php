@@ -11,6 +11,7 @@ class Staff extends Model
 {
     use HasFactory;
 
+    protected $guarded = [];
     protected $table= 'staffs';
 
     public function user()
