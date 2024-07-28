@@ -36,7 +36,9 @@ class SubjectController extends Controller
             return view('student_dashboard.teachers.index', compact('subjectTeachers', 'subject'));
         }
 
-        $lessons = Lesson::where('subject_id', $subject->id)->where('class_section_id', $class_section_id)->get();
+        $lessons = Lesson::where('subject_id', $subject->id)->where('class_section_id', $class_section_id)->withCount([
+            'enrollments' => fn($q) => $q->where('user_id', Auth::user()->id)
+        ])->get();
         return view('student_dashboard.lessons.index', compact('lessons'));
     }
 

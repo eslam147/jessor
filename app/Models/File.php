@@ -10,7 +10,7 @@ class File extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['id','modal_type' , 'modal_id', 'file_name', 'file_thumbnail', 'type', 'file_url'];
+    protected $fillable = ['id','modal_type' , 'modal_id', 'file_name', 'file_thumbnail', 'type', 'file_url','video_download_link'];
     protected $hidden = ["deleted_at", "created_at", "updated_at"];
     protected $appends = array('file_extension', 'type_detail');
 
@@ -55,6 +55,7 @@ class File extends Model
         }
     }
 
+
     public function getTypeDetailAttribute() {
         //1 = File Upload, 2 = Youtube Link, 3 = Video Upload, 4 = Other Link
         if ($this->type == 1) {
@@ -65,6 +66,19 @@ class File extends Model
             return "Video Upload";
         } elseif ($this->type == 4) {
             return "Other Link";
+        } elseif ($this->type == 5) {
+            return "Video Corner Link";
+        } elseif ($this->type == 6) {
+            return "Video Corner Download Link";
         }
+    }
+    public function isYoutubeVideo() {
+        return $this->type == 2;
+    }
+    public function isVideoCorner() {
+        return $this->type == 5;
+    }
+    public function isVideoUpload() {
+        return $this->type == 3;
     }
 }

@@ -19,7 +19,7 @@ Route::prefix('student_dashboard')->group(function () {
         Route::controller(TopicsController::class)->prefix('topics')->as('topics.')->group(function () {
             Route::get('/', 'index')->name('index');
             Route::get('/{id}', 'show')->name('show');
-            Route::get('topic_files/{topic_id}', 'topic_files')->name('topic.files');
+            Route::get('topic_files/{topic_id}', 'topic_files')->name('files');
         });
 
         Route::get('/teacher_lessons/{teacher_id}/subject/{subject_id}', [TeachersController::class, 'teacher_lessons'])->name('teacher.lessons');

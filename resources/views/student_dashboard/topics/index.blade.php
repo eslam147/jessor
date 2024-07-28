@@ -40,7 +40,7 @@
                                                         </div>
                                                     </div>
                                                     <div class="bg-primary mt-5 rounded">
-                                                            <a href="{{ route('topic.files',$row->id) }}" >
+                                                            <a href="{{ route('topics.files',$row->id) }}" >
                                                                 <h5 class="text-white text-center p-10"> start now </h5>
                                                             </a>
                                                     </div>
