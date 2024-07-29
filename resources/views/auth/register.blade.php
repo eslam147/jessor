@@ -39,7 +39,7 @@
                                                 @endforeach
                                             </select>
                                         </div>
-                                        <div class="form-group col-6">
+                                        {{-- <div class="form-group col-6">
                                             <label> {{ __('category') }} <span class="text-danger">*</span></label>
                                             <select name="category_id" class="form-control">
                                                 <option value="">{{ __('select') . ' ' . __('category') }}</option>
@@ -47,6 +47,12 @@
                                                     <option value="{{ $cat->id }}">{{ $cat->name }}</option>
                                                 @endforeach
                                             </select>
+                                        </div> --}}
+                                        {{-- <input type="hidden" name="category_id" value="1" > --}}
+                                        <div class="form-group col-6">
+                                            <label>{{ __('mobile') }}</label>
+                                            {{-- <input type="text" name="username" required class="form-control form-control-lg" placeholder="{{__('username')}}"> --}}
+                                            <input type="tel" class="form-control form-control-lg" name="mobile"   >
                                         </div>
                                         <div class="form-group col-6">
                                             <label>{{ __('first_name') }}</label>
