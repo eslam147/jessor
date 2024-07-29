@@ -38,6 +38,15 @@ class Lesson extends Model
     public function scopeActive($query){
         return $query->where('status', LessonStatus::PUBLISHED);
     }
+    public function scopeRelatedToTeacher($query){
+        $user = Auth::user();
+        if ($user->hasRole('Teacher')) {
+            $teacher_id = $user->load('teacher')->teacher->id;
+            return $query->where('teacher_id', $teacher_id);
+            
+        }
+        return $query;
+    }
     public function subject()
     {
         return $this->belongsTo(Subject::class)->withTrashed();

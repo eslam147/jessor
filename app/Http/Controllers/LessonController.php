@@ -38,11 +38,9 @@ class LessonController extends Controller
             return redirect(route('home'))->withErrors($response);
         }
 
-        $teacher = Auth::user()->load('teacher')->teacher;
-
         $class_section = ClassSection::SubjectTeacher()->with('class.medium', 'section', 'class.streams')->get();
-        $subjects = Subject::SubjectTeacher()->orderBy('id', 'ASC')->get();
-        $lessons = Lesson::where('teacher_id', $teacher->id)->withCount('enrollments')->with('file')->get();
+        $subjects = Subject::SubjectTeacher()->orderBy('id')->get();
+        $lessons = Lesson::relatedToTeacher()->withCount('enrollments')->with('file')->get();
 
         return response(view('lessons.index', compact('class_section', 'subjects', 'lessons')));
     }
@@ -60,7 +58,7 @@ class LessonController extends Controller
         $teacher = auth()->user()->load('teacher')->teacher;
 
         $validator = Validator::make($request->all(), [
-            'name' => ['required', new uniqueLessonInClass($request->class_section_id, $teacher->id, $request->subject_id)],
+            'name' => ['required', new uniqueLessonInClass($request->class_section_id, $request->subject_id)],
             'description' => 'required',
             'class_section_id' => 'required|numeric',
             'subject_id' => 'required|numeric',
@@ -237,9 +235,8 @@ class LessonController extends Controller
             $sort = $_GET['sort'];
         if (isset($_GET['order']))
             $order = $_GET['order'];
-        $teacher = auth()->user()->load('teacher')->teacher;
 
-        $sql = Lesson::lessonteachers()->where('teacher_id', $teacher->id)->with('subject', 'class_section', 'topic');
+        $sql = Lesson::lessonteachers()->relatedToTeacher()->with('subject', 'class_section', 'topic');
         if (isset($_GET['search']) && ! empty($_GET['search'])) {
             $search = $_GET['search'];
             $sql->where(function ($query) use ($search) {
@@ -338,7 +335,7 @@ class LessonController extends Controller
             $request->all(),
             [
                 'edit_id' => 'required|numeric',
-                'name' => ['required', new uniqueLessonInClass($request->class_section_id, $teacher->id, $request->subject_id, $request->edit_id)],
+                'name' => ['required', new uniqueLessonInClass($request->class_section_id, $request->subject_id, $request->edit_id)],
                 'description' => 'required',
                 'class_section_id' => 'required|numeric',
                 'subject_id' => 'required|numeric',
@@ -591,6 +588,8 @@ class LessonController extends Controller
 
     public function destroy($id)
     {
+        $lesson = Lesson::relatedToTeacher()->find($id);
+
         if (! Auth::user()->can('lesson-delete')) {
             $response = array(
                 'error' => true,
@@ -600,15 +599,15 @@ class LessonController extends Controller
         }
         try {
 
-            $lesson_topics = LessonTopic::where('lesson_id', $id)->count();
+            $lesson_topics = LessonTopic::where('lesson_id', $id)->relatedToTeacher()->count();
             if ($lesson_topics) {
-                $response = array(
+                $response = [
                     'error' => true,
                     'message' => trans('cannot_delete_beacuse_data_is_associated_with_other_data')
-                );
+                ];
             } else {
 
-                $lesson = Lesson::find($id);
+                $lesson = Lesson::relatedToTeacher()->findOrFail($id);
                 if ($lesson->file) {
                     foreach ($lesson->file as $file) {
                         if (Storage::disk('public')->exists($file->file_url)) {
@@ -619,16 +618,17 @@ class LessonController extends Controller
                 $lesson->file()->delete();
                 $lesson->delete();
 
-                $response = array(
+                $response = [
                     'error' => false,
                     'message' => trans('data_delete_successfully')
-                );
+
+                ];
             }
         } catch (Throwable $e) {
-            $response = array(
+            $response = [
                 'error' => true,
                 'message' => trans('error_occurred')
-            );
+            ];
         }
         return response()->json($response);
     }
@@ -644,7 +644,7 @@ class LessonController extends Controller
         if (isset($request->class_section_id)) {
             $lesson = $lesson->where('class_section_id', $request->class_section_id);
         }
-        $lesson = $lesson->get();
+        $lesson = $lesson->relatedToTeacher()->get();
         $response = array(
             'error' => false,
             'data' => $lesson,

@@ -8,13 +8,11 @@ use Illuminate\Contracts\Validation\Rule;
 class uniqueLessonInClass implements Rule
 {
     public $class_section_id;
-    public $teacher_id;
     public $subject_id;
     public $lesson_id = null;
-    public function __construct($class_section_id, $teacherId, $subject_id, $lesson_id = NULL)
+    public function __construct($class_section_id, $subject_id, $lesson_id = NULL)
     {
         $this->class_section_id = $class_section_id;
-        $this->teacher_id = $teacherId;
         $this->subject_id = $subject_id;
         $this->lesson_id = $lesson_id;
     }
@@ -24,8 +22,7 @@ class uniqueLessonInClass implements Rule
         $checkIsLessonExists = Lesson::where('name', $value)->where([
             'class_section_id' => $this->class_section_id,
             'subject_id' => $this->subject_id,
-            'teacher_id' => $this->teacher_id
-        ])->when(filled($this->lesson_id), function ($query) {
+        ])->relatedToTeacher()->when(filled($this->lesson_id), function ($query) {
             $query->where('id', '!=', $this->lesson_id);
         })->exists();
         return ! $checkIsLessonExists ? true : false;

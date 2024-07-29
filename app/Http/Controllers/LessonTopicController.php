@@ -11,6 +11,7 @@ use App\Rules\YouTubeUrl;
 use App\Models\LessonTopic;
 use App\Models\ClassSection;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 use App\Rules\uniqueTopicInLesson;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
@@ -26,7 +27,7 @@ class LessonTopicController extends Controller
      */
     public function index()
     {
-        if (!Auth::user()->can('topic-list')) {
+        if (! Auth::user()->can('topic-list')) {
             $response = array(
                 'message' => trans('no_permission_message')
             );
@@ -34,8 +35,8 @@ class LessonTopicController extends Controller
         }
         $class_section = ClassSection::SubjectTeacher()->with('class', 'section')->get();
         $subjects = Subject::SubjectTeacher()->orderBy('id', 'ASC')->get();
-        $teacher = Auth::user()->load('teacher')->teacher;
-        $lessons = Lesson::where('teacher_id',$teacher->id)->get();
+
+        $lessons = Lesson::relatedToTeacher()->get();
         return response(view('lessons.topic', compact('class_section', 'subjects', 'lessons')));
     }
 
@@ -49,19 +50,20 @@ class LessonTopicController extends Controller
      */
     public function store(Request $request)
     {
-        if (!Auth::user()->can('topic-create')) {
+        if (! Auth::user()->can('topic-create')) {
             $response = array(
                 'error' => true,
                 'message' => trans('no_permission_message')
             );
             return response()->json($response);
         }
+        $teacher = Auth::user()->load('teacher')->teacher;
         $validator = Validator::make(
             $request->all(),
             [
                 'class_section_id' => 'required|numeric',
                 'subject_id' => 'required|numeric',
-                'lesson_id' => 'required|numeric',
+                'lesson_id' => ['required', 'numeric', Rule::exists('lessons', 'id')->where('teacher_id', $teacher->id)],
                 'name' => ['required', new uniqueTopicInLesson($request->lesson_id)],
                 'description' => 'required',
 
@@ -70,7 +72,7 @@ class LessonTopicController extends Controller
                 'edit_file.*.name' => 'required_with:edit_file.*.type',
                 'edit_file.*.thumbnail' => 'required_if:edit_file.*.type,youtube_link,video_upload,other_link',
                 //Regex for Youtube Link
-                'edit_file.*.link' => ['nullable','required_if:edit_file.*.type,youtube_link', new YouTubeUrl],
+                'edit_file.*.link' => ['nullable', 'required_if:edit_file.*.type,youtube_link', new YouTubeUrl],
 
                 'file' => 'nullable|array',
                 'file.*.type' => 'nullable|in:file_upload,youtube_link,video_corner_link,video_corner_download_link,video_upload,other_link',
@@ -83,7 +85,7 @@ class LessonTopicController extends Controller
                 'file.*.thumbnail' => 'required_if:file.*.type,youtube_link,video_corner_link,video_corner_download_link,video_upload,other_link',
                 'file.*.file' => 'required_if:file.*.type,file_upload,video_upload',
                 //Regex for Youtube Link
-                'file.*.link' => ['nullable','required_if:file.*.type,youtube_link', new YouTubeUrl],
+                'file.*.link' => ['nullable', 'required_if:file.*.type,youtube_link', new YouTubeUrl],
                 //Regex for Other Link
                 // 'file.*.link'=>'required_if:file.*.type,other_link|url'
             ],
@@ -167,7 +169,7 @@ class LessonTopicController extends Controller
                         $file->file_url = $file['video_corner_url'];
                         $file->video_download_link = $file['video_corner_download_link'];
 
-                    }  elseif ($data['type'] == "video_upload") {
+                    } elseif ($data['type'] == "video_upload") {
                         $file->type = 3;
 
                         $image = $data['thumbnail'];
@@ -231,7 +233,7 @@ class LessonTopicController extends Controller
      */
     public function show()
     {
-        if (!Auth::user()->can('topic-list')) {
+        if (! Auth::user()->can('topic-list')) {
             $response = array(
                 'error' => true,
                 'message' => trans('no_permission_message')
@@ -252,22 +254,22 @@ class LessonTopicController extends Controller
         if (isset($_GET['order']))
             $order = $_GET['order'];
 
-        $sql = LessonTopic::lessontopicteachers()->with('lesson.class_section', 'lesson.subject', 'file');
-        if (isset($_GET['search']) && !empty($_GET['search'])) {
+        $sql = LessonTopic::lessontopicteachers()->relatedToTeacher()->with('lesson.class_section', 'lesson.subject', 'file');
+        if (isset($_GET['search']) && ! empty($_GET['search'])) {
             $search = $_GET['search'];
             $sql->where(function ($query) use ($search) {
                 $query->where('id', 'LIKE', "%$search%")
-                ->orwhere('name', 'LIKE', "%$search%")
-                ->orwhere('description', 'LIKE', "%$search%")
-                ->orWhereHas('lesson.class_section.section', function ($q) use ($search) {
-                    $q->where('name', 'LIKE', "%$search%");
-                })->orWhereHas('lesson.class_section.class', function ($q) use ($search) {
-                    $q->where('name', 'LIKE', "%$search%");
-                })->orWhereHas('lesson.subject', function ($q) use ($search) {
-                    $q->where('name', 'LIKE', "%$search%");
-                })->orWhereHas('lesson', function ($q) use ($search) {
-                    $q->where('name', 'LIKE', "%$search%");
-                });
+                    ->orwhere('name', 'LIKE', "%$search%")
+                    ->orwhere('description', 'LIKE', "%$search%")
+                    ->orWhereHas('lesson.class_section.section', function ($q) use ($search) {
+                        $q->where('name', 'LIKE', "%$search%");
+                    })->orWhereHas('lesson.class_section.class', function ($q) use ($search) {
+                        $q->where('name', 'LIKE', "%$search%");
+                    })->orWhereHas('lesson.subject', function ($q) use ($search) {
+                        $q->where('name', 'LIKE', "%$search%");
+                    })->orWhereHas('lesson', function ($q) use ($search) {
+                        $q->where('name', 'LIKE', "%$search%");
+                    });
             });
         }
         if (request('subject_id')) {
@@ -296,7 +298,7 @@ class LessonTopicController extends Controller
         $no = 1;
         foreach ($res as $row) {
 
-            $row = (object)$row;
+            $row = (object) $row;
             $operate = '<a href=' . route('lesson-topic.edit', $row->id) . ' class="btn btn-xs btn-gradient-primary btn-rounded btn-icon edit-data" data-id=' . $row->id . ' title="Edit" data-toggle="modal" data-target="#editModal"><i class="fa fa-edit"></i></a>&nbsp;&nbsp;';
             $operate .= '<a href=' . route('lesson-topic.destroy', $row->id) . ' class="btn btn-xs btn-gradient-danger btn-rounded btn-icon delete-form" data-id=' . $row->id . '><i class="fa fa-trash"></i></a>';
 
@@ -307,9 +309,9 @@ class LessonTopicController extends Controller
             $tempRow['lesson_id'] = $row->lesson_id;
             $tempRow['lesson_name'] = $row->lesson->name;
             $tempRow['class_section_id'] = $row->lesson->class_section->id;
-            $tempRow['class_section_name'] = $row->lesson->class_section->class->name . ' ' . $row->lesson->class_section->section->name.' - '. $row->lesson->class_section->class->medium->name;
+            $tempRow['class_section_name'] = $row->lesson->class_section->class->name . ' ' . $row->lesson->class_section->section->name . ' - ' . $row->lesson->class_section->class->medium->name;
             $tempRow['subject_id'] = $row->lesson->subject->id;
-            $tempRow['subject_name'] = $row->lesson->subject->name.' - '.$row->lesson->subject->type;
+            $tempRow['subject_name'] = $row->lesson->subject->name . ' - ' . $row->lesson->subject->type;
             $tempRow['file'] = $row->file;
             $tempRow['created_at'] = convertDateFormat($row->created_at, 'd-m-Y H:i:s');
             $tempRow['updated_at'] = convertDateFormat($row->updated_at, 'd-m-Y H:i:s');
@@ -330,7 +332,7 @@ class LessonTopicController extends Controller
      */
     public function update(Request $request, LessonTopic $lessonTopic)
     {
-        if (!Auth::user()->can('topic-edit')) {
+        if (! Auth::user()->can('topic-edit')) {
             $response = array(
                 'message' => trans('no_permission_message')
             );
@@ -342,14 +344,14 @@ class LessonTopicController extends Controller
                 'edit_id' => 'required|numeric',
                 'class_section_id' => 'required|numeric',
                 'subject_id' => 'required|numeric',
-                'name' => ['required', new uniqueTopicInLesson($request->lesson_id,$request->edit_id)],
+                'name' => ['required', new uniqueTopicInLesson($request->lesson_id, $request->edit_id)],
                 'description' => 'required',
 
                 'edit_file' => 'nullable|array',
                 'edit_file.*.type' => 'nullable|in:file_upload,youtube_link,video_upload,other_link',
                 'edit_file.*.name' => 'nullable|required_with:edit_file.*.type',
                 //Regex for Youtube Link
-                'edit_file.*.link' => ['nullable','required_if:edit_file.*.type,youtube_link', new YouTubeUrl],
+                'edit_file.*.link' => ['nullable', 'required_if:edit_file.*.type,youtube_link', new YouTubeUrl],
 
                 'file' => 'nullable|array',
                 'file.*.type' => 'nullable|in:file_upload,youtube_link,video_upload,other_link',
@@ -358,7 +360,7 @@ class LessonTopicController extends Controller
 
                 'file.*.file' => 'nullable|required_if:file.*.type,file_upload,video_upload',
                 //Regex for Youtube Link
-                'file.*.link' => ['nullable','required_if:file.*.type,youtube_link', new YouTubeUrl],
+                'file.*.link' => ['nullable', 'required_if:file.*.type,youtube_link', new YouTubeUrl],
             ],
             [
                 'name.unique' => trans('topic_alredy_exists')
@@ -372,7 +374,7 @@ class LessonTopicController extends Controller
             return response()->json($response);
         }
         try {
-            $topic = LessonTopic::find($request->edit_id);
+            $topic = LessonTopic::relatedToTeacher()->findOrFail($request->edit_id);
             $topic->name = $request->name;
             $topic->description = $request->description;
             $topic->save();
@@ -385,7 +387,7 @@ class LessonTopicController extends Controller
 
                     if ($file['type'] == "file_upload") {
                         $topic_file->type = 1;
-                        if (!empty($file['file'])) {
+                        if (! empty($file['file'])) {
                             if (Storage::disk('public')->exists($topic_file->getRawOriginal('file_url'))) {
                                 Storage::disk('public')->delete($topic_file->getRawOriginal('file_url'));
                             }
@@ -393,7 +395,7 @@ class LessonTopicController extends Controller
                         }
                     } elseif ($file['type'] == "youtube_link") {
                         $topic_file->type = 2;
-                        if (!empty($file['thumbnail'])) {
+                        if (! empty($file['thumbnail'])) {
                             if (Storage::disk('public')->exists($topic_file->getRawOriginal('file_thumbnail'))) {
                                 Storage::disk('public')->delete($topic_file->getRawOriginal('file_thumbnail'));
                             }
@@ -415,14 +417,14 @@ class LessonTopicController extends Controller
                         $topic_file->file_url = $file['link'];
                     } elseif ($file['type'] == "video_upload") {
                         $topic_file->type = 3;
-                        if (!empty($file['file'])) {
+                        if (! empty($file['file'])) {
                             if (Storage::disk('public')->exists($topic_file->getRawOriginal('file_url'))) {
                                 Storage::disk('public')->delete($topic_file->getRawOriginal('file_url'));
                             }
                             $topic_file->file_url = $file['file']->store('lessons', 'public');
                         }
 
-                        if (!empty($file['thumbnail'])) {
+                        if (! empty($file['thumbnail'])) {
                             if (Storage::disk('public')->exists($topic_file->getRawOriginal('file_thumbnail'))) {
                                 Storage::disk('public')->delete($topic_file->getRawOriginal('file_thumbnail'));
                             }
@@ -441,7 +443,7 @@ class LessonTopicController extends Controller
                         }
                     } elseif ($file['type'] == "other_link") {
                         $topic_file->type = 4;
-                        if (!empty($file['thumbnail'])) {
+                        if (! empty($file['thumbnail'])) {
                             if (Storage::disk('public')->exists($topic_file->getRawOriginal('file_thumbnail'))) {
                                 Storage::disk('public')->delete($topic_file->getRawOriginal('file_thumbnail'));
                             }
@@ -550,14 +552,14 @@ class LessonTopicController extends Controller
      */
     public function destroy($id)
     {
-        if (!Auth::user()->can('topic-delete')) {
+        if (! Auth::user()->can('topic-delete')) {
             $response = array(
                 'message' => trans('no_permission_message')
             );
             return redirect(route('home'))->withErrors($response);
         }
         try {
-            $topic = LessonTopic::find($id);
+            $topic = LessonTopic::relatedToTeacher()->find($id);
             if ($topic->file) {
                 foreach ($topic->file as $file) {
                     if (Storage::disk('public')->exists($file->file_url)) {
@@ -571,7 +573,7 @@ class LessonTopicController extends Controller
                 'error' => false,
                 'message' => trans('data_delete_successfully')
             );
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             $response = array(
                 'error' => true,
                 'message' => trans('error_occurred')
