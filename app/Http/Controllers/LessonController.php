@@ -73,7 +73,7 @@ class LessonController extends Controller
             'file' => 'nullable|array',
             'file.*.type' => ['nullable', Rule::in(['file_upload', 'youtube_link', 'video_upload', 'video_corner_link', 'video_corner_download_link', 'other_link'])],
             'file.*.name' => 'required_with:file.*.type',
-            'file.*.thumbnail' => 'required_if:file.*.type,youtube_link,video_upload,other_link|max:2048',
+            'file.*.thumbnail' => 'required_if:file.*.type,youtube_link,video_corner_link,video_corner_download_link,video_upload,other_link|max:2048',
             'file.*.file' => 'required_if:file.*.type,file_upload,video_upload',
             // 'file.*.link' => 'required_if:file.*.type,youtube_link,other_link',
             //Regex for Youtube Link
