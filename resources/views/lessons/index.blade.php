@@ -240,9 +240,9 @@
                                         {{ __('payment_status') }}</th>
                                     <th scope="col" data-field="status_name" data-sortable="false">
                                         {{ __('status') }}</th>
-                                    <th scope="col" data-field="created_at" data-sortable="true" {{--  data-visible="false"> {{ __('created_at') }}</th>
+                                    <th scope="col" data-field="created_at" data-sortable="true"  data-visible="false"> {{ __('created_at') }}</th>
                                     <th scope="col" data-field="updated_at" data-sortable="true"
-                                        data-visible="false"> {{ __('updated_at') }}</th>  --}}
+                                        data-visible="false"> {{ __('updated_at') }}</th> 
                                         <th scope="col" data-field="operate" data-sortable="false"
                                         data-events="lessonEvents">{{ __('action') }}</th>
                                 </tr>
