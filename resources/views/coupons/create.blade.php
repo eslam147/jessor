@@ -128,7 +128,8 @@
                     );
                 }
             }
-            setLessons()
+            $('#teacher_id').trigger('change');
+            // setLessons(teacherID, classSectionId)
         }
 
         function setSubjects(classId) {
@@ -189,7 +190,7 @@
             setClasses(medium);
         }
         $('#teacher_id').change(function() {
-            setLessons($(this).val());
+            setLessons($(this).val(), $('#class_m_id').val());
         });
         if ($('#teacher_id').val()) {
             setLessons($('#teacher_id').val());
