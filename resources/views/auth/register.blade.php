@@ -76,11 +76,10 @@
                                                 </div>
                                             </div>
                                         </div>
-                                        @if (Route::has('password.request'))
+                                        @if (Route::has('login'))
                                             <div class="my-2 d-flex justify-content-end align-items-center col-12">
-
-                                                <a class="auth-link text-info" href="{{ route('password.request') }}">
-                                                    {{ __('forgot_password') }}
+                                                <a class="auth-link text-info" href="{{ route('login') }}">
+                                                    {{ __('already_have_account') }}
                                                 </a>
                                             </div>
                                         @endif

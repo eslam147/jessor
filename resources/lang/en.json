@@ -644,6 +644,7 @@
     "video_corner_link": "Video Corner Link",
     "video_corner_download_link": "Video Corner Download Link",
     "save_and_print": "Save and Print",
-    "register" : "Register"
+    "register" : "Register",
+    "already_have_account" : "Already have an account?"
 
 }
