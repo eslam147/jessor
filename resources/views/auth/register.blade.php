@@ -85,7 +85,7 @@
                                             </div>
                                         @endif
                                         <div class="mt-3 col-12">
-                                            <input type="submit" name="btnlogin" id="login_btn" value="{{ __('login') }}" class="btn btn-block btn-theme btn-lg font-weight-medium auth-form-btn"/>
+                                            <input type="submit" name="btnlogin" id="login_btn" value="{{ __('register') }}" class="btn btn-block btn-theme btn-lg font-weight-medium auth-form-btn"/>
                                         </div>
                                     </form>
                                 </div>
