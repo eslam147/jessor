@@ -18,7 +18,7 @@ class TopicsController extends Controller
 
     public function show($id)
     {
-        $lesson = Lesson::with('lesson')->findOrFail($id);
+        $lesson = Lesson::with('file')->findOrFail($id);
 
         abort_unless(
             Enrollment::where('user_id', Auth::user()->id)->where('lesson_id', $id)->exists(),
@@ -29,7 +29,7 @@ class TopicsController extends Controller
 
         $lesson_name = $lesson->name;
 
-        return view('student_dashboard.topics.index', compact('topics', 'lesson_name'));
+        return view('student_dashboard.topics.index', compact('topics','lesson', 'lesson_name'));
     }
 
     public function topic_files($topic_id)

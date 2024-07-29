@@ -62,32 +62,28 @@ class LessonController extends Controller
             return response()->json($response);
         }
 
-        $validator = Validator::make(
-            $request->all(),
-            [
-                'name' => ['required', new uniqueLessonInClass($request->class_section_id, $request->subject_id)],
-                'description' => 'required',
-                'class_section_id' => 'required|numeric',
-                'subject_id' => 'required|numeric',
-                'status' => ['required', Rule::in(LessonStatus::values())],
-                'payment_status' => 'required|in:0,1',
+        $validator = Validator::make($request->all(), [
+            'name' => ['required', new uniqueLessonInClass($request->class_section_id, $request->subject_id)],
+            'description' => 'required',
+            'class_section_id' => 'required|numeric',
+            'subject_id' => 'required|numeric',
+            'status' => ['required', Rule::in(LessonStatus::values())],
+            'payment_status' => 'required|in:0,1',
 
-                'file' => 'nullable|array',
-                'file.*.type' => ['nullable', Rule::in(['file_upload', 'youtube_link', 'video_upload', 'video_corner_link', 'video_corner_download_link', 'other_link'])],
-                'file.*.name' => 'required_with:file.*.type',
-                'file.*.thumbnail' => 'required_if:file.*.type,youtube_link,video_upload,other_link',
-                'file.*.file' => 'required_if:file.*.type,file_upload,video_upload',
-                // 'file.*.link' => 'required_if:file.*.type,youtube_link,other_link',
-                //Regex for Youtube Link
-                'file.*.link' => ['required_if:file.*.type,youtube_link', new YouTubeUrl, 'nullable'],
-                'file.*.video_corner_url' => ['required_if:file.*.type,video_corner_url', 'nullable'],
-                //Regex for Other Link
-                // 'file.*.link'=>'required_if:file.*.type,other_link|url'
-            ],
-            [
-                'name.unique' => trans('lesson_alredy_exists')
-            ]
-        );
+            'file' => 'nullable|array',
+            'file.*.type' => ['nullable', Rule::in(['file_upload', 'youtube_link', 'video_upload', 'video_corner_link', 'video_corner_download_link', 'other_link'])],
+            'file.*.name' => 'required_with:file.*.type',
+            'file.*.thumbnail' => 'required_if:file.*.type,youtube_link,video_upload,other_link|max:2048',
+            'file.*.file' => 'required_if:file.*.type,file_upload,video_upload',
+            // 'file.*.link' => 'required_if:file.*.type,youtube_link,other_link',
+            //Regex for Youtube Link
+            'file.*.link' => ['required_if:file.*.type,youtube_link', new YouTubeUrl, 'nullable'],
+            'file.*.video_corner_url' => ['required_if:file.*.type,video_corner_url', 'nullable'],
+            //Regex for Other Link
+            // 'file.*.link'=>'required_if:file.*.type,other_link|url'
+        ], [
+            'name.unique' => trans('lesson_alredy_exists')
+        ]);
 
         if ($validator->fails()) {
             return response()->json([
@@ -353,7 +349,7 @@ class LessonController extends Controller
                 'edit_file' => 'nullable|array',
                 'edit_file.*.type' => 'nullable|in:file_upload,youtube_link,video_upload,other_link',
                 'edit_file.*.name' => 'nullable|required_with:edit_file.*.type',
-                'edit_file.*.link' => 'nullable|required_if:edit_file.*.type,youtube_link,other_link',
+                // 'edit_file.*.link' => 'nullable|required_if:edit_file.*.type,youtube_link,other_link',
 
                 // for Youtube Link
                 'edit_file.*.link' => ['nullable|required_if:edit_file.*.type,youtube_link', new YouTubeUrl, 'nullable'],
@@ -361,9 +357,9 @@ class LessonController extends Controller
                 'file' => 'nullable|array',
                 'file.*.type' => 'nullable|in:file_upload,youtube_link,video_upload,other_link',
                 'file.*.name' => 'nullable|required_with:file.*.type',
-                'file.*.thumbnail' => 'nullable|required_if:file.*.type,youtube_link,video_upload,other_link',
+                'file.*.thumbnail' => 'required_if:file.*.type,youtube_link,video_upload,other_link|max:2048',
                 'file.*.file' => 'nullable|required_if:file.*.type,file_upload,video_upload',
-                'file.*.link' => 'nullable|required_if:file.*.type,youtube_link,other_link',
+                // 'file.*.link' => 'nullable|required_if:file.*.type,youtube_link,other_link',
 
                 //Regex for Youtube Link
                 'file.*.link' => ['nullable|required_if:file.*.type,youtube_link', new YouTubeUrl],
@@ -454,6 +450,41 @@ class LessonController extends Controller
 
                             $lesson_file->file_thumbnail = $file_path;
                         }
+                    } elseif ($file['type'] == "video_corner_link") {
+                        $lesson_file->type = 5;
+
+                        $image = $file['thumbnail'];
+                        // made file name with combination of current time
+                        $file_name = time() . '-' . $image->getClientOriginalName();
+                        //made file path to store in database
+                        $file_path = 'lessons/' . $file_name;
+                        //resized image
+                        resizeImage($image);
+                        //stored image to storage/public/lessons folder
+                        $destinationPath = storage_path('app/public/lessons');
+                        $image->move($destinationPath, $file_name);
+
+                        $lesson_file->file_thumbnail = $file_path;
+                        $lesson_file->file_url = $file['video_corner_url'];
+
+                    } elseif ($file['type'] == "video_corner_download_link") {
+                        $lesson_file->type = 6;
+
+                        $image = $file['thumbnail'];
+                        // made file name with combination of current time
+                        $file_name = time() . '-' . $image->getClientOriginalName();
+                        //made file path to store in database
+                        $file_path = 'lessons/' . $file_name;
+                        //resized image
+                        resizeImage($image);
+                        //stored image to storage/public/lessons folder
+                        $destinationPath = storage_path('app/public/lessons');
+                        $image->move($destinationPath, $file_name);
+
+                        $lesson_file->file_thumbnail = $file_path;
+                        $lesson_file->file_url = $file['video_corner_url'];
+                        $lesson_file->video_download_link = $file['video_corner_download_link'];
+
                     } elseif ($file['type'] == "other_link") {
                         $lesson_file->type = 4;
                         if (! empty($file['thumbnail'])) {

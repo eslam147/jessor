@@ -2,19 +2,20 @@
 
 namespace App\Http\Controllers;
 
+use Throwable;
 use App\Models\File;
 use App\Models\Lesson;
 use App\Models\Subject;
+use App\Models\Students;
+use App\Rules\YouTubeUrl;
 use App\Models\LessonTopic;
 use App\Models\ClassSection;
-use App\Models\Students;
-use App\Rules\uniqueTopicInLesson;
-use App\Rules\YouTubeUrl;
 use Illuminate\Http\Request;
+use App\Rules\uniqueTopicInLesson;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
-use Throwable;
 
 class LessonTopicController extends Controller
 {
@@ -79,7 +80,7 @@ class LessonTopicController extends Controller
 
 
                 'file.*.name' => 'required_with:file.*.type',
-                'file.*.thumbnail' => 'required_if:file.*.type,youtube_link,video_upload,other_link',
+                'file.*.thumbnail' => 'required_if:file.*.type,youtube_link,video_corner_link,video_corner_download_link,video_upload,other_link',
                 'file.*.file' => 'required_if:file.*.type,file_upload,video_upload',
                 //Regex for Youtube Link
                 'file.*.link' => ['nullable','required_if:file.*.type,youtube_link', new YouTubeUrl],
@@ -96,8 +97,8 @@ class LessonTopicController extends Controller
             return response()->json($response);
         }
 
-
         try {
+            DB::beginTransaction();
             $topic = new LessonTopic();
             $topic->name = $request->name;
             $topic->description = $request->description;
@@ -132,8 +133,8 @@ class LessonTopicController extends Controller
                     } elseif ($data['type'] == "video_corner_link") {
                         $file->type = 5;
 
-                        $image = $file['thumbnail'];
-                        dd($image);
+                        $image = $data['thumbnail'];
+
                         // made file name with combination of current time
                         $file_name = time() . '-' . $image->getClientOriginalName();
                         //made file path to store in database
@@ -151,7 +152,7 @@ class LessonTopicController extends Controller
                     } elseif ($data['type'] == "video_corner_download_link") {
                         $file->type = 6;
 
-                        $image = $file['thumbnail'];
+                        $image = $data['thumbnail'];
                         // made file name with combination of current time
                         $file_name = time() . '-' . $image->getClientOriginalName();
                         //made file path to store in database
@@ -204,12 +205,14 @@ class LessonTopicController extends Controller
                     $file->save();
                 }
             }
-
+            DB::commit();
             $response = array(
                 'error' => false,
                 'message' => trans('data_store_successfully')
             );
         } catch (Throwable $e) {
+            DB::rollBack();
+
             report($e);
             $response = array(
                 'error' => true,
@@ -351,7 +354,8 @@ class LessonTopicController extends Controller
                 'file' => 'nullable|array',
                 'file.*.type' => 'nullable|in:file_upload,youtube_link,video_upload,other_link',
                 'file.*.name' => 'nullable|required_with:file.*.type',
-                'file.*.thumbnail' => 'nullable|required_if:file.*.type,youtube_link,video_upload,other_link',
+                'file.*.thumbnail' => 'nullable|required_if:file.*.type,youtube_link,video_corner_link,video_corner_download_linkوvideo_upload,other_link',
+
                 'file.*.file' => 'nullable|required_if:file.*.type,file_upload,video_upload',
                 //Regex for Youtube Link
                 'file.*.link' => ['nullable','required_if:file.*.type,youtube_link', new YouTubeUrl],
