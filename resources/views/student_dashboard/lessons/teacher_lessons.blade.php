@@ -26,7 +26,6 @@
                 <div class="col-4" >
                     <div class="box pull-up">
 						<div class="box-body">
-
 							<p class="mb-0 fs-18"> {{ $row->name }} </p>
 							<div class="d-flex justify-content-between mt-30">
 								<div>
@@ -64,8 +63,8 @@
                                             <h5 class="text-white text-center p-10"> start now </h5>
                                         </a>
                                     @else
-                                        <a href="javascript:void(0)" data-bs-toggle="modal" data-bs-target="#modal-center" data-animation="shake" >
-                                            <h5 class="text-white text-center p-10"> Locked Lesson </h5>
+                                        <a href="javascript:void(0)" class="locked-btn" data-id="{{ $row->id }}" data-bs-toggle="modal" data-bs-target="#modal-center" data-animation="shake" >
+                                            <h5 class="text-white text-center  p-10"> Locked Lesson </h5>
                                         </a>
                                     @endif
                                 @endif
@@ -82,18 +81,41 @@
     <div class="modal center-modal fade" id="modal-center" tabindex="-1">
         <div class="modal-dialog">
             <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Lesson Is Locked <i class="si-lock si" ></i></h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <p>This lesson is locked, you must purchase it through the mobile app.</p>
-            </div>
-            <div class="modal-footer modal-footer-uniform">
-                <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Ok</button>
-            </div>
+                <div class="modal-header">
+                    <h5 class="modal-title">Lesson Is Locked <i class="si-lock si" ></i></h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="purchaseForm" method="POST" action="{{ route('enroll.store') }}" >
+                        @csrf
+                        <div class="form-group" >
+                            <label>Purchase Code</label>
+                            <input type="text" name="purchase_code" class="form-control mt-5" >
+                        </div>
+                        <input type="hidden" id="LessonId" name="lesson_id" value="">
+                    </form>
+                </div>
+                <div class="modal-footer modal-footer-uniform">
+                    <button type="submit" form="purchaseForm" class="btn btn-success" style="width: 100%;" >Unlock</button>
+                </div>
             </div>
         </div>
     </div>
 <!-- /.modal -->
+@include('sweetalert::alert')
+@endsection
+@section('script')
+    <script>
+        $(document).ready(function() {
+            // Attach click event listener to buttons with class 'locked-btn'
+            $('.locked-btn').on('click', function() {
+                // Get the data-id attribute from the clicked button
+                var id = $(this).data('id');
+
+                // Pass the id to the hidden input field with the specified ID
+                $('#LessonId').val(id);
+            });
+        });
+
+    </script>
 @endsection
