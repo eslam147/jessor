@@ -42,7 +42,6 @@ class SignupController extends Controller
 
     public function store(Request $request)
     {
-
         #check if admin has permission
 
         //Add Father in User and Parent table data
@@ -185,6 +184,7 @@ class SignupController extends Controller
             'first_name' => 'required|string',
             'last_name' => 'required|string',
             'password' => 'required|string|min:6',
+            'mobile'   => 'required|string',
             'email' => 'required|email|unique:users,email',
         ]);
 
@@ -192,12 +192,14 @@ class SignupController extends Controller
             Alert::warning('Warning',$validator->messages()->all()[0]);
             return redirect()->back();
         } else {
+            $category_id = 1;
             // Add student to users table
             $studentUser = User::create([
                 'first_name' => $request->first_name,
                 'last_name' => $request->last_name,
+                'mobile' => $request->mobile,
                 'class_section_id' => $request->class_section_id,
-                'category_id' => $request->category_id,
+                'category_id' => $category_id,
                 'email' => $request->email,
                 'password' => Hash::make($request->password),
             ]);
@@ -209,7 +211,7 @@ class SignupController extends Controller
             $student = Students::create([
                 'user_id' => $studentUser->id,
                 'class_section_id' => $request->class_section_id,
-                'category_id' => $request->category_id,
+                'category_id' => $category_id,
                 'father_id' => isset($father) ? $father->id : null,
                 'mother_id' => isset($mother) ? $mother->id : null,
                 'guardian_id' => isset($guardian) ? $guardian->id : null,
