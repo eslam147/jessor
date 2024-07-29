@@ -51,10 +51,10 @@ class LessonController extends Controller
     public function store(Request $request)
     {
         if (! Auth::user()->can('lesson-create')) {
-            $response = array(
+            $response = [
                 'error' => true,
                 'message' => trans('no_permission_message')
-            );
+            ];
             return response()->json($response);
         }
 
@@ -239,7 +239,7 @@ class LessonController extends Controller
             $order = $_GET['order'];
         $teacher = auth()->user()->load('teacher')->teacher;
 
-        $sql = Lesson::lessonteachers()->with('subject', 'class_section', 'topic');
+        $sql = Lesson::lessonteachers()->where('teacher_id',$teacher->id)->with('subject', 'class_section', 'topic');
         if (isset($_GET['search']) && ! empty($_GET['search'])) {
             $search = $_GET['search'];
             $sql->where(function ($query) use ($search) {

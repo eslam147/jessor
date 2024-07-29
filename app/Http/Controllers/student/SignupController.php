@@ -45,6 +45,7 @@ class SignupController extends Controller
             'first_name' => 'required|string',
             'last_name' => 'required|string',
             'password' => 'required|string|min:6',
+            'mobile'   => 'required|string',
             'email' => 'required|email|unique:users,email',
             'class_section_id' => 'required|exists:class_sections,id',
             'category_id' => 'required|exists:categories,id',
@@ -54,12 +55,14 @@ class SignupController extends Controller
             Alert::warning('Warning', $validator->messages()->all()[0]);
             return back()->withErrors($validator);
         } else {
+            $category_id = 1;
             // Add student to users table
             $studentUser = User::create([
                 'first_name' => $request->first_name,
                 'last_name' => $request->last_name,
+                'mobile' => $request->mobile,
                 'class_section_id' => $request->class_section_id,
-                'category_id' => $request->category_id,
+                'category_id' => $category_id,
                 'email' => $request->email,
                 'password' => Hash::make($request->password),
             ]);
