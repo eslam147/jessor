@@ -1,77 +1,178 @@
-@extends('layouts.app')
+<!DOCTYPE html>
+<html lang="en">
 
-@section('content')
-<div class="container">
-    <div class="row justify-content-center">
-        <div class="col-md-8">
-            <div class="card">
-                <div class="card-header">{{ __('Register') }}</div>
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
 
-                <div class="card-body">
-                    <form method="POST" action="{{ route('register') }}">
-                        @csrf
+    <title>{{ __('login') }} || {{ config('app.name') }}</title>
 
-                        <div class="row mb-3">
-                            <label for="name" class="col-md-4 col-form-label text-md-end">{{ __('Name') }}</label>
+    @include('layouts.include')
 
-                            <div class="col-md-6">
-                                <input id="name" type="text" class="form-control @error('name') is-invalid @enderror" name="name" value="{{ old('name') }}" required autocomplete="name" autofocus>
+</head>
 
-                                @error('name')
-                                    <span class="invalid-feedback" role="alert">
-                                        <strong>{{ $message }}</strong>
-                                    </span>
-                                @enderror
+<body class="bg-image">
+<div class="container-scroller">
+    {{-- <div class="bg-image"> --}}
+        <div class="overlay">
+            <div class="container-fluid">
+
+                    <div class="row">
+                        <div class="col-md-4 col-lg-7"></div>
+                        <div class="col-md-8 col-lg-4">
+                            <div class="auth-content-wrapper auth">
+                                <div class="auth-form-light text-left p-5">
+
+                                    <div class="brand-logo text-center">
+                                        <img src="{{ settingByType('logo2') ? url(Storage::url(settingByType('logo2'))) :url('assets/logo.svg') }}" alt="logo">
+                                    </div>
+                                    <form action="{{ route('signup.store') }}" method="POST" class="pt-3 row">
+                                        @csrf
+                                        <div class="form-group col-6">
+                                            <label>{{ __('class') . ' ' . __('section') }} <span class="text-danger">*</span></label>
+                                            <select name="class_section_id" id="class_section" class="form-control ">
+                                                <option value="">{{ __('select') . ' ' . __('class') . ' ' . __('section') }}</option>
+                                                @foreach ($class_section as $section)
+                                                    <option value="{{ $section->id }}">{{ $section->class->name }} - {{ $section->section->name }} {{ $section->class->medium->name }} {{$section->class->streams->name ?? ' '}}</option>
+                                                @endforeach
+                                            </select>
+                                        </div>
+                                        <div class="form-group col-6">
+                                            <label> {{ __('category') }} <span class="text-danger">*</span></label>
+                                            <select name="category_id" class="form-control">
+                                                <option value="">{{ __('select') . ' ' . __('category') }}</option>
+                                                @foreach ($category as $cat)
+                                                    <option value="{{ $cat->id }}">{{ $cat->name }}</option>
+                                                @endforeach
+                                            </select>
+                                        </div>
+                                        <div class="form-group col-6">
+                                            <label>{{ __('first_name') }}</label>
+                                            {{-- <input type="text" name="username" required class="form-control form-control-lg" placeholder="{{__('username')}}"> --}}
+                                            <input id="email" type="text" class="form-control form-control-lg" name="first_name"  required   autofocus  >
+                                        </div>
+                                        <div class="form-group col-6">
+                                            <label>{{ __('last_name') }}</label>
+                                            {{-- <input type="text" name="username" required class="form-control form-control-lg" placeholder="{{__('username')}}"> --}}
+                                            <input id="email" type="text" class="form-control form-control-lg" name="last_name"  required   autofocus  >
+                                        </div>
+                                        <div class="form-group col-12">
+                                            <label>{{ __('email') }}</label>
+                                            {{-- <input type="text" name="username" required class="form-control form-control-lg" placeholder="{{__('username')}}"> --}}
+                                            <input id="email" type="email" class="form-control form-control-lg" name="email" value="{{ old('email') }}" required autocomplete="email" autofocus placeholder="{{ __('email') }}">
+                                        </div>
+                                        <div class="form-group col-12">
+                                            <label>{{ __('password') }}</label>
+                                            {{-- <input type="password" name="password" required class="form-control form-control-lg" placeholder="{{__('password')}}"> --}}
+
+                                            <div class="input-group">
+                                                <input id="password" type="password" class="form-control form-control-lg" name="password" required autocomplete="current-password" placeholder="{{ __('password') }}">
+                                                <div class="input-group-append">
+                                                        <span class="input-group-text">
+                                                            <i class="fa fa-eye-slash" id="togglePassword"></i>
+                                                        </span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        @if (Route::has('password.request'))
+                                            <div class="my-2 d-flex justify-content-end align-items-center col-12">
+
+                                                <a class="auth-link text-info" href="{{ route('password.request') }}">
+                                                    {{ __('forgot_password') }}
+                                                </a>
+                                            </div>
+                                        @endif
+                                        <div class="mt-3 col-12">
+                                            <input type="submit" name="btnlogin" id="login_btn" value="{{ __('login') }}" class="btn btn-block btn-theme btn-lg font-weight-medium auth-form-btn"/>
+                                        </div>
+                                    </form>
+                                </div>
                             </div>
                         </div>
-
-                        <div class="row mb-3">
-                            <label for="email" class="col-md-4 col-form-label text-md-end">{{ __('Email Address') }}</label>
-
-                            <div class="col-md-6">
-                                <input id="email" type="email" class="form-control @error('email') is-invalid @enderror" name="email" value="{{ old('email') }}" required autocomplete="email">
-
-                                @error('email')
-                                    <span class="invalid-feedback" role="alert">
-                                        <strong>{{ $message }}</strong>
-                                    </span>
-                                @enderror
-                            </div>
-                        </div>
-
-                        <div class="row mb-3">
-                            <label for="password" class="col-md-4 col-form-label text-md-end">{{ __('Password') }}</label>
-
-                            <div class="col-md-6">
-                                <input id="password" type="password" class="form-control @error('password') is-invalid @enderror" name="password" required autocomplete="new-password">
-
-                                @error('password')
-                                    <span class="invalid-feedback" role="alert">
-                                        <strong>{{ $message }}</strong>
-                                    </span>
-                                @enderror
-                            </div>
-                        </div>
-
-                        <div class="row mb-3">
-                            <label for="password-confirm" class="col-md-4 col-form-label text-md-end">{{ __('Confirm Password') }}</label>
-
-                            <div class="col-md-6">
-                                <input id="password-confirm" type="password" class="form-control" name="password_confirmation" required autocomplete="new-password">
-                            </div>
-                        </div>
-
-                        <div class="row mb-0">
-                            <div class="col-md-6 offset-md-4">
-                                <button type="submit" class="btn btn-primary">
-                                    {{ __('Register') }}
-                                </button>
-                            </div>
-                        </div>
-                    </form>
-                </div>
+                        <div class="col-md-1"></div>
+                    </div>
+                <!-- content-wrapper ends -->
             </div>
+            <!-- page-body-wrapper ends -->
         </div>
-    </div>
+    {{-- </div> --}}
 </div>
-@endsection
+@include('sweetalert::alert')
+<script src="{{ asset('/assets/js/vendor.bundle.base.js') }}"></script>
+<script src="{{ asset('/assets/js/jquery.validate.min.js') }}"></script>
+<script src="{{ asset('/assets/jquery-toast-plugin/jquery.toast.min.js') }}"></script>
+
+<script type='text/javascript'>
+    $("#frmLogin").validate({
+        rules: {
+            username: "required",
+            password: "required",
+        },
+        success: function(label, element) {
+            $(element).parent().removeClass('has-danger')
+            $(element).removeClass('form-control-danger')
+        },
+        errorPlacement: function (label, element) {
+            if(label.text()){
+                if ($(element).attr("name") == "password"){
+                label.insertAfter(element.parent()).addClass('text-danger mt-2');
+                }else{
+                    label.addClass('mt-2 text-danger');
+                    label.insertAfter(element);
+                }
+            }
+
+        },
+        highlight: function (element, errorClass) {
+            $(element).parent().addClass('has-danger')
+            $(element).addClass('form-control-danger')
+        }
+    });
+
+    const togglePassword = document.querySelector("#togglePassword");
+    const password = document.querySelector("#password");
+
+    togglePassword.addEventListener("click", function () {
+        const type = password.getAttribute("type") === "password" ? "text" : "password";
+        password.setAttribute("type", type);
+        // this.classList.toggle("fa-eye");
+        if (password.getAttribute("type") === 'password') {
+            $('#togglePassword').addClass('fa-eye-slash');
+            $('#togglePassword').removeClass('fa-eye');
+        } else {
+            $('#togglePassword').removeClass('fa-eye-slash');
+            $('#togglePassword').addClass('fa-eye');
+        }
+    });
+</script>
+</body>
+
+@if (Session::has('error'))
+    <script type='text/javascript'>
+        $.toast({
+            text: '{{ Session::get('error') }}',
+            showHideTransition: 'slide',
+            icon: 'error',
+            loaderBg: '#f2a654',
+            position: 'top-right'
+        });
+    </script>
+@endif
+
+@if ($errors->any())
+    @foreach ($errors->all() as $error)
+        <script type='text/javascript'>
+            $.toast({
+                text: '{{ $error }}',
+                showHideTransition: 'slide',
+                icon: 'error',
+                loaderBg: '#f2a654',
+                position: 'top-right'
+            });
+        </script>
+    @endforeach
+@endif
+
+</html>

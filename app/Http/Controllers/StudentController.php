@@ -56,6 +56,7 @@ class StudentController extends Controller
             );
             return redirect(route('home'))->withErrors($response);
         }
+        
         $class_section = ClassSection::with('class', 'section', 'streams')->get();
         $category = Category::where('status', 1)->get();
         $formFields = FormField::where('for', 1)->orderBy('rank', 'ASC')->get();

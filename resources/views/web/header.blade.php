@@ -104,6 +104,9 @@
                             <button type="submit" class="commonBtn mb-3" name="contactbtn" onclick="window.location='{{ url('login')}}'">
                                 {{ __('login')}}
                             </button>
+                            <a href="{{ route('signup.index') }}" class="commonBtn mb-3" name="contactbtn" >
+                                {{ __('signup')}}
+                            </a>
                         </li>
                     </ul>
                     <div class="hamburg">
@@ -164,6 +167,9 @@
                         <li>
                             <button type="submit" class="commonBtn mb-3" name="contactbtn" onclick="window.location='{{ url('login')}}'">
                                 {{ __('login')}}
+                            </button>
+                            <button type="submit" href="{{ route('signup.create') }}" class="commonBtn mb-3" name="contactbtn"  >
+                                signup
                             </button>
                         </li>
                     </ul>
