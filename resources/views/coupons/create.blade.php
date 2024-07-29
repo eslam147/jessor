@@ -162,7 +162,7 @@
             if (teacherLessons && teacherLessons.length > 0) {
                 for (let i = 0; i < teacherLessons.length; i++) {
                     let item = teacherLessons[i];
-                    if (itemsclass_section_id == Number(classSectionId)) {
+                    if (item.class_section_id == Number(classSectionId)) {
                         $('#lesson_id').append(`<option value="${item.id}">${item.user.name}</option>`);
                     }
                 }
