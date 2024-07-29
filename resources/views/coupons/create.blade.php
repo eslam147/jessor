@@ -189,7 +189,7 @@
             setClasses(medium);
         }
         $('#teacher_id').change(function() {
-            setLessons($(this).val(), $('#class_m_id').val());
+            setLessons($(this).val(), $('#class_m_id').val(),$('#subject_id').val());
         });
         if ($('#teacher_id').val()) {
             setLessons($('#teacher_id').val());
