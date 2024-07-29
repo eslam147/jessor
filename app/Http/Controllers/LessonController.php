@@ -31,7 +31,7 @@ class LessonController extends Controller
      */
     public function index()
     {
-        if (!Auth::user()->can('lesson-list')) {
+        if (! Auth::user()->can('lesson-list')) {
             $response = array(
                 'message' => trans('no_permission_message')
             );
@@ -39,7 +39,7 @@ class LessonController extends Controller
         }
 
         $teacher = Auth::user()->load('teacher')->teacher;
-        $class_section = ClassSection::SubjectTeacher()->with('class.medium', 'section','class.streams')->get();
+        $class_section = ClassSection::SubjectTeacher()->with('class.medium', 'section', 'class.streams')->get();
         $subjects = Subject::SubjectTeacher()->orderBy('id', 'ASC')->get();
         $lessons = Lesson::where('teacher_id', $teacher->id)->withCount('enrollments')->with('file')->get();
 
@@ -54,7 +54,7 @@ class LessonController extends Controller
      */
     public function store(Request $request)
     {
-        if (!Auth::user()->can('lesson-create')) {
+        if (! Auth::user()->can('lesson-create')) {
             $response = array(
                 'error' => true,
                 'message' => trans('no_permission_message')
@@ -65,7 +65,7 @@ class LessonController extends Controller
         $validator = Validator::make(
             $request->all(),
             [
-                'name' => ['required',new uniqueLessonInClass($request->class_section_id,$request->subject_id)],
+                'name' => ['required', new uniqueLessonInClass($request->class_section_id, $request->subject_id)],
                 'description' => 'required',
                 'class_section_id' => 'required|numeric',
                 'subject_id' => 'required|numeric',
@@ -73,13 +73,13 @@ class LessonController extends Controller
                 'payment_status' => 'required|in:0,1',
 
                 'file' => 'nullable|array',
-                'file.*.type' => 'nullable|in:file_upload,youtube_link,video_upload,video_corner_link,video_corner_download_link,other_link',
+                'file.*.type' => ['nullable', Rule::in(['file_upload', 'youtube_link', 'video_upload', 'video_corner_link', 'video_corner_download_link', 'other_link'])],
                 'file.*.name' => 'required_with:file.*.type',
                 'file.*.thumbnail' => 'required_if:file.*.type,youtube_link,video_upload,other_link',
                 'file.*.file' => 'required_if:file.*.type,file_upload,video_upload',
                 // 'file.*.link' => 'required_if:file.*.type,youtube_link,other_link',
                 //Regex for Youtube Link
-                'file.*.link' => ['required_if:file.*.type,youtube_link',new YouTubeUrl, 'nullable'],
+                'file.*.link' => ['required_if:file.*.type,youtube_link', new YouTubeUrl, 'nullable'],
                 'file.*.video_corner_url' => ['required_if:file.*.type,video_corner_url', 'nullable'],
                 //Regex for Other Link
                 // 'file.*.link'=>'required_if:file.*.type,other_link|url'
@@ -104,7 +104,8 @@ class LessonController extends Controller
                 'class_section_id' => $request->class_section_id,
                 'subject_id' => $request->subject_id,
                 'teacher_id' => $teacher->id,
-                'is_paid' => ($request->payment_status == 'paid'),
+                'status' => $request->status,
+                'is_paid' => ($request->payment_status == 1),
             ]);
 
             foreach ($request->file as $key => $file) {
@@ -223,7 +224,7 @@ class LessonController extends Controller
 
     public function show()
     {
-        if (!Auth::user()->can('lesson-list')) {
+        if (! Auth::user()->can('lesson-list')) {
             $response = array(
                 'error' => true,
                 'message' => trans('no_permission_message')
@@ -244,10 +245,10 @@ class LessonController extends Controller
             $sort = $_GET['sort'];
         if (isset($_GET['order']))
             $order = $_GET['order'];
-            $teacher = auth()->user()->load('teacher')->teacher;
+        $teacher = auth()->user()->load('teacher')->teacher;
 
         $sql = Lesson::lessonteachers()->with('subject', 'class_section', 'topic');
-        if (isset($_GET['search']) && !empty($_GET['search'])) {
+        if (isset($_GET['search']) && ! empty($_GET['search'])) {
             $search = $_GET['search'];
             $sql->where(function ($query) use ($search) {
                 $query->where('id', 'LIKE', "%$search%")
@@ -290,7 +291,7 @@ class LessonController extends Controller
         $no = 1;
         foreach ($res as $row) {
 
-            $row = (object)$row;
+            $row = (object) $row;
             $operate = '<a href=' . route('lesson.edit', $row->id) . ' class="btn btn-xs btn-gradient-primary btn-rounded btn-icon edit-data" data-id=' . $row->id . ' title="Edit" data-toggle="modal" data-target="#editModal"><i class="fa fa-edit"></i></a>&nbsp;&nbsp;';
             $operate .= '<a href=' . route('lesson.destroy', $row->id) . ' class="btn btn-xs btn-gradient-danger btn-rounded btn-icon delete-form" data-id=' . $row->id . '><i class="fa fa-trash"></i></a>';
             $tempRow['payment_status'] = view('lessons.datatable.is_paid', ['row' => $row])->render();
@@ -307,7 +308,7 @@ class LessonController extends Controller
             $tempRow['class_section_id'] = $row->class_section_id;
             $tempRow['class_section_name'] = $row->class_section->class->name . ' ' . $row->class_section->section->name . ' - ' . $row->class_section->class->medium->name;
             $tempRow['subject_id'] = $row->subject_id;
-            $tempRow['subject_name'] = $row->subject->name.' - '.$row->subject->type;
+            $tempRow['subject_name'] = $row->subject->name . ' - ' . $row->subject->type;
             $tempRow['topic'] = $row->topic;
             $tempRow['file'] = $row->file;
             $tempRow['created_at'] = convertDateFormat($row->created_at, 'd-m-Y H:i:s');
@@ -330,7 +331,7 @@ class LessonController extends Controller
 
     public function update(Request $request, $id)
     {
-        if (!Auth::user()->can('lesson-edit')) {
+        if (! Auth::user()->can('lesson-edit')) {
             $response = array(
                 'error' => true,
                 'message' => trans('no_permission_message')
@@ -341,7 +342,7 @@ class LessonController extends Controller
             $request->all(),
             [
                 'edit_id' => 'required|numeric',
-                'name' => ['required',new uniqueLessonInClass($request->class_section_id,$request->subject_id,$request->edit_id)],
+                'name' => ['required', new uniqueLessonInClass($request->class_section_id, $request->subject_id, $request->edit_id)],
                 'description' => 'required',
                 'class_section_id' => 'required|numeric',
                 'subject_id' => 'required|numeric',
@@ -365,7 +366,7 @@ class LessonController extends Controller
                 'file.*.link' => 'nullable|required_if:file.*.type,youtube_link,other_link',
 
                 //Regex for Youtube Link
-                'file.*.link' => ['nullable|required_if:file.*.type,youtube_link',new YouTubeUrl],
+                'file.*.link' => ['nullable|required_if:file.*.type,youtube_link', new YouTubeUrl],
                 //Regex for Other Link
                 // 'file.*.link'=>'required_if:file.*.type,other_link|url'
             ],
@@ -398,7 +399,7 @@ class LessonController extends Controller
 
                     if ($file['type'] == "file_upload") {
                         $lesson_file->type = 1;
-                        if (!empty($file['file'])) {
+                        if (! empty($file['file'])) {
                             if (Storage::disk('public')->exists($lesson_file->getRawOriginal('file_url'))) {
                                 Storage::disk('public')->delete($lesson_file->getRawOriginal('file_url'));
                             }
@@ -406,7 +407,7 @@ class LessonController extends Controller
                         }
                     } elseif ($file['type'] == "youtube_link") {
                         $lesson_file->type = 2;
-                        if (!empty($file['thumbnail'])) {
+                        if (! empty($file['thumbnail'])) {
                             if (Storage::disk('public')->exists($lesson_file->getRawOriginal('file_thumbnail'))) {
                                 Storage::disk('public')->delete($lesson_file->getRawOriginal('file_thumbnail'));
                             }
@@ -428,14 +429,14 @@ class LessonController extends Controller
                         $lesson_file->file_url = $file['link'];
                     } elseif ($file['type'] == "video_upload") {
                         $lesson_file->type = 3;
-                        if (!empty($file['file'])) {
+                        if (! empty($file['file'])) {
                             if (Storage::disk('public')->exists($lesson_file->getRawOriginal('file_url'))) {
                                 Storage::disk('public')->delete($lesson_file->getRawOriginal('file_url'));
                             }
                             $lesson_file->file_url = $file['file']->store('lessons', 'public');
                         }
 
-                        if (!empty($file['thumbnail'])) {
+                        if (! empty($file['thumbnail'])) {
                             if (Storage::disk('public')->exists($lesson_file->getRawOriginal('file_thumbnail'))) {
                                 Storage::disk('public')->delete($lesson_file->getRawOriginal('file_thumbnail'));
                             }
@@ -455,7 +456,7 @@ class LessonController extends Controller
                         }
                     } elseif ($file['type'] == "other_link") {
                         $lesson_file->type = 4;
-                        if (!empty($file['thumbnail'])) {
+                        if (! empty($file['thumbnail'])) {
                             if (Storage::disk('public')->exists($lesson_file->getRawOriginal('file_thumbnail'))) {
                                 Storage::disk('public')->delete($lesson_file->getRawOriginal('file_thumbnail'));
                             }
@@ -560,7 +561,7 @@ class LessonController extends Controller
 
     public function destroy($id)
     {
-        if (!Auth::user()->can('lesson-delete')) {
+        if (! Auth::user()->can('lesson-delete')) {
             $response = array(
                 'error' => true,
                 'message' => trans('no_permission_message')
@@ -569,13 +570,13 @@ class LessonController extends Controller
         }
         try {
 
-            $lesson_topics = LessonTopic::where('lesson_id',$id)->count();
-            if($lesson_topics){
+            $lesson_topics = LessonTopic::where('lesson_id', $id)->count();
+            if ($lesson_topics) {
                 $response = array(
                     'error' => true,
                     'message' => trans('cannot_delete_beacuse_data_is_associated_with_other_data')
                 );
-            }else{
+            } else {
 
                 $lesson = Lesson::find($id);
                 if ($lesson->file) {
@@ -593,7 +594,7 @@ class LessonController extends Controller
                     'message' => trans('data_delete_successfully')
                 );
             }
-            } catch (Throwable $e) {
+        } catch (Throwable $e) {
             $response = array(
                 'error' => true,
                 'message' => trans('error_occurred')
