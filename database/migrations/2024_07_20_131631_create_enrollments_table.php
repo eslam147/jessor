@@ -19,7 +19,6 @@ return new class extends Migration
             $table->foreignId('lesson_id')->constrained('lessons');
             $table->foreignId('user_id')->constrained('users');
             $table->timestamp('expires_at')->nullable();
-
             $table->timestamps();
         });
     }
