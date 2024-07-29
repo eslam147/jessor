@@ -6,10 +6,11 @@ use App\Models\Coupon;
 use App\Models\Lesson;
 use App\Models\Mediums;
 use App\Models\Teacher;
+use App\Models\ClassSection;
+use App\Models\ClassSubject;
 use Illuminate\Http\Request;
 use App\Services\Coupon\CouponService;
 use App\Http\Requests\Dashboard\Coupon\CouponRequest;
-use App\Models\ClassSubject;
 
 class CouponController extends Controller
 {
@@ -117,7 +118,9 @@ class CouponController extends Controller
         });
 
         $teachers = Teacher::with('user', 'subjects')->get();
-        $lessons = Lesson::select('name', 'teacher_id', 'class_section_id', 'id')->get();
+        $lessons = Lesson::select('name', 'teacher_id', 'class_section_id', 'id')->addSelect([
+            'class_id' => ClassSection::select('class_id')->whereColumn('id', 'lessons.class_section_id'),
+        ])->get();
         return view('coupons.create', compact('teachers', 'lessons', 'mediums', 'subjects'));
     }
 

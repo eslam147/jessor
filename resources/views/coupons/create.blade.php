@@ -162,12 +162,11 @@
             if (teacherLessons && teacherLessons.length > 0) {
                 for (let i = 0; i < teacherLessons.length; i++) {
                     let item = teacherLessons[i];
-                    if (item.class_section_id == Number(classSectionId)) {
+                    if (item.class_id == Number(classSectionId)) {
                         $('#lesson_id').append(`<option value="${item.id}">${item.user.name}</option>`);
                     }
                 }
             }
-            $this.trigger('change');
         }
         function setClasses(mediumId) {
             const $this = $('#class_m_id');
