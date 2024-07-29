@@ -2,13 +2,8 @@
 
 namespace App\Http\Controllers\student;
 
-use App\Models\File;
 use App\Models\Lesson;
 use App\Models\LessonTopic;
-use Illuminate\Http\Request;
-use App\Models\Settings;
-use App\Models\Students;
-use App\Models\SubjectTeacher;
 use App\Http\Controllers\Controller;
 use App\Models\Enrollment;
 use Illuminate\Support\Facades\Auth;
@@ -23,7 +18,8 @@ class TopicsController extends Controller
 
     public function show($id)
     {
-        $lesson = Lesson::findOrFail($id);
+        $lesson = Lesson::with('lesson')->findOrFail($id);
+
         abort_unless(
             Enrollment::where('user_id', Auth::user()->id)->where('lesson_id', $id)->exists(),
             Response::HTTP_UNAUTHORIZED
@@ -38,11 +34,8 @@ class TopicsController extends Controller
 
     public function topic_files($topic_id)
     {
-        // $videos = File::where('modal_type', Lesson::class)->where('modal_id', $topic_id)->get();
-        $topic_videos = File::where('modal_type', LessonTopic::class)->get();
-        $videos = File::where('modal_type', LessonTopic::class)->where('modal_id', $topic_id)->get();
-        // dd($videos, $topic_videos);
-        return view('student_dashboard.files.index', compact('videos', 'topic_videos'));
+        $topic = LessonTopic::with('file')->findOrFail($topic_id);
+        return view('student_dashboard.files.index', compact('topic'));
     }
 
 

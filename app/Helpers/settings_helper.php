@@ -6,8 +6,38 @@ use App\Models\Settings;
 use Intervention\Image\Facades\Image;
 
 
-if(! function_exists('settingByType')) {
-    function settingByType($type){
+if (! function_exists('getYouTubeVideoId')) {
+    function getYouTubeVideoId($url)
+    {
+        // Parse the URL to get its components
+        $urlComponents = parse_url($url);
+        // Check if the host is YouTube
+        if (
+            isset($urlComponents['host']) &&
+            (strpos($urlComponents['host'], 'youtube.com') !== false ||
+                strpos($urlComponents['host'], 'youtu.be') !== false)
+        ) {
+            // Check if the URL contains a 'v' query parameter (standard YouTube URL)
+            if (isset($urlComponents['query'])) {
+                parse_str($urlComponents['query'], $queryParams);
+                if (isset($queryParams['v'])) {
+                    return $queryParams['v'];
+                }
+            }
+
+            // Check if the URL is a shortened YouTube URL (youtu.be)
+            if (isset($urlComponents['path']) && strpos($urlComponents['host'], 'youtu.be') !== false) {
+                return ltrim($urlComponents['path'], '/');
+            }
+        }
+
+        // Return null if the URL is not a valid YouTube URL or does not contain a video ID
+        return null;
+    }
+}
+if (! function_exists('settingByType')) {
+    function settingByType($type)
+    {
         return Settings::where('type', $type)->value("message");
     }
 }
