@@ -39,6 +39,7 @@ class LessonController extends Controller
         }
 
         $teacher = Auth::user()->load('teacher')->teacher;
+
         $class_section = ClassSection::SubjectTeacher()->with('class.medium', 'section', 'class.streams')->get();
         $subjects = Subject::SubjectTeacher()->orderBy('id', 'ASC')->get();
         $lessons = Lesson::where('teacher_id', $teacher->id)->withCount('enrollments')->with('file')->get();
@@ -46,12 +47,7 @@ class LessonController extends Controller
         return response(view('lessons.index', compact('class_section', 'subjects', 'lessons')));
     }
 
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param \Illuminate\Http\Request $request
-     * @return \Illuminate\Http\Response
-     */
+
     public function store(Request $request)
     {
         if (! Auth::user()->can('lesson-create')) {
