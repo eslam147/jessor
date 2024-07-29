@@ -118,7 +118,7 @@ class CouponController extends Controller
         });
 
         $teachers = Teacher::with('user', 'subjects')->get();
-        $lessons = Lesson::select('name', 'teacher_id', 'class_section_id', 'id')->addSelect([
+        $lessons = Lesson::select('name', 'teacher_id','subject_id', 'class_section_id', 'id')->addSelect([
             'class_id' => ClassSection::select('class_id')->whereColumn('id', 'lessons.class_section_id'),
         ])->get();
         return view('coupons.create', compact('teachers', 'lessons', 'mediums', 'subjects'));
