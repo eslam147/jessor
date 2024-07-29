@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\WebController;
 use App\Http\Controllers\WebhookController;
+use App\Http\Controllers\student\SignupController;
 
 /*
 |--------------------------------------------------------------------------
@@ -27,6 +28,7 @@ Route::controller(WebController::class)->group(function () {
     Route::post('contact-us/store', 'contact_us_store')->name('contact_us.store');
 });
 Route::view('login', 'auth.login')->name('login');
+Route::resource('signup', SignupController::class);
 
 
 // webhooks
