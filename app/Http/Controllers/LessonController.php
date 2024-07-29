@@ -57,9 +57,10 @@ class LessonController extends Controller
             ];
             return response()->json($response);
         }
+        $teacher = auth()->user()->load('teacher')->teacher;
 
         $validator = Validator::make($request->all(), [
-            'name' => ['required', new uniqueLessonInClass($request->class_section_id, $request->subject_id)],
+            'name' => ['required', new uniqueLessonInClass($request->class_section_id, $teacher->id, $request->subject_id)],
             'description' => 'required',
             'class_section_id' => 'required|numeric',
             'subject_id' => 'required|numeric',
@@ -88,7 +89,6 @@ class LessonController extends Controller
             ]);
         }
         try {
-            $teacher = auth()->user()->load('teacher')->teacher;
 
             $lesson = Lesson::create([
                 'name' => $request->name,
@@ -239,7 +239,7 @@ class LessonController extends Controller
             $order = $_GET['order'];
         $teacher = auth()->user()->load('teacher')->teacher;
 
-        $sql = Lesson::lessonteachers()->where('teacher_id',$teacher->id)->with('subject', 'class_section', 'topic');
+        $sql = Lesson::lessonteachers()->where('teacher_id', $teacher->id)->with('subject', 'class_section', 'topic');
         if (isset($_GET['search']) && ! empty($_GET['search'])) {
             $search = $_GET['search'];
             $sql->where(function ($query) use ($search) {
@@ -323,18 +323,22 @@ class LessonController extends Controller
 
     public function update(Request $request, $id)
     {
-        if (! Auth::user()->can('lesson-edit')) {
+        $lesson = Lesson::find($request->edit_id);
+        $teacher = auth()->user()->load('teacher')->teacher;
+
+        if (! Auth::user()->can('lesson-edit') || $lesson->teacher_id != $teacher->id) {
             $response = array(
                 'error' => true,
                 'message' => trans('no_permission_message')
             );
             return response()->json($response);
         }
+
         $validator = Validator::make(
             $request->all(),
             [
                 'edit_id' => 'required|numeric',
-                'name' => ['required', new uniqueLessonInClass($request->class_section_id, $request->subject_id, $request->edit_id)],
+                'name' => ['required', new uniqueLessonInClass($request->class_section_id, $teacher->id, $request->subject_id, $request->edit_id)],
                 'description' => 'required',
                 'class_section_id' => 'required|numeric',
                 'subject_id' => 'required|numeric',
@@ -374,7 +378,6 @@ class LessonController extends Controller
             return response()->json($response);
         }
         try {
-            $lesson = Lesson::find($request->edit_id);
             $lesson->name = $request->name;
             $lesson->description = $request->description;
             $lesson->class_section_id = $request->class_section_id;
