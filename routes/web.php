@@ -1,11 +1,12 @@
 <?php
 
+use App\Http\Controllers\student\SignupController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\WebController;
 use App\Http\Controllers\WebhookController;
-use App\Http\Controllers\student\SignupController;
-
+use Stancl\Tenancy\Middleware\InitializeTenancyByDomain;
+use Stancl\Tenancy\Middleware\PreventAccessFromCentralDomains;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -16,32 +17,37 @@ use App\Http\Controllers\student\SignupController;
 | contains the "web" middleware group. Now create something great!
 |
 */
-Auth::routes();
-Route::controller(WebController::class)->group(function () {
-    Route::get('/', 'index');
-    Route::get('about', 'about')->name('about.us');
-    Route::get('contact', 'contact_us')->name('contact.us');
-    Route::get('photo', 'photo')->name('photo');
-    Route::get('photo-gallery/{id}', 'photo_details')->name('photo.gallery');
-    Route::get('video', 'video')->name('video');
-    Route::get('video-gallery', 'video_details')->name('video.gallery');
-    Route::post('contact-us/store', 'contact_us_store')->name('contact_us.store');
-});
-Route::view('login', 'auth.login')->name('login');
-Route::resource('signup', SignupController::class);
+Route::middleware([
+    'web',
+    InitializeTenancyByDomain::class,
+    PreventAccessFromCentralDomains::class,
+])->group(function () {
+        Auth::routes();
+        Route::controller(WebController::class)->group(function () {
+            //Route::get('/', 'index');
+            Route::get('about', 'about')->name('about.us');
+            Route::get('contact', 'contact_us')->name('contact.us');
+            Route::get('photo', 'photo')->name('photo');
+            Route::get('photo-gallery/{id}', 'photo_details')->name('photo.gallery');
+            Route::get('video', 'video')->name('video');
+            Route::get('video-gallery', 'video_details')->name('video.gallery');
+            Route::post('contact-us/store', 'contact_us_store')->name('contact_us.store');
+        });
+        Route::view('login', 'auth.login')->name('login');
+        Route::resource('signup', SignupController::class);
 
+        // webhooks
+        Route::post('webhook/razorpay', [WebhookController::class, 'razorpay']);
+        Route::post('webhook/stripe', [WebhookController::class, 'stripe']);
+        Route::post('webhook/paystack', [WebhookController::class, 'paystack']);
 
-// webhooks
-Route::post('webhook/razorpay', [WebhookController::class, 'razorpay']);
-Route::post('webhook/stripe', [WebhookController::class, 'stripe']);
-Route::post('webhook/paystack', [WebhookController::class, 'paystack']);
+        Route::get('/privacy-policy', function () {
+            $settings = getSettings('privacy_policy');
+            return $settings['privacy_policy'] ?? '';
+        });
 
-Route::get('/privacy-policy', function () {
-    $settings = getSettings('privacy_policy');
-    return $settings['privacy_policy'] ?? '';
-});
-
-Route::get('/terms-conditions', function () {
-    $settings = getSettings('terms_condition');
-    return $settings['terms_condition'] ?? '';
+        Route::get('/terms-conditions', function () {
+            $settings = getSettings('terms_condition');
+            return $settings['terms_condition'] ?? '';
+        });
 });
