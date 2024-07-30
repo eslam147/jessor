@@ -16,9 +16,9 @@
                 <div class="col-md-4 stretch-card grid-margin">
                     <div class="card bg-gradient-danger card-img-holder text-white">
                         <div class="card-body">
-                            <img src="{{ asset(config('global.CIRCLE_SVG')) }}" class="card-img-absolute"
+                            <img src="{{ url(config('global.CIRCLE_SVG')) }}" class="card-img-absolute"
                                 alt="circle-image" />
-                            <h4 class="font-weight-normal mb-3">{{ __('total_teachers') }}<i
+                            <h4 class="font-weight-normal mb-3">{{ __('total_teachers') }} <i
                                     class="mdi mdi-chart-line mdi-24px float-right"></i>
                             </h4>
                             <h2 class="mb-5">{{ $teacher }}</h2>
@@ -32,7 +32,7 @@
                 <div class="col-md-4 stretch-card grid-margin">
                     <div class="card bg-gradient-info card-img-holder text-white">
                         <div class="card-body">
-                            <img src="{{ asset(config('global.CIRCLE_SVG')) }}" class="card-img-absolute"
+                            <img src="{{ url(config('global.CIRCLE_SVG')) }}" class="card-img-absolute"
                                 alt="circle-image" />
                             <h4 class="font-weight-normal mb-3">{{ __('total_students') }}<i
                                     class="mdi mdi-bookmark-outline mdi-24px float-right"></i>
@@ -46,7 +46,7 @@
                 <div class="col-md-4 stretch-card grid-margin">
                     <div class="card bg-gradient-success card-img-holder text-white">
                         <div class="card-body">
-                            <img src="{{ asset(config('global.CIRCLE_SVG')) }}" class="card-img-absolute"
+                            <img src="{{ url(config('global.CIRCLE_SVG')) }}" class="card-img-absolute"
                                 alt="circle-image" />
                             <h4 class="font-weight-normal mb-3">{{ __('total_parents') }}<i
                                     class="mdi mdi-diamond mdi-24px float-right"></i>
@@ -177,7 +177,7 @@
                                         <div class="col-md-2 stretch-card grid-margin">
                                             <div class="card {{ $currentColor }} card-img-holder text-white">
                                                 <div class="card-body">
-                                                    <img src="{{ asset(config('global.CIRCLE_SVG')) }}"
+                                                    <img src="{{ url(config('global.CIRCLE_SVG')) }}"
                                                         class="card-img-absolute" alt="circle-image" />
                                                     <h6 class="mb-2">
                                                         <h4>{{ $class_section->class->name }}-{{ $class_section->section->name }}
