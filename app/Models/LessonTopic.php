@@ -35,6 +35,17 @@ class LessonTopic extends Model
     public function lesson() {
         return $this->belongsTo(Lesson::class);
     }
+    public function scopeRelatedToTeacher($query){
+        $user = Auth::user();
+        if ($user->hasRole('Teacher')) {
+            $teacher_id = $user->load('teacher')->teacher->id;
+            return $query->whereHas('lesson', function ($q) use ($teacher_id) {
+                return $q->where('teacher_id', $teacher_id);
+            });
+            
+        }
+        return $query;
+    }
 
     public function scopeLessonTopicTeachers($query) {
         $user = Auth::user();

@@ -4,47 +4,14 @@
     <style>
         .plyr__video-wrapper {
             width: 100%;
-            /* Adjust width as needed */
             height: 500px;
-            /* Adjust height as needed */
         }
-    </style>
-@endsection
-@section('content')
-    @php
-        function getYouTubeVideoId($url)
-        {
-            // Parse the URL to get its components
-            $urlComponents = parse_url($url);
-            // Check if the host is YouTube
-            if (
-                isset($urlComponents['host']) &&
-                (strpos($urlComponents['host'], 'youtube.com') !== false ||
-                    strpos($urlComponents['host'], 'youtu.be') !== false)
-            ) {
-                // Check if the URL contains a 'v' query parameter (standard YouTube URL)
-                if (isset($urlComponents['query'])) {
-                    parse_str($urlComponents['query'], $queryParams);
-                    if (isset($queryParams['v'])) {
-                        return $queryParams['v'];
-                    }
-                }
-
-                // Check if the URL is a shortened YouTube URL (youtu.be)
-                if (isset($urlComponents['path']) && strpos($urlComponents['host'], 'youtu.be') !== false) {
-                    return ltrim($urlComponents['path'], '/');
-                }
-            }
-
-            // Return null if the URL is not a valid YouTube URL or does not contain a video ID
-            return null;
-        }
-    @endphp
-    <style>
         .vtabs .tab-content iframe {
             height: 400px;
         }
     </style>
+@endsection
+@section('content')
     <div class="content-wrapper">
         <div class="container-full">
             <!-- Main content -->
@@ -75,7 +42,7 @@
                                                 <!-- Tab panes -->
                                                 <div class="tab-content">
                                                     <div class="tab-pane active" id="home4" role="tabpanel">
-                                                        @foreach ($videos as $row)
+                                                        @foreach ($topic->file as $row)
                                                             <div class="row"style="width: -webkit-fill-available;">
                                                                 <div class="col-12"style="width: -webkit-fill-available;">
                                                                     @if ($row->isYoutubeVideo())

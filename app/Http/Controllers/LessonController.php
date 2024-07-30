@@ -38,56 +38,47 @@ class LessonController extends Controller
             return redirect(route('home'))->withErrors($response);
         }
 
-        $teacher = Auth::user()->load('teacher')->teacher;
         $class_section = ClassSection::SubjectTeacher()->with('class.medium', 'section', 'class.streams')->get();
-        $subjects = Subject::SubjectTeacher()->orderBy('id', 'ASC')->get();
-        $lessons = Lesson::where('teacher_id', $teacher->id)->withCount('enrollments')->with('file')->get();
+        $subjects = Subject::SubjectTeacher()->orderBy('id')->get();
+        $lessons = Lesson::relatedToTeacher()->withCount('enrollments')->with('file')->get();
 
         return response(view('lessons.index', compact('class_section', 'subjects', 'lessons')));
     }
 
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param \Illuminate\Http\Request $request
-     * @return \Illuminate\Http\Response
-     */
+
     public function store(Request $request)
     {
         if (! Auth::user()->can('lesson-create')) {
-            $response = array(
+            $response = [
                 'error' => true,
                 'message' => trans('no_permission_message')
-            );
+            ];
             return response()->json($response);
         }
+        $teacher = auth()->user()->load('teacher')->teacher;
 
-        $validator = Validator::make(
-            $request->all(),
-            [
-                'name' => ['required', new uniqueLessonInClass($request->class_section_id, $request->subject_id)],
-                'description' => 'required',
-                'class_section_id' => 'required|numeric',
-                'subject_id' => 'required|numeric',
-                'status' => ['required', Rule::in(LessonStatus::values())],
-                'payment_status' => 'required|in:0,1',
+        $validator = Validator::make($request->all(), [
+            'name' => ['required', new uniqueLessonInClass($request->class_section_id, $request->subject_id)],
+            'description' => 'required',
+            'class_section_id' => 'required|numeric',
+            'subject_id' => 'required|numeric',
+            'status' => ['required', Rule::in(LessonStatus::values())],
+            'payment_status' => 'required|in:0,1',
 
-                'file' => 'nullable|array',
-                'file.*.type' => ['nullable', Rule::in(['file_upload', 'youtube_link', 'video_upload', 'video_corner_link', 'video_corner_download_link', 'other_link'])],
-                'file.*.name' => 'required_with:file.*.type',
-                'file.*.thumbnail' => 'required_if:file.*.type,youtube_link,video_upload,other_link',
-                'file.*.file' => 'required_if:file.*.type,file_upload,video_upload',
-                // 'file.*.link' => 'required_if:file.*.type,youtube_link,other_link',
-                //Regex for Youtube Link
-                'file.*.link' => ['required_if:file.*.type,youtube_link', new YouTubeUrl, 'nullable'],
-                'file.*.video_corner_url' => ['required_if:file.*.type,video_corner_url', 'nullable'],
-                //Regex for Other Link
-                // 'file.*.link'=>'required_if:file.*.type,other_link|url'
-            ],
-            [
-                'name.unique' => trans('lesson_alredy_exists')
-            ]
-        );
+            'file' => 'nullable|array',
+            'file.*.type' => ['nullable', Rule::in(['file_upload', 'youtube_link', 'video_upload', 'video_corner_link', 'video_corner_download_link', 'other_link'])],
+            'file.*.name' => 'required_with:file.*.type',
+            'file.*.thumbnail' => 'required_if:file.*.type,youtube_link,video_corner_link,video_corner_download_link,video_upload,other_link|max:2048',
+            'file.*.file' => 'required_if:file.*.type,file_upload,video_upload',
+            // 'file.*.link' => 'required_if:file.*.type,youtube_link,other_link',
+            //Regex for Youtube Link
+            'file.*.link' => ['required_if:file.*.type,youtube_link', new YouTubeUrl, 'nullable'],
+            'file.*.video_corner_url' => ['required_if:file.*.type,video_corner_url', 'nullable'],
+            //Regex for Other Link
+            // 'file.*.link'=>'required_if:file.*.type,other_link|url'
+        ], [
+            'name.unique' => trans('lesson_alredy_exists')
+        ]);
 
         if ($validator->fails()) {
             return response()->json([
@@ -96,7 +87,6 @@ class LessonController extends Controller
             ]);
         }
         try {
-            $teacher = auth()->user()->load('teacher')->teacher;
 
             $lesson = Lesson::create([
                 'name' => $request->name,
@@ -245,9 +235,8 @@ class LessonController extends Controller
             $sort = $_GET['sort'];
         if (isset($_GET['order']))
             $order = $_GET['order'];
-        $teacher = auth()->user()->load('teacher')->teacher;
 
-        $sql = Lesson::lessonteachers()->with('subject', 'class_section', 'topic');
+        $sql = Lesson::lessonteachers()->relatedToTeacher()->with('subject', 'class_section', 'topic');
         if (isset($_GET['search']) && ! empty($_GET['search'])) {
             $search = $_GET['search'];
             $sql->where(function ($query) use ($search) {
@@ -331,13 +320,17 @@ class LessonController extends Controller
 
     public function update(Request $request, $id)
     {
-        if (! Auth::user()->can('lesson-edit')) {
+        $lesson = Lesson::find($request->edit_id);
+        $teacher = auth()->user()->load('teacher')->teacher;
+
+        if (! Auth::user()->can('lesson-edit') || $lesson->teacher_id != $teacher->id) {
             $response = array(
                 'error' => true,
                 'message' => trans('no_permission_message')
             );
             return response()->json($response);
         }
+
         $validator = Validator::make(
             $request->all(),
             [
@@ -353,7 +346,7 @@ class LessonController extends Controller
                 'edit_file' => 'nullable|array',
                 'edit_file.*.type' => 'nullable|in:file_upload,youtube_link,video_upload,other_link',
                 'edit_file.*.name' => 'nullable|required_with:edit_file.*.type',
-                'edit_file.*.link' => 'nullable|required_if:edit_file.*.type,youtube_link,other_link',
+                // 'edit_file.*.link' => 'nullable|required_if:edit_file.*.type,youtube_link,other_link',
 
                 // for Youtube Link
                 'edit_file.*.link' => ['nullable|required_if:edit_file.*.type,youtube_link', new YouTubeUrl, 'nullable'],
@@ -361,9 +354,9 @@ class LessonController extends Controller
                 'file' => 'nullable|array',
                 'file.*.type' => 'nullable|in:file_upload,youtube_link,video_upload,other_link',
                 'file.*.name' => 'nullable|required_with:file.*.type',
-                'file.*.thumbnail' => 'nullable|required_if:file.*.type,youtube_link,video_upload,other_link',
+                'file.*.thumbnail' => 'required_if:file.*.type,youtube_link,video_upload,other_link|max:2048',
                 'file.*.file' => 'nullable|required_if:file.*.type,file_upload,video_upload',
-                'file.*.link' => 'nullable|required_if:file.*.type,youtube_link,other_link',
+                // 'file.*.link' => 'nullable|required_if:file.*.type,youtube_link,other_link',
 
                 //Regex for Youtube Link
                 'file.*.link' => ['nullable|required_if:file.*.type,youtube_link', new YouTubeUrl],
@@ -382,7 +375,6 @@ class LessonController extends Controller
             return response()->json($response);
         }
         try {
-            $lesson = Lesson::find($request->edit_id);
             $lesson->name = $request->name;
             $lesson->description = $request->description;
             $lesson->class_section_id = $request->class_section_id;
@@ -454,6 +446,41 @@ class LessonController extends Controller
 
                             $lesson_file->file_thumbnail = $file_path;
                         }
+                    } elseif ($file['type'] == "video_corner_link") {
+                        $lesson_file->type = 5;
+
+                        $image = $file['thumbnail'];
+                        // made file name with combination of current time
+                        $file_name = time() . '-' . $image->getClientOriginalName();
+                        //made file path to store in database
+                        $file_path = 'lessons/' . $file_name;
+                        //resized image
+                        resizeImage($image);
+                        //stored image to storage/public/lessons folder
+                        $destinationPath = storage_path('app/public/lessons');
+                        $image->move($destinationPath, $file_name);
+
+                        $lesson_file->file_thumbnail = $file_path;
+                        $lesson_file->file_url = $file['video_corner_url'];
+
+                    } elseif ($file['type'] == "video_corner_download_link") {
+                        $lesson_file->type = 6;
+
+                        $image = $file['thumbnail'];
+                        // made file name with combination of current time
+                        $file_name = time() . '-' . $image->getClientOriginalName();
+                        //made file path to store in database
+                        $file_path = 'lessons/' . $file_name;
+                        //resized image
+                        resizeImage($image);
+                        //stored image to storage/public/lessons folder
+                        $destinationPath = storage_path('app/public/lessons');
+                        $image->move($destinationPath, $file_name);
+
+                        $lesson_file->file_thumbnail = $file_path;
+                        $lesson_file->file_url = $file['video_corner_url'];
+                        $lesson_file->video_download_link = $file['video_corner_download_link'];
+
                     } elseif ($file['type'] == "other_link") {
                         $lesson_file->type = 4;
                         if (! empty($file['thumbnail'])) {
@@ -561,6 +588,8 @@ class LessonController extends Controller
 
     public function destroy($id)
     {
+        $lesson = Lesson::relatedToTeacher()->find($id);
+
         if (! Auth::user()->can('lesson-delete')) {
             $response = array(
                 'error' => true,
@@ -570,15 +599,15 @@ class LessonController extends Controller
         }
         try {
 
-            $lesson_topics = LessonTopic::where('lesson_id', $id)->count();
+            $lesson_topics = LessonTopic::where('lesson_id', $id)->relatedToTeacher()->count();
             if ($lesson_topics) {
-                $response = array(
+                $response = [
                     'error' => true,
                     'message' => trans('cannot_delete_beacuse_data_is_associated_with_other_data')
-                );
+                ];
             } else {
 
-                $lesson = Lesson::find($id);
+                $lesson = Lesson::relatedToTeacher()->findOrFail($id);
                 if ($lesson->file) {
                     foreach ($lesson->file as $file) {
                         if (Storage::disk('public')->exists($file->file_url)) {
@@ -589,16 +618,17 @@ class LessonController extends Controller
                 $lesson->file()->delete();
                 $lesson->delete();
 
-                $response = array(
+                $response = [
                     'error' => false,
                     'message' => trans('data_delete_successfully')
-                );
+
+                ];
             }
         } catch (Throwable $e) {
-            $response = array(
+            $response = [
                 'error' => true,
                 'message' => trans('error_occurred')
-            );
+            ];
         }
         return response()->json($response);
     }
@@ -614,7 +644,7 @@ class LessonController extends Controller
         if (isset($request->class_section_id)) {
             $lesson = $lesson->where('class_section_id', $request->class_section_id);
         }
-        $lesson = $lesson->get();
+        $lesson = $lesson->relatedToTeacher()->get();
         $response = array(
             'error' => false,
             'data' => $lesson,

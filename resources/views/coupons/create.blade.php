@@ -128,7 +128,8 @@
                     );
                 }
             }
-            setLessons()
+            $('#teacher_id').trigger('change');
+            // setLessons(teacherID, classSectionId)
         }
 
         function setSubjects(classId) {
@@ -153,7 +154,7 @@
 
         }
 
-        function setLessons(teacherID, classSectionId) {
+        function setLessons(teacherID, classId,subjectId) {
             const $this = $('#lesson_id');
             $this.removeAttr('readonly');
             $this.empty();
@@ -161,12 +162,11 @@
             if (teacherLessons && teacherLessons.length > 0) {
                 for (let i = 0; i < teacherLessons.length; i++) {
                     let item = teacherLessons[i];
-                    if (itemsclass_section_id == Number(classSectionId)) {
-                        $('#lesson_id').append(`<option value="${item.id}">${item.user.name}</option>`);
+                    if (item.class_id == Number(classId) && item.subject_id == Number(subjectId)) {
+                        $('#lesson_id').append(`<option value="${item.id}">${item.name}</option>`);
                     }
                 }
             }
-            $this.trigger('change');
         }
         function setClasses(mediumId) {
             const $this = $('#class_m_id');
@@ -189,7 +189,7 @@
             setClasses(medium);
         }
         $('#teacher_id').change(function() {
-            setLessons($(this).val());
+            setLessons($(this).val(), $('#class_m_id').val(),$('#subject_id').val());
         });
         if ($('#teacher_id').val()) {
             setLessons($('#teacher_id').val());

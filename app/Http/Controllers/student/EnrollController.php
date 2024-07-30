@@ -25,7 +25,7 @@ class EnrollController extends Controller
     }
 
     public function store(Request $request)
-    { 
+    {
         $validator = Validator::make($request->all(), [
             'purchase_code' => 'required|string',
             'lesson_id' => 'required|exists:lessons,id'
@@ -76,10 +76,9 @@ class EnrollController extends Controller
                 'used_by_user_type' => User::class,
             ]);
 
-
+            // ----------------------------------------------- #
             Alert::success('Success', 'Lesson has been unlocked successfully.');
             return redirect()->back();
-
         }
     }
 

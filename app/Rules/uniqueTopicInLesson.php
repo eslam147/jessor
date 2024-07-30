@@ -8,11 +8,9 @@ use Illuminate\Contracts\Validation\Rule;
 
 class uniqueTopicInLesson implements Rule
 {
-    /**
-     * Create a new rule instance.
-     *
-     * @return void
-     */
+
+    public $lesson_id;
+    public $topic_id;
 
     public function __construct($lesson_id, $topic_id = NULL)
     {
@@ -28,15 +26,15 @@ class uniqueTopicInLesson implements Rule
      */
     public function passes($attribute, $value)
     {
-        if ($this->topic_id == NULL) {
-            $count = LessonTopic::where('name', $value)->where('lesson_id', $this->lesson_id)->count();
+        if (! empty($this->topic_id)) {
+            $count = LessonTopic::where('name', $value)->relatedToTeacher()->where('lesson_id', $this->lesson_id)->count();
             if ($count == 0) {
                 return true;
             } else {
                 return false;
             }
         } else {
-            $count = LessonTopic::where('name', $value)->where('lesson_id', $this->lesson_id)->whereNot('id',$this->topic_id)->count();
+            $count = LessonTopic::where('name', $value)->relatedToTeacher()->where('lesson_id', $this->lesson_id)->whereNot('id', $this->topic_id)->count();
             if ($count == 0) {
                 return true;
             } else {

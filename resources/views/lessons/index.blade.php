@@ -113,7 +113,6 @@
                                             <option value="video_corner_link">{{ __('video_corner_link') }}</option>
                                             <option value="video_corner_download_link">
                                                 {{ __('video_corner_download_link') }}</option>
-                                            {{-- <option value="other_link">{{ __('other_link') }}</option> --}}
                                         </select>
                                     </div>
                                     <div class="form-group col-md-3" id="file_name_div" style="display: none">
@@ -217,7 +216,7 @@
                             data-mobile-responsive="true" data-sort-name="id" data-sort-order="desc"
                             data-maintain-selected="true" data-export-types='["txt","excel"]'
                             data-query-params="CreateLessionQueryParams"
-                            data-export-options='{ "fileName": "lesson-list-<?= date('d-m-y') ?>" ,"ignoreColumn":
+                            data-export-options='{ "fileName": "lesson-list-{{ date('d-m-y') }}" ,"ignoreColumn":
                             ["operate"]}'
                             data-show-export="true">
                             <thead>
@@ -240,10 +239,11 @@
                                         {{ __('payment_status') }}</th>
                                     <th scope="col" data-field="status_name" data-sortable="false">
                                         {{ __('status') }}</th>
-                                    <th scope="col" data-field="created_at" data-sortable="true" {{--  data-visible="false"> {{ __('created_at') }}</th>
+                                    <th scope="col" data-field="created_at" data-sortable="true"
+                                        data-visible="false"> {{ __('created_at') }}</th>
                                     <th scope="col" data-field="updated_at" data-sortable="true"
-                                        data-visible="false"> {{ __('updated_at') }}</th>  --}}
-                                        <th scope="col" data-field="operate" data-sortable="false"
+                                        data-visible="false"> {{ __('updated_at') }}</th>
+                                    <th scope="col" data-field="operate" data-sortable="false"
                                         data-events="lessonEvents">{{ __('action') }}</th>
                                 </tr>
                             </thead>
@@ -363,6 +363,8 @@
                                             <option value="file_upload">{{ __('file_upload') }}</option>
                                             <option value="youtube_link">{{ __('youtube_link') }}</option>
                                             <option value="video_upload">{{ __('video_upload') }}</option>
+                                            <option value="video_corner_link">{{ __('video_corner_link') }}</option>
+                                            <option value="video_corner_download_link">{{ __('video_corner_download_link') }}</option>
                                             {{-- <option value="other_link">{{ __('other_link') }}</option> --}}
                                         </select>
                                     </div>
