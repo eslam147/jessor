@@ -14,7 +14,7 @@ class File extends Model
     const VIDEO_CORNER_TYPE = 5;
     const YOUTUBE_TYPE = 2;
     const DOWNLOAD_LINK_TYPE = 6;
-    protected $fillable = ['id', 'modal_type', 'modal_id', 'file_name', 'file_thumbnail', 'type', 'file_url'];
+    protected $guarded = [];
     protected $hidden = ["deleted_at", "created_at", "updated_at"];
     protected $appends = ['file_extension', 'type_detail'];
 
