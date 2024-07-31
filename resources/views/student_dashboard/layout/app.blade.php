@@ -11,25 +11,25 @@
     <title>  jessor  </title>
 
 	<!-- Vendors Style-->
-	<link rel="stylesheet" href="{{ asset('student/css/vendors_css.css') }}">
+	<link rel="stylesheet" href="{{ url('student/css/vendors_css.css') }}">
 
 	<!-- Style-->
-	<link rel="stylesheet" href="{{ asset('student/css/style.css') }}">
+	<link rel="stylesheet" href="{{ url('student/css/style.css') }}">
 	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
-    <link rel="stylesheet" href="{{ asset('student/assets/icons/Ionicons/css/ionicons.css') }}">
-    <link rel="stylesheet" href="{{ asset('student/assets/icons/themify-icons/themify-icons.css') }}">
-    <link rel="stylesheet" href="{{ asset('student/assets/icons/linea-icons/linea.css') }}">
-    <link rel="stylesheet" href="{{ asset('student/assets/icons/glyphicons/glyphicon.css') }}">
-    <link rel="stylesheet" href="{{ asset('student/assets/icons/flag-icon-css/css/flag-icon.css') }}">
-    <link rel="stylesheet" href="{{ asset('student/assets/icons/material-design-iconic-font/css/materialdesignicons.css') }}">
-    <link rel="stylesheet" href="{{ asset('student/assets/icons/simple-line-icons/css/simple-line-icons.css') }}">
-    <link rel="stylesheet" href="{{ asset('student/assets/icons/cryptocoins-master/cryptocoins.css') }}">
-    <link rel="stylesheet" href="{{ asset('student/assets/icons/weather-icons/css/weather-icons.min.css') }}">
-    <link rel="stylesheet" href="{{ asset('student/assets/icons/iconsmind/style.css') }}">
-    <link rel="stylesheet" href="{{ asset('student/assets/icons/icomoon/style.css') }}">
-    <link rel="stylesheet" href="{{ asset('student/assets/vendor_components/animate/animate.css') }}">
-    <link rel="stylesheet" href="{{ asset('student/css/skin_color.css') }}">
-    <link rel="icon" href="{{ asset('student/images/favicon.png') }}">
+    <link rel="stylesheet" href="{{ url('student/assets/icons/Ionicons/css/ionicons.css') }}">
+    <link rel="stylesheet" href="{{ url('student/assets/icons/themify-icons/themify-icons.css') }}">
+    <link rel="stylesheet" href="{{ url('student/assets/icons/linea-icons/linea.css') }}">
+    <link rel="stylesheet" href="{{ url('student/assets/icons/glyphicons/glyphicon.css') }}">
+    <link rel="stylesheet" href="{{ url('student/assets/icons/flag-icon-css/css/flag-icon.css') }}">
+    <link rel="stylesheet" href="{{ url('student/assets/icons/material-design-iconic-font/css/materialdesignicons.css') }}">
+    <link rel="stylesheet" href="{{ url('student/assets/icons/simple-line-icons/css/simple-line-icons.css') }}">
+    <link rel="stylesheet" href="{{ url('student/assets/icons/cryptocoins-master/cryptocoins.css') }}">
+    <link rel="stylesheet" href="{{ url('student/assets/icons/weather-icons/css/weather-icons.min.css') }}">
+    <link rel="stylesheet" href="{{ url('student/assets/icons/iconsmind/style.css') }}">
+    <link rel="stylesheet" href="{{ url('student/assets/icons/icomoon/style.css') }}">
+    <link rel="stylesheet" href="{{ url('student/assets/vendor_components/animate/animate.css') }}">
+    <link rel="stylesheet" href="{{ url('student/css/skin_color.css') }}">
+    <link rel="icon" href="{{ url('student/images/favicon.png') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/simple-line-icons/2.5.5/css/simple-line-icons.css">
 
      @yield('style')
@@ -73,7 +73,7 @@
           <div class="media-list media-list-hover mt-20">
 			<div class="media py-10 px-0">
 			  <a class="avatar avatar-lg status-success" href="#">
-				<img src="{{ asset('student/images/avatar/1.jpg')}}" alt="...">
+				<img src="{{ url('student/images/avatar/1.jpg')}}" alt="...">
 			  </a>
 			  <div class="media-body">
 				<p class="fs-16">
@@ -86,7 +86,7 @@
 
 			<div class="media py-10 px-0">
 			  <a class="avatar avatar-lg status-danger" href="#">
-				<img src="{{ asset('student/images/avatar/2.jpg')}}" alt="...">
+				<img src="{{ url('student/images/avatar/2.jpg')}}" alt="...">
 			  </a>
 			  <div class="media-body">
 				<p class="fs-16">
@@ -99,7 +99,7 @@
 
 			<div class="media py-10 px-0">
 			  <a class="avatar avatar-lg status-warning" href="#">
-				<img src="{{ asset('student/images/avatar/3.jpg')}}" alt="...">
+				<img src="{{ url('student/images/avatar/3.jpg')}}" alt="...">
 			  </a>
 			  <div class="media-body">
 				<p class="fs-16">
@@ -112,7 +112,7 @@
 
 			<div class="media py-10 px-0">
 			  <a class="avatar avatar-lg status-primary" href="#">
-				<img src="{{ asset('student/images/avatar/4.jpg')}}" alt="...">
+				<img src="{{ url('student/images/avatar/4.jpg')}}" alt="...">
 			  </a>
 			  <div class="media-body">
 				<p class="fs-16">
@@ -125,7 +125,7 @@
 
 			<div class="media py-10 px-0">
 			  <a class="avatar avatar-lg status-success" href="#">
-				<img src="{{ asset('student/images/avatar/1.jpg')}}" alt="...">
+				<img src="{{ url('student/images/avatar/1.jpg')}}" alt="...">
 			  </a>
 			  <div class="media-body">
 				<p class="fs-16">
@@ -138,7 +138,7 @@
 
 			<div class="media py-10 px-0">
 			  <a class="avatar avatar-lg status-danger" href="#">
-				<img src="{{ asset('student/images/avatar/2.jpg')}}" alt="...">
+				<img src="{{ url('student/images/avatar/2.jpg')}}" alt="...">
 			  </a>
 			  <div class="media-body">
 				<p class="fs-16">
@@ -151,7 +151,7 @@
 
 			<div class="media py-10 px-0">
 			  <a class="avatar avatar-lg status-warning" href="#">
-				<img src="{{ asset('student/images/avatar/3.jpg')}}" alt="...">
+				<img src="{{ url('student/images/avatar/3.jpg')}}" alt="...">
 			  </a>
 			  <div class="media-body">
 				<p class="fs-16">
@@ -164,7 +164,7 @@
 
 			<div class="media py-10 px-0">
 			  <a class="avatar avatar-lg status-primary" href="#">
-				<img src="{{ asset('student/images/avatar/4.jpg')}}" alt="...">
+				<img src="{{ url('student/images/avatar/4.jpg')}}" alt="...">
 			  </a>
 			  <div class="media-body">
 				<p class="fs-16">
@@ -377,7 +377,7 @@
                     <div class="chat-msg user">
                         <div class="d-flex align-items-center">
                             <span class="msg-avatar">
-                                <img src="{{ asset('student/images/avatar/2.jpg')}}" class="avatar avatar-lg">
+                                <img src="{{ url('student/images/avatar/2.jpg')}}" class="avatar avatar-lg">
                             </span>
                             <div class="mx-10">
                                 <a href="#" class="text-dark hover-primary fw-bold">Mayra Sibley</a>
@@ -395,7 +395,7 @@
                                 <p class="text-muted fs-12 mb-0">3 minutes</p>
                             </div>
                             <span class="msg-avatar">
-                                <img src="{{ asset('student/images/avatar/3.jpg')}}" class="avatar avatar-lg">
+                                <img src="{{ url('student/images/avatar/3.jpg')}}" class="avatar avatar-lg">
                             </span>
                         </div>
                         <div class="cm-msg-text">
@@ -405,7 +405,7 @@
                     <div class="chat-msg user">
                         <div class="d-flex align-items-center">
                             <span class="msg-avatar">
-                                <img src="{{ asset('student/images/avatar/2.jpg')}}" class="avatar avatar-lg">
+                                <img src="{{ url('student/images/avatar/2.jpg')}}" class="avatar avatar-lg">
                             </span>
                             <div class="mx-10">
                                 <a href="#" class="text-dark hover-primary fw-bold">Mayra Sibley</a>
@@ -433,18 +433,18 @@
 
 
 	<!-- Vendor JS -->
-	<script src="{{ asset('student/js/vendors.min.js')}}"></script>
-	<script src="{{ asset('student/js/pages/chat-popup.js')}}"></script>
-    <script src="{{ asset('student/assets/icons/feather-icons/feather.min.js')}}"></script>
+	<script src="{{ url('student/js/vendors.min.js')}}"></script>
+	<script src="{{ url('student/js/pages/chat-popup.js')}}"></script>
+    <script src="{{ url('student/assets/icons/feather-icons/feather.min.js')}}"></script>
 
-	<script src="{{ asset('student/assets/vendor_components/apexcharts-bundle/dist/apexcharts.js')}}"></script>
-	<script src="{{ asset('student/assets/vendor_components/moment/min/moment.min.js')}}"></script>
-	<script src="{{ asset('student/assets/vendor_components/fullcalendar/fullcalendar.js')}}"></script>
+	<script src="{{ url('student/assets/vendor_components/apexcharts-bundle/dist/apexcharts.js')}}"></script>
+	<script src="{{ url('student/assets/vendor_components/moment/min/moment.min.js')}}"></script>
+	<script src="{{ url('student/assets/vendor_components/fullcalendar/fullcalendar.js')}}"></script>
 
 	<!-- EduAdmin App -->
-	<script src="{{ asset('student/js/template.js')}}"></script>
-	<script src="{{ asset('student/js/pages/dashboard.js')}}"></script>
-	<script src="{{ asset('student/js/pages/calendar.js')}}"></script>
+	<script src="{{ url('student/js/template.js')}}"></script>
+	<script src="{{ url('student/js/pages/dashboard.js')}}"></script>
+	<script src="{{ url('student/js/pages/calendar.js')}}"></script>
     @yield('script');
 </body>
 

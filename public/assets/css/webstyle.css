@@ -307,16 +307,16 @@ a {
 }
 
 .commonBtn {
-    background-color: var(--primary-color);
-    color: var(--text-white-color);
-    padding: 4px 10px;
-    border: none;
-    border-radius: 4px;
-    text-align: center;
-    font-size: 20px;
-    font-weight: 400;
-    margin-top: 12px;
-    transition: background-color 0.3s;
+    background-color: var(--primary-color) !important;
+    color: var(--text-white-color) !important;
+    padding: 4px 10px !important;
+    border: none !important;
+    border-radius: 4px !important;
+    text-align: center !important;
+    font-size: 20px !important;
+    font-weight: 400 !important;
+    margin-top: 12px !important;
+    transition: background-color 0.3s !important;
 }
 
 .commonBtn:hover {

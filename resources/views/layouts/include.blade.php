@@ -1,21 +1,21 @@
-<link rel="stylesheet" href="{{ asset('assets/css/vendor.bundle.base.css') }}" async>
+<link rel="stylesheet" href="{{ url('assets/css/vendor.bundle.base.css') }}" async>
 
-<link rel="stylesheet" href="{{ asset('assets/fonts/font-awesome.min.css') }}" async />
-<link rel="stylesheet" href="{{ asset('assets/select2/select2.min.css') }}" async>
-<link rel="stylesheet" href="{{ asset('assets/jquery-toast-plugin/jquery.toast.min.css') }}">
-<link rel="stylesheet" href="{{ asset('assets/color-picker/color.min.css') }}" async>
+<link rel="stylesheet" href="{{ url('assets/fonts/font-awesome.min.css') }}" async />
+<link rel="stylesheet" href="{{ url('assets/select2/select2.min.css') }}" async>
+<link rel="stylesheet" href="{{ url('assets/jquery-toast-plugin/jquery.toast.min.css') }}">
+<link rel="stylesheet" href="{{ url('assets/color-picker/color.min.css') }}" async>
 @if (session('language') && session('language')->is_rtl)
-    <link rel="stylesheet" href="{{ asset('assets/css/rtl.css') }}">
+    <link rel="stylesheet" href="{{ url('assets/css/rtl.css') }}">
 @else
-    <link rel="stylesheet" href="{{ asset('assets/css/style.css') }}">
+    <link rel="stylesheet" href="{{ url('assets/css/style.css') }}">
 @endif
-<link rel="stylesheet" href="{{ asset('assets/css/datepicker.min.css') }}" async>
-<link rel="stylesheet" href="{{ asset('assets/css/daterangepicker.css') }}">
-<link rel="stylesheet" href="{{ asset('assets/css/ekko-lightbox.css') }}">
+<link rel="stylesheet" href="{{ url('assets/css/datepicker.min.css') }}" async>
+<link rel="stylesheet" href="{{ url('assets/css/daterangepicker.css') }}">
+<link rel="stylesheet" href="{{ url('assets/css/ekko-lightbox.css') }}">
 
-<link rel="stylesheet" href="{{ asset('assets/bootstrap-table/bootstrap-table.min.css') }}">
-<link rel="stylesheet" href="{{ asset('assets/bootstrap-table/fixed-columns.min.css') }}">
-<link rel="stylesheet" href="{{ asset('assets/bootstrap-table/reorder-rows.css') }}">
+<link rel="stylesheet" href="{{ url('assets/bootstrap-table/bootstrap-table.min.css') }}">
+<link rel="stylesheet" href="{{ url('assets/bootstrap-table/fixed-columns.min.css') }}">
+<link rel="stylesheet" href="{{ url('assets/bootstrap-table/reorder-rows.css') }}">
 
 <link rel="shortcut icon" href="{{ url(Storage::url(settingByType('favicon'))) }}" />
 
@@ -44,6 +44,6 @@
 <script>
     var baseUrl = `{{ URL::to('/') }}`;
     const onErrorImage = (e) => {
-        e.target.src = `{{ asset('images/no_image_available.jpg') }}`;
+        e.target.src = `{{ url('images/no_image_available.jpg') }}`;
     };
 </script>

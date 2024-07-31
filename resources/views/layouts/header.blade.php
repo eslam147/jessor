@@ -7,7 +7,7 @@
         <a class="navbar-brand brand-logo" href="{{ URL::to('/home') }}"> <img
                 src="{{ settingByType('logo1') ? url(Storage::url(settingByType('logo1'))) : url('assets/logo.svg') }}"
                 alt="logo"> </a> <a class="navbar-brand brand-logo-mini" href="{{ URL::to('/') }}"> <img
-                src="{{ asset('storage/' . settingByType('favicon')) }}" alt="logo"> </a>
+                src="{{ url('storage/' . settingByType('favicon')) }}" alt="logo"> </a>
     </div>
     <div class="navbar-menu-wrapper d-flex align-items-stretch">
         <button class="navbar-toggler navbar-toggler align-self-center" type="button" data-toggle="minimize">
