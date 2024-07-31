@@ -12,7 +12,8 @@ class LessonTopic extends Model
     use HasFactory;
     protected $guarded = [];
 
-    protected static function boot() {
+    protected static function boot()
+    {
         parent::boot();
         static::deleting(function ($topic) { // before delete() method call this
             if ($topic->file) {
@@ -28,36 +29,46 @@ class LessonTopic extends Model
 
     protected $hidden = ["deleted_at", "created_at", "updated_at"];
 
-    public function file() {
+    public function file()
+    {
         return $this->morphMany(File::class, 'modal');
     }
 
-    public function lesson() {
+    public function lesson()
+    {
         return $this->belongsTo(Lesson::class);
     }
-    public function scopeRelatedToTeacher($query){
+    public function scopeRelatedToTeacher($query)
+    {
         $user = Auth::user();
         if ($user->hasRole('Teacher')) {
-            $teacher_id = $user->load('teacher')->teacher->id;
-            return $query->whereHas('lesson', function ($q) use ($teacher_id) {
-                return $q->where('teacher_id', $teacher_id);
+            $teacher_id = $user->teacher()->select('id')->pluck('id')->first();
+
+            $query->whereHas('lesson', function ($q) use ($teacherId) {
+                return $q->where('teacher_id', $teacherId);
             });
-            
+
         }
         return $query;
     }
 
-    public function scopeLessonTopicTeachers($query) {
+    public function scopeLessonTopicTeachers($query)
+    {
         $user = Auth::user();
         if ($user->hasRole('Teacher')) {
+
             $teacher_id = $user->teacher()->select('id')->pluck('id')->first();
             $subject_teacher = SubjectTeacher::select('class_section_id', 'subject_id')->where('teacher_id', $teacher_id)->get();
+            
             if ($subject_teacher) {
                 $subject_teacher = $subject_teacher->toArray();
-                $class_section_id = array_column($subject_teacher, 'class_section_id');
-                $subject_id = array_column($subject_teacher, 'subject_id');
-                $lesson_id = Lesson::select('id')->whereIn('class_section_id', $class_section_id)->whereIn('subject_id', $subject_id)->get()->pluck('id');
-                return $query->whereIn('lesson_id', $lesson_id);
+
+                return $query->whereHas('lesson', function ($q) use ($subject_teacher) {
+                    return $q
+                        ->whereIn('class_section_id', array_column($subject_teacher, 'class_section_id'))
+                        ->whereIn('subject_id', array_column($subject_teacher, 'subject_id'));
+                });
+
             }
             return $query;
         }

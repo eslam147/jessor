@@ -251,7 +251,7 @@ class LessonTopicController extends Controller
         if (isset($_GET['order']))
             $order = $_GET['order'];
 
-        $sql = LessonTopic::lessontopicteachers()->relatedToTeacher()->with('lesson.class_section', 'lesson.subject', 'file');
+        $sql = LessonTopic::relatedToTeacher()->with('lesson.class_section', 'lesson.subject', 'file');
         if (isset($_GET['search']) && ! empty($_GET['search'])) {
             $search = $_GET['search'];
             $sql->where(function ($query) use ($search) {
