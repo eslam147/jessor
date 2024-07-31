@@ -2,7 +2,7 @@
 @php
     $lang = Session::get('language');
 @endphp
-<html lang="en" dir="{{ $lang->is_rtl ? 'rtl' : 'ltr' }}">
+<html lang="en" dir="{{ isset($lang) &&  $lang->is_rtl ? 'rtl' : 'ltr' }}">
 @php
     $about = DB::table('web_settings')->where('name', 'about_us')->where('status', 1)->first();
     $whoweare = DB::table('web_settings')->where('name', 'who_we_are')->where('status', 1)->first();

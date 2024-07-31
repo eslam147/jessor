@@ -51,13 +51,14 @@ class InitializeSchool
         $mailValues = ['mail_host', 'mail_port', 'mail_mailer', 'mail_username', 'mail_password', 'mail_encryption', 'mail_send_from'];
         $mailSettings = $settings->whereBetween('type', $mailValues)->pluck('message', 'type')->toArray();
         if (! empty($mailSettings)) {
+            // mail.mailers.smtp.host
             // config([
-            //     'mail.mailer' => $mailSettings['mail_mailer'],
-            //     'mail.host' => $mailSettings['mail_host'],
-            //     'mail.port' => $mailSettings['mail_port'],
-            //     'mail.username' => $mailSettings['mail_username'],
-            //     'mail.password' => $mailSettings['mail_password'],
-            //     'mail.encryption' => $mailSettings['mail_encryption'],
+            //     'mail.mailers.smtp.mailer' => $mailSettings['mail_mailer'],
+            //     'mail.mailers.smtp.host' => $mailSettings['mail_host'],
+            //     'mail.mailers.smtp.port' => $mailSettings['mail_port'],
+            //     'mail.mailers.smtp.username' => $mailSettings['mail_username'],
+            //     'mail.mailers.smtp.password' => $mailSettings['mail_password'],
+            //     'mail.mailers.smtp.encryption' => $mailSettings['mail_encryption'],
             //     'mail.from.address' => $mailSettings['mail_send_from'],
             // ]);
         }
