@@ -61,7 +61,7 @@
                                                                             <input type="hidden" id="title_for_browser"
                                                                                    value="{{ $row->file_name }}">
                                                                             <input type="hidden" id="download_for_browser"
-                                                                                   value="{{ $row->video_download_link }}">
+                                                                                   value="{{ $row->download_link }}">
                                                                         @endif
                                                                         <iframe src="{{ $row->file_url }}"
                                                                                 style="width: -webkit-fill-available;"
