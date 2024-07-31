@@ -89,4 +89,8 @@ class File extends Model
     {
         return $this->type == self::VIDEO_UPLOAD_TYPE;
     }
+    public function isVideoCornerDownload()
+    {
+        return $this->type == self::DOWNLOAD_LINK_TYPE;
+    }
 }

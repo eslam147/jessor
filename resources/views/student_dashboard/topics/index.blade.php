@@ -74,6 +74,13 @@
                                                         value="{{ $row->download_link }}">
                                                     <iframe src="{{ $row->file_url }}" class=""
                                                         style="width: -webkit-fill-available;"frameborder="0"></iframe>
+                                                @elseif($row->isVideoCornerDownload())
+                                                    <input type="hidden" id="title_for_browser"
+                                                        value="{{ $row->file_name }}">
+                                                    <input type="hidden" id="download_for_browser"
+                                                        value="{{ $row->download_link }}">
+                                                    <iframe src="{{ $row->file_url }}" class=""
+                                                        style="width: -webkit-fill-available;"frameborder="0"></iframe>
                                                 @endif
                                             </div>
                                         </div>
