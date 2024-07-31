@@ -42,7 +42,7 @@ class LessonTopic extends Model
     {
         $user = Auth::user();
         if ($user->hasRole('Teacher')) {
-            $teacher_id = $user->teacher()->select('id')->pluck('id')->first();
+            $teacherId = $user->teacher()->select('id')->pluck('id')->first();
 
             $query->whereHas('lesson', function ($q) use ($teacherId) {
                 return $q->where('teacher_id', $teacherId);
