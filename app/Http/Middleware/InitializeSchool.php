@@ -42,7 +42,7 @@ class InitializeSchool
             }
         }
         // ------------------------------------------------------------------------------------------------------------ \\
-        $appSettings = $settings->whereBetween('type', ['school_name','time_zone'])->pluck('message', 'type')->toArray();
+        $appSettings = $settings->whereBetween('type', ['school_name', 'time_zone'])->pluck('message', 'type')->toArray();
         if (! empty($appSettings)) {
             Config::set('app.name', $appSettings['school_name']);
             Config::set('app.timezone', $appSettings['time_zone']);

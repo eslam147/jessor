@@ -471,6 +471,7 @@ class LessonTopicController extends Controller
 
                             $topic_file->file_thumbnail = $file_path;
                         }
+                        $file->file_url = $file['video_corner_url'];
                         $file->download_link = $file['video_corner_download_link'];
 
                     } elseif ($file['type'] == "other_link") {

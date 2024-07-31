@@ -478,6 +478,7 @@ class LessonController extends Controller
                         $image->move($destinationPath, $file_name);
 
                         $lesson_file->file_thumbnail = $file_path;
+                        
                         $lesson_file->file_url = $file['video_corner_url'];
                         $lesson_file->download_link = $file['video_corner_download_link'];
 
