@@ -29,11 +29,11 @@
                                     <p class="mb-0 fs-18"> {{ $row->name }} </p>
                                     <div class="d-flex justify-content-between mt-30">
                                         <div>
-                                            <p class="mb-0 text-fade">lesson description</p>
+                                            <p class="mb-0 text-fade">Description</p>
                                             <p class="mb-0">{{ $row->description }}</p>
                                         </div>
                                         <div>
-                                            @if ($row->isFree())
+                                            @if ($row->enrollments_count > 0)
                                                 <p class="mb-5 fw-600">55%</p>
                                                 <div class="progress progress-sm mb-0 w-100">
                                                     <div class="progress-bar progress-bar-primary" role="progressbar"
@@ -42,7 +42,7 @@
                                                     </div>
                                                 </div>
                                             @else
-                                                @if ($row->enrollments_count > 0)
+                                                @if ($row->isFree())
                                                     <p class="mb-5 fw-600">55%</p>
                                                     <div class="progress progress-sm mb-0 w-100">
                                                         <div class="progress-bar progress-bar-primary" role="progressbar"
@@ -54,19 +54,21 @@
                                                     <i style="font-size: 25px;" class="si-lock si text-danger"></i>
                                                 @endif
                                             @endif
+
+
                                         </div>
                                     </div>
-                                    @if ($row->isFree())
-                                        <div class="bg-success mt-5 rounded">
+                                    @if ($row->enrollments_count > 0)
+                                        <div class="bg-primary mt-5 rounded">
                                             <a href="{{ route('topics.show', $row->id) }}">
-                                                <h5 class="text-white text-center p-10"> Enroll Now For Free </h5>
+                                                <h5 class="text-white text-center p-10"> Start Now </h5>
                                             </a>
                                         </div>
                                     @else
-                                        @if ($row->enrollments_count > 0)
-                                            <div class="bg-primary mt-5 rounded">
+                                        @if ($row->isFree())
+                                            <div class="bg-success mt-5 rounded">
                                                 <a href="{{ route('topics.show', $row->id) }}">
-                                                    <h5 class="text-white text-center p-10"> Start Now </h5>
+                                                    <h5 class="text-white text-center p-10"> Enroll Now For Free </h5>
                                                 </a>
                                             </div>
                                         @else
@@ -78,6 +80,7 @@
                                             </div>
                                         @endif
                                     @endif
+
                                 </div>
                             </div>
                         </div>
