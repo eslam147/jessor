@@ -8,7 +8,7 @@
     <meta name="description" content="">
     <meta name="author" content="">
 
-    <title>  jessor  </title>
+    <title>{{ config('app.name') }}</title>
 
 	<!-- Vendors Style-->
 	<link rel="stylesheet" href="{{ url('student/css/vendors_css.css') }}">
