@@ -20,7 +20,6 @@ class AppServiceProvider extends ServiceProvider
         if (config('app.env') == 'production') {
             URL::forceScheme('https');
         }
-        Event::listen(TenancyInitialized::class, SchoolConfigProvider::class);
         Schema::defaultStringLength(191);
     }
 }
