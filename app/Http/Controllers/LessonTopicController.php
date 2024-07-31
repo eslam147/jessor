@@ -78,8 +78,8 @@ class LessonTopicController extends Controller
                 'file.*.type' => 'nullable|in:file_upload,youtube_link,video_corner_link,video_corner_download_link,video_upload,other_link',
 
 
-                'file.*.video_corner_url' => ['required_if:file.*.type,video_corner_link', 'nullable'],
-
+                'file.*.video_corner_url' => ['required_if:file.*.type,video_corner_link,video_corner_download_link', 'nullable'],
+                
 
                 'file.*.name' => 'required_with:file.*.type',
                 'file.*.thumbnail' => 'required_if:file.*.type,youtube_link,video_corner_link,video_corner_download_link,video_upload,other_link',
