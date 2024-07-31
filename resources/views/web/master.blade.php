@@ -2,15 +2,7 @@
 @php
     $lang = Session::get('language');
 @endphp
-@if($lang)
-    @if ($lang->is_rtl)
-        <html lang="en" dir="rtl">
-    @else
-        <html lang="en">
-    @endif
-@else
-    <html lang="en">
-@endif
+<html lang="en" dir="{{ $lang->is_rtl ? 'rtl' : 'ltr' }}">
 @php
     $about = DB::table('web_settings')->where('name', 'about_us')->where('status', 1)->first();
     $whoweare = DB::table('web_settings')->where('name', 'who_we_are')->where('status', 1)->first();
@@ -25,36 +17,37 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <title>{{ config('app.name') }}</title>
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <link rel="shortcut icon" href="{{ url(Storage::url(settingByType('favicon'))) }}"/>
+    <link rel="shortcut icon" href="{{ url(Storage::url(settingByType('favicon'))) }}" />
     @yield('css')
 
 </head>
+
 <body class="sidebar-fixed">
-<div class="container-scroller">
+    <div class="container-scroller">
 
-    {{-- header --}}
-    @include('web.header')
+        {{-- header --}}
+        @include('web.header')
 
-    <div class="page-body-wrapper">
+        <div class="page-body-wrapper">
 
-        <div class="main-panel">
+            <div class="main-panel">
 
-            @yield('content')
+                @yield('content')
 
 
+
+            </div>
 
         </div>
 
     </div>
 
-</div>
+    {{-- footer --}}
+    @include('web.footer')
 
-  {{-- footer --}}
-  @include('web.footer')
+    @yield('js')
 
-@yield('js')
-
-@yield('script')
+    @yield('script')
 
 </body>
 

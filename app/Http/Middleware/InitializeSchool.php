@@ -13,10 +13,10 @@ class InitializeSchool
     {
         $tenancy = tenant();
         if ($tenancy) {
-            // $settings = Settings::select('key', 'message')->get();
-            // if ($settings->count()) {
-            //     $this->setSchool($settings);
-            // }
+            $settings = Settings::get();
+            if ($settings->count()) {
+                $this->setSchool($settings);
+            }
         }
         return $next($request);
     }
@@ -29,7 +29,7 @@ class InitializeSchool
         ];
 
         foreach ($providers as $provider => $keys) {
-            $settingsArray = $settings->whereIn('key', $keys)->pluck('message', 'key')->toArray();
+            $settingsArray = $settings->whereIn('key', $keys)->pluck('message', 'type')->toArray();
 
             if (! empty($settingsArray) && ! empty($settingsArray["{$provider}_status"])) {
                 config([
