@@ -77,9 +77,7 @@ class LessonTopicController extends Controller
                 'file' => 'nullable|array',
                 'file.*.type' => 'nullable|in:file_upload,youtube_link,video_corner_link,video_corner_download_link,video_upload,other_link',
 
-
                 'file.*.video_corner_url' => ['required_if:file.*.type,video_corner_link,video_corner_download_link', 'nullable'],
-                
 
                 'file.*.name' => 'required_with:file.*.type',
                 'file.*.thumbnail' => 'required_if:file.*.type,youtube_link,video_corner_link,video_corner_download_link,video_upload,other_link',
@@ -164,8 +162,9 @@ class LessonTopicController extends Controller
                         $image->move($destinationPath, $file_name);
 
                         $file->file_thumbnail = $file_path;
-                        $file->file_url = $file['video_corner_url'];
-                        $file->download_link = $file['video_corner_download_link'];
+
+                        $file->file_url = $data['video_corner_url'];
+                        $file->download_link = $data['video_corner_download_link'];
 
                     } elseif ($data['type'] == "video_upload") {
                         $file->type = 3;
@@ -344,9 +343,17 @@ class LessonTopicController extends Controller
                 'edit_file.*.link' => ['nullable', 'required_if:edit_file.*.type,youtube_link', new YouTubeUrl],
 
                 'file' => 'nullable|array',
-                'file.*.type' => 'nullable|in:file_upload,youtube_link,video_upload,other_link',
                 'file.*.name' => 'nullable|required_with:file.*.type',
                 'file.*.thumbnail' => 'nullable|required_if:file.*.type,youtube_link,video_corner_link,video_corner_download_linkوvideo_upload,other_link',
+
+
+                'file.*.type' => 'nullable|in:file_upload,youtube_link,video_upload,other_link,video_corner_link,video_corner_download_link',
+
+
+                'file.*.video_corner_url' => ['required_if:file.*.type,video_corner_link,video_corner_download_link', 'nullable'],
+
+
+
 
                 'file.*.file' => 'nullable|required_if:file.*.type,file_upload,video_upload',
                 //Regex for Youtube Link
