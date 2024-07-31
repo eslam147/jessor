@@ -1,10 +1,11 @@
 <?php
 
-use App\Http\Controllers\student\SignupController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\WebController;
+use App\Http\Middleware\InitializeSchool;
 use App\Http\Controllers\WebhookController;
+use App\Http\Controllers\student\SignupController;
 use Stancl\Tenancy\Middleware\InitializeTenancyByDomain;
 use Stancl\Tenancy\Middleware\PreventAccessFromCentralDomains;
 /*
@@ -21,6 +22,7 @@ Route::middleware([
     'web',
     InitializeTenancyByDomain::class,
     PreventAccessFromCentralDomains::class,
+    InitializeSchool::class,
 ])->group(function () {
         Auth::routes();
         Route::controller(WebController::class)->group(function () {

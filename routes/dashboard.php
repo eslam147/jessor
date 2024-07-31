@@ -48,11 +48,12 @@ use App\Http\Controllers\{
 };
 use Stancl\Tenancy\Middleware\InitializeTenancyByDomain;
 use Stancl\Tenancy\Middleware\PreventAccessFromCentralDomains;
-
+use App\Http\Middleware\InitializeSchool;
 Route::middleware([
     'web',
     InitializeTenancyByDomain::class,
     PreventAccessFromCentralDomains::class,
+    InitializeSchool::class,
 ])->group(function () {
     Route::group(['middleware' => ['Role', 'auth']], function () {
         Route::group(['middleware' => 'language'], function () {

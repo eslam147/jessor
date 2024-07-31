@@ -1,18 +1,20 @@
 <?php
 
-use App\Http\Controllers\student\EnrollController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Middleware\InitializeSchool;
+use App\Http\Controllers\student\EnrollController;
 use App\Http\Controllers\student\TopicsController;
 use App\Http\Controllers\student\SubjectController;
 use App\Http\Controllers\student\TeachersController;
-use App\Http\Controllers\student\StudentDashboardController;
 use Stancl\Tenancy\Middleware\InitializeTenancyByDomain;
+use App\Http\Controllers\student\StudentDashboardController;
 use Stancl\Tenancy\Middleware\PreventAccessFromCentralDomains;
 
 Route::middleware([
     'web',
     InitializeTenancyByDomain::class,
     PreventAccessFromCentralDomains::class,
+    InitializeSchool::class,
 ])->group(function () {
     Route::prefix('student_dashboard')->group(function () {
         Route::group(['middleware' => 'student_authorized'], function () {
