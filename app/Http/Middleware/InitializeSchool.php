@@ -5,6 +5,7 @@ namespace App\Http\Middleware;
 use Closure;
 use App\Models\Settings;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Config;
 use Stancl\Tenancy\Facades\Tenancy;
 
 class InitializeSchool
@@ -29,7 +30,7 @@ class InitializeSchool
         ];
 
         foreach ($providers as $provider => $keys) {
-            $settingsArray = $settings->whereIn('key', $keys)->pluck('message', 'type')->toArray();
+            $settingsArray = $settings->whereIn('type', $keys)->pluck('message', 'type')->toArray();
 
             if (! empty($settingsArray) && ! empty($settingsArray["{$provider}_status"])) {
                 config([
@@ -41,26 +42,24 @@ class InitializeSchool
             }
         }
         // ------------------------------------------------------------------------------------------------------------ \\
-        $appSettings = $settings->whereBetween('key', ['school_name'])->pluck('message', 'key')->toArray();
+        $appSettings = $settings->whereBetween('type', ['school_name','time_zone'])->pluck('message', 'type')->toArray();
         if (! empty($appSettings)) {
-            config([
-                'app.name' => $appSettings['school_name'],
-                'app.timezone' => $appSettings['time_zone'],
-            ]);
+            Config::set('app.name', $appSettings['school_name']);
+            Config::set('app.timezone', $appSettings['time_zone']);
         }
         // ------------------------------------------------------------------------------------------------------------ \\
         $mailValues = ['mail_host', 'mail_port', 'mail_mailer', 'mail_username', 'mail_password', 'mail_encryption', 'mail_send_from'];
-        $mailSettings = $settings->whereBetween('key', $mailValues)->pluck('message', 'key')->toArray();
+        $mailSettings = $settings->whereBetween('type', $mailValues)->pluck('message', 'type')->toArray();
         if (! empty($mailSettings)) {
-            config([
-                'mail.mailer' => $mailSettings['mail_mailer'],
-                'mail.host' => $mailSettings['mail_host'],
-                'mail.port' => $mailSettings['mail_port'],
-                'mail.username' => $mailSettings['mail_username'],
-                'mail.password' => $mailSettings['mail_password'],
-                'mail.encryption' => $mailSettings['mail_encryption'],
-                'mail.from.address' => $mailSettings['mail_send_from'],
-            ]);
+            // config([
+            //     'mail.mailer' => $mailSettings['mail_mailer'],
+            //     'mail.host' => $mailSettings['mail_host'],
+            //     'mail.port' => $mailSettings['mail_port'],
+            //     'mail.username' => $mailSettings['mail_username'],
+            //     'mail.password' => $mailSettings['mail_password'],
+            //     'mail.encryption' => $mailSettings['mail_encryption'],
+            //     'mail.from.address' => $mailSettings['mail_send_from'],
+            // ]);
         }
 
     }
