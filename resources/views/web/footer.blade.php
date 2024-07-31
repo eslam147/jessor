@@ -7,7 +7,7 @@
                     <div>
                         <a href="index.html">
                             <a href="{{ url('/') }}">
-                                <img src="{{ settingByType('logo1') ? url(Storage::url(settingByType('logo1'))) : url('assets/logo.svg') }}"
+                                <img src="{{ settingByType('logo1') ? tenant_asset(settingByType('logo1')) : url('assets/logo.svg') }}"
                                     height="50px" width="150px" alt="logo">
                             </a>
                         </a>

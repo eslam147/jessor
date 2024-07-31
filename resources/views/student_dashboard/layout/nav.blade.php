@@ -9,9 +9,9 @@
         <a href="index.html" class="logo">
             <!-- logo-->
             <div class="logo-lg">
-                <span class="light-logo"><img src="{{ url(Storage::url(settingByType('logo1'))) }}"
+                <span class="light-logo"><img src="{{ tenant_asset(settingByType('logo1')) }}"
                         alt="logo"></span>
-                <span class="dark-logo"><img src="{{ url(Storage::url(settingByType('logo1'))) }}"
+                <span class="dark-logo"><img src="{{ tenant_asset(settingByType('logo1')) }}"
                         alt="logo"></span>
             </div>
         </a>
