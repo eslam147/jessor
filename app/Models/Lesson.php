@@ -35,6 +35,7 @@ class Lesson extends Model
             }
         });
     }
+
     public function scopeActive($query){
         return $query->where('status', LessonStatus::PUBLISHED);
     }

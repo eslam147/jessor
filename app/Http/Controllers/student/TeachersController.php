@@ -27,6 +27,8 @@ class TeachersController extends Controller
         //get the lesson's based on the teacher and subject and section class With Enrollment Count
         //$lessons = Lesson::where('subject_id',$subject_id)->where('class_section_id',$class_section_id)->where('teacher_id',$teacher_id)->get();
         $lessons = Lesson::where('subject_id', $subject_id)
+
+            ->active()
             ->where('class_section_id', $class_section_id)
             ->where('teacher_id', $teacher_id)
             ->withCount([

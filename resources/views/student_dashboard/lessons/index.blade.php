@@ -56,24 +56,28 @@
                                             @endif
                                         </div>
                                     </div>
-                                    <div class="bg-primary mt-5 rounded">
-                                        @if ($row->isFree())
+                                    @if ($row->isFree())
+                                        <div class="bg-success mt-5 rounded">
                                             <a href="{{ route('topics.show', $row->id) }}">
-                                                <h5 class="text-white text-center p-10"> Start Now </h5>
+                                                <h5 class="text-white text-center p-10"> Enroll Now For Free </h5>
                                             </a>
-                                        @else
-                                            @if ($row->enrollments_count > 0)
+                                        </div>
+                                    @else
+                                        @if ($row->enrollments_count > 0)
+                                            <div class="bg-primary mt-5 rounded">
                                                 <a href="{{ route('topics.show', $row->id) }}">
                                                     <h5 class="text-white text-center p-10"> Start Now </h5>
                                                 </a>
-                                            @else
+                                            </div>
+                                        @else
+                                            <div class="bg-primary mt-5 rounded">
                                                 <a href="javascript:void(0)" data-bs-toggle="modal"
                                                     data-bs-target="#modal-center" data-animation="shake">
-                                                    <h5 class="text-white text-center p-10"> Start Now </h5>
+                                                    <h5 class="text-white text-center p-10"> Enroll Lesson </h5>
                                                 </a>
-                                            @endif
+                                            </div>
                                         @endif
-                                    </div>
+                                    @endif
                                 </div>
                             </div>
                         </div>

@@ -2,10 +2,11 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
+use App\Enums\Lesson\LessonStatus;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class LessonTopic extends Model
 {
@@ -37,6 +38,12 @@ class LessonTopic extends Model
     public function lesson()
     {
         return $this->belongsTo(Lesson::class);
+    }
+    public function scopeActive($query)
+    {
+        return $query->whereHas('lesson', function ($q) {
+            return $q->where('status', LessonStatus::PUBLISHED);
+        });
     }
     public function scopeRelatedToTeacher($query)
     {
