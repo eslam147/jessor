@@ -119,10 +119,10 @@
         {{-- </div> --}}
     </div>
     @include('sweetalert::alert')
-    <script src="{{ asset('/assets/js/vendor.bundle.base.js') }}"></script>
-    <script src="{{ asset('/assets/js/jquery.validate.min.js') }}"></script>
-    <script src="{{ asset('/assets/jquery-toast-plugin/jquery.toast.min.js') }}"></script>
-
+    <script src="{{ url('assets/js/vendor.bundle.base.js') }}"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.21.0/jquery.validate.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-toast-plugin/1.3.2/jquery.toast.min.js"></script>
+    
     <script type='text/javascript'>
         $("#frmLogin").validate({
             rules: {
