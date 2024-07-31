@@ -25,11 +25,9 @@ class TopicsController extends Controller
             Response::HTTP_UNAUTHORIZED
         );
 
-        $topics = LessonTopic::active()->where('lesson_id', $id)->get();
+        $topics = LessonTopic::active()->where('lesson_id', $lesson->id)->get();
 
-        $lesson_name = $lesson->name;
-
-        return view('student_dashboard.topics.index', compact('topics','lesson', 'lesson_name'));
+        return view('student_dashboard.topics.index', compact('topics','lesson'));
     }
 
     public function topic_files($topic_id)

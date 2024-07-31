@@ -7,7 +7,7 @@
                 <div class="row">
                     <div class="box">
                         <div class="box-header with-border">
-                            <h4 class="box-title"> {{ $lesson_name }} </h4>
+                            <h4 class="box-title"> {{ $lesson->name }} </h4>
                         </div>
                         <!-- /.box-header -->
                         <div class="box-body">
@@ -47,7 +47,7 @@
                                                         </div>
                                                         <div class="bg-primary mt-5 rounded">
                                                             <a href="{{ route('topics.files', $row->id) }}">
-                                                                <h5 class="text-white text-center p-10"> start now </h5>
+                                                                <h5 class="text-white text-center p-10"> Start Now </h5>
                                                             </a>
                                                         </div>
                                                     </div>
