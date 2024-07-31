@@ -78,7 +78,7 @@ class LessonTopicController extends Controller
                 'file.*.type' => 'nullable|in:file_upload,youtube_link,video_corner_link,video_corner_download_link,video_upload,other_link',
 
 
-                'file.*.video_corner_url' => ['required_if:file.*.type,video_corner_url', 'nullable'],
+                'file.*.video_corner_url' => ['required_if:file.*.type,video_corner_link', 'nullable'],
 
 
                 'file.*.name' => 'required_with:file.*.type',
@@ -147,8 +147,8 @@ class LessonTopicController extends Controller
                         $image->move($destinationPath, $file_name);
 
                         $file->file_thumbnail = $file_path;
-
                         $file->file_url = $data['video_corner_url'];
+
                     } elseif ($data['type'] == "video_corner_download_link") {
                         $file->type = 6;
 
