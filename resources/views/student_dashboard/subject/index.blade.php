@@ -30,7 +30,7 @@
                                 <svg class="circle-chart" viewBox="0 0 33.83098862 33.83098862" width="80" height="80">
                                     <defs>
                                         <pattern id="img" patternUnits="userSpaceOnUse" height="80" width="80">
-                                            <image x="5" y="5" height="70%" width="70%" xlink:href="{{ asset('student/images/pro-1.png') }}"></image>
+                                            <image x="5" y="5" height="70%" width="70%" xlink:href="{{ tenant_asset('student/images/pro-1.png') }}"></image>
                                         </pattern>
                                     </defs>
                                     <circle class="circle-chart__background" stroke="#efefef" stroke-width="2" cx="16.91549431" cy="16.91549431" r="15.91549431" fill="url(#img)"></circle>

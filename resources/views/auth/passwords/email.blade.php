@@ -70,9 +70,7 @@
                     <div class="col-lg-4 mx-auto">
                         <div class="auth-form-light text-left p-5">
                             <div class="brand-logo text-center">
-                                {{-- <img src="{{asset(config('global.LOGO1')) }}" alt="logo"> --}}
-                                {{-- <img src="{{ asset('logo.svg') }}" alt="logo"> --}}
-                                <img src="{{ asset('storage/' . getSettings('logo1')) }}" alt="logo">
+                                <img src="{{ tenant_asset('storage/' . getSettings('logo1')) }}" alt="logo">
                             </div>
                             @if (session('status'))
                                 <div class="alert alert-success" role="alert">

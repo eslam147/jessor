@@ -49,7 +49,7 @@
                                     <br>
                                     <br>
                                     <div class="w-100 text-center">
-                                        <img src="{{isset($about->image) ? $about->image : url('assets/images/dummyImg.png')}}" id="content_image" class="w-25">
+                                        <img src="{{isset($about->image) ? $about->image : tenant_asset('assets/images/dummyImg.png')}}" id="content_image" class="w-25">
                                     </div>
                                 </div>
                                 <div class="form-group col-sm-6 col-md-4">

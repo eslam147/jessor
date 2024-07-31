@@ -83,7 +83,7 @@ class User extends Authenticatable
     //Getter Attributes
     public function getImageAttribute($value)
     {
-        return url(Storage::url($value));
+        return tenant_asset(Storage::url($value));
     }
 
     // //Getter Attributes
