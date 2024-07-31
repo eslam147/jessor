@@ -19,6 +19,6 @@ class ChatFile extends Model
 
     public function getFileUrlAttribute($value)
     {
-        return url(Storage::url($value));
+        return tenant_asset($value);
     }
 }

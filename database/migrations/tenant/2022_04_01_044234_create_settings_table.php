@@ -23,15 +23,15 @@ return new class extends Migration
         DB::table('settings')->insert([
             [
                 'type' => 'school_name',
-                'message' => 'e-School',
+                'message' => 'Jessor',
             ],
             [
                 'type' => 'school_email',
-                'message' => 'eschool@gmail.com',
+                'message' => 'info@jessor.com',
             ],
             [
                 'type' => 'school_phone',
-                'message' => '9876543210',
+                'message' => '`1234567890',
             ],
             [
                 'type' => 'school_address',
@@ -39,7 +39,7 @@ return new class extends Migration
             ],
             [
                 'type' => 'time_zone',
-                'message' => 'Asia/Kolkata',
+                'message' => 'Africa/Cairo',
             ],
             [
                 'type' => 'date_formate',

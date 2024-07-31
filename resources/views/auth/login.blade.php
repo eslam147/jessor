@@ -26,7 +26,7 @@
                                 <div class="auth-form-light text-left p-5">
 
                                     <div class="brand-logo text-center">
-                                        <img src="{{ settingByType('logo2') ? url(Storage::url(settingByType('logo2'))) :url('assets/logo.svg') }}" alt="logo">
+                                        <img src="{{ settingByType('logo2') ? tenant_asset(settingByType('logo2')) :url('assets/logo.svg') }}" alt="logo">
                                     </div>
                                     <form action="{{ route('login') }}" id="frmLogin" method="POST" class="pt-3">
                                         @csrf
