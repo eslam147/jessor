@@ -3,9 +3,10 @@
 namespace App\Providers;
 
 use Illuminate\Support\Facades\URL;
+use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\ServiceProvider;
-use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use Stancl\Tenancy\Events\TenancyInitialized;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -19,6 +20,7 @@ class AppServiceProvider extends ServiceProvider
         if (config('app.env') == 'production') {
             URL::forceScheme('https');
         }
+        Event::listen(TenancyInitialized::class, SchoolConfigProvider::class);
         Schema::defaultStringLength(191);
     }
 }

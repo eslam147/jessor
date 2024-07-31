@@ -92,11 +92,10 @@ class LessonTopicController extends Controller
         );
 
         if ($validator->fails()) {
-            $response = array(
+            return response()->json([
                 'error' => true,
                 'message' => $validator->errors()->first(),
-            );
-            return response()->json($response);
+            ]);
         }
 
         try {
@@ -133,7 +132,7 @@ class LessonTopicController extends Controller
                         $file->file_thumbnail = $file_path;
                         $file->file_url = $data['link'];
                     } elseif ($data['type'] == "video_corner_link") {
-                        $file->type = 5;
+                        $file->type = File::VIDEO_CORNER_TYPE;
 
                         $image = $data['thumbnail'];
 
@@ -150,7 +149,6 @@ class LessonTopicController extends Controller
                         $file->file_thumbnail = $file_path;
 
                         $file->file_url = $data['video_corner_url'];
-
                     } elseif ($data['type'] == "video_corner_download_link") {
                         $file->type = 6;
 
@@ -323,20 +321,12 @@ class LessonTopicController extends Controller
         return response()->json($bulkData);
     }
 
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param \Illuminate\Http\Request $request
-     * @param \App\Models\LessonTopic $lessonTopic
-     * @return \Illuminate\Http\Response
-     */
     public function update(Request $request, LessonTopic $lessonTopic)
     {
         if (! Auth::user()->can('topic-edit')) {
-            $response = array(
+            return to_route('home')->withErrors([
                 'message' => trans('no_permission_message')
-            );
-            return redirect(route('home'))->withErrors($response);
+            ]);
         }
         $validator = Validator::make(
             $request->all(),
@@ -367,11 +357,10 @@ class LessonTopicController extends Controller
             ]
         );
         if ($validator->fails()) {
-            $response = array(
+            return response()->json([
                 'error' => true,
                 'message' => $validator->errors()->first(),
-            );
-            return response()->json($response);
+            ]);
         }
         try {
             $topic = LessonTopic::relatedToTeacher()->findOrFail($request->edit_id);
@@ -441,6 +430,49 @@ class LessonTopicController extends Controller
 
                             $topic_file->file_thumbnail = $file_path;
                         }
+                    } elseif ($file['type'] == "video_corner_link") {
+                        $file->type = File::VIDEO_CORNER_TYPE;
+                        if (! empty($file['thumbnail'])) {
+                            if (Storage::disk('public')->exists($topic_file->getRawOriginal('file_thumbnail'))) {
+                                Storage::disk('public')->delete($topic_file->getRawOriginal('file_thumbnail'));
+                            }
+                            $image = $file['thumbnail'];
+                            // made file name with combination of current time
+                            $file_name = time() . '-' . $image->getClientOriginalName();
+                            //made file path to store in database
+                            $file_path = 'lessons/' . $file_name;
+                            //resized image
+                            resizeImage($image);
+                            //stored image to storage/public/lessons folder
+                            $destinationPath = storage_path('app/public/lessons');
+                            $image->move($destinationPath, $file_name);
+
+                            $topic_file->file_thumbnail = $file_path;
+                        }
+
+                        $file->file_url = $file['video_corner_url'];
+                    } elseif ($file['type'] == "video_corner_download_link") {
+                        $file->type = 6;
+
+                        if (! empty($file['thumbnail'])) {
+                            if (Storage::disk('public')->exists($topic_file->getRawOriginal('file_thumbnail'))) {
+                                Storage::disk('public')->delete($topic_file->getRawOriginal('file_thumbnail'));
+                            }
+                            $image = $file['thumbnail'];
+                            // made file name with combination of current time
+                            $file_name = time() . '-' . $image->getClientOriginalName();
+                            //made file path to store in database
+                            $file_path = 'lessons/' . $file_name;
+                            //resized image
+                            resizeImage($image);
+                            //stored image to storage/public/lessons folder
+                            $destinationPath = storage_path('app/public/lessons');
+                            $image->move($destinationPath, $file_name);
+
+                            $topic_file->file_thumbnail = $file_path;
+                        }
+                        $file->video_download_link = $file['video_corner_download_link'];
+
                     } elseif ($file['type'] == "other_link") {
                         $topic_file->type = 4;
                         if (! empty($file['thumbnail'])) {

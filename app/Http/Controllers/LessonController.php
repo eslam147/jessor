@@ -175,7 +175,7 @@ class LessonController extends Controller
                         $lesson_file->file_url = $file['video_corner_url'];
                         $lesson_file->video_download_link = $file['video_corner_download_link'];
 
-                    } elseif ($file['type'] == "other_link") {
+                } elseif ($file['type'] == "other_link") {
                         $lesson_file->type = 4;
 
                         $image = $file['thumbnail'];
@@ -572,16 +572,16 @@ class LessonController extends Controller
                     }
                 }
             }
-            $response = array(
+            $response = [
                 'error' => false,
                 'message' => trans('data_store_successfully')
-            );
+            ];
         } catch (Throwable $e) {
-            $response = array(
+            $response = [
                 'error' => true,
                 'message' => trans('error_occurred'),
                 'exception' => $e
-            );
+            ];
         }
         return response()->json($response);
     }

@@ -25,8 +25,8 @@
 
 
 <script src="{{ url('/assets/js/jquery.cookie.js') }}"></script>
-<script src="{{ url('/assets/js/sweetalert2.all.min.js') }}"></script>
-<script src="{{ url('/assets/js/moment.min.js') }}"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert2/11.12.3/sweetalert2.all.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.30.1/moment.min.js"></script>
 <script src="{{ url('/assets/js/datepicker.min.js') }}"></script>
 <script src="{{ url('/assets/js/daterangepicker.js') }}"></script>
 <script src="{{ url('/assets/js/jquery.repeater.js') }}"></script>

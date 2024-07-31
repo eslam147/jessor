@@ -1,8 +1,8 @@
 <link rel="stylesheet" href="{{ url('assets/css/vendor.bundle.base.css') }}" async>
 
-<link rel="stylesheet" href="{{ url('assets/fonts/font-awesome.min.css') }}" async />
-<link rel="stylesheet" href="{{ url('assets/select2/select2.min.css') }}" async>
-<link rel="stylesheet" href="{{ url('assets/jquery-toast-plugin/jquery.toast.min.css') }}">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" async />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" async>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery-toast-plugin/1.3.2/jquery.toast.min.css">
 <link rel="stylesheet" href="{{ url('assets/color-picker/color.min.css') }}" async>
 @if (session('language') && session('language')->is_rtl)
     <link rel="stylesheet" href="{{ url('assets/css/rtl.css') }}">
@@ -20,12 +20,8 @@
 <link rel="shortcut icon" href="{{ url(Storage::url(settingByType('favicon'))) }}" />
 
 @php
-    $theme_color = getSettings('theme_color');
-    $secondary_color = getSettings('secondary_color');
-
-    // echo json_encode($theme_color);
-    $theme_color = $theme_color['theme_color'];
-    $secondary_color = $secondary_color['secondary_color'];
+    $theme_color = getSettings('theme_color')['theme_color'];
+    $secondary_color = getSettings('secondary_color')['secondary_color'];
 
     $login_image = url(Storage::url('eschool.jpg'));
     $loginImageSetting = getSettings('login_image');

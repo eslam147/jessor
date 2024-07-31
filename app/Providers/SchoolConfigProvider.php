@@ -7,21 +7,11 @@ use Illuminate\Support\ServiceProvider;
 
 class SchoolConfigProvider extends ServiceProvider
 {
-    /**
-     * Register services.
-     *
-     * @return void
-     */
     public function register()
     {
         //
     }
 
-    /**
-     * Bootstrap services.
-     *
-     * @return void
-     */
     public function boot()
     {
         if (! app()->runningInConsole()) {
