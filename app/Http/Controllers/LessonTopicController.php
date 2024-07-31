@@ -165,7 +165,7 @@ class LessonTopicController extends Controller
 
                         $file->file_thumbnail = $file_path;
                         $file->file_url = $file['video_corner_url'];
-                        $file->video_download_link = $file['video_corner_download_link'];
+                        $file->download_link = $file['video_corner_download_link'];
 
                     } elseif ($data['type'] == "video_upload") {
                         $file->type = 3;
@@ -471,7 +471,7 @@ class LessonTopicController extends Controller
 
                             $topic_file->file_thumbnail = $file_path;
                         }
-                        $file->video_download_link = $file['video_corner_download_link'];
+                        $file->download_link = $file['video_corner_download_link'];
 
                     } elseif ($file['type'] == "other_link") {
                         $topic_file->type = 4;

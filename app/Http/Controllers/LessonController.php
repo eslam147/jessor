@@ -173,7 +173,7 @@ class LessonController extends Controller
 
                         $lesson_file->file_thumbnail = $file_path;
                         $lesson_file->file_url = $file['video_corner_url'];
-                        $lesson_file->video_download_link = $file['video_corner_download_link'];
+                        $lesson_file->download_link = $file['video_corner_download_link'];
 
                 } elseif ($file['type'] == "other_link") {
                         $lesson_file->type = 4;
@@ -479,7 +479,7 @@ class LessonController extends Controller
 
                         $lesson_file->file_thumbnail = $file_path;
                         $lesson_file->file_url = $file['video_corner_url'];
-                        $lesson_file->video_download_link = $file['video_corner_download_link'];
+                        $lesson_file->download_link = $file['video_corner_download_link'];
 
                     } elseif ($file['type'] == "other_link") {
                         $lesson_file->type = 4;
