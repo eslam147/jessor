@@ -80,7 +80,7 @@
                                                     <input type="hidden" id="download_for_browser"
                                                         value="{{ $row->download_link }}">
                                                     <iframe src="{{ $row->file_url }}" class=""
-                                                        style="width: -webkit-fill-available;"frameborder="0"></iframe>
+                                                        style="width: -webkit-fill-available;" frameborder="0"></iframe>
                                                 @endif
                                             </div>
                                         </div>

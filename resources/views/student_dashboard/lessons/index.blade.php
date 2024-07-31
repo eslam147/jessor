@@ -64,12 +64,12 @@
                                         @else
                                             @if ($row->enrollments_count > 0)
                                                 <a href="{{ route('topics.show', $row->id) }}">
-                                                    <h5 class="text-white text-center p-10"> start now </h5>
+                                                    <h5 class="text-white text-center p-10"> Start Now </h5>
                                                 </a>
                                             @else
                                                 <a href="javascript:void(0)" data-bs-toggle="modal"
                                                     data-bs-target="#modal-center" data-animation="shake">
-                                                    <h5 class="text-white text-center p-10"> start now </h5>
+                                                    <h5 class="text-white text-center p-10"> Start Now </h5>
                                                 </a>
                                             @endif
                                         @endif

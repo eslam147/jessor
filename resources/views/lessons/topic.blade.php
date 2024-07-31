@@ -22,7 +22,8 @@
                             method="POST" novalidate="novalidate">
                             <div class="row">
                                 <div class="form-group col-sm-12 col-md-6">
-                                    <label>{{ __('class') . ' ' . __('section') }} <span class="text-danger">*</span></label>
+                                    <label>{{ __('class') . ' ' . __('section') }} <span
+                                            class="text-danger">*</span></label>
                                     <select name="class_section_id" id="topic_class_section_id"
                                         class="class_section_id form-control">
                                         <option value="">{{ __('select') . ' ' . __('class_section') }}</option>
@@ -54,8 +55,8 @@
 
                                 <div class="form-group col-sm-12 col-md-6">
                                     <label>{{ __('topic_name') }} <span class="text-danger">*</span></label>
-                                    <input type="text" id="name" name="name" placeholder="{{ __('topic_name') }}"
-                                        class="form-control" />
+                                    <input type="text" id="name" name="name"
+                                        placeholder="{{ __('topic_name') }}" class="form-control" />
                                 </div>
                             </div>
 
@@ -79,9 +80,8 @@
                                             <option value="youtube_link">{{ __('youtube_link') }}</option>
                                             <option value="video_upload">{{ __('video_upload') }}</option>
                                             <option value="video_corner_link">{{ __('video_corner_link') }}</option>
-                                            <option value="video_corner_download_link">{{ __('video_corner_download_link') }}</option>
-
-                                            {{-- <option value="other_link">{{ __('other_link') }}</option> --}}
+                                            <option value="video_corner_download_link">
+                                                {{ __('video_corner_download_link') }}</option>
                                         </select>
                                     </div>
                                     <div class="form-group col-md-3" id="file_name_div" style="display: none">
@@ -100,8 +100,9 @@
                                     </div>
                                     <div class="form-group col-md-3" id="video_corner_url_div" style="display: none">
                                         <label>{{ __('link') }} <span class="text-danger">*</span></label>
-                                        <input type="text" name="file[0][video_corner_url]" class="video_corner_url form-control"
-                                            placeholder="{{ __('link') }}" required>
+                                        <input type="text" name="file[0][video_corner_url]"
+                                            class="video_corner_url form-control" placeholder="{{ __('link') }}"
+                                            required>
                                     </div>
                                     <div class="form-group col-md-3" id="file_link_div" style="display: none">
                                         <label>{{ __('link') }} <span class="text-danger">*</span></label>
@@ -109,9 +110,12 @@
                                             placeholder="{{ __('link') }}" required>
                                     </div>
 
-                                    <div class="form-group col-md-3" id="video_corner_download_link_div" style="display: none">
-                                        <label>{{ __('video_corner_download_link') }} <span class="text-danger">*</span></label>
-                                        <input type="text" name="file[0][video_corner_download_link]" class="video_corner_download_link form-control"
+                                    <div class="form-group col-md-3" id="video_corner_download_link_div"
+                                        style="display: none">
+                                        <label>{{ __('video_corner_download_link') }} <span
+                                                class="text-danger">*</span></label>
+                                        <input type="text" name="file[0][video_corner_download_link]"
+                                            class="video_corner_download_link form-control"
                                             placeholder="{{ __('video_corner_download_link') }}" required>
                                     </div>
                                     <div class="form-group col-md-1 col-md-1 pl-0 mt-4">
@@ -161,9 +165,9 @@
                                     <select name="filter_lesson_id" id="filter_lesson_id" class="form-control">
                                         <option value="">{{ __('all') }}</option>
                                         @foreach ($lessons as $lesson)
-                                        <option value="{{ $lesson->id }}">
-                                            {{ $lesson->name }}
-                                        </option>
+                                            <option value="{{ $lesson->id }}">
+                                                {{ $lesson->name }}
+                                            </option>
                                         @endforeach
                                     </select>
                                 </div>
@@ -237,17 +241,21 @@
                                             class="class_section_id form-control">
                                             <option value="">--{{ __('select') }}--</option>
                                             @foreach ($class_section as $section)
-                                                <option value="{{ $section->id }}">{{ $section->class->name }} {{ $section->section->name }} - {{ $section->class->medium->name}}</option>
+                                                <option value="{{ $section->id }}">{{ $section->class->name }}
+                                                    {{ $section->section->name }} - {{ $section->class->medium->name }}
+                                                </option>
                                             @endforeach
                                         </select>
                                     </div>
 
                                     <div class="form-group col-sm-12 col-md-6">
                                         <label>{{ __('subject') }} <span class="text-danger">*</span></label>
-                                        <select name="subject_id" id="edit_topic_subject_id" class="subject_id form-control">
+                                        <select name="subject_id" id="edit_topic_subject_id"
+                                            class="subject_id form-control">
                                             <option value="">--{{ __('select_subject') }}--</option>
                                             @foreach ($subjects as $subject)
-                                                <option value="{{ $subject->id }}">{{ $subject->name }} - {{ $subject->type}}</option>
+                                                <option value="{{ $subject->id }}">{{ $subject->name }} -
+                                                    {{ $subject->type }}</option>
                                             @endforeach
                                         </select>
                                     </div>
@@ -281,12 +289,16 @@
                                     <input type="hidden" id="edit_file_id" name="edit_file[0][id]" />
                                     <div class="form-group col-md-2">
                                         <label>{{ __('type') }}</label>
-                                        <select id="edit_file_type" name="edit_file[0][type]" class="form-control file_type">
+                                        <select id="edit_file_type" name="edit_file[0][type]"
+                                            class="form-control file_type">
                                             <option value="">--{{ __('select') }}--</option>
                                             <option value="file_upload">{{ __('file_upload') }}</option>
                                             <option value="youtube_link">{{ __('youtube_link') }}</option>
                                             <option value="video_upload">{{ __('video_upload') }}</option>
-                                            {{-- <option value="other_link">{{ __('other_link') }}</option> --}}
+                                            <option value="video_corner_link">{{ __('video_corner_link') }}</option>
+                                            <option value="video_corner_download_link">
+                                                {{ __('video_corner_download_link') }}
+                                            </option>
                                         </select>
                                     </div>
                                     <div class="form-group col-md-3" id="file_name_div" style="display: none">
@@ -308,12 +320,26 @@
                                             placeholder="">
                                         <a href="" target="_blank" id="file_preview" class="w-100"></a>
                                     </div>
+                                    <div class="form-group col-md-3" id="video_corner_url_div" style="display: none">
+                                        <label>{{ __('link') }} <span class="text-danger">*</span></label>
+                                        <input type="text" name="edit_file[0][video_corner_url]"
+                                            class="video_corner_url form-control" placeholder="{{ __('link') }}"
+                                            required>
+                                    </div>
+
                                     <div class="form-group col-md-3" id="file_link_div" style="display: none">
                                         <label>{{ __('link') }} <span class="text-danger">*</span></label>
                                         <input type="text" name="edit_file[0][link]" class="file_link form-control"
                                             placeholder="{{ __('link') }}" required>
                                     </div>
-
+                                    <div class="form-group col-md-3" id="video_corner_download_link_div"
+                                        style="display: none">
+                                        <label>{{ __('video_corner_download_link') }} <span
+                                                class="text-danger">*</span></label>
+                                        <input type="text" name="file[0][video_corner_download_link]"
+                                            class="video_corner_download_link form-control"
+                                            placeholder="{{ __('video_corner_download_link') }}" required>
+                                    </div>
                                     <div class="form-group col-md-1 pl-0 mt-4">
                                         <button type="button" class="btn btn-icon btn-inverse-danger remove-lesson-file">
                                             <i class="fa fa-times"></i>

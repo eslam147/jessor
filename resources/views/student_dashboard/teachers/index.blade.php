@@ -26,7 +26,7 @@
                             <div class="box">
                                 <div class="box-body text-center">
                                     <div class="mb-20 mt-20">
-                                        <img src="{{ asset('student/images/avatar/avatar-12.png') }}" width="150"
+                                        <img src="{{ global_asset('student/images/avatar/avatar-12.png') }}" width="150"
                                             class="rounded-circle bg-info-light" alt="user" />
                                         <h4 class="mt-20 mb-0"> {{ $row->user->first_name . ' ' . $row->user->last_name }}</h4>
                                     </div>
