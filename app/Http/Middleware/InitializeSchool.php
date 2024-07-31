@@ -13,10 +13,10 @@ class InitializeSchool
     {
         $tenancy = tenant();
         if ($tenancy) {
-            $settings = Settings::select('key', 'message')->get();
-            if ($settings->count()) {
-                $this->setSchool($settings);
-            }
+            // $settings = Settings::select('key', 'message')->get();
+            // if ($settings->count()) {
+            //     $this->setSchool($settings);
+            // }
         }
         return $next($request);
     }
