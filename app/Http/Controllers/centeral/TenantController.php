@@ -16,7 +16,8 @@ class TenantController extends Controller
      */
     public function index()
     {
-        return view('centeral.tenants.index');
+        $migrateOutput = '';
+        return view('centeral.tenants.index',compact('migrateOutput'));
     }
 
     /**
