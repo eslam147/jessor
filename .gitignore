@@ -1,0 +1,34 @@
+npm-debug.log
+yarn-error.log
+
+# Laravel 4 specific
+bootstrap/compiled.php
+app/storage/
+
+# Laravel 5 & Lumen specific
+public/storage
+public/hot
+
+# Laravel 5 & Lumen specific with changed public path
+public_html/storage
+public_html/hot
+
+storage/*.key
+
+Homestead.yaml
+Homestead.json
+/.vagrant
+/.history
+.phpunit.result.cache
+/package-lock.json
+/.idea
+/public/teacher/
+storage/framework/views/*
+.vscode/sftp.json
+
+public/source_code/
+.vscode/settings.json
+.env
+/html_tmeplate/
+jeso_demo.sql
+/vendor/
