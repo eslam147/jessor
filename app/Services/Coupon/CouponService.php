@@ -23,7 +23,7 @@ class CouponService
     {
     }
 
-    public function findCoupon($couponId) : ?Coupon
+    public function findCoupon($couponId): ?Coupon
     {
         return $this->model->where('code', $couponId)->first();
     }
@@ -124,7 +124,8 @@ class CouponService
 
     public function exportCouponCode($coupons)
     {
-        $filePath = "exports/coupons.xlsx";
+        $tenantId = tenant()->id;
+        $filePath = "tenants/{$tenantId}/exports/coupons.xlsx";
         Excel::store(new CouponExport($coupons), $filePath, 'public');
         return tenant_asset(Storage::url($filePath));
     }
