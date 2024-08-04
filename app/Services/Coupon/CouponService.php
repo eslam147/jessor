@@ -124,10 +124,10 @@ class CouponService
 
     public function exportCouponCode($coupons)
     {
-        $tenantId = tenant()->id;
-        $filePath = "tenants/{$tenantId}/exports/coupons.xlsx";
-        Excel::store(new CouponExport($coupons), $filePath, 'public');
-        return tenant_asset(Storage::url($filePath));
+        $fileName = "exports/coupons.xlsx";
+        $fullFilePath = storage_path($fileName);
+        Excel::store(new CouponExport($coupons), $fullFilePath, 'public');
+        return tenant_asset($fileName);
     }
 
     public function savePurchaseCoupons($request)
