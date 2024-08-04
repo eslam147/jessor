@@ -31,6 +31,7 @@ class ApiController extends Controller
             );
             return response()->json($response, 200);
         } catch (\Exception $e) {
+            report($e);
             $response = array(
                 'error' => true,
                 'message' => trans('error_occurred'),
@@ -65,6 +66,8 @@ class ApiController extends Controller
                 'code' => 200,
             );
         } catch (\Exception $e) {
+            report($e);
+
             $response = array(
                 'error' => true,
                 'message' => trans('error_occurred'),
@@ -85,6 +88,8 @@ class ApiController extends Controller
                 'code' => 200,
             );
         } catch (\Exception $e) {
+            report($e);
+
             $response = array(
                 'error' => true,
                 'message' => trans('error_occurred'),
@@ -108,6 +113,8 @@ class ApiController extends Controller
                 'code' => 200,
             );
         } catch (\Exception $e) {
+            report($e);
+
             $response = array(
                 'error' => true,
                 'message' => trans('error_occurred'),
@@ -218,6 +225,8 @@ class ApiController extends Controller
                 'code' => 200,
             );
         } catch (\Exception $e) {
+            report($e);
+
             $response = array(
                 'error' => true,
                 'message' => trans('error_occurred'),
@@ -258,6 +267,8 @@ class ApiController extends Controller
                 );
             }
         } catch (\Exception $e) {
+            report($e);
+
             $response = array(
                 'error' => true,
                 'message' => trans('error_occurred'),
@@ -300,6 +311,8 @@ class ApiController extends Controller
                 );
             }
         } catch (\Exception $e) {
+            report($e);
+
             $response = array(
                 'error' => true,
                 'message' => trans('error_occurred'),
@@ -369,6 +382,8 @@ class ApiController extends Controller
                 'code' => 200,
             );
         } catch (\Throwable $e) {
+            report($e);
+
             $response = array(
                 'error' => true,
                 'message' => trans('error_occurred'),
@@ -402,6 +417,8 @@ class ApiController extends Controller
                 'code' => 200,
             );
         } catch (\Throwable $e) {
+            report($e);
+
             $response = array(
                 'error' => true,
                 'message' => trans('error_occurred'),

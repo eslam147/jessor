@@ -363,6 +363,8 @@ class ParentApiController extends Controller
             );
             return response()->json($response, 200);
         } catch (\Exception $e) {
+            report($e);
+
             $response = array(
                 'error' => true,
                 'message' => trans('error_occurred'),
@@ -421,6 +423,8 @@ class ParentApiController extends Controller
                 'code' => 200,
             );
         } catch (\Exception $e) {
+            report($e);
+
             $response = array(
                 'error' => true,
                 'message' => trans('error_occurred'),
@@ -468,6 +472,8 @@ class ParentApiController extends Controller
                 'code' => 200,
             );
         } catch (\Exception $e) {
+            report($e);
+
             $response = array(
                 'error' => true,
                 'message' => trans('error_occurred'),
@@ -520,6 +526,8 @@ class ParentApiController extends Controller
                 'code' => 200,
             );
         } catch (\Exception $e) {
+            report($e);
+
             $response = array(
                 'error' => true,
                 'message' => trans('error_occurred'),
@@ -593,6 +601,8 @@ class ParentApiController extends Controller
                 'code' => 200,
             );
         } catch (\Exception $e) {
+            report($e);
+
             $response = array(
                 'error' => true,
                 'message' => trans('error_occurred'),
@@ -651,6 +661,8 @@ class ParentApiController extends Controller
                 'code' => 200,
             );
         } catch (\Exception $e) {
+            report($e);
+
             $response = array(
                 'error' => true,
                 'message' => trans('error_occurred'),
@@ -728,6 +740,8 @@ class ParentApiController extends Controller
                 'code' => 200,
             );
         } catch (\Exception $e) {
+            report($e);
+
             $response = array(
                 'error' => true,
                 'message' => trans('error_occurred'),
@@ -801,6 +815,8 @@ class ParentApiController extends Controller
                 'code' => 200,
             );
         } catch (\Exception $e) {
+            report($e);
+
             $response = array(
                 'error' => true,
                 'message' => trans('error_occurred'),
@@ -937,6 +953,8 @@ class ParentApiController extends Controller
                 'code' => 200,
             );
         } catch (\Exception $e) {
+            report($e);
+
             $response = array(
                 'error' => true,
                 'message' => trans('error_occurred'),
@@ -983,6 +1001,8 @@ class ParentApiController extends Controller
                 'code' => 200,
             );
         } catch (\Exception $e) {
+            report($e);
+
             $response = array(
                 'error' => true,
                 'message' => trans('error_occurred'),
@@ -1072,6 +1092,8 @@ class ParentApiController extends Controller
                 );
             }
         } catch (\Exception $e) {
+            report($e);
+
             $response = array(
                 'error' => true,
                 'message' => trans('error_occurred'),
@@ -1209,6 +1231,8 @@ class ParentApiController extends Controller
             );
             // dd($response);
         } catch (\Exception $e) {
+            report($e);
+
             $response = array(
                 'error' => true,
                 'message' => trans('error_occurred'),
@@ -1538,7 +1562,9 @@ class ParentApiController extends Controller
                 'code' => 200,
             );
         } catch (\Exception $e) {
-            Log::error($e);
+            report($e);
+
+            // Log::error($e);
             $response = array(
                 'error' => true,
                 'message' => trans('error_occurred'),
@@ -1580,6 +1606,8 @@ class ParentApiController extends Controller
                 'code' => 200,
             );
         } catch (\Exception $e) {
+            report($e);
+
             $response = array(
                 'error' => true,
                 'message' => trans('error_occurred'),
@@ -1612,6 +1640,8 @@ class ParentApiController extends Controller
                 'code' => 200,
             );
         } catch (\Exception $e) {
+            report($e);
+
             $response = array(
                 'error' => true,
                 'message' => trans('error_occurred'),
@@ -1682,6 +1712,8 @@ class ParentApiController extends Controller
                 'pdf' => base64_encode($output),
             );
         } catch (Throwable $e) {
+            report($e);
+
             $response = array(
                 'error' => true,
                 'message' => trans('error_occurred'),
@@ -1806,6 +1838,8 @@ class ParentApiController extends Controller
                 'code' => 200,
             );
         } catch (\Exception $e) {
+            report($e);
+
             $response = array(
                 'error' => true,
                 'message' => trans('error_occurred'),
@@ -1911,6 +1945,8 @@ class ParentApiController extends Controller
                 'code' => 200,
             );
         } catch (\Exception $e) {
+            report($e);
+
             $response = array(
                 'error' => true,
                 'message' => trans('error_occurred'),
@@ -2024,6 +2060,8 @@ class ParentApiController extends Controller
                 'code' => 200,
             );
         } catch (\Exception $e) {
+            report($e);
+
             $response = array(
                 'error' => true,
                 'message' => trans('error_occurred'),
@@ -2187,6 +2225,8 @@ class ParentApiController extends Controller
                 'code' => 200,
             );
         } catch (\Exception $e) {
+            report($e);
+
             $response = array(
                 'error' => true,
                 'message' => trans('error_occurred'),
@@ -2281,6 +2321,8 @@ class ParentApiController extends Controller
                 'code' => 200,
             );
         } catch (\Exception $e) {
+            report($e);
+
             $response = array(
                 'error' => true,
                 'message' => trans('error_occurred'),
@@ -2329,6 +2371,8 @@ class ParentApiController extends Controller
                 'code' => 200,
             );
         } catch (\Exception $e) {
+            report($e);
+
             $response = array(
                 'error' => true,
                 'message' => trans('error_occurred'),
@@ -2497,6 +2541,8 @@ class ParentApiController extends Controller
                 'code' => 200,
             );
         } catch (\Exception $e) {
+            report($e);
+
             $response = array(
                 'error' => true,
                 'message' => trans('error_occurred'),
@@ -2544,6 +2590,8 @@ class ParentApiController extends Controller
                 'code' => 200,
             );
         } catch (\Exception $e) {
+            report($e);
+
             $response = array(
                 'error' => true,
                 'message' => trans('error_occurred'),
@@ -2565,6 +2613,8 @@ class ParentApiController extends Controller
                 'code' => 200,
             );
         } catch (\Exception $e) {
+            report($e);
+
             $response = array(
                 'error' => true,
                 'message' => trans('error_occurred'),
@@ -2613,6 +2663,8 @@ class ParentApiController extends Controller
                 'code' => 200,
             );
         } catch (\Exception $e) {
+            report($e);
+
             $response = array(
                 'error' => true,
                 'message' => trans('error_occurred'),
@@ -2780,6 +2832,8 @@ class ParentApiController extends Controller
                 'code' => 100,
             ];
         } catch (\Exception $e) {
+            report($e);
+
             $response = array(
                 'error' => true,
                 'message' => trans('error_occurred'),
@@ -2943,6 +2997,8 @@ class ParentApiController extends Controller
                 'code' => 200,
             );
         } catch (\Exception $e) {
+            report($e);
+
             $response = array(
                 'error' => true,
                 'message' => trans('error_occurred'),
@@ -3002,6 +3058,8 @@ class ParentApiController extends Controller
                 'code' => 100,
             );
         } catch (\Exception $e) {
+            report($e);
+
             $response = array(
                 'error' => true,
                 'message' => trans('error_occurred'),
@@ -3037,6 +3095,8 @@ class ParentApiController extends Controller
             );
             return response()->json($response, 200);
         } catch (\Exception $e) {
+            report($e);
+
             $response = array(
                 'error' => true,
                 'message' => trans('error_occurred'),
