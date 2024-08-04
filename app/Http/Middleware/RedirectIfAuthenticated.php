@@ -15,11 +15,12 @@ class RedirectIfAuthenticated
 
         foreach ($guards as $guard) {
             if (Auth::guard($guard)->check()) {
-                // if(Auth::user()->hasRole('Super Admin')){
-                //      return redirect(RouteServiceProvider::STUDENT);
-                // }else{
-                    return redirect(RouteServiceProvider::HOME);
-                //}
+                $user = Auth::user();
+                if ($user->hasRole(['Super Admin', 'Teacher'])) {
+                    return to_route('home');
+                } elseif ($user->hasRole('Student')) {
+                    return to_route('home.index');
+                }
             }
         }
 

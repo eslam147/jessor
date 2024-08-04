@@ -12,7 +12,7 @@ class SubjectResource extends JsonResource
         return [
             'id' => $this->id,
             'name' => $this->name,
-            'image' => $this->when($this->image, asset($this->image), null),
+            'image' => $this->when($this->image, tenant_asset($this->image), null),
             'lessons' => LessonResource::collection($this->lessons),
         ];
     }

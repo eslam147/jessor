@@ -3344,7 +3344,7 @@ class TeacherApiController extends Controller
                 $chatfile = [];
                 foreach ($message->file as $file) {
                     if (! empty($file)) {
-                        $chatfile[] = asset('storage/' . $file->file_name);
+                        $chatfile[] = tenant_asset('storage/' . $file->file_name);
                     } else {
                         $chatfile[] = '';
                     }
@@ -3459,7 +3459,7 @@ class TeacherApiController extends Controller
 
             foreach ($messages as &$message) {
                 $message['files'] = collect($message['file'])->map(function ($file) {
-                    return asset('storage/' . $file['file_name']);
+                    return tenant_asset('storage/' . $file['file_name']);
                 })->toArray();
 
                 unset($message['file']);

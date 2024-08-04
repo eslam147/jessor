@@ -1,9 +1,16 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Middleware\InitializeSchool;
 use App\Http\Controllers\Api\StudentApiController;
+use Stancl\Tenancy\Middleware\InitializeTenancyByDomain;
+use Stancl\Tenancy\Middleware\PreventAccessFromCentralDomains;
 
-Route::group(['prefix' => 'student'], function () {
+Route::prefix('student')->middleware([
+  InitializeTenancyByDomain::class,
+  PreventAccessFromCentralDomains::class,
+  InitializeSchool::class
+])->group(function () {
 
   //Non Authenticated APIs
   Route::post('login', [StudentApiController::class, 'login']);
