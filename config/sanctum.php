@@ -44,7 +44,7 @@ return [
     |
     */
 
-    'expiration' => now()->addMonths(3),
+    'expiration' => now()->addMonths(3)->timestamp,
 
     /*
     |--------------------------------------------------------------------------
