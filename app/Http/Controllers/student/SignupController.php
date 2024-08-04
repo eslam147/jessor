@@ -38,7 +38,7 @@ class SignupController extends Controller
 
     public function store(Request $request)
     {
-
+        //dd($request->all());
         //check student data
         $validator = Validator::make($request->all(), [
             //students
@@ -47,8 +47,7 @@ class SignupController extends Controller
             'password' => 'required|string|min:6',
             'mobile'   => 'required|string',
             'email' => 'required|email|unique:users,email',
-            'class_section_id' => 'required|exists:class_sections,id',
-            'category_id' => 'required|exists:categories,id',
+            'class_section_id' => 'required|exists:class_sections,id'
         ]);
 
         if ($validator->fails()) {
@@ -62,7 +61,7 @@ class SignupController extends Controller
                 'last_name' => $request->last_name,
                 'mobile' => $request->mobile,
                 'class_section_id' => $request->class_section_id,
-                'category_id' => $category_id,
+                'category_id' => 1,
                 'email' => $request->email,
                 'password' => Hash::make($request->password),
             ]);
@@ -74,7 +73,7 @@ class SignupController extends Controller
             $student = Students::create([
                 'user_id' => $studentUser->id,
                 'class_section_id' => $request->class_section_id,
-                'category_id' => $request->category_id,
+                'category_id' => 1,
                 'father_id' => null,
                 'mother_id' => null,
                 'guardian_id' => null,

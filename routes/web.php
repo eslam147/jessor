@@ -6,6 +6,8 @@ use App\Http\Controllers\WebController;
 use App\Http\Middleware\InitializeSchool;
 use App\Http\Controllers\WebhookController;
 use App\Http\Controllers\student\SignupController;
+use App\Http\Controllers\centeral\DomainController;
+use App\Http\Controllers\centeral\TenantController;
 use Stancl\Tenancy\Middleware\InitializeTenancyByDomain;
 use Stancl\Tenancy\Middleware\PreventAccessFromCentralDomains;
 /*
@@ -18,38 +20,13 @@ use Stancl\Tenancy\Middleware\PreventAccessFromCentralDomains;
 | contains the "web" middleware group. Now create something great!
 |
 */
-Route::middleware([
-    'web',
-    InitializeTenancyByDomain::class,
-    PreventAccessFromCentralDomains::class,
-    InitializeSchool::class,
-])->group(function () {
-        Auth::routes();
-        Route::controller(WebController::class)->group(function () {
-            //Route::get('/', 'index');
-            Route::get('about', 'about')->name('about.us');
-            Route::get('contact', 'contact_us')->name('contact.us');
-            Route::get('photo', 'photo')->name('photo');
-            Route::get('photo-gallery/{id}', 'photo_details')->name('photo.gallery');
-            Route::get('video', 'video')->name('video');
-            Route::get('video-gallery', 'video_details')->name('video.gallery');
-            Route::post('contact-us/store', 'contact_us_store')->name('contact_us.store');
-        });
-        Route::view('login', 'auth.login')->name('login');
-        Route::resource('signup', SignupController::class);
 
-        // webhooks
-        Route::post('webhook/razorpay', [WebhookController::class, 'razorpay']);
-        Route::post('webhook/stripe', [WebhookController::class, 'stripe']);
-        Route::post('webhook/paystack', [WebhookController::class, 'paystack']);
-
-        Route::get('/privacy-policy', function () {
-            $settings = getSettings('privacy_policy');
-            return $settings['privacy_policy'] ?? '';
-        });
-
-        Route::get('/terms-conditions', function () {
-            $settings = getSettings('terms_condition');
-            return $settings['terms_condition'] ?? '';
-        });
-});
+foreach (config('tenancy.central_domains') as $domain) {
+    Route::domain($domain)->group(function () {
+        Route::get('/', function () {
+            return view('centeral.landing.home');
+        })->name('centeral.home');
+        Route::resource('domain', DomainController::class);
+        Route::resource('tenants',TenantController::class);
+    });
+}

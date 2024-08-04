@@ -9,10 +9,9 @@
         <a href="index.html" class="logo">
             <!-- logo-->
             <div class="logo-lg">
-                <span class="light-logo"><img src="{{ tenant_asset(settingByType('logo1')) }}"
-                        alt="logo"></span>
-                <span class="dark-logo"><img src="{{ tenant_asset(settingByType('logo1')) }}"
-                        alt="logo"></span>
+                <span class="light-logo">
+                    <img src="{{ settingByType('logo1') ? tenant_asset(settingByType('logo1')) : global_asset('assets/logo.svg') }}"  alt="logo">
+                </span> 
             </div>
         </a>
     </div>
@@ -157,7 +156,7 @@
                                 Profile</a>
                             <a class="dropdown-item" href="#"><i class="ti-wallet text-muted me-2"></i> My
                                 Wallet</a>
-                            <a class="dropdown-item" href="#"><i class="ti-settings text-muted me-2"></i>
+                            <a class="dropdown-item" href="{{ route('student-settings.index') }}"><i class="ti-settings text-muted me-2"></i>
                                 Settings</a>
                             <div class="dropdown-divider"></div>
                             <a class="dropdown-item" href="#"

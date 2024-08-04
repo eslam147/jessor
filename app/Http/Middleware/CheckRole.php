@@ -21,7 +21,7 @@ class CheckRole
     {
         if (Auth::user())
         {
-             
+            
             return $next($request);
         }
         return response()->view('auth.login');

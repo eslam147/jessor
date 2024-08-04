@@ -45,13 +45,8 @@
                                         </select>
                                     </div>
                                     <div class="form-group col-6">
-                                        <label> {{ __('category') }} <span class="text-danger">*</span></label>
-                                        <select name="category_id" class="form-control">
-                                            <option value="">{{ __('select') . ' ' . __('category') }}</option>
-                                            @foreach ($category as $cat)
-                                                <option value="{{ $cat->id }}">{{ $cat->name }}</option>
-                                            @endforeach
-                                        </select>
+                                        <label> {{ __('mobile') }} <span class="text-danger">*</span></label>
+                                        <input type="tel" name="mobile" class="form-control" >
                                     </div>
                                     <div class="form-group col-6">
                                         <label>{{ __('first_name') }}</label>
