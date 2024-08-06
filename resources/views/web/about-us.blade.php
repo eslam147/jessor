@@ -115,7 +115,7 @@
                         </div>
                         <div class="col-lg-6 whoweAreImgDiv">
                             <div class="">
-                                <img src="{{ isset($whoweare->image) ? tenant_asset($whoweare->image) : global_asset('assets/images/who-we-are-img.png') }}"
+                                <img src="{{ isset($whoweare->image) ? $whoweare->image : global_asset('assets/images/who-we-are-img.png') }}"
                                     alt="">
                             </div>
                         </div>

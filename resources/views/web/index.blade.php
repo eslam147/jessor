@@ -22,7 +22,7 @@
           @else
               @foreach ($sliders as $slider)
                   <div class="item">
-                      <img src="{{ url($slider->image) }}" alt="" class="swiperImage">
+                      <img src="{{ $slider->image }}" alt="" class="swiperImage">
                   </div>
               @endforeach
           @endif
