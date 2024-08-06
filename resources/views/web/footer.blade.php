@@ -200,11 +200,11 @@
 <!-- swiper  -->
 <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
-<script src="{{ asset('/assets/jquery-toast-plugin/jquery.toast.min.js') }}"></script>
-<script src="{{ asset('/assets/js/custom/function.js') }}"></script>
-<script src="{{ asset('/assets/js/jquery.validate.min.js') }}"></script>
-<script src="{{ asset('/assets/js/script.js') }}"></script>
-<script src="{{ asset('/assets/js/ekko-lightbox.min.js') }}"></script>
+<script src="{{ global_asset('/assets/jquery-toast-plugin/jquery.toast.min.js') }}"></script>
+<script src="{{ global_asset('/assets/js/custom/function.js') }}"></script>
+<script src="{{ global_asset('/assets/js/jquery.validate.min.js') }}"></script>
+<script src="{{ global_asset('/assets/js/script.js') }}"></script>
+<script src="{{ global_asset('/assets/js/ekko-lightbox.min.js') }}"></script>
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/owl.carousel.min.js"></script>
 <script>
