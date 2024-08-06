@@ -40,6 +40,6 @@
 <script>
     var baseUrl = `{{ URL::to('/') }}`;
     const onErrorImage = (e) => {
-        e.target.src = `{{ url('images/no_image_available.jpg') }}`;
+        e.target.src = `{{ global_asset('images/no_image_available.jpg') }}`;
     };
 </script>
