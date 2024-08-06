@@ -20,7 +20,8 @@ class LessonResource extends JsonResource
             'files' => $this->when($this->is_enrolled, function () {
                 return FileResource::collection($this->file);
             }, null),
-            // 'topics' => LessonTopicResource::collection($this->topics),
+
+            'topics' => LessonTopicResource::collection($this->topics),
         ];
     }
 }

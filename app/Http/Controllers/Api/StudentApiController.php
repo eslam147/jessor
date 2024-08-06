@@ -864,7 +864,7 @@ class StudentApiController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'lesson_id' => 'nullable|numeric',
-            'teacher_id' => 'required',
+            'teacher_id' => 'required|numeric',
         ]);
 
         if ($validator->fails()) {
