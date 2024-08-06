@@ -1,15 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\WebController;
-use App\Http\Middleware\InitializeSchool;
-use App\Http\Controllers\WebhookController;
-use App\Http\Controllers\student\SignupController;
 use App\Http\Controllers\centeral\DomainController;
 use App\Http\Controllers\centeral\TenantController;
-use Stancl\Tenancy\Middleware\InitializeTenancyByDomain;
-use Stancl\Tenancy\Middleware\PreventAccessFromCentralDomains;
 /*
 |--------------------------------------------------------------------------
 | Web Routes

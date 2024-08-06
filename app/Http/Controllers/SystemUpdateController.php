@@ -13,6 +13,7 @@ class SystemUpdateController extends Controller
 {
     public function __construct()
     {
+        abort(404);
         $this->destinationPath = base_path() . '/update/tmp/';
     }
 

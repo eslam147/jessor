@@ -13,8 +13,8 @@ use Google\Auth\Credentials\ServiceAccountJwtAccessCredentials;
 function send_notification($user, $title, $body, $type, $image, $userinfo)
 {
 
-    $FcmToken1 = User::where('fcm_id', '!=', '')->whereIn('id', $user)->where('device_type', '=' ,'android')->get()->pluck('fcm_id');
-    $FcmToken2 = User::where('fcm_id', '!=', '')->whereIn('id', $user)->where('device_type', '=' ,'ios')->get()->pluck('fcm_id');
+    $FcmToken1 = User::where('fcm_id', '!=', '')->whereIn('id', $user)->where('device_type', 'android')->get()->pluck('fcm_id');
+    $FcmToken2 = User::where('fcm_id', '!=', '')->whereIn('id', $user)->where('device_type', 'ios')->get()->pluck('fcm_id');
     $device_type = User::whereIn('id', $user)->pluck('device_type');
 
     $project_id = Settings::select('message')->where('type', 'project_id')->pluck('message')->first();
@@ -24,7 +24,7 @@ function send_notification($user, $title, $body, $type, $image, $userinfo)
 
     $access_token = getAccessToken();
 
-    if($type == 'chat'){
+    if ($type == 'chat') {
         $userDetails = $userinfo;
         $userinfo = json_encode($userDetails);
 
@@ -34,21 +34,20 @@ function send_notification($user, $title, $body, $type, $image, $userinfo)
             "body" => $body,
             "type" => $type,
             "image" => $image,
-            "sender_info" =>  $userinfo
+            "sender_info" => $userinfo
         ];
 
 
-    }elseif ($type == 'fees-due') {
+    } elseif ($type == 'fees-due') {
         $notification_data = [
             'click_action' => 'FLUTTER_NOTIFICATION_CLICK',
             "title" => $title,
             "body" => $body,
             "type" => $type,
             "image" => $image,
-            "child_id" =>  $userinfo
+            "child_id" => $userinfo
         ];
-    }
-    else{
+    } else {
         $notification_data = [
             'click_action' => 'FLUTTER_NOTIFICATION_CLICK',
             "title" => $title,
@@ -62,14 +61,14 @@ function send_notification($user, $title, $body, $type, $image, $userinfo)
         $androidFcmTokens = $FcmToken1->toArray();
         foreach ($androidFcmTokens as $token) {
             $message1 = [
-                "message"=>[
-                "token" => $token,
-                "data" => $notification_data
+                "message" => [
+                    "token" => $token,
+                    "data" => $notification_data
                 ]
             ];
             $data1 = json_encode($message1);
 
-            $result1 = sendNotificationToFCM($url, $access_token, $data1);
+            sendNotificationToFCM($url, $access_token, $data1);
         }
 
     }
@@ -80,12 +79,12 @@ function send_notification($user, $title, $body, $type, $image, $userinfo)
         foreach ($iosFcmTokens as $token) {
 
             $message2 = [
-                "message"=>[
+                "message" => [
                     "token" => $token,
                     "notification" => [
-                        "title" => $title,
-                        "body" => $body,
-                    ],
+                            "title" => $title,
+                            "body" => $body,
+                        ],
                     "data" => $notification_data
                 ]
             ];
@@ -98,7 +97,8 @@ function send_notification($user, $title, $body, $type, $image, $userinfo)
 }
 
 
-function sendNotificationToFCM($url, $access_token, $Data) {
+function sendNotificationToFCM($url, $access_token, $Data)
+{
     $headers = [
         'Authorization: Bearer ' . $access_token,
         'Content-Type: application/json',
@@ -132,7 +132,7 @@ function getAccessToken()
 {
     $file_name = Settings::select('message')->where('type', 'service_account_file')->pluck('message')->first();
 
-    $file_path = base_path('public/storage/'. $file_name);
+    $file_path = tenant_asset('public/storage/' . $file_name);
 
     $client = new Client();
     $client->setAuthConfig($file_path);
