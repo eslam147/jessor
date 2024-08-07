@@ -878,12 +878,13 @@ class StudentApiController extends Controller
         }
         try {
             $student = $request->user();
-            $studentInfo = $student->load('student')->student;
-
+            $student->load('student.class_section');
+            $studentInfo = $student->student;
             $data = Lesson::where('teacher_id', $request->teacher_id)
                 ->active()
-                ->where('class_section_id', $studentInfo->class_section_id)
-                ->with('topic', 'file', 'subject','class_section');
+                ->whereHas('class_section.class', function ($q) use ($studentInfo) {
+                    $q->where('id', $studentInfo->class_section->class_id);
+                })->with('topic', 'file', 'subject', 'class_section');
 
             $data = $data->addSelect([
                 'is_enrolled' => Enrollment::select('id')->where('user_id', $student->id)->whereColumn('lesson_id', 'lessons.id'),
