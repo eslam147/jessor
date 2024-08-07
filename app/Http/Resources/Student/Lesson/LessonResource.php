@@ -21,7 +21,7 @@ class LessonResource extends JsonResource
                 return FileResource::collection($this->file);
             }, null),
 
-            'topics' => LessonTopicResource::collection($this->topics),
+            'topics' => LessonTopicResource::collection($this->topic),
         ];
     }
 }
