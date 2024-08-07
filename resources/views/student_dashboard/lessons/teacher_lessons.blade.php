@@ -54,7 +54,7 @@
 							</div>
                             <div class="bg-primary mt-5 rounded">
                                 @if($row->isFree())
-                                    <a href="javascript:void(0)" >
+                                    <a href="{{ route('topics.show',$row->id) }}" >
                                         <h5 class="text-white text-center p-10"> start now </h5>
                                     </a>
                                 @else
@@ -78,29 +78,29 @@
     </div>
 </div>
 <!-- Modal -->
-    <div class="modal center-modal fade" id="modal-center" tabindex="-1">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Lesson Is Locked <i class="si-lock si" ></i></h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <form id="purchaseForm" method="POST" action="{{ route('enroll.store') }}" >
-                        @csrf
-                        <div class="form-group" >
-                            <label>Purchase Code</label>
-                            <input type="text" name="purchase_code" class="form-control mt-5" >
-                        </div>
-                        <input type="hidden" id="LessonId" name="lesson_id" value="">
-                    </form>
-                </div>
-                <div class="modal-footer modal-footer-uniform">
-                    <button type="submit" form="purchaseForm" class="btn btn-success" style="width: 100%;" >Unlock</button>
-                </div>
+<div class="modal center-modal fade" id="modal-center" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Lesson Is Locked <i class="si-lock si" ></i></h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="purchaseForm" method="POST" action="{{ route('enroll.store') }}" >
+                    @csrf
+                    <div class="form-group" >
+                        <label>Purchase Code</label>
+                        <input type="text" name="purchase_code" class="form-control mt-5" >
+                    </div>
+                    <input type="hidden" id="LessonId" name="lesson_id" value="">
+                </form>
+            </div>
+            <div class="modal-footer modal-footer-uniform">
+                <button type="submit" form="purchaseForm" class="btn btn-success" style="width: 100%;" >Unlock</button>
             </div>
         </div>
     </div>
+</div>
 <!-- /.modal -->
 @include('sweetalert::alert')
 @endsection

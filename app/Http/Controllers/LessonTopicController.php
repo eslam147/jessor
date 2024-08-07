@@ -50,6 +50,7 @@ class LessonTopicController extends Controller
      */
     public function store(Request $request)
     {
+
         if (! Auth::user()->can('topic-create')) {
             $response = array(
                 'error' => true,
@@ -115,7 +116,6 @@ class LessonTopicController extends Controller
                         $file->file_url = $data['file']->store('lessons', 'public');
                     } elseif ($data['type'] == "youtube_link") {
                         $file->type = 2;
-
                         $image = $data['thumbnail'];
                         // made file name with combination of current time
                         $file_name = time() . '-' . $image->getClientOriginalName();

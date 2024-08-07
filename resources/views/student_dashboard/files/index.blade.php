@@ -49,7 +49,7 @@
                                             <!-- Tab panes -->
                                             <div class="tab-content">
                                                 <div id="videos" class="tab-pane active">
-                                                    @foreach ($topic->file as $row)
+                                                    {{-- @foreach ($files as $row)
                                                         <div class="row" style="width: -webkit-fill-available;">
                                                             <div class="col-12" style="width: -webkit-fill-available;">
                                                                 @if ($row->isYoutubeVideo())
@@ -90,31 +90,35 @@
                                                                 @endif
                                                             </div>
                                                         </div>
-                                                    @endforeach
+                                                    @endforeach --}}
                                                 </div>
                                                 <div id="files" class="tab-pane">
-                                                    <div class="p-15">
-                                                        <h4>Fusce porta eros a nisl varius, non molestie metus mollis.
-                                                            Pellentesque tincidunt ante sit amet ornare lacinia.</h4>
-                                                        <p>Duis cursus eros lorem, pretium ornare purus tincidunt eleifend.
-                                                            Etiam quis justo vitae erat faucibus pharetra. Morbi in
-                                                            ullamcorper diam.
-                                                            Morbi lacinia, sem vitae dignissim cursus, massa nibh semper
-                                                            magna, nec
-                                                            pellentesque lorem nisl quis ex.</p>
-                                                        <h3>Donec vitae laoreet neque, id convallis ante.</h3>
+                                                    <div class="box-body">
+                                                        <!-- Nav tabs -->
+                                                        <ul class="nav nav-tabs customtab2" role="tablist">
+                                                            @foreach ($files as $row)
+                                                                <li class="nav-item">
+                                                                    <a class="nav-link active" data-bs-toggle="tab" href="javascript:void(0)" data-id="{{ $row->id }}" role="tab">
+                                                                        <span class="hidden-sm-up"><i class="ion-home"></i></span>
+                                                                        <span class="hidden-xs-down"> {{ $row->file_name }} </span>
+                                                                    </a>
+                                                                </li>
+                                                            @endforeach
+                                                        </ul>
+                                                        <!-- Tab panes -->
+                                                        <div class="tab-content">
+                                                            <div class="tab-pane active" id="home7" role="tabpanel">
+                                                                <div class="p-15">
+
+                                                                </div>
+                                                            </div>
+                                                        </div>
                                                     </div>
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
-                            </div>
-                            <div id="navpills2-2" class="tab-pane">
-                                Files
-                            </div>
-                            <div id="navpills2-3" class="tab-pane">
-                                Videos
                             </div>
                         </div>
                     </div>
@@ -131,5 +135,27 @@
         document.addEventListener('DOMContentLoaded', () => {
             const player = new Plyr('#player');
         });
+
+        $(document).ready(function() {
+            $('.nav-link').on('click', function(e) {
+                e.preventDefault();
+                var id = $(this).data('id');
+                $.ajax({
+                    url: '{{ route("topics.getfile") }}',
+                    method: 'POST',
+                    data: {
+                        id: id,
+                        _token: '{{ csrf_token() }}'
+                    },
+                    success: function(response) {
+                        $('#home7 .p-15').html(response);
+                    },
+                    error: function(xhr) {
+                        console.log(xhr.responseText);
+                    }
+                });
+            });
+        });
     </script>
+
 @endsection

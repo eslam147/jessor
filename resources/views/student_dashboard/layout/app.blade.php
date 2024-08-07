@@ -46,7 +46,7 @@
 
     @yield('content')
 
-    @include('student_dashboard.layout.footer');
+    @include('student_dashboard.layout.footer')
 
   <!-- Control Sidebar -->
   <aside class="control-sidebar">
@@ -445,7 +445,7 @@
 	<script src="{{ url('student/js/template.js')}}"></script>
 	<script src="{{ url('student/js/pages/dashboard.js')}}"></script>
 	<script src="{{ url('student/js/pages/calendar.js')}}"></script>
-    @yield('script');
+    @yield('script')
 </body>
 
 </html>

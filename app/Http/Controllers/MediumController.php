@@ -13,6 +13,7 @@ use Throwable;
 class MediumController extends Controller
 {
     public function index() {
+
         if (!Auth::user()->can('medium-list')) {
             $response = array(
                 'message' => trans('no_permission_message')
@@ -20,6 +21,7 @@ class MediumController extends Controller
             return redirect(route('home'))->withErrors($response);
 
         }
+
         return view('medium.index');
     }
 
@@ -121,58 +123,102 @@ class MediumController extends Controller
 
     public function show() {
         if (!Auth::user()->can('medium-list')) {
-            $response = array(
+            return response()->json([
                 'error' => true,
                 'message' => trans('no_permission_message')
-            );
-            return response()->json($response);
-        }
-        $offset = 0;
-        $limit = 10;
-        $sort = 'id';
-        $order = 'DESC';
-
-        if (isset($_GET['offset']))
-            $offset = $_GET['offset'];
-        if (isset($_GET['limit']))
-            $limit = $_GET['limit'];
-
-        if (isset($_GET['sort']))
-            $sort = $_GET['sort'];
-        if (isset($_GET['order']))
-            $order = $_GET['order'];
-
-        $sql = Mediums::where('id', '!=', 0);
-        if (isset($_GET['search']) && !empty($_GET['search'])) {
-            $search = $_GET['search'];
-            $sql->where('id', 'LIKE', "%$search%")->orwhere('name', 'LIKE', "%$search%");
-        }
-        $total = $sql->count();
-
-        $sql->orderBy($sort, $order)->skip($offset)->take($limit);
-        $res = $sql->get();
-
-        $bulkData = array();
-        $bulkData['total'] = $total;
-        $rows = array();
-        $tempRow = array();
-        $no = 1;
-        foreach ($res as $row) {
-            $operate = '<a href=' . route('medium.edit', $row->id) . ' class="btn btn-xs btn-gradient-primary btn-rounded btn-icon edit-data" data-id=' . $row->id . ' title="Edit" data-toggle="modal" data-target="#editModal"><i class="fa fa-edit"></i></a>&nbsp;&nbsp;';
-            $operate .= '<a href=' . route('medium.destroy', $row->id) . ' class="btn btn-xs btn-gradient-danger btn-rounded btn-icon delete-form" data-id=' . $row->id . '><i class="fa fa-trash"></i></a>';
-//            $operate = '<a class="btn btn-xs btn-theme editdata" data-id=' . $row->id . ' title="Edit" data-toggle="modal" data-target="#editModal"><i class="fa fa-edit"></i></a>&nbsp;&nbsp;';
-//            $operate .= '<a class="btn btn-xs btn-danger deletedata" data-id=' . $row->id . ' title="Delete"><i class="fa fa-trash"></i></a>';
-
-            $tempRow['id'] = $row->id;
-            $tempRow['no'] = $no++;
-            $tempRow['name'] = $row->name;
-            $tempRow['created_at'] = convertDateFormat($row->created_at, 'd-m-Y H:i:s');
-            $tempRow['updated_at'] = convertDateFormat($row->updated_at, 'd-m-Y H:i:s');
-            $tempRow['operate'] = $operate;
-            $rows[] = $tempRow;
+            ]);
         }
 
-        $bulkData['rows'] = $rows;
-        return response()->json($bulkData);
+        $offset = request()->get('offset', 0);
+        $limit = request()->get('limit', 10);
+        $sort = request()->get('sort', 'id');
+        $order = request()->get('order', 'DESC');
+
+        $query = Mediums::query();
+
+        if ($search = request()->get('search')) {
+            $query->where('id', 'LIKE', "%$search%")
+                  ->orWhere('name', 'LIKE', "%$search%");
+        }
+
+        $total = $query->count();
+
+        $data = $query->orderBy($sort, $order)
+                      ->skip($offset)
+                      ->take($limit)
+                      ->get();
+
+        $rows = $data->map(function ($row, $index) {
+            return [
+                'id' => $row->id,
+                'no' => $index + 1,
+                'name' => $row->name,
+                'created_at' => convertDateFormat($row->created_at, 'd-m-Y H:i:s'),
+                'updated_at' => convertDateFormat($row->updated_at, 'd-m-Y H:i:s'),
+                'operate' => '<a href="' . route('medium.edit', $row->id) . '" class="btn btn-xs btn-gradient-primary btn-rounded btn-icon edit-data" data-id="' . $row->id . '" title="Edit" data-toggle="modal" data-target="#editModal"><i class="fa fa-edit"></i></a>&nbsp;&nbsp;<a href="' . route('medium.destroy', $row->id) . '" class="btn btn-xs btn-gradient-danger btn-rounded btn-icon delete-form" data-id="' . $row->id . '"><i class="fa fa-trash"></i></a>',
+            ];
+        });
+
+        return response()->json([
+            'total' => $total,
+            'rows' => $rows
+        ]);
     }
+
+    // public function show() {
+    //     if (!Auth::user()->can('medium-list')) {
+    //         $response = array(
+    //             'error' => true,
+    //             'message' => trans('no_permission_message')
+    //         );
+    //         return response()->json($response);
+    //     }
+    //     $offset = 0;
+    //     $limit = 10;
+    //     $sort = 'id';
+    //     $order = 'DESC';
+
+    //     if (isset($_GET['offset']))
+    //         $offset = $_GET['offset'];
+    //     if (isset($_GET['limit']))
+    //         $limit = $_GET['limit'];
+
+    //     if (isset($_GET['sort']))
+    //         $sort = $_GET['sort'];
+    //     if (isset($_GET['order']))
+    //         $order = $_GET['order'];
+
+    //     $sql = Mediums::where('id', '!=', 0);
+    //     if (isset($_GET['search']) && !empty($_GET['search'])) {
+    //         $search = $_GET['search'];
+    //         $sql->where('id', 'LIKE', "%$search%")->orwhere('name', 'LIKE', "%$search%");
+    //     }
+    //     $total = $sql->count();
+
+    //     $sql->orderBy($sort, $order)->skip($offset)->take($limit);
+    //     $res = $sql->get();
+
+    //     $bulkData = array();
+    //     $bulkData['total'] = $total;
+    //     $rows = array();
+    //     $tempRow = array();
+    //     $no = 1;
+    //     foreach ($res as $row) {
+    //         $operate = '<a href=' . route('medium.edit', $row->id) . ' class="btn btn-xs btn-gradient-primary btn-rounded btn-icon edit-data" data-id=' . $row->id . ' title="Edit" data-toggle="modal" data-target="#editModal"><i class="fa fa-edit"></i></a>&nbsp;&nbsp;';
+    //         $operate .= '<a href=' . route('medium.destroy', $row->id) . ' class="btn btn-xs btn-gradient-danger btn-rounded btn-icon delete-form" data-id=' . $row->id . '><i class="fa fa-trash"></i></a>';
+    //         //  $operate = '<a class="btn btn-xs btn-theme editdata" data-id=' . $row->id . ' title="Edit" data-toggle="modal" data-target="#editModal"><i class="fa fa-edit"></i></a>&nbsp;&nbsp;';
+    //         //  $operate .= '<a class="btn btn-xs btn-danger deletedata" data-id=' . $row->id . ' title="Delete"><i class="fa fa-trash"></i></a>';
+
+    //         $tempRow['id'] = $row->id;
+    //         $tempRow['no'] = $no++;
+    //         $tempRow['name'] = $row->name;
+    //         $tempRow['created_at'] = convertDateFormat($row->created_at, 'd-m-Y H:i:s');
+    //         $tempRow['updated_at'] = convertDateFormat($row->updated_at, 'd-m-Y H:i:s');
+    //         $tempRow['operate'] = $operate;
+    //         $rows[] = $tempRow;
+    //     }
+
+    //     $bulkData['rows'] = $rows;
+    //     return response()->json($bulkData);
+    // }
 }
