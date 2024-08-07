@@ -884,9 +884,8 @@ class StudentApiController extends Controller
 
             $data = Lesson::where('teacher_id', $request->teacher_id)
                 ->active()
-                ->whereHas('class_section', function ($q) use ($studentInfo) {
-                    $q->where('class_id', $studentInfo->class_section->class_id);
-                })->with('topic', 'file', 'subject', 'class_section');
+                ->relatedToCurrentStudentClass($studentInfo)
+                ->with('topic', 'file', 'subject', 'class');
 
             $data = $data->addSelect([
                 'is_enrolled' => Enrollment::select('id')->where('user_id', $student->id)->whereColumn('lesson_id', 'lessons.id'),
@@ -917,9 +916,8 @@ class StudentApiController extends Controller
     public function getEnrollmentLessons(Request $request)
     {
         try {
-            // $student = $request->user()->student;
             $data = Lesson::whereHas('enrollments', function ($q) {
-                return $q->where('user_id', Auth::user()->id);
+                return $q->where('user_id', auth('api')->id());
             })->with('topic', 'file');
 
             $data = $data->active()->get();
@@ -962,13 +960,14 @@ class StudentApiController extends Controller
 
         try {
             $student = $request->user()->student;
+            
             //----------------------------------------- \\
             $data = Teacher::whereHas('subjects', function ($q) use ($request, $student) {
-                return $q->where('subject_id', $request->subject_id)
+                return $q->where('id', $request->subject_id)
                     ->where('class_section_id', $student->class_section_id);
             })->with('user')
                 ->withCount([
-                    'lessons' => fn($q) => $q->active(),
+                    'lessons' => fn($q) => $q->active()->relatedToCurrentStudentClass($student),
                     'lessonTopics'
                 ])->get();
             //----------------------------------------- \\

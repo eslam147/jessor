@@ -7,10 +7,11 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Znck\Eloquent\Traits\BelongsToThrough;
 
 class Lesson extends Model
 {
-    use HasFactory;
+    use HasFactory, BelongsToThrough;
     protected $guarded = [];
     public $casts = [
         'status' => LessonStatus::class,
@@ -36,15 +37,17 @@ class Lesson extends Model
         });
     }
 
-    public function scopeActive($query){
+    public function scopeActive($query)
+    {
         return $query->where('status', LessonStatus::PUBLISHED);
     }
-    public function scopeRelatedToTeacher($query){
+    public function scopeRelatedToTeacher($query)
+    {
         $user = Auth::user();
         if ($user->hasRole('Teacher')) {
             $teacher_id = $user->load('teacher')->teacher->id;
             return $query->where('teacher_id', $teacher_id);
-            
+
         }
         return $query;
     }
@@ -64,6 +67,19 @@ class Lesson extends Model
     public function class_section()
     {
         return $this->belongsTo(ClassSection::class)->with('class', 'section');
+    }
+
+    public function class()
+    {
+        return $this->belongsToThrough(ClassSchool::class, ClassSection::class);
+    }
+    public function scopeRelatedToClass($classId)
+    {
+        return $this->whereHas('class', fn($q) => $q->where('classes.id', $classId));
+    }
+    public function scopeRelatedToCurrentStudentClass(Students $student)
+    {
+        return $this->whereHas('class', fn($q) => $q->where('class_sections.id', $student->class_section_id));
     }
 
     public function file()

@@ -17,7 +17,7 @@ class LessonResource extends JsonResource
             'title' => $this->name,
             'description' => $this->description,
             'status' => $this->status,
-            'class' => new ClassSchoolResource($this->class_section->class),
+            'class' => new ClassSchoolResource($this->class),
             'subject' => new SubjectResource($this->subject),
             'is_enrolled' => boolval($this->is_enrolled),
             'is_paid' => boolval(! $this->isFree()),
