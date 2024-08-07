@@ -12,7 +12,6 @@ class Event extends Model
     use HasFactory;
     protected $guarded = [];
 
-
     public function multipleEvent()
     {
         return $this->hasMany(MultipleEvent::class);
@@ -20,9 +19,8 @@ class Event extends Model
     }
     public function getImageAttribute($value)
     {
-        if($value)
-        {
-            return url(Storage::url($value));
+        if ($value) {
+            return tenant_asset($value);
         }
         return '';
     }

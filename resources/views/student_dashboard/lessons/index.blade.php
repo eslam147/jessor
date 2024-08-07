@@ -42,7 +42,7 @@
                                                     </div>
                                                 </div>
                                             @else
-                                                @if ($row->isFree())
+                                                @if ($row->is_lesson_free)
                                                     <p class="mb-5 fw-600">55%</p>
                                                     <div class="progress progress-sm mb-0 w-100">
                                                         <div class="progress-bar progress-bar-primary" role="progressbar"
@@ -65,7 +65,7 @@
                                             </a>
                                         </div>
                                     @else
-                                        @if ($row->isFree())
+                                        @if ($row->is_lesson_free)
                                             <div class="bg-success mt-5 rounded">
                                                 <a href="{{ route('topics.show', $row->id) }}">
                                                     <h5 class="text-white text-center p-10"> Enroll Now For Free </h5>

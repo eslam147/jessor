@@ -1,16 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\WebController;
-use Illuminate\Support\Facades\Artisan;
-use App\Http\Middleware\InitializeSchool;
-use App\Http\Controllers\WebhookController;
-use App\Http\Controllers\student\SignupController;
 use App\Http\Controllers\centeral\DomainController;
 use App\Http\Controllers\centeral\TenantController;
-use Stancl\Tenancy\Middleware\InitializeTenancyByDomain;
-use Stancl\Tenancy\Middleware\PreventAccessFromCentralDomains;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -29,19 +21,5 @@ foreach (config('tenancy.central_domains') as $domain) {
         })->name('centeral.home');
         Route::resource('domain', DomainController::class);
         Route::resource('tenants',TenantController::class);
-        Route::get('/tenants-settings',[TenantController::class,'upgrade_settings'])->name('tenant.upgrade.settings');
-        Route::POST('/tenants-settings',[TenantController::class,'insert_settings_fields'])->name('insert.settings.field');
-        Route::get('clear-cache',function(){
-            $results = [];
-            Artisan::call('cache:clear');
-            $results[] = "Cache cleared: " . Artisan::output();
-            Artisan::call('config:clear');
-            $results[] = "Config cache cleared: " . Artisan::output();
-            Artisan::call('route:clear');
-            $results[] = "Route cache cleared: " . Artisan::output();
-            Artisan::call('view:clear');
-            $results[] = "View cache cleared: " . Artisan::output();
-            return implode('<br>', $results);
-        });
     });
 }

@@ -17,7 +17,7 @@
 <link rel="stylesheet" href="{{ url('assets/bootstrap-table/fixed-columns.min.css') }}">
 <link rel="stylesheet" href="{{ url('assets/bootstrap-table/reorder-rows.css') }}">
 
-<link rel="shortcut icon" href="{{ url(Storage::url(settingByType('favicon'))) }}" />
+<link rel="shortcut icon" href="{{ tenant_asset(settingByType('favicon')) }}" />
 
 @php
     $theme_color = getSettings('theme_color')['theme_color'];
@@ -40,6 +40,6 @@
 <script>
     var baseUrl = `{{ URL::to('/') }}`;
     const onErrorImage = (e) => {
-        e.target.src = `{{ url('images/no_image_available.jpg') }}`;
+        e.target.src = `{{ global_asset('images/no_image_available.jpg') }}`;
     };
 </script>

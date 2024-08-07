@@ -38,7 +38,7 @@ class File extends Model
     {
         if ($this->type == 1 || $this->type == 3) {
             // IF type is File Upload or Video Upload then add Full URL.
-            return url(Storage::url($value));
+            return tenant_asset($value);
         }
         return $value;
     }
@@ -47,14 +47,14 @@ class File extends Model
     public function getFileThumbnailAttribute($value)
     {
         if (! empty($value)) {
-            return url(Storage::url($value));
+            return tenant_asset($value);
         }
     }
 
     public function getFileExtensionAttribute()
     {
         if (! empty($this->file_url)) {
-            return pathinfo(url(Storage::url($this->file_url)), PATHINFO_EXTENSION);
+            return pathinfo(tenant_asset($this->file_url), PATHINFO_EXTENSION);
         }
         return "";
     }

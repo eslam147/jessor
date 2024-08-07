@@ -42,14 +42,12 @@ class InitializeSchool
             }
         }
         // ------------------------------------------------------------------------------------------------------------ \\
-        $appSettings = $settings->whereBetween('type', ['school_name', 'time_zone'])->pluck('message', 'type')->toArray();
-        if (! empty($appSettings)) {
-            Config::set('app.name', $appSettings['school_name']);
-            Config::set('app.timezone', $appSettings['time_zone']);
-        }
+        $appSettings = $settings->whereIn('type', ['school_name', 'time_zone'])->pluck('message', 'type')->toArray();
+        Config::set('app.name', $appSettings['school_name']);
+        Config::set('app.timezone', $appSettings['time_zone']);
         // ------------------------------------------------------------------------------------------------------------ \\
         $mailValues = ['mail_host', 'mail_port', 'mail_mailer', 'mail_username', 'mail_password', 'mail_encryption', 'mail_send_from'];
-        $mailSettings = $settings->whereBetween('type', $mailValues)->pluck('message', 'type')->toArray();
+        $mailSettings = $settings->whereIn('type', $mailValues)->pluck('message', 'type')->toArray();
         if (! empty($mailSettings)) {
             // mail.mailers.smtp.host
             // config([

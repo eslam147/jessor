@@ -24,7 +24,7 @@ class OnlineExamQuestion extends Model
 
     public function getImageUrlAttribute($value) {
         if($value){
-            return url(Storage::url($value));
+            return tenant_asset($value);
         }else{
             return null;
         }

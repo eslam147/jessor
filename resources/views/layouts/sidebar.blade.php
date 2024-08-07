@@ -793,7 +793,7 @@
                 </div>
             </li>
             @endif
-
+{{-- 
             @if (Auth::user()->hasRole('Super Admin'))
                 <li class="nav-item">
                     <a class="nav-link" href="{{ route('system-update.index') }}">
@@ -801,7 +801,7 @@
                         <span class="menu-title">{{ __('system_update') }}</span>
                     </a>
                 </li>
-            @endif
+            @endif --}}
 
         </ul>
     </nav>

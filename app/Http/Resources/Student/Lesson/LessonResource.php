@@ -2,8 +2,10 @@
 
 namespace App\Http\Resources\Student\Lesson;
 
-use App\Http\Resources\Student\File\FileResource;
 use Illuminate\Http\Resources\Json\JsonResource;
+use App\Http\Resources\Student\File\FileResource;
+use App\Http\Resources\Student\ClassSchoolResource;
+use App\Http\Resources\Student\Subject\SubjectResource;
 use App\Http\Resources\Student\LessonTopic\LessonTopicResource;
 
 class LessonResource extends JsonResource
@@ -15,12 +17,17 @@ class LessonResource extends JsonResource
             'title' => $this->name,
             'description' => $this->description,
             'status' => $this->status,
-            'is_enrolled' => boolval($this->is_enrolled),
-            'is_paid' => boolval(!$this->isFree()),
+            'class' => new ClassSchoolResource($this->whenLoaded('class')),
+            'subject' => (new SubjectResource($this->subject))->withoutLessons(),
+            
             'files' => $this->when($this->is_enrolled, function () {
                 return FileResource::collection($this->file);
             }, null),
-            // 'topics' => LessonTopicResource::collection($this->topics),
+
+            'is_enrolled' => ($this->is_enrolled ? true : false),
+            'is_paid' => (!$this->is_lesson_free ? true : false),
+
+            'topics' => LessonTopicResource::collection($this->topic)
         ];
     }
 }

@@ -14,7 +14,7 @@ class WebSetting extends Model
     public function getImageAttribute($value){
         if($value)
         {
-            return url(Storage::url($value));
+            return tenant_asset($value);
         }
         return '';
     }

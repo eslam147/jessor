@@ -122,7 +122,7 @@ class NotificationController extends Controller
                 //saved file path to database
                 $notification->image = $file_path;
 
-                $image = tenant_asset('storage/' . $file_path);
+                $image = tenant_asset($file_path);
             }
 
             $title = $request->title;

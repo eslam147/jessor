@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Http\Controllers\Api;
+
 use Exception;
 use Throwable;
 use Carbon\Carbon;
@@ -88,16 +89,17 @@ class StudentApiController extends Controller
         private PurchaseService $purchaseService
     ) {
     }
-    public function getClassSections(){
+    public function getClassSections()
+    {
         $classSections = ClassSchool::get();
-        
+
         return response()->json([
             'error' => false,
             'message' => 'Retrived Successfully!',
             'data' => ClassSchoolResource::collection($classSections),
             'code' => 100,
         ], Response::HTTP_OK);
-        
+
     }
     public function register(RegisterRequest $request)
     {
@@ -114,7 +116,7 @@ class StudentApiController extends Controller
                 $fatherId = $parents['father']->id;
                 $motherId = $parents['mother']->id;
             }
-            
+
             if (! empty($request->guardian)) {
                 $guardian = $this->registerAuthService->storeGuardian($request);
                 $guardianId = $guardian->id;
@@ -212,7 +214,7 @@ class StudentApiController extends Controller
                 $auth->save();
             }
 
-            $classSectionName = $user->student->class_section->class->name . " " . $user->student->class_section->section->name;
+            $classSectionName = optional($user->student->class_section)?->class?->name . " " . optional($user->student->class_section)?->section?->name;
 
             // Set Class Section name
             $streamName = $user->student->class_section->class->streams->name ?? null;
@@ -864,7 +866,7 @@ class StudentApiController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'lesson_id' => 'nullable|numeric',
-            'teacher_id' => 'required',
+            'teacher_id' => 'required|numeric',
         ]);
 
         if ($validator->fails()) {
@@ -875,15 +877,18 @@ class StudentApiController extends Controller
             ]);
         }
         try {
-            $student = $request->user();
+            $user = $request->user();
+            $user->load(['student']);
 
+            $studentInfo = $user->student;
 
             $data = Lesson::where('teacher_id', $request->teacher_id)
                 ->active()
-                ->with('topic', 'file');
+                ->relatedToCurrentStudentClass($studentInfo)
+                ->with('topic', 'file', 'subject', 'class');
 
             $data = $data->addSelect([
-                'is_enrolled' => Enrollment::select('id')->where('user_id', $student->id)->whereColumn('lesson_id', 'lessons.id'),
+                'is_enrolled' => Enrollment::select('id')->where('user_id', $user->id)->whereColumn('lesson_id', 'lessons.id'),
             ])->get();
 
             $response = [
@@ -895,11 +900,11 @@ class StudentApiController extends Controller
 
         } catch (Exception $e) {
             report($e);
-            $response = array(
+            $response = [
                 'error' => true,
                 'message' => trans('error_occurred'),
                 'code' => 103,
-            );
+            ];
         }
         return response()->json($response);
     }
@@ -911,9 +916,8 @@ class StudentApiController extends Controller
     public function getEnrollmentLessons(Request $request)
     {
         try {
-            // $student = $request->user()->student;
             $data = Lesson::whereHas('enrollments', function ($q) {
-                return $q->where('user_id', Auth::user()->id);
+                return $q->where('user_id', auth('api')->id());
             })->with('topic', 'file');
 
             $data = $data->active()->get();
@@ -956,13 +960,13 @@ class StudentApiController extends Controller
 
         try {
             $student = $request->user()->student;
+            
             //----------------------------------------- \\
             $data = Teacher::whereHas('subjects', function ($q) use ($request, $student) {
-                return $q->where('subject_id', $request->subject_id)
-                    ->where('class_section_id', $student->class_section_id);
+                return $q->where('subject_id', $request->subject_id)->where('class_section_id', $student->class_section_id);
             })->with('user')
                 ->withCount([
-                    'lessons' => fn($q) => $q->active(),
+                    'lessons' => fn($q) => $q->active()->relatedToCurrentStudentClass($student),
                     'lessonTopics'
                 ])->get();
             //----------------------------------------- \\
@@ -2507,7 +2511,7 @@ class StudentApiController extends Controller
             );
         } catch (Exception $e) {
             report($e);
-            
+
             $response = array(
                 'error' => true,
                 'message' => trans('error_occurred'),
@@ -3904,7 +3908,7 @@ class StudentApiController extends Controller
                     'code' => 104,
                 ]);
             }
-            if (!$lesson->isFree()) {
+            if (! $lesson->isFree()) {
                 return response()->json([
                     'error' => true,
                     'message' => trans('lesson_is_not_free'),

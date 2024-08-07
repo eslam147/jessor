@@ -38,8 +38,9 @@ class TopicsController extends Controller
     public function topic_files($topic_id)
     {
         //$topic = LessonTopic::with('file')->active()->findOrFail($topic_id);
-        $files = File::where('modal_id',$topic_id)->where('type',1)->get();
-        return view('student_dashboard.files.index', compact('files'));
+        $videos = File::where('modal_id',$topic_id)->where('type',4)->get();
+        $files  = File::where('modal_id',$topic_id)->where('type',1)->get();
+        return view('student_dashboard.files.index', compact('files','videos'));
     }
 
     public function get_file(Request $request){
