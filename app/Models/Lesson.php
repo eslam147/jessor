@@ -6,8 +6,9 @@ use App\Enums\Lesson\LessonStatus;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Builder;
 use Znck\Eloquent\Traits\BelongsToThrough;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Lesson extends Model
 {
@@ -73,13 +74,13 @@ class Lesson extends Model
     {
         return $this->belongsToThrough(ClassSchool::class, ClassSection::class);
     }
-    public function scopeRelatedToClass($classId)
+    public function scopeRelatedToClass(Builder $q, $classId)
     {
-        return $this->whereHas('class', fn($q) => $q->where('classes.id', $classId));
+        return $q->whereHas('class', fn($q) => $q->where('classes.id', $classId));
     }
-    public function scopeRelatedToCurrentStudentClass(Students $student)
+    public function scopeRelatedToCurrentStudentClass(Builder $q, Students $student)
     {
-        return $this->whereHas('class', fn($q) => $q->where('class_sections.id', $student->class_section_id));
+        return $q->whereHas('class', fn($q) => $q->where('class_sections.id', $student->class_section_id));
     }
 
     public function file()
