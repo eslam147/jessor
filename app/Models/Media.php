@@ -19,7 +19,7 @@ class Media extends Model
     ];
 
     public function getThumbnailAttribute($value) {
-            return url(Storage::url($value));
+        return tenant_asset($value);
     }
 
     public function files()
@@ -30,7 +30,6 @@ class Media extends Model
     public function getEmbededUrlAttribute() {
         $result = ['embedUrl' => null, 'thumbnailUrl' => null];
         if (!empty($this->youtube_url)) {
-            // return pathinfo(url(Storage::url($this->file_url)), PATHINFO_EXTENSION);
             $pattern = '/(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/(?:[^\/\n\s]+\/\S+\/|(?:v|e(?:mbed)?)\/|\S*?[?&]v=)|youtu\.be\/)([a-zA-Z0-9_-]{11})/';
             // Check if the URL matches the pattern
             if (preg_match($pattern, $this->youtube_url, $matches)) {

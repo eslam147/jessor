@@ -73,12 +73,12 @@ class Students extends Model
     //Getter Attributes
     public function getFatherImageAttribute($value)
     {
-        return url(Storage::url($value));
+        return tenant_asset($value);
     }
 
     public function getMotherImageAttribute($value)
     {
-        return url(Storage::url($value));
+        return tenant_asset($value);
     }
 
     public function father()

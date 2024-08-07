@@ -60,6 +60,10 @@ class Lesson extends Model
     {
         return $this->hasMany(Enrollment::class);
     }
+    public function getIsLessonFree()
+    {
+        return (isset($this->is_paid) && $this->is_paid == 0);
+    }
     public function isFree()
     {
         return (isset($this->is_paid) && $this->is_paid == 0);

@@ -13,6 +13,6 @@ class Slider extends Model
 
     //Getter Attributes
     public function getImageAttribute($value){
-        return url(Storage::url($value));
+        return tenant_asset($value);
     }
 }

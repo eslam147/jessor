@@ -13,7 +13,7 @@ class MediaFile extends Model
     protected $guarded = [];
 
     public function getFileUrlAttribute($value){
-        return url(Storage::url($value));
+        return tenant_asset($value);
     }
 
     public function media()

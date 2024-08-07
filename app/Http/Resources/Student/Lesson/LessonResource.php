@@ -17,15 +17,15 @@ class LessonResource extends JsonResource
             'title' => $this->name,
             'description' => $this->description,
             'status' => $this->status,
-            'class' => new ClassSchoolResource($this->class),
-            'subject' => new SubjectResource($this->subject),
-            'is_enrolled' => boolval($this->is_enrolled),
-            'is_paid' => boolval(! $this->isFree()),
+            'class' => new ClassSchoolResource($this->whenLoaded('class')),
+            'subject' => (new SubjectResource($this->subject))->withoutLessons(),
             'files' => $this->when($this->is_enrolled, function () {
                 return FileResource::collection($this->file);
             }, null),
+            'is_enrolled' => boolval($this->is_enrolled),
+            'is_paid' => boolval(! $this->is_lesson_free),
 
-            'topics' => LessonTopicResource::collection($this->topic),
+            'topics' => LessonTopicResource::collection($this->topic)
         ];
     }
 }

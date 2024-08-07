@@ -877,10 +877,10 @@ class StudentApiController extends Controller
             ]);
         }
         try {
-            $student = $request->user();
-            $student->load(['student']);
+            $user = $request->user();
+            $user->load(['student']);
 
-            $studentInfo = $student->student;
+            $studentInfo = $user->student;
 
             $data = Lesson::where('teacher_id', $request->teacher_id)
                 ->active()
@@ -888,7 +888,7 @@ class StudentApiController extends Controller
                 ->with('topic', 'file', 'subject', 'class');
 
             $data = $data->addSelect([
-                'is_enrolled' => Enrollment::select('id')->where('user_id', $student->id)->whereColumn('lesson_id', 'lessons.id'),
+                'is_enrolled' => Enrollment::select('id')->where('user_id', $user->id)->whereColumn('lesson_id', 'lessons.id'),
             ])->get();
 
             $response = [

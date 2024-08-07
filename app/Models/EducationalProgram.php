@@ -13,6 +13,6 @@ class EducationalProgram extends Model
 
 
     public function getImageAttribute($value){
-        return url(Storage::url($value));
+        return tenant_asset($value);
     }
 }
