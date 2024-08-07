@@ -878,7 +878,7 @@ class StudentApiController extends Controller
         }
         try {
             $student = $request->user();
-            $student->load(['student', 'student.class_section']);
+            $student->load(['student']);
 
             $studentInfo = $student->student;
 
@@ -894,7 +894,7 @@ class StudentApiController extends Controller
             $response = [
                 'error' => false,
                 'message' => "Lessons Fetched Successfully",
-                'data' => LessonResource::collection($data),
+                'data' => [],
                 'code' => 200,
             ];
 
