@@ -963,8 +963,7 @@ class StudentApiController extends Controller
             
             //----------------------------------------- \\
             $data = Teacher::whereHas('subjects', function ($q) use ($request, $student) {
-                return $q->where('id', $request->subject_id)
-                    ->where('class_section_id', $student->class_section_id);
+                return $q->where('subject_id', $request->subject_id)->where('class_section_id', $student->class_section_id);
             })->with('user')
                 ->withCount([
                     'lessons' => fn($q) => $q->active()->relatedToCurrentStudentClass($student),
