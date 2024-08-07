@@ -214,7 +214,7 @@ class StudentApiController extends Controller
                 $auth->save();
             }
 
-            $classSectionName = $user->student->class_section->class->name . " " . $user->student->class_section->section->name;
+            $classSectionName = optional($user->student->class_section)?->class?->name . " " . optional($user->student->class_section)?->section?->name;
 
             // Set Class Section name
             $streamName = $user->student->class_section->class->streams->name ?? null;
@@ -878,12 +878,14 @@ class StudentApiController extends Controller
         }
         try {
             $student = $request->user();
-            $student->load('student.class_section');
+            $student->load(['student', 'student.class_section']);
+
             $studentInfo = $student->student;
+
             $data = Lesson::where('teacher_id', $request->teacher_id)
                 ->active()
-                ->whereHas('class_section.class', function ($q) use ($studentInfo) {
-                    $q->where('id', $studentInfo->class_section->class_id);
+                ->whereHas('class_section', function ($q) use ($studentInfo) {
+                    $q->where('class_id', $studentInfo->class_section->class_id);
                 })->with('topic', 'file', 'subject', 'class_section');
 
             $data = $data->addSelect([
@@ -899,11 +901,11 @@ class StudentApiController extends Controller
 
         } catch (Exception $e) {
             report($e);
-            $response = array(
+            $response = [
                 'error' => true,
                 'message' => trans('error_occurred'),
                 'code' => 103,
-            );
+            ];
         }
         return response()->json($response);
     }
