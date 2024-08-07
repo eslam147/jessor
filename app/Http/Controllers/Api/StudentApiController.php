@@ -894,7 +894,7 @@ class StudentApiController extends Controller
             $response = [
                 'error' => false,
                 'message' => "Lessons Fetched Successfully",
-                'data' => $data,
+                'data' => LessonResource::collection($data),
                 'code' => 200,
             ];
 
