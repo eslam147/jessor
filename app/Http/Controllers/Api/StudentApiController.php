@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Http\Controllers\Api;
+
 use Exception;
 use Throwable;
 use Carbon\Carbon;
@@ -88,16 +89,17 @@ class StudentApiController extends Controller
         private PurchaseService $purchaseService
     ) {
     }
-    public function getClassSections(){
+    public function getClassSections()
+    {
         $classSections = ClassSchool::get();
-        
+
         return response()->json([
             'error' => false,
             'message' => 'Retrived Successfully!',
             'data' => ClassSchoolResource::collection($classSections),
             'code' => 100,
         ], Response::HTTP_OK);
-        
+
     }
     public function register(RegisterRequest $request)
     {
@@ -114,7 +116,7 @@ class StudentApiController extends Controller
                 $fatherId = $parents['father']->id;
                 $motherId = $parents['mother']->id;
             }
-            
+
             if (! empty($request->guardian)) {
                 $guardian = $this->registerAuthService->storeGuardian($request);
                 $guardianId = $guardian->id;
@@ -876,11 +878,12 @@ class StudentApiController extends Controller
         }
         try {
             $student = $request->user();
-
+            $studentInfo = $student->load('student')->student;
 
             $data = Lesson::where('teacher_id', $request->teacher_id)
                 ->active()
-                ->with('topic', 'file');
+                ->where('class_section_id', $studentInfo->class_section_id)
+                ->with('topic', 'file', 'subject','class_section');
 
             $data = $data->addSelect([
                 'is_enrolled' => Enrollment::select('id')->where('user_id', $student->id)->whereColumn('lesson_id', 'lessons.id'),
@@ -2507,7 +2510,7 @@ class StudentApiController extends Controller
             );
         } catch (Exception $e) {
             report($e);
-            
+
             $response = array(
                 'error' => true,
                 'message' => trans('error_occurred'),
@@ -3904,7 +3907,7 @@ class StudentApiController extends Controller
                     'code' => 104,
                 ]);
             }
-            if (!$lesson->isFree()) {
+            if (! $lesson->isFree()) {
                 return response()->json([
                     'error' => true,
                     'message' => trans('lesson_is_not_free'),
