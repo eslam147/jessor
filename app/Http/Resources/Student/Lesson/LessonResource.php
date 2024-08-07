@@ -22,8 +22,9 @@ class LessonResource extends JsonResource
             'files' => $this->when($this->is_enrolled, function () {
                 return FileResource::collection($this->file);
             }, null),
-            'is_enrolled' => boolval($this->is_enrolled),
-            'is_paid' => boolval(! $this->is_lesson_free),
+
+            'is_enrolled' => $this->is_enrolled ? true : false,
+            'is_paid' => ! $this->is_lesson_free ? true : false,
 
             'topics' => LessonTopicResource::collection($this->topic)
         ];
