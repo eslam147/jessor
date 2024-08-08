@@ -639,5 +639,14 @@
     "coupon_errors.is_not_available": "القسيمة غير متاحة.",
     "coupon_applied_successfully": "تم تطبيق القسيمة بنجاح.",
     "save_and_print": "حفظ وطباعة",
-    "external_link" : "رابط خارجي"
+    "external_link" : "رابط خارجي",
+    "coupon_errors_disabled": "هذه القسيمة معطلة.",
+    "coupon_errors_not_can_use": "لا يمكنك استخدام هذه القسيمة.",
+    "coupon_errors_expired": "انتهت صلاحية هذه القسيمة.",
+    "coupon_errors_limited": "تم الوصول إلى الحد الأقصى لاستخدام هذه القسيمة.",
+    "coupon_errors_already_used": "تم استخدام هذه القسيمة من قبل.",
+    "coupon_errors_not_related_to_teacher": "هذه القسيمة غير مرتبطة بالمعلم.",
+    "coupon_errors_not_related_to_class": "هذه القسيمة غير مرتبطة بالصف.",
+    "coupon_errors_not_related_to_subject": "هذه القسيمة غير مرتبطة بالمادة."
+
 }

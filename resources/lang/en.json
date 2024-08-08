@@ -646,5 +646,10 @@
     "save_and_print": "Save and Print",
     "register" : "Register",
     "already_have_account" : "Already have an account?",
-    "external_link" : "External Link"
+    "external_link" : "External Link",
+    "coupon_errors_disabled": "This coupon is disabled.",
+    "coupon_errors_not_can_use": "You cannot use this coupon.",
+    "coupon_errors_expired": "This coupon has expired.",
+    "coupon_errors_limited": "This coupon usage limit has been reached.",
+    "coupon_errors_already_used": "This coupon has already been used."
 }

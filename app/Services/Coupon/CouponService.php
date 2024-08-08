@@ -14,7 +14,6 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Traits\Conditionable;
 use App\Http\Requests\Dashboard\Coupon\CouponRequest;
-use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class CouponService
 {
@@ -31,7 +30,7 @@ class CouponService
     public function isCouponAvailable(Coupon $coupon, User $user, Lesson $action): array
     {
         $coupon->loadCount(['usages']);
-        $action->load(['teacher', 'subject', 'classModel.allSubjects']);
+        $action->load(['teacher', 'subject', 'class.allSubjects']);
         if ($coupon->is_disabled) {
             return $this->responseContent(__('coupon_errors_disabled'), false);
         }
@@ -124,10 +123,18 @@ class CouponService
 
     public function exportCouponCode($coupons)
     {
-        $fileName = "exports/coupons.xlsx";
-        $fullFilePath = storage_path($fileName);
-        Excel::store(new CouponExport($coupons), $fullFilePath, 'public');
-        return tenant_asset($fileName);
+        $path = "temp/exports/coupons/";
+
+        $fileName = "coupons_" . time() . ".xlsx";
+
+        $fullTenantStoragePath = $path . $fileName;
+
+        Excel::store(new CouponExport($coupons), $fullTenantStoragePath, 'public');
+
+        return [
+            'url' => tenant_asset($fullTenantStoragePath),
+            'name' => $fileName
+        ];
     }
 
     public function savePurchaseCoupons($request)
