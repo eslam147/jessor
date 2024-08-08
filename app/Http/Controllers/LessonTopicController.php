@@ -76,7 +76,7 @@ class LessonTopicController extends Controller
                 'edit_file.*.link' => ['nullable', 'required_if:edit_file.*.type,youtube_link', new YouTubeUrl],
 
                 'file' => 'nullable|array',
-                'file.*.type' => 'nullable|in:file_upload,youtube_link,video_corner_link,video_corner_download_link,video_upload,other_link',
+                'file.*.type' => 'nullable|in:file_upload,external_link,youtube_link,video_corner_link,video_corner_download_link,video_upload,other_link',
 
                 'file.*.video_corner_url' => ['required_if:file.*.type,video_corner_link,video_corner_download_link', 'nullable'],
 
@@ -84,7 +84,11 @@ class LessonTopicController extends Controller
                 'file.*.thumbnail' => 'required_if:file.*.type,youtube_link,video_corner_link,video_corner_download_link,video_upload,other_link',
                 'file.*.file' => 'required_if:file.*.type,file_upload,video_upload',
                 //Regex for Youtube Link
+
+                // -----------------------------------------------
                 'file.*.link' => ['nullable', 'required_if:file.*.type,youtube_link', new YouTubeUrl],
+                // -----------------------------------------------
+                'file.*.external_link' => ['nullable', 'required_if:file.*.type,external_link', 'url'],
                 //Regex for Other Link
                 // 'file.*.link'=>'required_if:file.*.type,other_link|url'
             ],
@@ -114,6 +118,9 @@ class LessonTopicController extends Controller
                     if ($data['type'] == "file_upload") {
                         $file->type = 1;
                         $file->file_url = $data['file']->store('lessons', 'public');
+                    } elseif ($data['type'] == "external_link") {
+                        $file->type = File::EXTERNAL_LINK;
+                        $file->file_url = $data['external_link'];
                     } elseif ($data['type'] == "youtube_link") {
                         $file->type = 2;
                         $image = $data['thumbnail'];

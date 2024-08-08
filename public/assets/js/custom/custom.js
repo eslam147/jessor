@@ -526,6 +526,9 @@ $(document).on('change', '.file_type', function () {
         parent.siblings('#video_corner_url_div').hide();
         parent.siblings('#video_corner_download_div').hide();
         parent.siblings('#video_corner_download_link_div').hide();
+    } else if (type == "external_link") {
+        parent.siblings('#file_name_div,#external_link_div').show();
+        parent.siblings('#file_thumbnail_div,#file_div,#file_link_div,#video_corner_download_div,#video_corner_download_link_div').hide();
     } else if (type == "other_link") {
         parent.siblings('#file_name_div').show();
         parent.siblings('#file_thumbnail_div').show();

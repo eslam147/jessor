@@ -486,9 +486,6 @@ class InstallationSeeder extends Seeder
         Settings::updateOrCreate(['type' => 'system_version'],['message'=>'3.2.0']);
 
         //clear cache
-        Artisan::call('view:clear');
-        Artisan::call('route:clear');
-        Artisan::call('config:clear');
-        Artisan::call('cache:clear');
+        Artisan::call('optimize:clear');
     }
 }

@@ -645,6 +645,6 @@
     "video_corner_download_link": "Video Corner Download Link",
     "save_and_print": "Save and Print",
     "register" : "Register",
-    "already_have_account" : "Already have an account?"
-
+    "already_have_account" : "Already have an account?",
+    "external_link" : "External Link"
 }

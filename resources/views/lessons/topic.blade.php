@@ -80,8 +80,8 @@
                                             <option value="youtube_link">{{ __('youtube_link') }}</option>
                                             <option value="video_upload">{{ __('video_upload') }}</option>
                                             <option value="video_corner_link">{{ __('video_corner_link') }}</option>
-                                            <option value="video_corner_download_link">
-                                                {{ __('video_corner_download_link') }}</option>
+                                            <option value="video_corner_download_link">{{ __('video_corner_download_link') }}</option>
+                                            <option value="external_link">{{ __('external_link') }}</option>
                                         </select>
                                     </div>
                                     <div class="form-group col-md-3" id="file_name_div" style="display: none">
@@ -107,6 +107,11 @@
                                     <div class="form-group col-md-3" id="file_link_div" style="display: none">
                                         <label>{{ __('link') }} <span class="text-danger">*</span></label>
                                         <input type="text" name="file[0][link]" class="form-control"
+                                            placeholder="{{ __('link') }}" required>
+                                    </div>
+                                    <div class="form-group col-md-3" id="external_link_div" style="display: none">
+                                        <label>{{ __('link') }} <span class="text-danger">*</span></label>
+                                        <input type="text" name="file[0][external_link]" class="form-control"
                                             placeholder="{{ __('link') }}" required>
                                     </div>
 
@@ -295,9 +300,9 @@
                                             <option value="file_upload">{{ __('file_upload') }}</option>
                                             <option value="youtube_link">{{ __('youtube_link') }}</option>
                                             <option value="video_upload">{{ __('video_upload') }}</option>
+                                            <option value="external_link">{{ __('external_link') }}</option>
                                             <option value="video_corner_link">{{ __('video_corner_link') }}</option>
-                                            <option value="video_corner_download_link">
-                                                {{ __('video_corner_download_link') }}
+                                            <option value="video_corner_download_link">{{ __('video_corner_download_link') }}
                                             </option>
                                         </select>
                                     </div>

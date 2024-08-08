@@ -36,7 +36,9 @@
                                     </div>
                                     <div class="col-md-6">
                                         <div class="form-group">
-                                            <label>{{ __('image') }} <span class="text-danger">*</span></label>
+                                            <label>{{ __('image') }} <span class="text-danger">*</span>
+                                                <small> recommended size is 1362px wide and 615px high for the web </small>
+                                            </label>
                                             <input type="file" name="image" class="file-upload-default" accept="image/*"/>
                                             <div class="input-group col-xs-12">
                                                 <input type="text" class="form-control file-upload-info" disabled="" placeholder="{{ __('image') }}"/>

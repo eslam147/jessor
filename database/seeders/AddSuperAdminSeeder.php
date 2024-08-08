@@ -12,11 +12,6 @@ use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 
 class AddSuperAdminSeeder extends Seeder
 {
-    /**
-     * Run the database seeds.
-     *
-     * @return void
-     */
     public function run()
     {
         //Add Super Admin User
@@ -40,9 +35,9 @@ class AddSuperAdminSeeder extends Seeder
         ]);
 
         // add session year in setting table
-        $session_year = new Settings();
-        $session_year->type = 'session_year';
-        $session_year->message = 1;
-        $session_year->save();
+        $session_year = Settings::create([
+            'type' => 'session_year',
+            'message' => 1,
+        ]);
     }
 }

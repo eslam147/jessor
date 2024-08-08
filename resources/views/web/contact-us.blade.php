@@ -47,7 +47,7 @@
                                     <div class="contactDetailsWrapper">
                                         <span class="numb"><a
                                                 href="tel:{{ $settings['school_phone'] }}">{{ __('phone') }}:
-                                                {{ isset($settings['school_phone']) ? $settings['school_phone'] : '( +91 ) 12345 67890' }}</a></span>
+                                                {{ isset($settings['school_phone']) ? $settings['school_phone'] : '( +20 ) 12345 67890' }}</a></span>
                                     </div>
                                 </div>
                             </div>
@@ -62,7 +62,7 @@
                                     <div class="contactDetailsWrapper">
                                         <span class="numb"><a
                                                 href="mailto:{{ $settings['school_email'] }}">{{ __('mail_us') }}:
-                                                {{ isset($settings['school_email']) ? $settings['school_email'] : 'Schoolinfous@gmail.com' }}</a></span>
+                                                {{ isset($settings['school_email']) ? $settings['school_email'] : '12345@gmail.com' }}</a></span>
                                     </div>
                                 </div>
                             </div>
@@ -78,8 +78,7 @@
                                         <span class="numb">{{ __('address') }}:
                                             {{ isset($settings['school_address'])
                                                 ? $settings['school_address']
-                                                : ' 4517 Washington Ave. Manchester, Kentucky
-                                                                                    39495.' }}</span>
+                                                : '.' }}</span>
                                     </div>
                                 </div>
                             </div>

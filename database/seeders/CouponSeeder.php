@@ -16,10 +16,9 @@ class CouponSeeder extends Seeder
 
     public function run()
     {
-
         for ($i = 0; $i < 3; $i++) {
             $lesson = Lesson::inRandomOrder()->with('class_section')->first();
-            DB::transaction(function () use ($lesson, &$ids) {
+            DB::transaction(function () use ($lesson) {
                 for ($i = 0; $i < rand(1, 10); $i++) {
                     $services = [
                         'lesson_id' => $lesson->id,
@@ -33,7 +32,6 @@ class CouponSeeder extends Seeder
                     ];
                     $this->couponService->savePurchaseCoupons((object) $services);
                 }
-
             });
         }
 

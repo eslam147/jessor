@@ -14,6 +14,8 @@ class File extends Model
     const VIDEO_CORNER_TYPE = 5;
     const YOUTUBE_TYPE = 2;
     const DOWNLOAD_LINK_TYPE = 6;
+    const EXTERNAL_LINK = 7;
+
     protected $fillable = ['id', 'modal_type', 'modal_id', 'file_name', 'file_thumbnail', 'type', 'file_url', 'download_link'];
     protected $hidden = ["deleted_at", "created_at", "updated_at"];
     protected $appends = ['file_extension', 'type_detail'];
@@ -22,8 +24,8 @@ class File extends Model
     {
         parent::boot();
         static::deleting(function ($file) { // before delete() method call this
-            if (Storage::disk('public')->exists($file->file_url)) {
-                Storage::disk('public')->delete($file->file_url);
+            if (Storage::disk('public')->exists($file->getRawOriginal('file_url'))) {
+                Storage::disk('public')->delete($file->getRawOriginal('file_url'));
             }
         });
     }
@@ -75,6 +77,8 @@ class File extends Model
             return "Video Corner Link";
         } elseif ($this->type == self::DOWNLOAD_LINK_TYPE) {
             return "Video Corner Download Link";
+        } elseif ($this->type == self::EXTERNAL_LINK) {
+            return "External Link";
         }
     }
     public function isYoutubeVideo()
@@ -92,5 +96,9 @@ class File extends Model
     public function isVideoCornerDownload()
     {
         return $this->type == self::DOWNLOAD_LINK_TYPE;
+    }
+    public function isExternalLink()
+    {
+        return $this->type == self::EXTERNAL_LINK;
     }
 }
