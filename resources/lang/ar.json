@@ -70,7 +70,7 @@
     "data_store_successfully": "Data Saved Successfully",
     "data_update_successfully": "Data Updated Successfully",
     "data_delete_successfully": "Data Deleted Successfully",
-    "error_occurred": "Oops! Error occurred. Please Try again Later.",
+    "error_occurred": "عذرًا! حدث خطأ في الخادم. يرجى المحاولة لاحقًا.",
     "created_at": "Created At",
     "updated_at": "Updated At",
     "no_permission_message": "You Don't have enough permissions.",
@@ -639,7 +639,7 @@
     "coupon_errors.is_not_available": "القسيمة غير متاحة.",
     "coupon_applied_successfully": "تم تطبيق القسيمة بنجاح.",
     "save_and_print": "حفظ وطباعة",
-    "external_link" : "رابط خارجي",
+    "external_link": "رابط خارجي",
     "coupon_errors_disabled": "هذه القسيمة معطلة.",
     "coupon_errors_not_can_use": "لا يمكنك استخدام هذه القسيمة.",
     "coupon_errors_expired": "انتهت صلاحية هذه القسيمة.",
@@ -648,5 +648,4 @@
     "coupon_errors_not_related_to_teacher": "هذه القسيمة غير مرتبطة بالمعلم.",
     "coupon_errors_not_related_to_class": "هذه القسيمة غير مرتبطة بالصف.",
     "coupon_errors_not_related_to_subject": "هذه القسيمة غير مرتبطة بالمادة."
-
 }
