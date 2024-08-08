@@ -51,10 +51,10 @@ class CouponService
         if ($coupon->teacher_id != $action->teacher_id) {
             return $this->responseContent(__('coupon_errors_not_related_to_teacher'), false);
         }
-        if ($this->model->classModel->id != $action->classModel->class_id) {
+        if (!empty($this->model->classModel) && $this->model->classModel->id != $action->classModel->class_id) {
             return $this->responseContent(__('coupon_errors_not_related_to_class'), false);
         }
-        if (isset($coupon->subject_id) && $coupon->subject_id != $action->subject_id && empty($this->model->classModel->allSubjects->firstWhere('subject_id', $coupon->subject_id))) {
+        if ( isset($coupon->subject_id) && $coupon->subject_id != $action->subject_id && empty($this->model->classModel->allSubjects->firstWhere('subject_id', $coupon->subject_id))) {
             return $this->responseContent(__('coupon_errors_not_related_to_subject'), false);
         }
 
