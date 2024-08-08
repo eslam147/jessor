@@ -6,13 +6,13 @@
                 data-plyr-embed-id="{{ getYouTubeVideoId($video->file_url) }}">
             </div>
         @elseif($video->isVideoCorner() || $video->isVideoCornerDownload())
-            {{-- @if (trim(request()->userAgent()) == 'semi_browser_by_adel') --}}
+            @if (trim(request()->userAgent()) == 'semi_browser_by_adel')
                 @if ($video->isVideoCornerDownload())
                     <input type="hidden" id="title_for_browser"  value="{{ $video->file_name }}">
                     <input type="hidden" id="download_for_browser" value="{{ $video->download_link }}">
                 @endif
                 <iframe src="{{ $video->file_url }}" style="width: -webkit-fill-available;height: 500px;" frameborder="0"></iframe>
-            {{-- @else
+            @else
                 <div class="bg-bubbles-white p-100"
                     style="text-align: center; margin-top: 30px; margin-bottom: 130px;">
                     <p
@@ -31,7 +31,7 @@
                         </button>
                     </a>
                 </div>
-            @endif --}}
+            @endif
         @endif
     </div>
 </div>
