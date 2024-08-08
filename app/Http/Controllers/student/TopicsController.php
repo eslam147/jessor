@@ -2,13 +2,14 @@
 
 namespace App\Http\Controllers\student;
 
-use App\Models\Lesson;
-use App\Models\Enrollment;
-use App\Models\LessonTopic;
-use App\Http\Controllers\Controller;
-use App\Models\File;
+use App\Models\{
+    Lesson,
+    Enrollment,
+    LessonTopic,
+    File,
+};
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Http\Request;
+use App\Http\Controllers\Controller;
 use Symfony\Component\HttpFoundation\Response;
 
 class TopicsController extends Controller
@@ -39,7 +40,6 @@ class TopicsController extends Controller
             Enrollment::where('user_id', Auth::user()->id)->where('lesson_id', $topic->lesson_id)->exists(),
             Response::HTTP_UNAUTHORIZED
         );
-        
         $videos = $topic->file->whereIn('type', [
             File::VIDEO_CORNER_TYPE,
             File::DOWNLOAD_LINK_TYPE,
@@ -50,11 +50,17 @@ class TopicsController extends Controller
         return view('student_dashboard.files.index', compact('files', 'videos'));
     }
 
-    public function get_file(Request $request)
+    public function get_file($id)
     {
-        $file = File::find($request->id);
+        $file = File::find($id);
+        if(!$file) return '';
         return view('student_dashboard.files.file', compact('file'));
-        //return response()->json(['id' => $id]);
+    }
+    public function get_video($id)
+    {
+        $video = File::find($id);
+        if(!$video) return '';
+        return view('student_dashboard.files.video', compact('video'));
     }
 
 }

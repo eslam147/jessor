@@ -2,66 +2,64 @@
 
 declare(strict_types=1);
 
+use Illuminate\Support\Facades\Auth as LaravelAuth;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\{
-    ExamController,
-    HomeController,
-    RoleController,
-    UserController,
-    EventController,
-    LeaveController,
-    MediaController,
-    ShiftController,
-    StaffController,
-    LessonController,
-    MediumController,
-    SliderController,
-    StreamController,
-    HolidayController,
-    ParentsController,
-    SectionController,
-    SettingController,
-    StudentController,
-    SubjectController,
-    TeacherController,
-    CategoryController,
-    FeesTypeController,
-    LanguageController,
-    FormFieldController,
-    TimetableController,
-    AssignmentController,
-    AttendanceController,
-    OnlineExamController,
-    WebSettingController,
-    ClassSchoolController,
-    LeaveMasterController,
-    LessonTopicController,
-    SessionYearController,
-    AnnouncementController,
-    ClassTeacherController,
-    CouponController,
-    NotificationController,
-    SystemUpdateController,
-    ExamTimetableController,
-    StudentSessionController,
-    SubjectTeacherController,
-    OnlineExamQuestionController,
-    EnrollmentController,
-};
-use Illuminate\Support\Facades\Auth;
-use App\Http\Controllers\WebhookController;
-use App\Http\Middleware\InitializeSchool;
 use App\Http\Controllers\WebController;
-use Stancl\Tenancy\Middleware\InitializeTenancyByDomain;
-use Stancl\Tenancy\Middleware\PreventAccessFromCentralDomains;
+use App\Http\Controllers\ExamController;
+use App\Http\Controllers\HomeController;
+use App\Http\Controllers\RoleController;
+use App\Http\Controllers\UserController;
+use App\Http\Controllers\EventController;
+use App\Http\Controllers\LeaveController;
+use App\Http\Controllers\MediaController;
+use App\Http\Controllers\ShiftController;
+use App\Http\Controllers\StaffController;
+use App\Http\Middleware\InitializeSchool;
+use App\Http\Controllers\CouponController;
+use App\Http\Controllers\LessonController;
+use App\Http\Controllers\MediumController;
+use App\Http\Controllers\SliderController;
+use App\Http\Controllers\StreamController;
+use App\Http\Controllers\HolidayController;
+use App\Http\Controllers\ParentsController;
+use App\Http\Controllers\SectionController;
+use App\Http\Controllers\SettingController;
+use App\Http\Controllers\StudentController;
+use App\Http\Controllers\SubjectController;
+use App\Http\Controllers\TeacherController;
+use App\Http\Controllers\WebhookController;
+use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\FeesTypeController;
+use App\Http\Controllers\LanguageController;
+use App\Http\Controllers\FormFieldController;
+use App\Http\Controllers\test\TestController;
+use App\Http\Controllers\TimetableController;
+use App\Http\Controllers\AssignmentController;
+use App\Http\Controllers\AttendanceController;
+use App\Http\Controllers\EnrollmentController;
+use App\Http\Controllers\OnlineExamController;
+use App\Http\Controllers\WebSettingController;
+use App\Http\Controllers\ClassSchoolController;
+use App\Http\Controllers\LeaveMasterController;
+use App\Http\Controllers\LessonTopicController;
+use App\Http\Controllers\SessionYearController;
+use App\Http\Controllers\AnnouncementController;
+use App\Http\Controllers\ClassTeacherController;
+use App\Http\Controllers\NotificationController;
+use App\Http\Controllers\SystemUpdateController;
+use App\Http\Controllers\ExamTimetableController;
 use App\Http\Controllers\student\EnrollController;
-use App\Http\Controllers\student\TopicsController;
-use App\Http\Controllers\student\TeachersController;
 use App\Http\Controllers\student\SignupController;
+use App\Http\Controllers\student\TopicsController;
+use App\Http\Controllers\StudentSessionController;
+use App\Http\Controllers\SubjectTeacherController;
+use App\Http\Controllers\student\TeachersController;
+use App\Http\Controllers\OnlineExamQuestionController;
+use Stancl\Tenancy\Middleware\InitializeTenancyByDomain;
 use App\Http\Controllers\student\StudentDashboardController;
+use Stancl\Tenancy\Middleware\PreventAccessFromCentralDomains;
 use App\Http\Controllers\student\SubjectController as StudentSubjectController;
 use App\Http\Controllers\student\SettingController as StudentSettingsController;
-
 
 /*
 |--------------------------------------------------------------------------
@@ -79,24 +77,23 @@ Route::middleware([
     'web',
     InitializeTenancyByDomain::class,
     PreventAccessFromCentralDomains::class,
-    InitializeSchool::class,
+    //InitializeSchool::class,
 ])->group(function () {
+        LaravelAuth::routes();
+        Route::get('/', [WebController::class,'index']);
+        Route::get('about',[WebController::class,'about'])->name('about.us');
+        Route::get('contact',[WebController::class, 'contact_us'])->name('contact.us');
+        Route::get('photo',[WebController::class, 'photo'])->name('photo');
+        Route::get('photo-gallery/{id}',[WebController::class, 'photo_details'])->name('photo.gallery');
+        Route::get('video',[WebController::class, 'video'])->name('video');
+        Route::get('video-gallery',[WebController::class, 'video_details'])->name('video.gallery');
+        Route::post('contact-us/store',[WebController::class,'contact_us_store'])->name('contact_us.store');
 
-    Auth::routes();
-        Route::controller(WebController::class)->group(function () {
-            Route::get('/', 'index');
-            Route::get('about', 'about')->name('about.us');
-            Route::get('contact', 'contact_us')->name('contact.us');
-            Route::get('photo', 'photo')->name('photo');
-            Route::get('photo-gallery/{id}', 'photo_details')->name('photo.gallery');
-            Route::get('video', 'video')->name('video');
-            Route::get('video-gallery', 'video_details')->name('video.gallery');
-            Route::post('contact-us/store', 'contact_us_store')->name('contact_us.store');
-        });
+
         Route::view('login', 'auth.login')->name('login');
         Route::resource('signup', SignupController::class);
 
-
+        // webhooks
         Route::post('webhook/razorpay', [WebhookController::class, 'razorpay']);
         Route::post('webhook/stripe', [WebhookController::class, 'stripe']);
         Route::post('webhook/paystack', [WebhookController::class, 'paystack']);
@@ -111,10 +108,9 @@ Route::middleware([
             return $settings['terms_condition'] ?? '';
         });
 
-        // **********************
-        // Student Dashboard
-        // **********************
-
+        // ***************************
+        // Students
+        // ***************************
         Route::prefix('student_dashboard')->group(function () {
             Route::group(['middleware' => 'student_authorized'], function () {
                 Route::resource('/home', StudentDashboardController::class);
@@ -129,7 +125,8 @@ Route::middleware([
                     Route::get('/', 'index')->name('index');
                     Route::get('/{id}', 'show')->name('show');
                     Route::get('topic_files/{topic_id}', 'topic_files')->name('files');
-                    Route::post('get-file', 'get_file')->name('getfile');
+                    Route::get('get-file/{id}', 'get_file')->name('getfile');
+                    Route::get('get-video/{id}', 'get_video')->name('getvideo');
                 });
 
                 Route::get('/teacher_lessons/{teacher_id}/subject/{subject_id}', [TeachersController::class, 'teacher_lessons'])->name('teacher.lessons');
@@ -138,9 +135,9 @@ Route::middleware([
             });
         });
 
-        // **********************
+        // ***************************
         // Dashboard
-        // **********************
+        // ***************************
 
         Route::group(['middleware' => ['Role', 'auth']], function () {
             Route::group(['middleware' => 'language'], function () {
@@ -498,7 +495,6 @@ Route::middleware([
                     Route::put('update/{coupon}', 'update')->name('update');
                     Route::delete('destroy/{coupon}', 'destroy')->name('destroy');
                     // #TODO Change Here
-
                 });
                 // ------------------------------------------------------ \\
                 // ------------------------------------------------------ \\
@@ -527,8 +523,7 @@ Route::middleware([
                     Route::get('/list', 'list')->name('list');
                     Route::delete('/{enrollment}/delete', 'destroy')->name('destroy');
                 });
+                //return 'This is your multi-tenant application. The id of the current tenant is ' . tenant('id');
             });
         });
-        //return 'This is your multi-tenant application. The id of the current tenant is ' . tenant('id');
-
 });
