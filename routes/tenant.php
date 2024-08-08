@@ -77,7 +77,7 @@ Route::middleware([
     'web',
     InitializeTenancyByDomain::class,
     PreventAccessFromCentralDomains::class,
-    //InitializeSchool::class,
+    InitializeSchool::class,
 ])->group(function () {
         LaravelAuth::routes();
         Route::get('/', [WebController::class,'index']);
