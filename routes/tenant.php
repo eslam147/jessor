@@ -99,13 +99,11 @@ Route::middleware([
         Route::post('webhook/paystack', [WebhookController::class, 'paystack']);
 
         Route::get('/privacy-policy', function () {
-            $settings = getSettings('privacy_policy');
-            return $settings['privacy_policy'] ?? '';
+            return settingByType('privacy_policy');
         });
 
         Route::get('/terms-conditions', function () {
-            $settings = getSettings('terms_condition');
-            return $settings['terms_condition'] ?? '';
+            return settingByType('terms_condition');
         });
 
         // ***************************

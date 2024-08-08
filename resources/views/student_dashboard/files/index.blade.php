@@ -48,7 +48,7 @@
                             <div class="tab-content">
                                 <div id="home4" class="tab-pane active">
                                     <div class="row">
-                                        <div class="col-3" >
+                                        <div class="col-2" >
                                             <div class="accordion" id="accordionExample">
                                                     {{-- videos --}}
                                                     <h2 class="accordion-header" id="headingOne">
@@ -88,9 +88,7 @@
                                                     </div>
                                             </div>
                                         </div>
-                                        <div class="col-9" id="content" >
-
-                                        </div>
+                                        <div class="col-10" id="content"></div>
                                     </div>
                                 </div>
                             </div>
@@ -109,7 +107,6 @@
         document.addEventListener('DOMContentLoaded', () => {
             const player = new Plyr('#player');
         });
-
         $(document).on('click', '.file-link', function(event) {
             event.preventDefault();
             var id = $(this).data('id');
@@ -145,5 +142,4 @@
             });
         });
     </script>
-
 @endsection
