@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use PDO;
 use Exception;
 use Throwable;
 use Carbon\Carbon;
@@ -770,8 +769,8 @@ class StudentController extends Controller
             $tempRow['blood_group'] = $row->blood_group;
             $tempRow['height'] = $row->height;
             $tempRow['weight'] = $row->weight;
-            $tempRow['current_address'] = $row->user->current_address;
-            $tempRow['permanent_address'] = $row->user->permanent_address;
+            $tempRow['current_address'] = $user->current_address;
+            $tempRow['permanent_address'] = $user->permanent_address;
             $tempRow['is_new_admission'] = $row->is_new_admission;
             $tempRow['dynamic_data_field'] = json_decode($row->dynamic_fields);
 
