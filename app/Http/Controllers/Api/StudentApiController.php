@@ -2844,10 +2844,10 @@ class StudentApiController extends Controller
 
             $message = new ChatMessage();
             $message->modal_id = $receiver_id;
-            $message->modal_type = 'App/Models/User';
+            $message->modal_type = User::class;
             $message->sender_id = $sender_id;
             $message->body = $request->message ?? '';
-            $message->date = Carbon::now();
+            $message->date = now();
             $message->save();
             $count = 0;
             $unreadCount = 0;
@@ -2855,7 +2855,7 @@ class StudentApiController extends Controller
             if ($request->hasFile('file')) {
                 foreach ($request->file('file') as $uploadedFile) {
 
-                    $originalName = $uploadedFile->getClientOriginalName();
+                    $originalName = $uploadedFile->hashName();
                     $filePath = $uploadedFile->storeAs('chatfile', $originalName, 'public');
 
                     $file = new ChatFile();
@@ -2884,7 +2884,7 @@ class StudentApiController extends Controller
                 $chatfile = [];
                 foreach ($message->file as $file) {
                     if (! empty($file)) {
-                        $chatfile[] = tenant_asset('storage/' . $file->file_name);
+                        $chatfile[] = tenant_asset($file->file_name);
                     } else {
                         $chatfile[] = '';
                     }
@@ -3014,7 +3014,7 @@ class StudentApiController extends Controller
             foreach ($messages as &$message) {
                 if (isset($message['file'])) {
                     $message['files'] = collect($message['file'])->map(function ($file) {
-                        return tenant_asset('storage/' . $file['file_name']);
+                        return tenant_asset($file['file_name']);
                     })->toArray();
 
                     unset($message['file']);
@@ -3287,7 +3287,7 @@ class StudentApiController extends Controller
                 // If Optional Fees Passed then insert data
                 if (isset($request->optional_fees_data) && ! empty($request->optional_fees_data)) {
                     foreach ($request->optional_fees_data as $data) {
-                        $optional_fees_store = array(
+                        $optional_fees_store = [
                             'student_id' => $student->id,
                             'class_id' => $class_id,
                             'fees_type_id' => $data['id'],
@@ -3297,7 +3297,7 @@ class StudentApiController extends Controller
                             'date' => date('Y-m-d'),
                             'payment_transaction_id' => $payment_transaction_db->id,
                             'status' => 0
-                        );
+                        ];
                         $optional_fees_id[] = FeesChoiceable::insertGetId($optional_fees_store);
                     }
                 }
@@ -3327,7 +3327,7 @@ class StudentApiController extends Controller
                     array(
                         'amount' => $request->amount * 100,
                         'currency' => $currency_code,
-                        'notes' => array(
+                        'notes' => [
                             'student_id' => $student->id,
                             'parent_id' => $student->father_id ?? $student->guardian_id,
                             'class_id' => $class_id,
@@ -3339,7 +3339,7 @@ class StudentApiController extends Controller
                             'due_charges' => $request->due_charges,
                             'optional_fees_paid' => json_encode($optional_fees_id) ?? "",
                             'installment_fees_paid' => json_encode($paid_installment_id) ?? "",
-                        )
+                        ]
                     )
                 );
 
@@ -3348,11 +3348,11 @@ class StudentApiController extends Controller
                 $payemnt_transaction_update->order_id = $order->id;
                 $payemnt_transaction_update->save();
 
-                $payment_gateway_details = array(
+                $payment_gateway_details = [
                     'order_id' => $order->id,
                     'amount' => $order->amount,
                     'payment_transaction_id' => $payment_transaction_db->id,
-                );
+                ];
             }
 
             $stripe_status = getSettings('stripe_status');
@@ -3365,23 +3365,23 @@ class StudentApiController extends Controller
                 $currency_code = strtolower($currency_code);
 
                 // add the data to transaction table local
-                $payment_transaction_db = new PaymentTransaction();
-                $payment_transaction_db->student_id = $student->id;
-                $payment_transaction_db->parent_id = $student->father_id ?? $student->guardian_id;
-                $payment_transaction_db->class_id = $class_id;
-                $payment_transaction_db->mode = 2;
-                $payment_transaction_db->type_of_fee = $request->type_of_fee;
-                $payment_transaction_db->payment_gateway = 2;
-                $payment_transaction_db->payment_status = 2;
-                $payment_transaction_db->total_amount = $request->amount;
-                $payment_transaction_db->date = date('Y-m-d H:i:s');
-                $payment_transaction_db->session_year_id = $session_year_id;
-                $payment_transaction_db->save();
+                $payment_transaction_db = PaymentTransaction::create([
+                    'student_id' => $student->id,
+                    'parent_id' => $student->father_id ?? $student->guardian_id,
+                    'class_id' => $class_id,
+                    'mode' => 2,
+                    'type_of_fee' => $request->type_of_fee,
+                    'payment_gateway' => 2,
+                    'payment_status' => 2,
+                    'total_amount' => $request->amount,
+                    'date' => date('Y-m-d H:i:s'),
+                    'session_year_id' => $session_year_id,
+                ]);
 
                 // If Optional Fees Passed then insert data
                 if (isset($request->optional_fees_data) && ! empty($request->optional_fees_data)) {
                     foreach ($request->optional_fees_data as $data) {
-                        $optional_fees_store = array(
+                        $optional_fees_store = [
                             'student_id' => $student->id,
                             'class_id' => $class_id,
                             'fees_type_id' => $data['id'],
@@ -3391,7 +3391,7 @@ class StudentApiController extends Controller
                             'date' => date('Y-m-d'),
                             'payment_transaction_id' => $payment_transaction_db->id,
                             'status' => 0
-                        );
+                        ];
                         $optional_fees_id[] = FeesChoiceable::insertGetId($optional_fees_store);
                     }
                 }
@@ -3460,18 +3460,18 @@ class StudentApiController extends Controller
                 $currency_code = strtoupper($currency_code);
 
                 // add the data to transaction table local
-                $payment_transaction_db = new PaymentTransaction();
-                $payment_transaction_db->student_id = $student->id;
-                $payment_transaction_db->parent_id = $student->father_id ?? $student->guardian_id;
-                $payment_transaction_db->class_id = $class_id;
-                $payment_transaction_db->mode = 2;
-                $payment_transaction_db->type_of_fee = $request->type_of_fee;
-                $payment_transaction_db->payment_gateway = 3;
-                $payment_transaction_db->payment_status = 2;
-                $payment_transaction_db->total_amount = $request->amount;
-                $payment_transaction_db->date = date('Y-m-d H:i:s');
-                $payment_transaction_db->session_year_id = $session_year_id;
-                $payment_transaction_db->save();
+                $payment_transaction_db = PaymentTransaction::create([
+                    'student_id' => $student->id,
+                    'parent_id' => $student->father_id ?? $student->guardian_id,
+                    'class_id' => $class_id,
+                    'mode' => 2,
+                    'type_of_fee' => $request->type_of_fee,
+                    'payment_gateway' => 3,
+                    'payment_status' => 2,
+                    'total_amount' => $request->amount,
+                    'date' => date('Y-m-d H:i:s'),
+                    'session_year_id' => $session_year_id,
+                ]);
 
                 // If Optional Fees Passed then insert data
                 if (isset($request->optional_fees_data) && ! empty($request->optional_fees_data)) {
@@ -3522,19 +3522,19 @@ class StudentApiController extends Controller
             }
             //validating the enable of gateways ..
             if ($razorpay_status == 0 && $stripe_status == 0 && $paystack_status == 0) {
-                $response = array(
+                $response = [
                     'error' => true,
                     'message' => 'Please enable the payment gateway in panel',
                     'code' => 404,
-                );
+                ];
                 return response()->json($response);
             }
-            $response = array(
+            $response = [
                 'error' => false,
                 'message' => trans('data_store_successfully'),
                 'payment_gateway_details' => $payment_gateway_details,
                 'code' => 200,
-            );
+            ];
         } catch (Exception $e) {
             report($e);
 
@@ -3573,19 +3573,19 @@ class StudentApiController extends Controller
                 $transaction_db->payment_signature = $request->payment_signature;
             }
             $transaction_db->save();
-            $response = array(
+            $response = [
                 'error' => false,
                 'message' => trans('data_update_successfully'),
-                'code' => 200,
-            );
+                'code' => 200
+            ];
         } catch (Exception $e) {
             report($e);
 
-            $response = array(
+            $response = [
                 'error' => true,
                 'message' => trans('error_occurred'),
-                'code' => 103,
-            );
+                'code' => 103
+            ];
         }
         return response()->json($response);
     }
@@ -3606,11 +3606,11 @@ class StudentApiController extends Controller
         } catch (Exception $e) {
             report($e);
 
-            $response = array(
+            $response = [
                 'error' => true,
                 'message' => trans('error_occurred'),
                 'code' => 103,
-            );
+            ];
         }
         return response()->json($response);
     }
@@ -3635,7 +3635,7 @@ class StudentApiController extends Controller
             }
 
             //Getting the Fees Paid Data
-            $fees_paid = FeesPaid::where('student_id', $student->id)->with('student.user:id,first_name,last_name', 'class', 'session_year')->get()->first();
+            $fees_paid = FeesPaid::where('student_id', $student->id)->with('student.user:id,first_name,last_name', 'class', 'session_year')->first();
 
             // Check That Fees Paid Data Exists Or Not
             if (! $fees_paid) {
