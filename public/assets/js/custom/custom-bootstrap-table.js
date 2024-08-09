@@ -1521,10 +1521,20 @@ function fileFormatter(value, row) {
     let video_upload = "<br><h6>Video Upload</h6>";
     let other_link = "<br><h6>Other Link</h6>";
 
+    // ------------------------------------------- \\
+    let video_corner_link = "<br><h6>Video Corner Link</h6>";
+    let video_corner_download_link = "<br><h6>Video Corner Download Link</h6>";
+    let external_link = "<br><h6>External Link</h6>";
+
     let file_upload_counter = 1;
     let youtube_link_counter = 1;
     let video_upload_counter = 1;
     let other_link_counter = 1;
+    // ------------------------------------------- \\
+    let video_corner_link_counter = 1;
+    let video_corner_download_link_counter = 1;
+    let external_link_counter = 1;
+    // ------------------------------------------- \\
 
     $.each(row.file, function (key, data) {
         //1 = File Upload , 2 = Youtube , 3 = Uploaded Video , 4 = Other
@@ -1544,6 +1554,18 @@ function fileFormatter(value, row) {
             // 4 = Other Link
             other_link += "<a href='" + data.file_url + "' target='_blank' >" + other_link_counter + ". " + data.file_name + "</a><br>";
             other_link_counter++;
+        } else if (data.type == 5) {
+            // 5 = Video Corner Link
+            video_corner_link += "<a href='" + data.file_url + "' target='_blank' >" + video_corner_link_counter + ". " + data.file_name + "</a><br>";
+            video_corner_link_counter++;
+        } else if (data.type == 6) {
+            // 6 => Video Corner DOWNLOAD LINK
+            video_corner_download_link += "<a href='" + data.file_url + "' target='_blank' >" + video_corner_download_link_counter + ". " + data.file_name + "</a><br>";
+            video_corner_download_link_counter++;
+        }else if (data.type == 7) {
+            // 6 => External LINK
+            external_link += "<a href='" + data.file_url + "' target='_blank' >" + external_link_counter + ". " + data.file_name + "</a><br>";
+            external_link_counter++;
         }
     })
     let html = "";
@@ -1561,6 +1583,15 @@ function fileFormatter(value, row) {
 
     if (other_link_counter > 1) {
         html += other_link;
+    }
+    if (video_corner_link_counter > 1) {
+        html += video_corner_link;
+    }
+    if (video_corner_download_link_counter > 1) {
+        html += video_corner_download_link;
+    }
+    if (external_link_counter > 1) {
+        html += external_link;
     }
 
     return html;

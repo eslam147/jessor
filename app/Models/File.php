@@ -10,9 +10,9 @@ class File extends Model
 {
     use HasFactory;
     const FILE_UPLOAD_TYPE = 1;
+    const YOUTUBE_TYPE = 2;
     const VIDEO_UPLOAD_TYPE = 3;
     const VIDEO_CORNER_TYPE = 5;
-    const YOUTUBE_TYPE = 2;
     const DOWNLOAD_LINK_TYPE = 6;
     const EXTERNAL_LINK = 7;
 
