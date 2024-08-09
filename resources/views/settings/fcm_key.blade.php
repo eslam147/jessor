@@ -38,7 +38,7 @@
                                         </span>
                                     </div>
                                     @if (isset($settings['service_account_file']) ? $settings['service_account_file'] : '')
-                                        <a href="{{Storage::url(isset($settings['service_account_file']) ? $settings['service_account_file'] : '')}}"><strong>Firebase Json File</strong></a>
+                                        <a href="{{tenant_asset(isset($settings['service_account_file']) ? $settings['service_account_file'] : '')}}"><strong>Firebase Json File</strong></a>
                                     @endif
 
                                 </div>
