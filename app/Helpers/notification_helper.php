@@ -132,7 +132,7 @@ function getAccessToken()
 {
     $file_name = Settings::select('message')->where('type', 'service_account_file')->pluck('message')->first();
 
-    $file_path = tenant_asset('public/storage/' . $file_name);
+    $file_path = tenant_asset($file_name);
 
     $client = new Client();
     $client->setAuthConfig($file_path);
