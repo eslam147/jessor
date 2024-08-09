@@ -221,7 +221,7 @@ class RegisterAuthService
             $request->mobile,
             $request->email_addreess,
             $password,
-            $request->gender,
+            null,
         );
 
         $user->save();

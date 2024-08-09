@@ -27,7 +27,7 @@ class RegisterRequest extends ApiRequest
             'guardian' => 'required_without:parent',
             'password' => 'required|min:6|confirmed',
         ];
-        $rules['gender'] = 'required|string|in:male,female';
+        // $rules['gender'] = 'nullable|string|in:male,female';
 
         if (isset($this->father_email)) {
             $rules['father_first_name'] = 'required|string|min:3|max:255';
