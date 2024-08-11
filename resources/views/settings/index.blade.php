@@ -231,7 +231,27 @@
                                     <span style="font-size: 14px; color:"> <b>{{__('Note')}} :- </b>{{__('get_the_link_from_google_map_with_embed_url_and_paste_only_src_from_it')}}</span>
                                 </div>
                             </div>
-
+                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                            <h4 class="card-title">
+                                {{ __('Protection_browser') }}
+                            </h4>
+                            <hr>
+                            <div class="row mb-5">
+                                <div class="ml-4 d-flex">
+                                    <div class="form-check form-check-inline">
+                                        <label class="form-check-label">
+                                            <input type="radio" name="custom_browser" class="online_payment_toggle" value="enabled" checked>
+                                            {{ __('enable') }}
+                                        </label>
+                                    </div>
+                                    <div class="form-check form-check-inline">
+                                        <label class="form-check-label">
+                                            <input type="radio" name="custom_browser" class="online_payment_toggle" value="disabled">
+                                            {{ __('disable') }}
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
                             <input class="btn btn-theme" type="submit" value="Submit">
                         </form>
                     </div>

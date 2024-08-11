@@ -129,7 +129,8 @@ Route::middleware([
                     Route::get('/', 'index')->name('index');
                     Route::get('/{id}', 'show')->name('show');
                     Route::get('topic_files/{topic_id}', 'topic_files')->name('files');
-                    Route::post('get-file', 'get_file')->name('getfile');
+                    Route::get('get-file/{id}', 'get_file')->name('getfile');
+                    Route::get('get-video/{id}', 'get_video')->name('getvideo');
                 });
 
                 Route::get('/teacher_lessons/{teacher_id}/subject/{subject_id}', [TeachersController::class, 'teacher_lessons'])->name('teacher.lessons');

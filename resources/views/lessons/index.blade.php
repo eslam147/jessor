@@ -96,67 +96,6 @@
                                     </div>
                                 </div>
                             </div>
-
-
-                            <h4 class="mb-3">{{ __('files') }}</h4>
-
-                            <div class="form-group">
-
-                                <div class="row file_type_div" id="file_type_div">
-                                    <div class="form-group col-md-2">
-                                        <label>{{ __('type') }} </label>
-                                        <select id="file_type" name="file[0][type]" class="form-control file_type">
-                                            <option value="">--{{ __('select') }}--</option>
-                                            <option value="file_upload">{{ __('file_upload') }}</option>
-                                            <option value="youtube_link">{{ __('youtube_link') }}</option>
-                                            <option value="video_upload">{{ __('video_upload') }}</option>
-                                            <option value="video_corner_link">{{ __('video_corner_link') }}</option>
-                                            <option value="video_corner_download_link">
-                                                {{ __('video_corner_download_link') }}</option>
-                                        </select>
-                                    </div>
-                                    <div class="form-group col-md-3" id="file_name_div" style="display: none">
-                                        <label>{{ __('file_name') }} <span class="text-danger">*</span></label>
-                                        <input type="text" name="file[0][name]" class="file_name form-control"
-                                            placeholder="{{ __('file_name') }}" required>
-                                    </div>
-                                    <div class="form-group col-md-3" id="file_thumbnail_div" style="display: none">
-                                        <label>{{ __('thumbnail') }} <span class="text-danger">*</span></label>
-                                        <input type="file" name="file[0][thumbnail]"
-                                            class="file_thumbnail form-control" required>
-                                    </div>
-                                    <div class="form-group col-md-3" id="file_div" style="display: none">
-                                        <label>{{ __('file_upload') }} <span class="text-danger">*</span></label>
-                                        <input type="file" name="file[0][file]" class="file form-control"
-                                            placeholder="" required>
-                                    </div>
-                                    <div class="form-group col-md-3" id="file_link_div" style="display: none">
-                                        <label>{{ __('link') }} <span class="text-danger">*</span></label>
-                                        <input type="text" name="file[0][link]" class="file_link form-control"
-                                            placeholder="{{ __('link') }}" required>
-                                    </div>
-                                    <div class="form-group col-md-3" id="video_corner_url_div" style="display: none">
-                                        <label>{{ __('link') }} <span class="text-danger">*</span></label>
-                                        <input type="text" name="file[0][video_corner_url]"
-                                            class="video_corner_url form-control" placeholder="{{ __('link') }}"
-                                            required>
-                                    </div>
-                                    <div class="form-group col-md-3" id="video_corner_download_link_div"
-                                        style="display: none">
-                                        <label>{{ __('video_corner_download_link') }} <span
-                                                class="text-danger">*</span></label>
-                                        <input type="text" name="file[0][video_corner_download_link]"
-                                            class="video_corner_download_link form-control"
-                                            placeholder="{{ __('video_corner_download_link') }}" required>
-                                    </div>
-                                    <div class="form-group col-md-1 col-md-1 pl-0 mt-4">
-                                        <button type="button" class="btn btn-inverse-success btn-icon add-lesson-file">
-                                            <i class="fa fa-plus"></i>
-                                        </button>
-                                    </div>
-                                </div>
-                                <div class="mt-3 extra-files"></div>
-                            </div>
                             <input class="btn btn-theme" id="create-btn" type="submit" value={{ __('submit') }}>
                         </form>
                     </div>
@@ -372,15 +311,7 @@
                                         <label>{{ __('file_name') }} <span class="text-danger">*</span></label>
                                         <input type="text" name="edit_file[0][name]" class="file_name form-control"
                                             placeholder="{{ __('file_name') }}" required>
-                                    </div>
-                                    <div class="form-group col-md-3" id="file_thumbnail_div" style="display: none">
-                                        <label>{{ __('thumbnail') }} <span class="text-danger">*</span></label>
-                                        <input type="file" name="edit_file[0][thumbnail]"
-                                            class="file_thumbnail form-control">
-                                        <div style="width: 60px">
-                                            <img src="" id="file_thumbnail_preview" class="w-100">
-                                        </div>
-                                    </div>
+                                    </div> 
                                     <div class="form-group col-md-3" id="file_div" style="display: none">
                                         <label>{{ __('file_upload') }} <span class="text-danger">*</span></label>
                                         <input type="file" name="edit_file[0][file]" class="file form-control"

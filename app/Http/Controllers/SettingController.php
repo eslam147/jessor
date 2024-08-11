@@ -53,6 +53,7 @@ class SettingController extends Controller
             'session_year' => 'required',
             'school_tagline' => 'required',
             'online_payment' => 'required|in:0,1',
+            'custom_browser' => 'required|in:enabled,disabled',
             'facebook' => 'required',
             'instagram' => 'required',
             'linkedin' => 'required',
@@ -60,7 +61,23 @@ class SettingController extends Controller
         ]);
 
         $settings = [
-            'school_name', 'school_email', 'school_phone', 'school_address', 'time_zone', 'date_formate', 'time_formate', 'theme_color', 'session_year', 'school_tagline' ,'online_payment','secondary_color' ,'facebook' ,'instagram' ,'linkedin', 'maplink'
+            'school_name',
+            'school_email',
+            'school_phone',
+            'school_address',
+            'time_zone',
+            'date_formate',
+            'time_formate',
+            'theme_color',
+            'session_year',
+            'school_tagline',
+            'online_payment',
+            'secondary_color' ,
+            'facebook' ,
+            'instagram' ,
+            'linkedin',
+            'maplink',
+            'custom_browser',
         ];
         try {
             foreach ($settings as $row) {
@@ -178,7 +195,7 @@ class SettingController extends Controller
                     $setting->save();
                 }
             }
-          
+
             $response = [
                 'error' => false,
                 'message' => trans('data_update_successfully'),
@@ -266,7 +283,7 @@ class SettingController extends Controller
                     ['type' => 'email_configration_verification', 'message' => 0]
                 );
             }
-            
+
             $response = [
                 'error' => false,
                 'message' => trans('data_update_successfully'),
@@ -571,7 +588,7 @@ class SettingController extends Controller
                 'error' => false,
                 'message' => trans('data_update_successfully'),
             );
-            
+
         } catch (Throwable $e) {
             $response = array(
                 'error' => true,

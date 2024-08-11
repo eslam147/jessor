@@ -50,6 +50,7 @@ class LessonTopicController extends Controller
      */
     public function store(Request $request)
     {
+        //dd($request->all());
 
         if (! Auth::user()->can('topic-create')) {
             $response = array(
@@ -58,6 +59,7 @@ class LessonTopicController extends Controller
             );
             return response()->json($response);
         }
+
         $teacher = Auth::user()->load('teacher')->teacher;
         $validator = Validator::make(
             $request->all(),
@@ -76,12 +78,12 @@ class LessonTopicController extends Controller
                 'edit_file.*.link' => ['nullable', 'required_if:edit_file.*.type,youtube_link', new YouTubeUrl],
 
                 'file' => 'nullable|array',
-                'file.*.type' => 'nullable|in:file_upload,external_link,youtube_link,video_corner_link,video_corner_download_link,video_upload,other_link',
+                'file.*.type' => 'nullable|in:file_upload,external_link,youtube_link,video_corner_link,download_link,video_upload,other_link',
 
-                'file.*.video_corner_url' => ['required_if:file.*.type,video_corner_link,video_corner_download_link', 'nullable'],
+                'file.*.video_corner_url' => ['required_if:file.*.type,video_corner_link,download_link', 'nullable'],
 
                 'file.*.name' => 'required_with:file.*.type',
-                'file.*.thumbnail' => 'required_if:file.*.type,youtube_link,video_corner_link,video_corner_download_link,video_upload,other_link',
+                //'file.*.thumbnail' => 'required_if:file.*.type,youtube_link,video_corner_link,download_link,video_upload,other_link',
                 'file.*.file' => 'required_if:file.*.type,file_upload,video_upload',
                 //Regex for Youtube Link
 
@@ -99,9 +101,7 @@ class LessonTopicController extends Controller
                 'error' => true,
                 'message' => $validator->errors()->first(),
             ]);
-        }
-
-        try {
+        }else{
             DB::beginTransaction();
             $topic = new LessonTopic();
             $topic->name = $request->name;
@@ -114,7 +114,6 @@ class LessonTopicController extends Controller
                     $file = new File();
                     $file->file_name = $data['name'];
                     $file->modal()->associate($topic);
-
                     if ($data['type'] == "file_upload") {
                         $file->type = 1;
                         $file->file_url = $data['file']->store('lessons', 'public');
@@ -123,88 +122,16 @@ class LessonTopicController extends Controller
                         $file->file_url = $data['external_link'];
                     } elseif ($data['type'] == "youtube_link") {
                         $file->type = 2;
-                        $image = $data['thumbnail'];
-                        // made file name with combination of current time
-                        $file_name = time() . '-' . $image->getClientOriginalName();
-                        //made file path to store in database
-                        $file_path = 'lessons/' . $file_name;
-                        //resized image
-                        resizeImage($image);
-                        //stored image to storage/public/lessons folder
-                        $destinationPath = storage_path('app/public/lessons');
-                        $image->move($destinationPath, $file_name);
-
-                        $file->file_thumbnail = $file_path;
                         $file->file_url = $data['link'];
                     } elseif ($data['type'] == "video_corner_link") {
                         $file->type = File::VIDEO_CORNER_TYPE;
-
-                        $image = $data['thumbnail'];
-
-                        // made file name with combination of current time
-                        $file_name = time() . '-' . $image->getClientOriginalName();
-                        //made file path to store in database
-                        $file_path = 'lessons/' . $file_name;
-                        //resized image
-                        resizeImage($image);
-                        //stored image to storage/public/lessons folder
-                        $destinationPath = storage_path('app/public/lessons');
-                        $image->move($destinationPath, $file_name);
-
-                        $file->file_thumbnail = $file_path;
                         $file->file_url = $data['video_corner_url'];
-
-                    } elseif ($data['type'] == "video_corner_download_link") {
-                        $file->type = 6;
-
-                        $image = $data['thumbnail'];
-                        // made file name with combination of current time
-                        $file_name = time() . '-' . $image->getClientOriginalName();
-                        //made file path to store in database
-                        $file_path = 'lessons/' . $file_name;
-                        //resized image
-                        resizeImage($image);
-                        //stored image to storage/public/lessons folder
-                        $destinationPath = storage_path('app/public/lessons');
-                        $image->move($destinationPath, $file_name);
-
-                        $file->file_thumbnail = $file_path;
-
-                        $file->file_url = $data['video_corner_url'];
-                        $file->download_link = $data['video_corner_download_link'];
-
-                    } elseif ($data['type'] == "video_upload") {
+                        $file->download_link = $data['download_link'];
+                    }elseif ($data['type'] == "video_upload") {
                         $file->type = 3;
-
-                        $image = $data['thumbnail'];
-                        // made file name with combination of current time
-                        $file_name = time() . '-' . $image->getClientOriginalName();
-                        //made file path to store in database
-                        $file_path = 'lessons/' . $file_name;
-                        //resized image
-                        resizeImage($image);
-                        //stored image to storage/public/lessons folder
-                        $destinationPath = storage_path('app/public/lessons');
-                        $image->move($destinationPath, $file_name);
-
-                        $file->file_thumbnail = $file_path;
                         $file->file_url = $data['file']->store('lessons', 'public');
                     } elseif ($data['type'] == "other_link") {
                         $file->type = 4;
-
-                        $image = $data['thumbnail'];
-                        // made file name with combination of current time
-                        $file_name = time() . '-' . $image->getClientOriginalName();
-                        //made file path to store in database
-                        $file_path = 'lessons/' . $file_name;
-                        //resized image
-                        resizeImage($image);
-                        //stored image to storage/public/lessons folder
-                        $destinationPath = storage_path('app/public/lessons');
-                        $image->move($destinationPath, $file_name);
-
-                        $file->file_thumbnail = $file_path;
-
                         $file->file_url = $data['link'];
                     }
 
@@ -215,15 +142,6 @@ class LessonTopicController extends Controller
             $response = array(
                 'error' => false,
                 'message' => trans('data_store_successfully')
-            );
-        } catch (Throwable $e) {
-            DB::rollBack();
-
-            report($e);
-            $response = array(
-                'error' => true,
-                'message' => trans('error_occurred'),
-                'exception' => $e
             );
         }
         return response()->json($response);
@@ -351,13 +269,13 @@ class LessonTopicController extends Controller
 
                 'file' => 'nullable|array',
                 'file.*.name' => 'nullable|required_with:file.*.type',
-                'file.*.thumbnail' => 'nullable|required_if:file.*.type,youtube_link,video_corner_link,video_corner_download_linkوvideo_upload,other_link',
+                'file.*.thumbnail' => 'nullable|required_if:file.*.type,youtube_link,video_corner_link,download_linkوvideo_upload,other_link',
 
 
-                'file.*.type' => 'nullable|in:file_upload,youtube_link,video_upload,other_link,video_corner_link,video_corner_download_link',
+                'file.*.type' => 'nullable|in:file_upload,youtube_link,video_upload,other_link,video_corner_link,download_link',
 
 
-                'file.*.video_corner_url' => ['required_if:file.*.type,video_corner_link,video_corner_download_link', 'nullable'],
+                'file.*.video_corner_url' => ['required_if:file.*.type,video_corner_link,download_link', 'nullable'],
 
 
 
@@ -465,7 +383,7 @@ class LessonTopicController extends Controller
                         }
 
                         $file->file_url = $file['video_corner_url'];
-                    } elseif ($file['type'] == "video_corner_download_link") {
+                    } elseif ($file['type'] == "download_link") {
                         $file->type = 6;
 
                         if (! empty($file['thumbnail'])) {
@@ -486,7 +404,7 @@ class LessonTopicController extends Controller
                             $topic_file->file_thumbnail = $file_path;
                         }
                         $file->file_url = $file['video_corner_url'];
-                        $file->download_link = $file['video_corner_download_link'];
+                        $file->download_link = $file['download_link'];
 
                     } elseif ($file['type'] == "other_link") {
                         $topic_file->type = 4;
