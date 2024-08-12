@@ -70,7 +70,7 @@
     "data_store_successfully": "Data Saved Successfully",
     "data_update_successfully": "Data Updated Successfully",
     "data_delete_successfully": "Data Deleted Successfully",
-    "error_occurred": "Oops! Error occurred. Please Try again Later.",
+    "error_occurred": "Oops! Server Error occurred. Please Try again Later.",
     "created_at": "Created At",
     "updated_at": "Updated At",
     "no_permission_message": "You Don't have enough permissions.",
@@ -647,5 +647,10 @@
     "register" : "Register",
     "already_have_account" : "Already have an account?",
     "external_link" : "External Link",
-    "Protection-browser": "Protection browser"
+     "Protection-browser": "Protection browser"
+    "coupon_errors_disabled": "This coupon is disabled.",
+    "coupon_errors_not_can_use": "You cannot use this coupon.",
+    "coupon_errors_expired": "This coupon has expired.",
+    "coupon_errors_limited": "This coupon usage limit has been reached.",
+    "coupon_errors_already_used": "This coupon has already been used."
 }

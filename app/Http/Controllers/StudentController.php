@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use PDO;
 use Exception;
 use Throwable;
 use Carbon\Carbon;
@@ -745,17 +744,18 @@ class StudentController extends Controller
                 $operate .= '</div></div>&nbsp;&nbsp;';
 
             }
+            $user = optional($row->user);
             $tempRow['id'] = $row->id;
             $tempRow['no'] = $no++;
             $tempRow['user_id'] = $row->user_id;
-            $tempRow['first_name'] = $row->user->first_name;
-            $tempRow['last_name'] = $row->user->last_name;
-            $tempRow['gender'] = $row->user->gender;
-            $tempRow['email'] = $row->user->email;
-            $tempRow['dob'] = date($data['date_formate'], strtotime($row->user->dob));
-            $tempRow['mobile'] = $row->user->mobile;
-            $tempRow['image'] = $row->user->image;
-            $tempRow['image_link'] = $row->user->image;
+            $tempRow['first_name'] = $user->first_name;
+            $tempRow['last_name'] = $user->last_name;
+            $tempRow['gender'] = $user->gender;
+            $tempRow['email'] = $user->email;
+            $tempRow['dob'] = date($data['date_formate'], strtotime($user->dob));
+            $tempRow['mobile'] = $user->mobile;
+            $tempRow['image'] = $user->image;
+            $tempRow['image_link'] = $user->image;
             $tempRow['class_section_id'] = $row->class_section_id;
             $tempRow['class_section_name'] = $row->class_section->class->name . "-" . $row->class_section->section->name;
             $tempRow['stream_name'] = $row->class_section->class->streams->name ?? '';
@@ -769,8 +769,8 @@ class StudentController extends Controller
             $tempRow['blood_group'] = $row->blood_group;
             $tempRow['height'] = $row->height;
             $tempRow['weight'] = $row->weight;
-            $tempRow['current_address'] = $row->user->current_address;
-            $tempRow['permanent_address'] = $row->user->permanent_address;
+            $tempRow['current_address'] = $user->current_address;
+            $tempRow['permanent_address'] = $user->permanent_address;
             $tempRow['is_new_admission'] = $row->is_new_admission;
             $tempRow['dynamic_data_field'] = json_decode($row->dynamic_fields);
 

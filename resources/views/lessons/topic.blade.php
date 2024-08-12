@@ -179,7 +179,7 @@
                             data-mobile-responsive="true" data-sort-name="id" data-sort-order="desc"
                             data-maintain-selected="true" data-export-types='["txt","excel"]'
                             data-query-params="CreateTopicQueryParams"
-                            data-export-options='{ "fileName": "topic-list-<?= date('d-m-y') ?>" ,"ignoreColumn":
+                            data-export-options='{ "fileName": "topic-list-{{ date('d-m-y') }}" ,"ignoreColumn":
                             ["operate"]}'
                             data-show-export="true">
                             <thead>

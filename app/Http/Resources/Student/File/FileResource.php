@@ -14,17 +14,18 @@ class FileResource extends JsonResource
      */
     public function toArray($request)
     {
-        /*
-          Type Is Meaning
-         1 = File Upload, 2 = Youtube Link, 3 = Video Upload, 4 = Other Link	
-         */
         return [
-            'title' => $this->title,
+            
+            'title' => $this->file_name,
             'thumbnail' => $this->file_thumbnail,
+            
             'type' => $this->type,
+            
             'type_name' => $this->type_detail,
+            
             'url' => $this->file_url,
-            'extension' => $this->file_extension
+
+            'download_link' => $this->download_link
         ];
     }
 }

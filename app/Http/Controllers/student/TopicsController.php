@@ -2,13 +2,14 @@
 
 namespace App\Http\Controllers\student;
 
-use App\Models\Lesson;
-use App\Models\Enrollment;
-use App\Models\LessonTopic;
-use App\Http\Controllers\Controller;
-use App\Models\File;
+use App\Models\{
+    Lesson,
+    Enrollment,
+    LessonTopic,
+    File,
+};
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Http\Request;
+use App\Http\Controllers\Controller;
 use Symfony\Component\HttpFoundation\Response;
 
 class TopicsController extends Controller
@@ -54,8 +55,15 @@ class TopicsController extends Controller
     public function get_file($id)
     {
         $file = File::find($id);
+        if(!$file) return '';
+
         return view('student_dashboard.files.file', compact('file'));
-        //return response()->json(['id' => $id]);
+    }
+    public function get_video($id)
+    {
+        $video = File::find($id);
+        if(!$video) return '';
+        return view('student_dashboard.files.video', compact('video'));
     }
     public function get_video($id)
     {

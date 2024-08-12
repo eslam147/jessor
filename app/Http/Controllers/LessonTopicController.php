@@ -156,11 +156,10 @@ class LessonTopicController extends Controller
     public function show()
     {
         if (! Auth::user()->can('topic-list')) {
-            $response = array(
+            return response()->json([
                 'error' => true,
                 'message' => trans('no_permission_message')
-            );
-            return response()->json($response);
+            ]);
         }
         $offset = 0;
         $limit = 10;
@@ -177,42 +176,36 @@ class LessonTopicController extends Controller
             $order = $_GET['order'];
 
         $sql = LessonTopic::relatedToTeacher()->with('lesson.class_section', 'lesson.subject', 'file');
-        if (isset($_GET['search']) && ! empty($_GET['search'])) {
-            $search = $_GET['search'];
+
+        if (! empty(request('search'))) {
+            $search = request('search');
             $sql->where(function ($query) use ($search) {
-                $query->where('id', 'LIKE', "%$search%")
-                    ->orwhere('name', 'LIKE', "%$search%")
-                    ->orwhere('description', 'LIKE', "%$search%")
+                $query->where('id', 'LIKE', "%{$search}%")
+                    ->orwhere('name', 'LIKE', "%{$search}%")
+                    ->orwhere('description', 'LIKE', "%{$search}%")
                     ->orWhereHas('lesson.class_section.section', function ($q) use ($search) {
-                        $q->where('name', 'LIKE', "%$search%");
+                        $q->where('name', 'LIKE', "%{$search}%");
                     })->orWhereHas('lesson.class_section.class', function ($q) use ($search) {
-                        $q->where('name', 'LIKE', "%$search%");
+                        $q->where('name', 'LIKE', "%{$search}%");
                     })->orWhereHas('lesson.subject', function ($q) use ($search) {
-                        $q->where('name', 'LIKE', "%$search%");
+                        $q->where('name', 'LIKE', "%{$search}%");
                     })->orWhereHas('lesson', function ($q) use ($search) {
-                        $q->where('name', 'LIKE', "%$search%");
+                        $q->where('name', 'LIKE', "%{$search}%");
                     });
             });
         }
         if (request('subject_id')) {
-
-            $sql = $sql->whereHas('lesson', function ($q) {
-                $q->where('subject_id', request('subject_id'));
-            });
+            $sql = $sql->whereHas('lesson', fn($q) => $q->where('subject_id', request('subject_id')));
         }
         if (request('class_id')) {
-
-            $sql = $sql->whereHas('lesson', function ($q) {
-                $q->where('class_section_id', request('class_id'));
-            });
+            $sql = $sql->whereHas('lesson', fn($q) => $q->where('class_section_id', request('class_id')));
         }
         if (request('lesson_id')) {
             $sql = $sql->where('lesson_id', request('lesson_id'));
         }
         $total = $sql->count();
 
-        $sql->orderBy($sort, $order)->skip($offset)->take($limit);
-        $res = $sql->get();
+        $res = $sql->orderBy($sort, $order)->skip($offset)->take($limit)->get();
         $bulkData = [];
         $bulkData['total'] = $total;
         $rows = [];

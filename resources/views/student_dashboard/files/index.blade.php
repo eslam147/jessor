@@ -66,6 +66,7 @@
                                                                             {{ $row->file_name }}
                                                                         </a>
                                                                     </li>
+
                                                                 @endforeach
                                                             @else
                                                                 <li class="list-group-item"><a href="javascript:void(0)"> No Videos Found </a></li>
@@ -92,6 +93,7 @@
                                                             @else
                                                                 <li class="list-group-item"><a href="javascript:void(0)"> No Files Found </a></li>
                                                             @endif
+
                                                         </ul>
                                                     </div>
                                             </div>
@@ -118,7 +120,6 @@
         document.addEventListener('DOMContentLoaded', () => {
             const player = new Plyr('#player');
         });
-
         $(document).on('click', '.file-link', function(event) {
             event.preventDefault();
             var id = $(this).data('id');
@@ -140,6 +141,7 @@
             event.preventDefault();
             var id = $(this).data('id');
             $("#content").html('<i class="fa-solid fa-circle-notch fa-spin" style="font-size: 50px;"></i>');
+
             $.ajax({
                 headers: {
                     'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
@@ -158,5 +160,4 @@
 
 
     </script>
-
 @endsection

@@ -129,12 +129,13 @@ class CouponController extends Controller
         $couponIds = $this->couponService->savePurchaseCoupons($request);
 
         if ($request->post('action') == 'save_and_print') {
+            $exportCoupons = $this->couponService->exportCouponCode($couponIds);
             return response()->json([
                 'error' => false,
                 'message' => trans('data_store_successfully'),
                 'data' => [
-                    'file_url' => $this->couponService->exportCouponCode($couponIds),
-                    'file_name' => "couponcode" . time() . ".xlsx"
+                    'file_url' => $exportCoupons['url'],
+                    'file_name' => $exportCoupons['name']
                 ]
             ]);
         }

@@ -73,6 +73,10 @@ class Lesson extends Model
     {
         return $this->belongsTo(ClassSection::class)->with('class', 'section');
     }
+    public function teacher()
+    {
+        return $this->belongsTo(Teacher::class, 'teacher_id')->withTrashed();
+    }
 
     public function class()
     {
