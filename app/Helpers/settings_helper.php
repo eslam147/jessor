@@ -35,6 +35,7 @@ if (! function_exists('getYouTubeVideoId')) {
         return null;
     }
 }
+
 if (! function_exists('settingByType')) {
     function settingByType($type)
     {
@@ -207,7 +208,7 @@ if (! function_exists('flattenMyModel')) {
 //             file_put_contents(base_path() . '/.env', $env);
 
 //             return true;
-//         } 
+//         }
 //         return false;
 //     }
 // }
