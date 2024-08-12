@@ -105,7 +105,7 @@
     "class_timetable": "Class Timetable",
     "teacher_timetable": "Teacher Timetable",
     "subject_lesson": "Subject Lesson",
-    "create_lesson": "Create Lesson",
+    "create_lesson": "Create Lessons",
     "create_topic": "Create Topic",
     "lesson_alredy_exists": "Lesson is already exists",
     "topic_alredy_exists": "Topic is already exists",
@@ -647,6 +647,7 @@
     "register" : "Register",
     "already_have_account" : "Already have an account?",
     "external_link" : "External Link",
+     "Protection-browser": "Protection browser"
     "coupon_errors_disabled": "This coupon is disabled.",
     "coupon_errors_not_can_use": "You cannot use this coupon.",
     "coupon_errors_expired": "This coupon has expired.",

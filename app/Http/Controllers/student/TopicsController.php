@@ -40,12 +40,14 @@ class TopicsController extends Controller
             Enrollment::where('user_id', Auth::user()->id)->where('lesson_id', $topic->lesson_id)->exists(),
             Response::HTTP_UNAUTHORIZED
         );
+
         $videos = $topic->file->whereIn('type', [
             File::VIDEO_CORNER_TYPE,
             File::DOWNLOAD_LINK_TYPE,
             File::YOUTUBE_TYPE,
             File::VIDEO_UPLOAD_TYPE
-        ]);
+        ]); 
+
         $files = $topic->file->whereIn('type', [File::FILE_UPLOAD_TYPE, File::EXTERNAL_LINK]);
         return view('student_dashboard.files.index', compact('files', 'videos'));
     }
@@ -54,6 +56,7 @@ class TopicsController extends Controller
     {
         $file = File::find($id);
         if(!$file) return '';
+
         return view('student_dashboard.files.file', compact('file'));
     }
     public function get_video($id)
@@ -61,6 +64,12 @@ class TopicsController extends Controller
         $video = File::find($id);
         if(!$video) return '';
         return view('student_dashboard.files.video', compact('video'));
+    }
+    public function get_video($id)
+    {
+        $video = File::find($id);
+        return view('student_dashboard.files.video', compact('video'));
+        //return response()->json(['id' => $id]);
     }
 
 }

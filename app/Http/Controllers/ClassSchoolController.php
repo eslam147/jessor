@@ -73,7 +73,7 @@ class ClassSchoolController extends Controller
 
         $validator = Validator::make($request->all(), [
             'medium_id' => 'required|numeric',
-            'name' => 'required|regex:/^[A-Za-z0-9_]+$/',
+            'name' => 'required',
             'section_id' => 'required',
         ]);
 

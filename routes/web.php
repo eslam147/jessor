@@ -21,5 +21,7 @@ foreach (config('tenancy.central_domains') as $domain) {
         })->name('centeral.home');
         Route::resource('domain', DomainController::class);
         Route::resource('tenants',TenantController::class);
+        Route::get('settings',[TenantController::class,'upgrade_settings']);
+        Route::post('settings',[TenantController::class,'insert_settings_fields'])->name('insert.settings.field');
     });
 }

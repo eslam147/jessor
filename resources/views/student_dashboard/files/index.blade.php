@@ -61,7 +61,12 @@
                                                         <ul class="accordion-body list-group">
                                                             @if($videos->count() > 0)
                                                                 @foreach ($videos as $row)
-                                                                    <li class="list-group-item video-link" data-id="{{ $row->id }}" ><a href="javascript:void(0)">{{ $row->file_name }}</a></li>
+                                                                    <li class="list-group-item video-link" data-id="{{ $row->id }}" >
+                                                                        <a href="javascript:void(0)">
+                                                                            {{ $row->file_name }}
+                                                                        </a>
+                                                                    </li>
+
                                                                 @endforeach
                                                             @else
                                                                 <li class="list-group-item"><a href="javascript:void(0)"> No Videos Found </a></li>
@@ -77,18 +82,26 @@
                                                     </h2>
                                                     <div id="collapseFiles" class="accordion-collapse collapse" aria-labelledby="headingOne" data-bs-parent="#accordionExample">
                                                         <ul class="accordion-body list-group">
-                                                            @foreach ($files as $row)
-                                                                <li class="list-group-item file-link" data-id="{{ $row->id }}">
-                                                                    <a href="javascript:void(0)" >
-                                                                        {{ $row->file_name }}
-                                                                    </a>
-                                                                </li>
-                                                            @endforeach
+                                                            @if($files->count() > 0)
+                                                                @foreach ($files as $row)
+                                                                    <li class="list-group-item file-link" data-id="{{ $row->id }}">
+                                                                        <a href="javascript:void(0)" >
+                                                                            {{ $row->file_name }}
+                                                                        </a>
+                                                                    </li>
+                                                                @endforeach
+                                                            @else
+                                                                <li class="list-group-item"><a href="javascript:void(0)"> No Files Found </a></li>
+                                                            @endif
+
                                                         </ul>
                                                     </div>
                                             </div>
                                         </div>
-                                        <div class="col-10" id="content"></div>
+                                        <div class="col-10 d-flex justify-content-center align-items-center" id="content" >
+                                            <input type="hidden" id="download_for_browser" value="">
+
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -127,6 +140,8 @@
         $(document).on('click', '.video-link', function(event) {
             event.preventDefault();
             var id = $(this).data('id');
+            $("#content").html('<i class="fa-solid fa-circle-notch fa-spin" style="font-size: 50px;"></i>');
+
             $.ajax({
                 headers: {
                     'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
@@ -135,11 +150,14 @@
                 url: '{{ route("topics.getvideo", ":id") }}'.replace(':id', id),
                 success: function(data) {
                     $("#content").html(data);
+                    const player = new Plyr('#player');
                 },
                 error: function(xhr) {
                     console.log(xhr.responseText);
                 }
             });
         });
+
+
     </script>
 @endsection

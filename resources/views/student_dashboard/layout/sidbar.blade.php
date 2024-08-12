@@ -21,7 +21,7 @@
                     <li>
                         <a href="#">
                             <i class="si-note si"></i>
-                            <span>Assignments</span>
+                            <span>Home Work</span>
                         </a>
                     </li>
                     <li>
