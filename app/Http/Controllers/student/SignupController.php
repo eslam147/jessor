@@ -20,9 +20,16 @@ class SignupController extends Controller
 
     public function index()
     {
+
         $category = Category::where('status', 1)->get();
-        $class_section = ClassSection::with('class', 'section', 'streams')->get();
+
+        $class_section = ClassSection::with([
+            'class' => fn($q) => $q->withoutTrashed(),
+            'section' => fn($q) => $q->withoutTrashed(),
+            'streams' => fn($q) => $q->withoutTrashed()
+        ])->get();
         return view('auth.register', compact('class_section', 'category'));
+
     }
 
     /**
@@ -45,7 +52,7 @@ class SignupController extends Controller
             'first_name' => 'required|string',
             'last_name' => 'required|string',
             'password' => 'required|string|min:6',
-            'mobile'   => 'required|string',
+            'mobile' => 'required|string',
             'email' => 'required|email|unique:users,email',
             'class_section_id' => 'required|exists:class_sections,id'
         ]);

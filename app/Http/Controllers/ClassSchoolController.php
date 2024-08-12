@@ -252,11 +252,9 @@ class ClassSchoolController extends Controller
     public function destroy($id)
     {
         if (! Auth::user()->can('class-delete')) {
-            $response = array(
-                'error' => true,
-                'message' => trans('no_permission_message')
-            );
-            return response()->json($response);
+            return response()->json([                'error' => true,
+            'message' => trans('no_permission_message')
+]);
         }
         try {
             // check wheather the class exists in other table

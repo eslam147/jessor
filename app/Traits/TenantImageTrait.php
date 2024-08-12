@@ -26,10 +26,10 @@ trait TenantImageTrait
     }
 
 
-    protected function removeImage($path)
+    protected function removeImage($path,$disk = 'local')
     {
-        if (! empty($path) && Storage::disk('local')->exists($path)) {
-            Storage::disk('local')->delete($path);
+        if (! empty($path) && Storage::disk($disk)->exists($path)) {
+            Storage::disk($disk)->delete($path);
         }
     }
 }

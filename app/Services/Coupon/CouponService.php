@@ -29,12 +29,12 @@ class CouponService
 
     public function isCouponAvailable(Coupon $coupon, User $user, Lesson $action): array
     {
-        $coupon->loadCount(['usages']);
+        $coupon->loadCount(['usages','onlyAppliedTo']);
         $action->load(['teacher', 'subject', 'class.allSubjects']);
         if ($coupon->is_disabled) {
             return $this->responseContent(__('coupon_errors_disabled'), false);
         }
-        if ($coupon->onlyAppliedTo()->isNot($action)) {
+        if (!empty($coupon->onlyAppliedTo) && $coupon->onlyAppliedTo()->isNot($action)) {
             return $this->responseContent(__('coupon_errors_not_can_use'), false);
         }
         if (filled($coupon->expiry_date) && Carbon::parse($coupon->expiry_date)->isPast()) {
@@ -48,7 +48,7 @@ class CouponService
             return $this->responseContent(__('coupon_errors_already_used'), false);
         }
 
-        if ($coupon->teacher_id != $action->teacher_id) {
+        if (!empty($coupon->teacher_id) && $coupon->teacher_id != $action->teacher_id) {
             return $this->responseContent(__('coupon_errors_not_related_to_teacher'), false);
         }
         if (!empty($this->model->classModel) && $this->model->classModel->id != $action->classModel->class_id) {

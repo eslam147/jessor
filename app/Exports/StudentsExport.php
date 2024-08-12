@@ -8,8 +8,9 @@ use Illuminate\Support\Collection;
 use Maatwebsite\Excel\Concerns\Exportable;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\FromCollection;
+use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 
-class StudentsExport implements FromCollection, WithHeadings
+class StudentsExport implements FromCollection, WithHeadings, ShouldAutoSize
 {
     use Exportable;
     private $class_section_id;

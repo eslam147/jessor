@@ -6,18 +6,12 @@ use Illuminate\Http\Resources\Json\JsonResource;
 
 class FileResource extends JsonResource
 {
-    /**
-     * Transform the resource into an array.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return array|\Illuminate\Contracts\Support\Arrayable|\JsonSerializable
-     */
     public function toArray($request)
     {
         return [
             
             'title' => $this->file_name,
-            'thumbnail' => $this->file_thumbnail,
+            'thumbnail' => $this->when(!empty($this->file_thumbnail) , $this->file_thumbnail, global_asset('images/no_image_available.jpg')),
             
             'type' => $this->type,
             
