@@ -24,6 +24,12 @@
                     @foreach ($lessons as $row)
                         <div class="col-4">
                             <div class="box pull-up">
+                                <img @class([
+                                    "box-img-top",
+                                    'no_image_available' => empty($row->thumbnail)
+                                ])
+                                    src="{{ $row->thumbnail ? tenant_asset($row->thumbnail) : global_asset('images/no_image_available.jpg') }}"
+                                    alt="Card image cap">
                                 <div class="box-body">
 
                                     <p class="mb-0 fs-18"> {{ $row->name }} </p>
@@ -33,29 +39,11 @@
                                             <p class="mb-0">{{ $row->description }}</p>
                                         </div>
                                         <div>
-                                            @if ($row->enrollments_count > 0)
-                                                <p class="mb-5 fw-600">55%</p>
-                                                <div class="progress progress-sm mb-0 w-100">
-                                                    <div class="progress-bar progress-bar-primary" role="progressbar"
-                                                        aria-valuenow="40" aria-valuemin="0" aria-valuemax="100"
-                                                        style="width: 55%">
-                                                    </div>
-                                                </div>
+                                            @if ($row->is_lesson_free)
+                                                <span class="text-success">Lesson Is Free</span>
                                             @else
-                                                @if ($row->is_lesson_free)
-                                                    <p class="mb-5 fw-600">55%</p>
-                                                    <div class="progress progress-sm mb-0 w-100">
-                                                        <div class="progress-bar progress-bar-primary" role="progressbar"
-                                                            aria-valuenow="40" aria-valuemin="0" aria-valuemax="100"
-                                                            style="width: 55%">
-                                                        </div>
-                                                    </div>
-                                                @else
-                                                    <i style="font-size: 25px;" class="si-lock si text-danger"></i>
-                                                @endif
+                                                {{ $row->price }}
                                             @endif
-
-
                                         </div>
                                     </div>
                                     @if ($row->enrollments_count > 0)

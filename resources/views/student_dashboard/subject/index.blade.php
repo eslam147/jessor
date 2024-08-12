@@ -47,7 +47,7 @@
                                             class="text-dark hover-primary mb-5 fw-600 fs-18">{{ $row->name }}</a>
                                         <div class="row">
                                             <div class="col-xxl-6 col-xl-12 col-lg-6 col-md-6 text-fade">
-                                                <p class="my-10"><i class="si-book-open si"></i> 21 lesson</p>
+                                                <p class="my-10"><i class="si-book-open si"></i> {{ $row->lessons_count }} Lesson</p>
                                                 <p><i class="si-note si"></i> 5 Proceed</p>
                                             </div>
                                             <div class="col-xxl-6 col-xl-12 col-lg-6 col-md-6 text-fade">

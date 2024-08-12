@@ -3,7 +3,9 @@
 @section('title')
     {{ __('manage') . ' ' . __('lesson') }}
 @endsection
-
+@section('css')
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Dropify/0.2.2/css/dropify.min.css">
+@endsection
 @section('content')
     <div class="content-wrapper">
         <div class="page-header">
@@ -19,7 +21,7 @@
                             {{ __('create') . ' ' . __('lesson') }}
                         </h4>
                         <form class="pt-3 add-lesson-form" id="create-form" action="{{ route('lesson.store') }}"
-                            method="POST" novalidate="novalidate">
+                            method="POST" novalidate="novalidate" enctype="multipart/form-data">
                             <div class="row">
                                 <div class="form-group col-sm-12 col-md-6">
                                     <label>{{ __('class') . ' ' . __('section') }} <span
@@ -60,18 +62,24 @@
                                     <div class="d-flex">
                                         <div class="form-check form-check-inline">
                                             <label class="form-check-label">
-                                                <input name="payment_status" type="radio" value="0">
+                                                <input name="payment_status" class="payment_status" type="radio" value="0">
                                                 Free
                                                 <i class="input-helper"></i></label>
                                         </div>
                                         <div class="form-check form-check-inline">
                                             <label class="form-check-label">
-                                                <input name="payment_status" type="radio" value="1">
+                                                <input name="payment_status" class="payment_status" type="radio" value="1">
                                                 Paid
                                                 <i class="input-helper"></i></label>
                                         </div>
                                     </div>
                                 </div>
+                                <div class="form-group col-sm-12 col-md-6 price_row">
+                                    <label>{{ __('price') }} <span class="text-danger">*</span></label>
+                                    <input type="number" min="1" step="0.01" id="price" disabled name="price"
+                                        placeholder="{{ __('price') }}" class="form-control" />
+                                </div>
+
                                 <div class="form-group col-sm-12 col-md-6">
                                     <label>{{ __('status') }} <span class="text-danger">*</span></label>
                                     <div class="d-flex">
@@ -95,8 +103,17 @@
                                         </div>
                                     </div>
                                 </div>
+                                <div class="form-group col-sm-12 col-md-6">
+                                    <label>{{ __('lesson_thumbnail') }} <span
+                                            class="text-danger">*</span><small class="text-info">({{ __('preferred_size', ['w' => '300', 'h' => '300']) }})</small></label>
+                                    <input type="file" name="lesson_thumbnail" class="dropify" id="lesson_thumbnail">
+                                </div>
                             </div>
-                            <input class="btn btn-theme" id="create-btn" type="submit" value={{ __('submit') }}>
+                            <hr>
+                            <div class="text-center">
+                                <input class="btn btn-theme" id="create-btn" type="submit" value={{ __('submit') }}>
+
+                            </div>
                         </form>
                     </div>
                 </div>
@@ -253,17 +270,22 @@
                                         <div class="d-flex">
                                             <div class="form-check form-check-inline">
                                                 <label class="form-check-label">
-                                                    <input name="payment_status" type="radio" value="0">
+                                                    <input name="payment_status" class="payment_status free" type="radio" value="0">
                                                     Free
                                                     <i class="input-helper"></i></label>
                                             </div>
                                             <div class="form-check form-check-inline">
                                                 <label class="form-check-label">
-                                                    <input name="payment_status" type="radio" value="1">
+                                                    <input name="payment_status" class="payment_status paid" type="radio" value="1">
                                                     Paid
                                                     <i class="input-helper"></i></label>
                                             </div>
                                         </div>
+                                    </div>
+                                    <div class="form-group col-sm-12 col-md-6 price_row">
+                                        <label>{{ __('price') }} <span class="text-danger">*</span></label>
+                                        <input type="number" min="1" step="0.01" id="price" disabled name="price"
+                                            placeholder="{{ __('price') }}" class="form-control" />
                                     </div>
                                     <div class="form-group col-sm-12 col-md-6">
                                         <label>{{ __('status') }} <span class="text-danger">*</span></label>
@@ -288,54 +310,10 @@
                                             </div>
                                         </div>
                                     </div>
-
-                                </div>
-
-                                <h4 class="mb-3">{{ __('files') }}</h4>
-                                <div class="row edit_file_type_div" id="edit_file_type_div">
-                                    <input type="hidden" id="edit_file_id" name="edit_file[0][id]" />
-                                    <div class="form-group col-md-2" style="pointer-events: none">
-                                        <label>{{ __('type') }}</label>
-                                        <select id="edit_file_type" name="edit_file[0][type]"
-                                            class="form-control file_type">
-                                            <option value="">--{{ __('select') }}--</option>
-                                            <option value="file_upload">{{ __('file_upload') }}</option>
-                                            <option value="youtube_link">{{ __('youtube_link') }}</option>
-                                            <option value="video_upload">{{ __('video_upload') }}</option>
-                                            <option value="video_corner_link">{{ __('video_corner_link') }}</option>
-                                            <option value="video_corner_download_link">{{ __('video_corner_download_link') }}</option>
-                                            {{-- <option value="other_link">{{ __('other_link') }}</option> --}}
-                                        </select>
-                                    </div>
-                                    <div class="form-group col-md-3" id="file_name_div" style="display: none">
-                                        <label>{{ __('file_name') }} <span class="text-danger">*</span></label>
-                                        <input type="text" name="edit_file[0][name]" class="file_name form-control"
-                                            placeholder="{{ __('file_name') }}" required>
-                                    </div> 
-                                    <div class="form-group col-md-3" id="file_div" style="display: none">
-                                        <label>{{ __('file_upload') }} <span class="text-danger">*</span></label>
-                                        <input type="file" name="edit_file[0][file]" class="file form-control"
-                                            placeholder="">
-                                        <a href="" target="_blank" id="file_preview" class="w-100"></a>
-                                    </div>
-                                    <div class="form-group col-md-3" id="file_link_div" style="display: none">
-                                        <label>{{ __('link') }} <span class="text-danger">*</span></label>
-                                        <input type="text" name="edit_file[0][link]" class="file_link form-control"
-                                            placeholder="{{ __('link') }}" required>
-                                    </div>
-
-                                    <div class="form-group col-md-1 pl-0 mt-4">
-                                        <button type="button" class="btn btn-icon btn-inverse-danger remove-lesson-file">
-                                            <i class="fa fa-times"></i>
-                                        </button>
-                                    </div>
-                                </div>
-                                <div class="mt-3 edit-extra-files"></div>
-                                <div>
-                                    <div class="form-group pl-0 mt-4">
-                                        <button type="button" class="col-md-3 btn btn-inverse-success edit-lesson-file">
-                                            {{ __('add_new_files') }} <i class="fa fa-plus"></i>
-                                        </button>
+                                    <div class="form-group col-sm-12 col-md-6">
+                                        <label>{{ __('lesson_thumbnail') }} <span
+                                                class="text-danger">*</span><small class="text-info">({{ __('preferred_size', ['w' => '300', 'h' => '300']) }})</small></label>
+                                        <input type="file" name="lesson_thumbnail" data-show-remove="false" data-default-file="{{ global_asset('images/default-image.png') }}" class="dropify" id="lesson_thumbnail">
                                     </div>
                                 </div>
                             </div>
@@ -350,4 +328,18 @@
             </div>
         </div>
     </div>
+@endsection
+@section('js')
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Dropify/0.2.2/js/dropify.min.js"></script>
+    <script>
+        $('.dropify').dropify();
+        $('.payment_status').change(function() {
+            let $this = $(this);
+            if($this.val() == 1) {
+                $('.price_row input').removeAttr('disabled');
+            }else{
+                $('.price_row input').attr('disabled','');
+            }
+        })
+    </script>
 @endsection

@@ -30,6 +30,8 @@ class uniqueLessonInClass implements Rule
 
     public function message()
     {
-        return trans('lesson_alredy_exists');
+        return trans('lesson_alredy_exists',[
+            'lesson' => request('name')
+        ]);
     }
 }

@@ -21,6 +21,7 @@ class SubjectController extends Controller
 
         $subjects = Subject::whereHas('classSubjects', fn($q) => $q->where('class_id', $class_id))
             ->latest()
+            ->withCount(['lessons' => fn($q) => $q->where('class_section_id', $class_section_id)])
             ->get();
 
         return view('student_dashboard.subject.index', compact('subjects'));

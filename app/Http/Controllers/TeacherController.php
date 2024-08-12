@@ -74,11 +74,9 @@ class TeacherController extends Controller
                 'qualification' => 'required',
                 'current_address' => 'required',
                 'permanent_address' => 'required',
-            ],
-            [
+            ],[
                 'mobile.regex' => 'The mobile number must be a length of 7 to 15 digits.'
-            ]
-        );
+            ]);
         if ($validator->fails()) {
             $response = array(
                 'error' => true,
@@ -131,7 +129,7 @@ class TeacherController extends Controller
                     $teacher = Teacher::findOrFail($teacher_exists->id);
 
                     $formFields = FormField::where('for', 3)->orderBy('rank', 'ASC')->get();
-                    $data = array();
+                    $data = [];
                     $status = 0;
                     $dynamic_data = json_decode($teacher->dynamic_field_values, true);
                     foreach ($formFields as $form_field) {

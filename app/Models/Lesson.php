@@ -95,7 +95,11 @@ class Lesson extends Model
     {
         return $this->morphMany(File::class, 'modal');
     }
-
+    public function getThumbnailAttribute($value){
+        if(isset($value)){
+            return tenant_asset($value);
+        }
+    }
     public function topic()
     {
         return $this->hasMany(LessonTopic::class);

@@ -419,19 +419,7 @@ $(".add-lesson-form").validate({
 });
 
 //Added this Event here because this form has dynamic input fields.
-// $('.add-lesson-form').on('submit', function () {
-//     var file = $('[name^="file"]');
-//     file.filter('input').each(function (key, data) {
-//         $(this).rules("add", {
-//             required: true,
-//         });
-//     });
-//     file.filter('input[name$="[name]"]').each(function (key, data) {
-//         $(this).rules("add", {
-//             required: true,
-//         });
-//     });
-// })
+
 
 $(".edit-lesson-form").validate({
     rules: {

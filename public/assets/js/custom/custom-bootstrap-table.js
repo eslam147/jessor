@@ -11,6 +11,20 @@ window.lessonEvents = {
             $('#edit_subject_id').val(row.subject_id).trigger('change');
         }, 1000);
         $('#edit_name').val(row.name);
+        if(row.is_paid == 1){
+            $('.edit-lesson-form .paid[name=payment_status]').prop('checked', true);
+        }else{
+            $('.edit-lesson-form .free[name=payment_status]').prop('checked', false);
+        }
+        $('.edit-lesson-form input[name=payment_status]').trigger('change');
+        $(`.edit-lesson-form input[name=status][value='${row.status}']`).prop("checked",true);
+
+        
+        $('.edit-lesson-form .price_row input').val(row.price);
+        let thumbnail = $('.edit-lesson-form input[name=lesson_thumbnail]');
+        thumbnail.attr('data-default-file', row.lesson_thumbnail);
+        $('.dropify-render img').attr('src', row.lesson_thumbnail);
+            
         $('#edit_description').val(row.description);
         if (row.file.length > 0) {
             $.each(row.file, function (key, data) {
