@@ -18,15 +18,16 @@ class ClassTeacherController extends Controller
     public function teacher()
     {
         if (! Auth::user()->can('class-teacher-list')) {
-            $response = array(
+            return redirect(route('home'))->withErrors([
                 'message' => trans('no_permission_message')
-            );
-            return redirect(route('home'))->withErrors($response);
+            ]);
         }
         $class_section = ClassSection::with([
             'class' => fn($q) => $q->with('medium', 'streams')->withoutTrashed(),
-            'section' => fn($q) => $q->withoutTrashed(),
-        ])->get();
+            'section',
+        ])->whereHas('section',function ($q){
+            $q->withoutTrashed();
+        })->get();
 
         $class_teacher_ids = ClassTeacher::whereNot('class_teacher_id', null)->pluck('class_teacher_id');
         // $assign_teacher_id = ClassSection::select('class_teacher_id')->whereNotNull('class_teacher_id')->get()->pluck('class_teacher_id');
@@ -89,11 +90,10 @@ class ClassTeacherController extends Controller
     public function show()
     {
         if (! Auth::user()->can('class-teacher-list')) {
-            $response = array(
+            return response()->json([
                 'error' => true,
                 'message' => trans('no_permission_message')
-            );
-            return response()->json($response);
+            ]);
         }
         $offset = 0;
         $limit = 10;
@@ -113,8 +113,8 @@ class ClassTeacherController extends Controller
         $sql = ClassSection::with([
             'class' => fn($q) => $q->with('medium')->withoutTrashed(),
             'section' => fn($q) => $q->withoutTrashed(),
-            'classTeachers'
-        ]);
+            'classTeachers.user'
+        ])->whereHas('section', fn($q) => $q->withoutTrashed());
         // $sql = ClassSection::with('class.medium', 'section', 'classTeachers');
         if (isset($_GET['search']) && ! empty($_GET['search'])) {
             $search = $_GET['search'];
