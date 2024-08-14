@@ -46,7 +46,7 @@ class StudentController extends Controller
                 'message' => trans('no_permission_message')
             ]);
         }
-        $class_section = ClassSection::with('class', 'section')->withOutTrashedRelations('class','section')->get();
+        $class_section = ClassSection::with('class', 'section')->withOutTrashedRelations('class', 'section')->get();
         $category = Category::where('status', 1)->get();
         $formFields = FormField::where('for', 1)->orderBy('rank')->get();
         return view('students.details', compact('class_section', 'category', 'formFields'));
@@ -64,7 +64,7 @@ class StudentController extends Controller
         $studentFields = FormField::where('for', 1)->orderBy('rank')->get();
         $parentFields = FormField::where('for', 2)->orderBy('rank')->get();
         $category = Category::where('status', 1)->get();
-        
+
         $session_year = SessionYear::select('name')->where('id', settingByType('session_year'))->pluck('name')->first();
         $get_student = Students::withTrashed()->select('id')->latest('id')->pluck('id')->first();
         $admission_no = $session_year . ($get_student + 1);
@@ -80,7 +80,7 @@ class StudentController extends Controller
             );
             return redirect(route('home'))->withErrors($response);
         }
-        $class_section = ClassSection::with('class', 'section')->withOutTrashedRelations('class','section')->get();
+        $class_section = ClassSection::with('class', 'section')->withOutTrashedRelations('class', 'section')->get();
 
         return view('students.add_bulk_data', compact('class_section'));
     }
@@ -1092,7 +1092,7 @@ class StudentController extends Controller
             );
             return redirect(route('home'))->withErrors($response);
         }
-        $class_section = ClassSection::with('class', 'section')->withOutTrashedRelations('class','section')->get();
+        $class_section = ClassSection::with('class', 'section')->withOutTrashedRelations('class', 'section')->get();
 
         return view('students.assign_roll_no', compact('class_section'));
     }
@@ -1253,7 +1253,7 @@ class StudentController extends Controller
             );
             return response()->json($response);
         }
-        $class_section = ClassSection::with('class', 'section')->withOutTrashedRelations('class','section')->get();
+        $class_section = ClassSection::with('class', 'section')->withOutTrashedRelations('class', 'section')->get();
 
         return view('students.generate_id', compact('class_section'));
     }
@@ -1471,7 +1471,15 @@ class StudentController extends Controller
 
         $settings = getSettings();
         $sessionYear = SessionYear::select('name')->where('id', $settings['session_year'])->pluck('name')->first();
-        $student = Students::select('roll_number', 'admission_no', 'user_id', 'class_section_id', 'guardian_id', 'father_id')->with('user:id,first_name,last_name,dob', 'class_section.class:id,name,medium_id,stream_id', 'class_section.class.medium:id,name', 'class_section.class.streams:id,name', 'father:id,first_name,last_name', 'guardian:id,first_name,last_name')->where('id', $id)->first();
+        $student = Students::select('roll_number', 'admission_no', 'user_id', 'class_section_id', 'guardian_id', 'father_id')
+            ->with([
+                'user:id,first_name,last_name,dob',
+                'class_section.class:id,name,medium_id,stream_id',
+                'class_section.class.medium:id,name',
+                'class_section.class.streams:id,name',
+                'father:id,first_name,last_name',
+                'guardian:id,first_name,last_name'
+            ])->whereId($id)->first();
 
         $student_name = $student->user->first_name . ' ' . $student->user->last_name;
         if ($student->father) {
@@ -1558,7 +1566,7 @@ class StudentController extends Controller
             return redirect(route('home'))->withErrors($response);
         }
 
-        $classes = ClassSection::with('class', 'section', 'class.medium')->withOutTrashedRelations('class','section')->get();
+        $classes = ClassSection::with('class', 'section', 'class.medium')->withOutTrashedRelations('class', 'section')->get();
         return view('students.generate_result', compact('classes'));
     }
 

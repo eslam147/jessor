@@ -47,10 +47,10 @@ class ClassSchoolController extends Controller
             );
             return redirect(route('home'))->withErrors($response);
         }
-        $classes = ClassSchool::orderBy('id', 'DESC')->with('medium', 'sections', 'streams')->get();
-        $sections = Section::orderBy('id', 'ASC')->get();
-        $mediums = Mediums::orderBy('id', 'ASC')->get();
-        $streams = Stream::orderBy('id', 'ASC')->get();
+        $classes = ClassSchool::orderByDesc('id')->with('medium', 'sections', 'streams')->get();
+        $sections = Section::orderBy('id')->get();
+        $mediums = Mediums::orderBy('id')->get();
+        $streams = Stream::orderBy('id')->get();
         $shifts = Shift::where('status', 1)->get();
         return response(view('class.index', compact('classes', 'sections', 'mediums', 'streams', 'shifts')));
     }
@@ -78,20 +78,19 @@ class ClassSchoolController extends Controller
         ]);
 
         if ($validator->fails()) {
-            $response = array(
+            return response()->json([
                 'error' => true,
                 'message' => $validator->errors()->first()
-            );
-            return response()->json($response);
+            ]);
         }
         try {
             if (! $request->stream_id) {
-                $class = new ClassSchool();
-                $class->name = $request->name;
-                $class->medium_id = $request->medium_id;
-                $class->shift_id = $request->shift_id;
-                $class->save();
-                $class_section = array();
+                $class = ClassSchool::create([
+                    'name' => $request->name,
+                    'medium_id' => $request->medium_id,
+                    'shift_id' => $request->shift_id,
+                ]);
+                $class_section = [];
                 foreach ($request->section_id as $section_id) {
                     $class_section[] = array(
                         'class_id' => $class->id,
@@ -99,10 +98,10 @@ class ClassSchoolController extends Controller
                     );
                 }
                 ClassSection::insert($class_section);
-                $response = array(
+                $response = [
                     'error' => false,
                     'message' => trans('data_store_successfully'),
-                );
+                ];
             } else {
                 $classes = [];
                 foreach ($request->stream_id as $stream_id) {

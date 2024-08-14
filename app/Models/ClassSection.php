@@ -7,10 +7,11 @@ use App\Traits\WithoutTrashedRelations;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Znck\Eloquent\Traits\BelongsToThrough;
 
 class ClassSection extends Model
 {
-    use SoftDeletes, HasFactory, WithoutTrashedRelations;
+    use SoftDeletes, HasFactory, WithoutTrashedRelations,BelongsToThrough;
     protected $guarded = [];
     protected $hidden = ["deleted_at", "created_at", "updated_at"];
 
@@ -34,10 +35,10 @@ class ClassSection extends Model
         return $this->hasMany(ClassTeacher::class, 'class_section_id')->select('class_teacher_id');
     }
 
-    // public function streams()
-    // {
-    //     return $this->belongsTo(Stream::class,'stream_id');
-    // }
+    public function streams()
+    {
+        return $this->belongsToThrough(Stream::class, ClassSchool::class);
+    }
 
     public function announcement()
     {
