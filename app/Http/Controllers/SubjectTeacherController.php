@@ -24,7 +24,9 @@ class SubjectTeacherController extends Controller
         }
         $subjects = Subject::orderByDesc('id')->get();
 
-        $class_section = ClassSection::with('class', 'section', 'streams')->get();
+        $class_section = ClassSection::with('class', 'section')
+            ->withOutTrashedRelations('class', 'section')
+            ->get();
         $teachers = Teacher::with('user')->get();
 
         return view('subject.teacher', compact('class_section', 'teachers', 'subjects'));
@@ -40,12 +42,12 @@ class SubjectTeacherController extends Controller
     public function store(Request $request)
     {
 
-        if (! Auth::user()->can('subject-teacher-create') || ! Auth::user()->can('subject-teacher-edit')) {
-            $response = array(
+        if (! Auth::user()->canAny(['subject-teacher-create', 'subject-teacher-edit'])) {
+
+            return response()->json([
                 'error' => true,
                 'message' => trans('no_permission_message')
-            );
-            return response()->json($response);
+            ]);
         }
         $request->validate([
             'class_section_id' => 'required|numeric',
@@ -56,7 +58,7 @@ class SubjectTeacherController extends Controller
         try {
 
             foreach ($request->teacher_id as $teacher_id) {
-                if (!empty($request->id)) {
+                if (! empty($request->id)) {
                     $subject_teacher = SubjectTeacher::find($request->id);
                 } else {
                     $subject_teacher = new SubjectTeacher();
@@ -98,20 +100,21 @@ class SubjectTeacherController extends Controller
 
         try {
             $subject_teacher = SubjectTeacher::find($request->id);
-            $subject_teacher->class_section_id = $request->class_section_id;
-            $subject_teacher->subject_id = $request->subject_id;
-            $subject_teacher->teacher_id = $request->teacher_id;
-            $subject_teacher->save();
+            $subject_teacher->update([
+                'class_section_id' => $request->class_section_id,
+                'subject_id' => $request->subject_id,
+                'teacher_id' => $request->teacher_id,
+            ]);
             $response = [
                 'error' => false,
                 'message' => trans('data_update_successfully')
             ];
         } catch (Throwable $e) {
-            $response = array(
+            $response = [
                 'error' => true,
                 'message' => trans('error_occurred'),
                 'data' => $e
-            );
+            ];
         }
         return response()->json($response);
     }
@@ -147,7 +150,7 @@ class SubjectTeacherController extends Controller
             $order = $_GET['order'];
 
         $sql = SubjectTeacher::SubjectTeacher()->with('class_section.class', 'subject', 'teacher');
-        if (!empty(request('search'))) {
+        if (! empty(request('search'))) {
             $search = request('search');
             $sql->where('id', 'LIKE', "%$search%")
                 ->orWhereHas('class_section.class', function ($q) use ($search) {
@@ -181,10 +184,10 @@ class SubjectTeacherController extends Controller
         $sql->orderBy($sort, $order)->skip($offset)->take($limit);
         $res = $sql->get();
 
-        $bulkData = array();
+        $bulkData = [];
         $bulkData['total'] = $total;
-        $rows = array();
-        $tempRow = array();
+        $rows = [];
+        $tempRow = [];
         $no = 1;
         foreach ($res as $row) {
 

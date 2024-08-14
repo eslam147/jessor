@@ -31,7 +31,7 @@ class AnnouncementController extends Controller
             );
             return redirect(route('home'))->withErrors($response);
         }
-        $class_section = ClassSection::SubjectTeacher()->with('class.medium', 'section')->get();
+        $class_section = ClassSection::SubjectTeacher()->with('class.medium', 'section')->withOutTrashedRelations('class','section')->get();
         return view('announcement.index', compact('class_section'));
     }
 

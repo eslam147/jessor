@@ -14,25 +14,28 @@ use Illuminate\Support\Facades\Validator;
 
 class StudentSessionController extends Controller
 {
-    public function index() {
-        if (!Auth::user()->can('promote-student-list')) {
-            $response = array(
+    public function index()
+    {
+        if (! Auth::user()->can('promote-student-list')) {
+            return to_route('home')->withErrors([
                 'message' => trans('no_permission_message')
-            );
-            return redirect(route('home'))->withErrors($response);
+            ]);
         }
-        $class_sections = ClassSection::with('class', 'section','streams')->get();
+        $class_sections = ClassSection::with('class', 'section')
+            ->withOutTrashedRelations('class', 'section')
+            ->get();
+
         $session_year = SessionYear::select('id', 'name')->where('default', 0)->get();
         return view('promote_student.index', compact('class_sections', 'session_year'));
     }
 
-    public function store(Request $request) {
-        if (!Auth::user()->can('promote-student-create') || !Auth::user()->can('promote-student-edit')) {
-            $response = array(
+    public function store(Request $request)
+    {
+        if (! Auth::user()->can('promote-student-create') || ! Auth::user()->can('promote-student-edit')) {
+            return response()->json([
                 'error' => true,
                 'message' => trans('no_permission_message')
-            );
-            return response()->json($response);
+            ]);
         }
 
         $validator = Validator::make($request->all(), [
@@ -40,11 +43,10 @@ class StudentSessionController extends Controller
             'student_id' => 'required',
         ]);
         if ($validator->fails()) {
-            $response = array(
+            return response()->json([
                 'error' => true,
                 'message' => $validator->errors()->first()
-            );
-            return response()->json($response);
+            ]);
         }
         try {
             $new_session_year_id = $request->session_year_id;
@@ -58,10 +60,10 @@ class StudentSessionController extends Controller
                 $update_student = Students::find($request->student_id[$i]);
 
                 // check the data student with session year passed exists or not
-                $check_student_session_data = StudentSessions::where(['student_id' => $request->student_id[$i] , 'session_year_id' => $request->session_year_id]);
+                $check_student_session_data = StudentSessions::where(['student_id' => $request->student_id[$i], 'session_year_id' => $request->session_year_id]);
 
                 // if exists then update it
-                if($check_student_session_data->count()){
+                if ($check_student_session_data->count()) {
 
                     //get the data
                     $student_session_data = $check_student_session_data->first();
@@ -91,7 +93,7 @@ class StudentSessionController extends Controller
                         $promote_student->class_section_id = $update_student->class_section_id;
                     }
                     // pass & leave
-                    if ($request->$status == 0 && $request->$result == 1){
+                    if ($request->$status == 0 && $request->$result == 1) {
 
                         // change the class in student session data
                         $promote_student->class_section_id = $new_class_section_id;
@@ -102,7 +104,7 @@ class StudentSessionController extends Controller
                         $user->save();
                     }
                     // fail & leave
-                    if ($request->$status == 0 && $request->$result == 0){
+                    if ($request->$status == 0 && $request->$result == 0) {
 
                         // change the class in student session data
                         $promote_student->class_section_id = $update_student->class_section_id;
@@ -116,7 +118,7 @@ class StudentSessionController extends Controller
                     // save the data in student session
                     $promote_student->save();
 
-                }else{
+                } else {
 
                     // make new array for new data
                     $add_new_student_session_data = new StudentSessions();
@@ -143,7 +145,7 @@ class StudentSessionController extends Controller
 
                     }
                     // pass & leave
-                    if ($request->$status == 0 && $request->$result == 1){
+                    if ($request->$status == 0 && $request->$result == 1) {
 
                         // change the class in student session data
                         $add_new_student_session_data->class_section_id = $new_class_section_id;
@@ -154,7 +156,7 @@ class StudentSessionController extends Controller
                         $user->save();
                     }
                     // fail & leave
-                    if ($request->$status == 0 && $request->$result == 0){
+                    if ($request->$status == 0 && $request->$result == 0) {
 
                         // change the class in student session data
                         $add_new_student_session_data->class_section_id = $update_student->class_section_id;
@@ -183,17 +185,18 @@ class StudentSessionController extends Controller
         return response()->json($response);
     }
 
-    public function getPromoteData(Request $request) {
+    public function getPromoteData(Request $request)
+    {
         $response = StudentSessions::where(['class_section_id' => $request->class_section_id])->get();
         return response()->json($response);
     }
 
-    public function show(Request $request) {
-        if (!Auth::user()->can('promote-student-list')) {
-            $response = array(
+    public function show(Request $request)
+    {
+        if (! Auth::user()->can('promote-student-list')) {
+            return response()->json([
                 'message' => trans('no_permission_message')
-            );
-            return response()->json($response);
+            ]);
         }
 
         $offset = request('offset', 0);
@@ -204,14 +207,14 @@ class StudentSessionController extends Controller
         $class_section_id = $request->class_section_id;
         $sql = Students::where('class_section_id', $class_section_id)->with('user');
 
-        if (isset($_GET['search']) && !empty($_GET['search'])) {
+        if (isset($_GET['search']) && ! empty($_GET['search'])) {
             $search = $_GET['search'];
             $sql->where('id', 'LIKE', "%$search%")
-            ->orWhereHas('user', function ($q) use ($search) {
-                $q->where('first_name', 'LIKE', "%$search%")
-                    ->orwhere('last_name', 'LIKE', "%$search%")
-                    ->orwhere('mobile', 'LIKE', "%$search%");
-            });
+                ->orWhereHas('user', function ($q) use ($search) {
+                    $q->where('first_name', 'LIKE', "%$search%")
+                        ->orwhere('last_name', 'LIKE', "%$search%")
+                        ->orwhere('mobile', 'LIKE', "%$search%");
+                });
         }
         $total = $sql->count();
         $sql->orderBy($sort, $order)->skip($offset)->take($limit);
@@ -241,7 +244,7 @@ class StudentSessionController extends Controller
             $tempRow['no'] = $no++;
             $tempRow['student_id'] = "<input type='text' name='student_id[]' class='form-control' readonly value=" . $row->id . ">";
             $tempRow['admission_no'] = $row->admission_no;
-            $tempRow['roll_no'] =  $row->student->roll_number ?? null;
+            $tempRow['roll_no'] = $row->student->roll_number ?? null;
             $tempRow['name'] = $row->user->first_name . ' ' . $row->user->last_name;
             $tempRow['result'] = $result;
             $tempRow['status'] = $status;

@@ -5,7 +5,6 @@ namespace App\Http\Middleware;
 use Closure;
 use App\Models\Teacher;
 use App\Models\Students;
-use App\Models\ClassSection;
 use App\Models\ClassTeacher;
 use Illuminate\Http\Request;
 
@@ -23,7 +22,6 @@ class CheckStudent
         $user_id = $request->user()->id;
         $teacher_id = Teacher::where('user_id',$user_id)->pluck('id')->first();
         $class_section_ids = ClassTeacher::where('class_teacher_id',$teacher_id)->pluck('class_section_id');
-        // $class_section_id = ClassSection::where('class_teacher_id',$teacher_id)->pluck('id')->first();
         $student_class_section_id = Students::where('id',$request->student_id)->pluck('class_section_id')->first();
 
         if (!$class_section_ids->contains($student_class_section_id)) {

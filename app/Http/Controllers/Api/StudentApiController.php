@@ -194,12 +194,12 @@ class StudentApiController extends Controller
             //Here Email Field is referenced as a GR Number for Student
             $auth = Auth::user();
             if (! $auth->hasRole('Student')) {
-                $response = array(
+                return response()->json([
                     'error' => true,
                     'message' => 'Invalid Login Credentials',
                     'code' => 101
-                );
-                return response()->json($response, 200);
+
+                ], 200);
             }
             $token = $auth->createToken($auth->first_name)->plainTextToken;
             $user = $auth->load(['student.class_section', 'student.category']);
@@ -218,14 +218,14 @@ class StudentApiController extends Controller
 
             // Set Class Section name
             $streamName = $user->student->class_section->class->streams->name ?? null;
-            if ($streamName !== null) {
+            if (!is_null($streamName)) {
                 $user->class_section_name = $classSectionName . " " . $streamName;
             } else {
                 $user->class_section_name = $classSectionName;
             }
 
             //Set Medium name
-            $user->medium_name = $user->student->class_section->class->medium->name;
+            $user->medium_name = $user->student->class_section?->class?->medium->name;
 
 
             //Set Shift name

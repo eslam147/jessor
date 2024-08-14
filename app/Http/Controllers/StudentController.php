@@ -19,14 +19,6 @@ use App\Models\Attendance;
 use App\Models\ExamResult;
 use App\Models\ClassSchool;
 use App\Models\SessionYear;
-use Illuminate\Support\Str;
-use Dompdf\Dompdf;
-use App\Models\ClassSubject;
-use App\Models\ExamTimetable;
-use Spatie\Permission\Models\Role;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Auth\Events\Validated;
-use Illuminate\Support\Facades\Mail;
 use Illuminate\Http\Request;
 use App\Models\ClassSection;
 use App\Models\FeesChoiceable;
@@ -54,13 +46,9 @@ class StudentController extends Controller
                 'message' => trans('no_permission_message')
             ]);
         }
-        $class_section = ClassSection::with('class', 'section', 'streams')->whereHas('class', function ($q) {
-            return $q->withoutTrashed();
-        })->whereHas('section', function ($q) {
-            return $q->withoutTrashed();
-        })->where()->get();
+        $class_section = ClassSection::with('class', 'section')->withOutTrashedRelations('class','section')->get();
         $category = Category::where('status', 1)->get();
-        $formFields = FormField::where('for', 1)->orderBy('rank', 'ASC')->get();
+        $formFields = FormField::where('for', 1)->orderBy('rank')->get();
         return view('students.details', compact('class_section', 'category', 'formFields'));
     }
 
@@ -72,12 +60,12 @@ class StudentController extends Controller
             );
             return redirect(route('home'))->withErrors($response);
         }
-        $class_section = ClassSection::with('class', 'section', 'streams')->get();
-        $studentFields = FormField::where('for', 1)->orderBy('rank', 'ASC')->get();
-        $parentFields = FormField::where('for', 2)->orderBy('rank', 'ASC')->get();
+        $class_section = ClassSection::with('class', 'section')->withOutTrashedRelations('class', 'section')->get();
+        $studentFields = FormField::where('for', 1)->orderBy('rank')->get();
+        $parentFields = FormField::where('for', 2)->orderBy('rank')->get();
         $category = Category::where('status', 1)->get();
-        $data = getSettings('session_year');
-        $session_year = SessionYear::select('name')->where('id', $data['session_year'])->pluck('name')->first();
+        
+        $session_year = SessionYear::select('name')->where('id', settingByType('session_year'))->pluck('name')->first();
         $get_student = Students::withTrashed()->select('id')->latest('id')->pluck('id')->first();
         $admission_no = $session_year . ($get_student + 1);
 
@@ -92,12 +80,7 @@ class StudentController extends Controller
             );
             return redirect(route('home'))->withErrors($response);
         }
-        $class_section = ClassSection::with('class', 'section')->get();
-        // $category = Category::where('status', 1)->get();
-        // $data = getSettings('session_year');
-        // $session_year = SessionYear::select('name')->where('id', $data['session_year'])->pluck('name')->first();
-        // $get_student = Students::select('id')->latest('id')->pluck('id')->first();
-        // $admission_no = $session_year . ($get_student + 1);
+        $class_section = ClassSection::with('class', 'section')->withOutTrashedRelations('class','section')->get();
 
         return view('students.add_bulk_data', compact('class_section'));
     }
@@ -984,8 +967,14 @@ class StudentController extends Controller
         //            );
         //            return redirect(route('home'))->withErrors($response);
         //        }
-        $class_section = ClassSection::with('class', 'section')->get();
-        $class = ClassSchool::with('medium')->get();
+        $class_section = ClassSection::with('class', 'section')
+            ->withOutTrashedRelations('section', 'class')
+            ->get();
+
+        $class = ClassSchool::with('medium')
+            ->withOutTrashedRelations('medium')
+            ->get();
+
         $category = Category::where('status', 1)->get();
         return view('students.assign-class', compact('class_section', 'class', 'category'));
     }
@@ -1103,7 +1092,7 @@ class StudentController extends Controller
             );
             return redirect(route('home'))->withErrors($response);
         }
-        $class_section = ClassSection::with('class', 'section')->get();
+        $class_section = ClassSection::with('class', 'section')->withOutTrashedRelations('class','section')->get();
 
         return view('students.assign_roll_no', compact('class_section'));
     }
@@ -1264,7 +1253,7 @@ class StudentController extends Controller
             );
             return response()->json($response);
         }
-        $class_section = ClassSection::with('class', 'section')->get();
+        $class_section = ClassSection::with('class', 'section')->withOutTrashedRelations('class','section')->get();
 
         return view('students.generate_id', compact('class_section'));
     }
@@ -1569,7 +1558,7 @@ class StudentController extends Controller
             return redirect(route('home'))->withErrors($response);
         }
 
-        $classes = ClassSection::with('class', 'section', 'class.medium', 'streams')->get();
+        $classes = ClassSection::with('class', 'section', 'class.medium')->withOutTrashedRelations('class','section')->get();
         return view('students.generate_result', compact('classes'));
     }
 

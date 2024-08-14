@@ -144,6 +144,7 @@ class HomeController extends Controller
             $class_section_id = ClassTeacher::select('class_section_id')->where('class_teacher_id', $teacher_id)->get();
             if ($class_section_id) {
                 $class_sections = ClassSection::with('class', 'section', 'class.medium', 'class.streams')
+                    ->withOutTrashedRelations('class', 'section')
                     ->whereIn('id', $class_section_id->pluck('class_section_id'))
                     ->get();
             }

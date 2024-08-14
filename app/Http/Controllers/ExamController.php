@@ -3,23 +3,26 @@
 namespace App\Http\Controllers;
 
 use Throwable;
-use App\Models\Exam;
-use App\Models\Grade;
-use App\Models\Subject;
-use App\Models\Students;
-use App\Models\ExamClass;
-use App\Models\ExamMarks;
-use App\Models\ExamResult;
-use App\Models\ClassSchool;
-use App\Models\ExamClasses;
-use App\Models\SessionYear;
-use App\Models\ClassSection;
-use App\Models\ClassSubject;
-use App\Models\ClassTeacher;
+
+use App\Models\{
+    Grade,
+    Exam,
+    Subject,
+    Students,
+    ExamClass,
+    ExamMarks,
+    ExamResult,
+    ClassSchool,
+    SessionYear,
+    ClassSection,
+    ClassSubject,
+    ClassTeacher,
+    ExamTimetable,
+    StudentSubject
+};
+
 use Illuminate\Http\Request;
-use App\Models\ExamTimetable;
 use Illuminate\Http\Response;
-use App\Models\StudentSubject;
 use Illuminate\Support\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
@@ -428,7 +431,7 @@ class ExamController extends Controller
         $teacher_id = Auth::user()->teacher->id;
         $class_section_id = ClassTeacher::where('class_teacher_id', $teacher_id)->pluck('class_section_id');
         $class_ids = ClassSection::whereIn('id',$class_section_id)->pluck('class_id');
-        $classes = ClassSection::with('class','section','class.medium','streams')->whereIn('id',$class_section_id)->whereIn('class_id',$class_ids)->get();
+        $classes = ClassSection::with('class','section','class.medium')->withOutTrashedRelations('class','section')->whereIn('id',$class_section_id)->whereIn('class_id',$class_ids)->get();
 
         return response(view('exams.upload-marks', compact('classes')));
 

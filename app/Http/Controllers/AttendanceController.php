@@ -25,18 +25,12 @@ use Illuminate\Support\Facades\Validator;
 
 class AttendanceController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
     public function index()
     {
         if (! Auth::user()->can('attendance-list')) {
-            $response = [
+            return redirect(route('home'))->withErrors([
                 'message' => trans('no_permission_message')
-            ];
-            return redirect(route('home'))->withErrors($response);
+            ]);
         }
         
         $teacher_id = Auth::user()->teacher->id ;

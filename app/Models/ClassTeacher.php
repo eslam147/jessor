@@ -2,8 +2,6 @@
 
 namespace App\Models;
 
-use App\Models\Teacher;
-use App\Models\ClassSection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 

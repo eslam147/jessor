@@ -427,7 +427,7 @@ class OnlineExamController extends Controller
         // checks wheather exam belongs to class section or class
         if($online_exam_db->model_type == 'App\Models\ClassSection'){
             // get the class section data
-            $class_section_data = ClassSection::where('id',$online_exam_db->model_id)->with('class.medium','section')->first();
+            $class_section_data = ClassSection::where('id',$online_exam_db->model_id)->with('class.medium','section')->withOutTrashedRelations('class','section')->first();
             // make array of class section's data
             $class_data = array(
                 'id' => $online_exam_db->model_id,
@@ -880,9 +880,9 @@ class OnlineExamController extends Controller
         }
         $online_exam = OnlineExam::where('id',$id)->with('model','subject')->first();
         if($online_exam->model_type == 'App\Models\ClassSection'){
-            $class_data = ClassSection::where('id',$online_exam->model_id)->with('class.medium','section')->first();
+            $class_data = ClassSection::whereId($online_exam->model_id)->with('class.medium','section')->withOutTrashedRelations('class','section')->first();
         }else{
-            $class_data = ClassSchool::where('id',$online_exam->model_id)->with('medium')->first();
+            $class_data = ClassSchool::whereId($online_exam->model_id)->with('medium')->first();
         }
         return response(view('online_exam.online_exam_result',compact('online_exam','class_data')));
     }

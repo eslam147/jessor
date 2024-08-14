@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use Throwable;
-use App\Models\Subject;
 use App\Models\Teacher;
 use App\Models\Timetable;
 use App\Models\ClassSection;
@@ -11,17 +10,12 @@ use App\Models\ClassSubject;
 use App\Models\ClassTeacher;
 use Illuminate\Http\Request;
 use App\Models\SubjectTeacher;
-use Illuminate\Support\Facades\DB;
+
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Session;
 
 class TimetableController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
     public function index()
     {
 
@@ -31,16 +25,10 @@ class TimetableController extends Controller
             );
             return redirect(route('home'))->withErrors($response);
         }
-        $class_sections = ClassSection::with('class.medium', 'section','streams')->get();
+        $class_sections = ClassSection::with('class.medium', 'section')->withOutTrashedRelations('class','section')->get();
         return view('timetable.index', compact('class_sections'));
     }
 
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param \Illuminate\Http\Request $request
-     * @return \Illuminate\Http\Response
-     */
     public function store(Request $request)
     {
         if (!Auth::user()->can('timetable-create') || !Auth::user()->can('timetable-edit')) {
@@ -155,7 +143,7 @@ class TimetableController extends Controller
         if ($user) {
             // if teacher exists then send the timetable data directly to view by its credentials
             $class_section_ids = ClassTeacher::where('class_teacher_id', $user->id)->pluck('class_section_id');
-            $class_sections = ClassSection::with('class','class.medium', 'section','class.streams')->whereIn('id',$class_section_ids)->get();
+            $class_sections = ClassSection::with('class','class.medium', 'section','class.streams')->withOutTrashedRelations('class','section')->whereIn('id',$class_section_ids)->get();
             // $timetable = Timetable::whereIn('class_section_id', $class_section_ids)->with('subject_teacher')->orderBy('day', 'asc')->get();
             // $day = Timetable::select('day', 'day_name')->whereIn('class_section_id', $class_section_ids)->groupBy('day', 'day_name')->get();
             // $teacher_data = [
@@ -173,7 +161,7 @@ class TimetableController extends Controller
                 );
                 return response()->json($response);
             }
-            $class_sections = ClassSection::ClassTeacher()->with('class.medium', 'section')->get();
+            $class_sections = ClassSection::ClassTeacher()->with('class.medium', 'section')->withOutTrashedRelations('class','section')->get();
             return view('timetable.class_timetable', compact('class_sections'));
         }
     }
@@ -198,7 +186,7 @@ class TimetableController extends Controller
         $user = Auth::user()->teacher;
         if ($user) {
             // if teacher exists then send the timetable data directly to view by its credentials
-            $class_sections = ClassSection::SubjectTeacher()->with('class.medium', 'section')->get();
+            $class_sections = ClassSection::SubjectTeacher()->with('class.medium', 'section')->withOutTrashedRelations('class','section')->get();
             // $subject_teacher = SubjectTeacher::where('teacher_id', $user->id)->pluck('id');
             // $timetable = Timetable::with('subject_teacher', 'class_section')->whereIn('subject_teacher_id', $subject_teacher)->get()->toArray();
             // $day = Timetable::select('day', 'day_name')->whereIn('subject_teacher_id', $subject_teacher)->groupBy('day', 'day_name')->get()->toArray();

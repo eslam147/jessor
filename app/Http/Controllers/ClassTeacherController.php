@@ -2,14 +2,13 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\ClassSchool;
-use App\Models\ClassSection;
-use App\Models\Section;
-use App\Models\Teacher;
-use App\Models\Mediums;
+use App\Models\{
+    ClassSchool,
+    Teacher,
+    ClassSection
+};
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
 use Throwable;
 use App\Models\ClassTeacher;
 
@@ -23,16 +22,13 @@ class ClassTeacherController extends Controller
             ]);
         }
         $class_section = ClassSection::with([
-            'class' => fn($q) => $q->with('medium', 'streams')->withoutTrashed(),
+            'class' => fn($q) => $q->with('medium', 'streams'),
             'section',
-        ])->whereHas('section',function ($q){
-            $q->withoutTrashed();
-        })->get();
+        ])->withOutTrashedRelations('class', 'section')->get();
 
         $class_teacher_ids = ClassTeacher::whereNot('class_teacher_id', null)->pluck('class_teacher_id');
-        // $assign_teacher_id = ClassSection::select('class_teacher_id')->whereNotNull('class_teacher_id')->get()->pluck('class_teacher_id');
-        // $teachers = Teacher::whereNotIn('id', $assign_teacher_id)->with('user')->get();
-        $classes = ClassSchool::orderBy('id', 'DESC')->with('medium', 'streams')->get();
+
+        $classes = ClassSchool::orderByDesc('id')->withOutTrashedRelations('medium', 'streams')->with('medium', 'streams')->get();
 
         return view('class.teacher', compact('class_section', 'classes'));
     }
@@ -53,7 +49,8 @@ class ClassTeacherController extends Controller
         ]);
         try {
             $teacher = Teacher::findorFail($request->teacher_id);
-            $existingrow = ClassTeacher::where('class_section_id', $request->class_section_id)->where('class_teacher_id', $request->teacher_id)->first();
+            $existingrow = ClassTeacher::where('class_section_id', $request->class_section_id)
+            ->where('class_teacher_id', $request->teacher_id)->first();
             if (! $existingrow) {
                 $class_teacher = new ClassTeacher();
                 $class_teacher->class_section_id = $request->class_section_id;
@@ -61,17 +58,6 @@ class ClassTeacherController extends Controller
                 $class_teacher->save();
                 $teacher->user->givePermissionTo('class-teacher');
             }
-
-            // $teacher = Teacher::findOrFail($request->teacher_id);
-            // $assign_teacher = ClassSection::find($request->class_section_id);
-            // if ($assign_teacher->class_teacher_id && $assign_teacher->class_teacher_id != $request->teacher_id) {
-            //     //If Old teacher is removed and new teacher is assigned as class teacher then remove old teacher's permission
-            //     $old_teacher = Teacher::find($request->teacher_id)->with('user')->first();
-            //     $old_teacher->user->revokePermissionTo('class-teacher');
-            // }
-            // $assign_teacher->class_teacher_id = $request->teacher_id;
-            // $assign_teacher->save();
-
 
             $response = [
                 'error' => false,
@@ -111,11 +97,11 @@ class ClassTeacherController extends Controller
             $order = $_GET['order'];
 
         $sql = ClassSection::with([
-            'class' => fn($q) => $q->with('medium')->withoutTrashed(),
-            'section' => fn($q) => $q->withoutTrashed(),
+            'class.medium',
+            'section',
             'classTeachers.user'
-        ])->whereHas('section', fn($q) => $q->withoutTrashed());
-        // $sql = ClassSection::with('class.medium', 'section', 'classTeachers');
+        ])->withOutTrashedRelations('class', 'section');
+
         if (isset($_GET['search']) && ! empty($_GET['search'])) {
             $search = $_GET['search'];
             $sql->where('id', 'LIKE', "%$search%")
@@ -137,10 +123,10 @@ class ClassTeacherController extends Controller
         $sql->orderBy($sort, $order)->skip($offset)->take($limit);
         $res = $sql->get();
 
-        $bulkData = array();
+        $bulkData = [];
         $bulkData['total'] = $total;
-        $rows = array();
-        $tempRow = array();
+        $rows = [];
+        $tempRow = [];
         $no = 1;
         foreach ($res as $row) {
             $operate = '<a class="btn btn-xs btn-gradient-primary btn-rounded btn-icon editdata" data-id=' . $row->id . ' title="Edit" data-toggle="modal" data-target="#editModal"><i class="fa fa-edit"></i></a>&nbsp;&nbsp;';
@@ -172,7 +158,6 @@ class ClassTeacherController extends Controller
     {
         try {
             $class_teacher = ClassTeacher::where('class_section_id', $id)->where('class_teacher_id', $class_teacher_id)->first();
-            // $class_section = ClassSection::find($id);
 
             $teacher_id = $class_teacher_id;
             $old_teacher = Teacher::where('id', $teacher_id)->with('user')->first();

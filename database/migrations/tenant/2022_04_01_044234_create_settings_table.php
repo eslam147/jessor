@@ -35,7 +35,7 @@ return new class extends Migration
             ],
             [
                 'type' => 'school_address',
-                'message' => 'India',
+                'message' => 'Egypt,cairo',
             ],
             [
                 'type' => 'time_zone',

@@ -6,16 +6,18 @@ use Throwable;
 use App\Models\User;
 use App\Models\Teacher;
 use App\Models\FormField;
-use App\Models\ClassSection;
+
 use App\Models\ClassTeacher;
 use Illuminate\Http\Request;
 use App\Models\SubjectTeacher;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Mail;
-use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\{
+    DB,
+    Auth,
+    Hash,
+    Mail,
+    Storage,
+    Validator
+};
 
 class TeacherController extends Controller
 {
@@ -74,9 +76,11 @@ class TeacherController extends Controller
                 'qualification' => 'required',
                 'current_address' => 'required',
                 'permanent_address' => 'required',
-            ],[
+            ],
+            [
                 'mobile.regex' => 'The mobile number must be a length of 7 to 15 digits.'
-            ]);
+            ]
+        );
         if ($validator->fails()) {
             $response = array(
                 'error' => true,

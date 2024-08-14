@@ -33,21 +33,14 @@ class LessonTopicController extends Controller
             );
             return redirect(route('home'))->withErrors($response);
         }
-        $class_section = ClassSection::SubjectTeacher()->with('class', 'section')->get();
+        $class_section = ClassSection::SubjectTeacher()->with('class', 'section')->withOutTrashedRelations('class','section')->get();
         $subjects = Subject::SubjectTeacher()->orderBy('id', 'ASC')->get();
 
         $lessons = Lesson::relatedToTeacher()->get();
         return response(view('lessons.topic', compact('class_section', 'subjects', 'lessons')));
     }
 
-    /**
-     *
-     * /**
-     * Store a newly created resource in storage.
-     *
-     * @param \Illuminate\Http\Request $request
-     * @return \Illuminate\Http\Response
-     */
+
     public function store(Request $request)
     {
         //dd($request->all());
