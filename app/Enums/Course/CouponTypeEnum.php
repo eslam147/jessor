@@ -13,8 +13,8 @@ enum CouponTypeEnum: string
     case DISCOUNT = 'discount';
     public function translatedName(){
         return match($this){
-            self::CHARGE_AMOUNT => 'Charge Amount',
-            self::PURCHASE => 'Purchase',
+            self::CHARGE_AMOUNT => trans('coupon.charge_amount'),
+            self::PURCHASE => trans('coupon.charge_amount'),
             self::DISCOUNT => 'Discount',
         };
     }

@@ -45,7 +45,7 @@ class Assignment extends Model
     }
 
     public function subject() {
-        return $this->belongsTo(Subject::class)->withTrashed();
+        return $this->belongsTo(Subject::class);
     }
 
     public function submission() {

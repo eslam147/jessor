@@ -15,17 +15,17 @@ class SubjectTeacher extends Model
 
     public function class_section()
     {
-        return $this->belongsTo(ClassSection::class)->with('class.medium', 'section')->withTrashed();
+        return $this->belongsTo(ClassSection::class)->with('class.medium', 'section');
     }
 
     public function subject()
     {
-        return $this->belongsTo(Subject::class)->withTrashed();
+        return $this->belongsTo(Subject::class);
     }
 
     public function teacher()
     {
-        return $this->belongsTo(Teacher::class)->with('user')->withTrashed();
+        return $this->belongsTo(Teacher::class)->with('user');
     }
 
     public function scopeSubjectTeacher($query, $class_section_id = null)
