@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\student;
 
 use App\Models\User;
-use App\Models\Parents;
 use App\Models\Category;
 use App\Models\Students;
 use App\Models\ClassSection;
@@ -20,16 +19,10 @@ class SignupController extends Controller
 
     public function index()
     {
-
         $category = Category::where('status', 1)->get();
 
-        $class_section = ClassSection::with([
-            'class' => fn($q) => $q->withoutTrashed(),
-            'section' => fn($q) => $q->withoutTrashed(),
-            'streams' => fn($q) => $q->withoutTrashed()
-        ])->get();
+        $class_section = ClassSection::with(['class', 'section'])->get();
         return view('auth.register', compact('class_section', 'category'));
-
     }
 
     /**
