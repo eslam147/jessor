@@ -54,7 +54,11 @@ class StudentController extends Controller
                 'message' => trans('no_permission_message')
             ]);
         }
-        $class_section = ClassSection::with('class', 'section', 'streams')->get();
+        $class_section = ClassSection::with('class', 'section', 'streams')->whereHas('class', function ($q) {
+            return $q->withoutTrashed();
+        })->whereHas('section', function ($q) {
+            return $q->withoutTrashed();
+        })->where()->get();
         $category = Category::where('status', 1)->get();
         $formFields = FormField::where('for', 1)->orderBy('rank', 'ASC')->get();
         return view('students.details', compact('class_section', 'category', 'formFields'));
