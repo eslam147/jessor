@@ -18,7 +18,7 @@ class Subject extends Model
 
     public function medium()
     {
-        return $this->belongsTo(Mediums::class)->withTrashed();
+        return $this->belongsTo(Mediums::class);
     }
     public function classSubjects()
     {

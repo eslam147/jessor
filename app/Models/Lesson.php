@@ -54,7 +54,7 @@ class Lesson extends Model
     }
     public function subject()
     {
-        return $this->belongsTo(Subject::class)->withTrashed();
+        return $this->belongsTo(Subject::class);
     }
     public function enrollments()
     {
@@ -75,7 +75,7 @@ class Lesson extends Model
     }
     public function teacher()
     {
-        return $this->belongsTo(Teacher::class, 'teacher_id')->withTrashed();
+        return $this->belongsTo(Teacher::class, 'teacher_id');
     }
 
     public function class()

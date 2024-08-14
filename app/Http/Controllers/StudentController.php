@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use Exception;
 use Throwable;
 use Carbon\Carbon;
-use Dompdf\Dompdf;
 use App\Models\Exam;
 use App\Models\User;
 use App\Models\Parents;
@@ -21,10 +20,15 @@ use App\Models\ExamResult;
 use App\Models\ClassSchool;
 use App\Models\SessionYear;
 use Illuminate\Support\Str;
-use App\Models\ClassSection;
+use Dompdf\Dompdf;
 use App\Models\ClassSubject;
-use Illuminate\Http\Request;
 use App\Models\ExamTimetable;
+use Spatie\Permission\Models\Role;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Auth\Events\Validated;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Http\Request;
+use App\Models\ClassSection;
 use App\Models\FeesChoiceable;
 use App\Models\StudentSubject;
 use App\Imports\StudentsImport;
@@ -32,16 +36,12 @@ use App\Models\StudentSessions;
 use Barryvdh\DomPDF\Facade\Pdf;
 use App\Models\PaymentTransaction;
 use Illuminate\Support\Facades\DB;
-use Spatie\Permission\Models\Role;
-use Illuminate\Support\Facades\Log;
 use App\Models\AssignmentSubmission;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Mail;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Models\OnlineExamStudentAnswer;
 use App\Models\StudentOnlineExamStatus;
-use Illuminate\Auth\Events\Validated;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 
@@ -50,12 +50,10 @@ class StudentController extends Controller
     public function index()
     {
         if (! Auth::user()->can('student-list')) {
-            $response = array(
+            return to_route('home')->withErrors([
                 'message' => trans('no_permission_message')
-            );
-            return redirect(route('home'))->withErrors($response);
+            ]);
         }
-        
         $class_section = ClassSection::with('class', 'section', 'streams')->get();
         $category = Category::where('status', 1)->get();
         $formFields = FormField::where('for', 1)->orderBy('rank', 'ASC')->get();
