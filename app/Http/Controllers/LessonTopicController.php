@@ -73,7 +73,8 @@ class LessonTopicController extends Controller
                 'file' => 'nullable|array',
                 'file.*.type' => 'nullable|in:file_upload,external_link,youtube_link,video_corner_link,download_link,video_upload,other_link',
 
-                'file.*.video_corner_url' => ['required_if:file.*.type,video_corner_link,download_link', 'nullable'],
+                'file.*.video_corner_url' => ['required_if:file.*.type,video_corner_link', 'nullable'],
+                'file.*.download_link' => ['required_if:file.*.type,video_corner_link','url', 'nullable'],
 
                 'file.*.name' => 'required_with:file.*.type',
                 //'file.*.thumbnail' => 'required_if:file.*.type,youtube_link,video_corner_link,download_link,video_upload,other_link',
@@ -262,6 +263,7 @@ class LessonTopicController extends Controller
 
 
                 'file.*.video_corner_url' => ['required_if:file.*.type,video_corner_link,download_link', 'nullable'],
+                'file.*.download_link' => ['required_if:file.*.type,video_corner_link','url', 'nullable'],
 
 
 

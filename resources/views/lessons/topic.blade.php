@@ -94,6 +94,9 @@
                                     <div class="form-group col-md-3" id="video_corner_url_div" style="display: none">
                                         <label>{{ __('link') }} <span class="text-danger">*</span></label>
                                         <input type="text" name="file[0][video_corner_url]" class="video_corner_url form-control" placeholder="{{ __('link') }}" required>
+                                    </div>
+                                    <div class="form-group col-md-3" id="video_corner_url_div" style="display: none">
+                                        <label>{{ __('download_link') }} <span class="text-danger">*</span><small class="text-info">(Required for Show In Mobile App Player)</small></label>
                                         <input type="text" name="file[0][download_link]" class="download_link form-control" placeholder="{{ __('download_link') }}" required>
                                     </div>
                                     <div class="form-group col-md-3" id="file_link_div" style="display: none">
