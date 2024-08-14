@@ -2,8 +2,8 @@
 
 namespace App\Models;
 
-use App\Traits\withoutTrashedRelations;
 use Illuminate\Support\Facades\Auth;
+use App\Traits\WithoutTrashedRelations;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
