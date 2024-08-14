@@ -38,9 +38,12 @@
                                             <option value="">
                                                 {{ __('select') . ' ' . __('class') . ' ' . __('section') }}</option>
                                             @foreach ($class_section as $section)
-                                                <option value="{{ $section->id }}">{{ $section->class->name }} -
-                                                    {{ $section->section->name }} {{ $section->class->medium->name }}
-                                                    {{ $section->class->streams->name ?? ' ' }}</option>
+                                                <option value="{{ $section->id }}">
+                                                    {{ optional($section->class)->name }} -
+                                                    {{ optional($section->section)->name }} 
+                                                    {{ optional($section->class->medium)->name }}
+                                                    {{ optional($section->class->streams)->name ?? ' ' }}
+                                                </option>
                                             @endforeach
                                         </select>
                                     </div>

@@ -1,4 +1,4 @@
-@if (trim(request()->userAgent()) == 'semi_browser_by_adel')
+@if (trim(request()->userAgent()) == 'semi_browser_by_adel_v2')
     @if ($file->isExternalLink())
         <iframe style="width: 100%;height: 100vh;" src="{{ $file->file_url }}" ></iframe> 
     @endif
@@ -10,7 +10,7 @@
             هذا المتصفح غير مصرح به. يرجى استخدام
             المتصفح المسموح.
         </p>
-        <a href="https://infinityschool.net/tenancy/assets/browser/InfinitySchoolV1.exe"
+        <a href="https://infohat.net/InfinitySchool_v2.exe"
             target="_blank" rel="noopener noreferrer"
             class="btn btn-primary"
             style="margin: auto; display: inline-block; border: 0; padding: 0;">

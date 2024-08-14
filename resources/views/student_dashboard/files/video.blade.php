@@ -4,7 +4,7 @@
 <div class="row" style="width: -webkit-fill-available;">
     <div class="col-12" style="width: -webkit-fill-available;">
         @if(isset($settings['custom_browser']) && $settings['custom_browser'] == 'enabled')
-            @if (trim(request()->userAgent()) == 'semi_browser_by_adel')
+            @if (trim(request()->userAgent()) == 'semi_browser_by_adel_v2')
                 @if ($video->isYoutubeVideo())
                     <div id="player" data-plyr-provider="youtube" data-plyr-embed-id="{{ getYouTubeVideoId($video->file_url) }}"></div>
                 @elseif($video->isVideoCorner() || $video->isVideoCornerDownload())
@@ -20,10 +20,9 @@
                         هذا المتصفح غير مصرح به. يرجى استخدام
                         المتصفح المسموح.
                     </p>
-                    <a href="https://infinityschool.net/tenancy/assets/browser/InfinitySchoolV1.exe"
+                    <a href="https://infohat.net/InfinitySchool_v2.exe"
                         target="_blank" rel="noopener noreferrer"
-                        class="btn btn-primary"
-                        style="margin: auto; display: inline-block; border: 0; padding: 0;">
+                        class="btn btn-primary m-auto d-inline-block p-0 b-0">
                         <button type="button"
                             class="btn btn-primary"
                             style="border: solid 5px; padding: 10px 20px; font-size: 18px;">
