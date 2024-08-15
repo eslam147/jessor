@@ -10,6 +10,8 @@ use App\Models\SessionYear;
 use Illuminate\Http\Request;
 use App\Models\MultipleEvent;
 use App\Http\Controllers\Controller;
+use App\Http\Resources\Student\ClassSchoolResource;
+use App\Models\ClassSchool;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Facades\Validator;
@@ -277,7 +279,16 @@ class ApiController extends Controller
         }
         return response()->json($response);
     }
-
+    public function getClassSchools(){
+        $classSchools = ClassSchool::with('sections')->get();
+        return response()->json([
+            'error' => false,
+            'message' => "Data Fetched Successfully",
+            'data' => ClassSchoolResource::collection($classSchools),
+            'code' => 200,
+            
+        ]);
+    }
     protected function changePassword(Request $request)
     {
         $validator = Validator::make($request->all(), [
