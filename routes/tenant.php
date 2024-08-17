@@ -112,6 +112,7 @@ Route::middleware([
         Route::prefix('student_dashboard')->group(function () {
             Route::group(['middleware' => 'student_authorized'], function () {
                 Route::resource('/home', StudentDashboardController::class);
+                Route::get('/coupon/history', [StudentDashboardController::class,'couponHistory'])->name('coupon.history');
                 Route::resource('/subjects', StudentSubjectController::class);
                 Route::controller(StudentSubjectController::class)->prefix('subjects')->as('subjects.')->group(function () {
                     Route::get('/', 'index')->name('index');
@@ -484,6 +485,7 @@ Route::middleware([
                     Route::get('/', 'index')->name('index');
                     Route::get('/list', 'list')->name('list');
                     Route::post('store', 'store')->name('store');
+                    Route::post('export', 'export')->name('export');
                     Route::put('status/{coupon}', 'changeStatus')->name('status');
 
                     Route::get('create', 'create')->name('create');

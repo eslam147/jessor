@@ -36,6 +36,12 @@
                             <span>Offile Time Table</span>
                         </a>
                     </li>
+                    <li class="{{ isRouteActive('coupon.history') }}">
+                        <a href="{{ route('coupon.history') }}">
+                            <i class="si-tag si"></i>
+                            <span>Coupon History</span>
+                        </a>
+                    </li>
                     <li>
                         <a href="#">
                             <i class="si-check si"></i>

@@ -3,6 +3,7 @@
 namespace App\Services\Coupon;
 
 use App\Models\User;
+use Spatie\Tags\Tag;
 use App\Models\Coupon;
 use App\Models\Lesson;
 use App\Exports\CouponExport;
@@ -29,35 +30,71 @@ class CouponService
 
     public function isCouponAvailable(Coupon $coupon, User $user, Lesson $action): array
     {
-        $coupon->loadCount(['usages','onlyAppliedTo']);
+        // Step 1: Load related data for coupon and action
+        $coupon->loadCount(['usages', 'onlyAppliedTo']);
         $action->load(['teacher', 'subject', 'class.allSubjects']);
+
+        // Step 2: Check if the coupon is disabled
         if ($coupon->is_disabled) {
             return $this->responseContent(__('coupon_errors_disabled'), false);
         }
-        if (!empty($coupon->onlyAppliedTo) && $coupon->onlyAppliedTo()->isNot($action)) {
+
+        // Step 3: Verify the coupon's applicability to the specific action
+        if (! empty($coupon->onlyAppliedTo) && $coupon->onlyAppliedTo()->isNot($action)) {
             return $this->responseContent(__('coupon_errors_not_can_use'), false);
         }
+
+        // Step 3: Verify the coupon's applicability to the specific user
+        if (
+            $coupon->usages()->where(function ($query) use ($user) {
+                $query->whereNotNull('used_by_user_id') // Ensure used_by_user_id is not null
+                    ->where('used_by_user_id', '!=', $user->id); // Check it's not the current user
+            })->exists()
+        ) {
+            return $this->responseContent(__('coupon_errors_used_by_others'), false);
+        }
+        
+        if ($coupon->usages()->sum('amount') >= $coupon->price) {
+            return $this->responseContent(__('coupon_errors_price_limit'), false);
+        }
+        
+        if ($action->price >= $coupon->price) {
+            return $this->responseContent(__('coupon_errors_price_limit'), false);
+        }
+
+        // Step 4: Check if the coupon is expired
         if (filled($coupon->expiry_date) && Carbon::parse($coupon->expiry_date)->isPast()) {
             return $this->responseContent(__('coupon_errors_expired'), false);
         }
+
+        // Step 5: Check if the coupon has reached its usage limit
         if ($coupon->usages_count >= $coupon->maximum_usage) {
             return $this->responseContent(__('coupon_errors_limited'), false);
         }
 
+        // -------------------- 
+
+        // Step 6: Check if the coupon has already been used by the user for this action
         if ($coupon->usages()->whereMorphedTo('usedByUser', $user)->whereMorphedTo('appliedTo', $action)->exists()) {
             return $this->responseContent(__('coupon_errors_already_used'), false);
         }
 
-        if (!empty($coupon->teacher_id) && $coupon->teacher_id != $action->teacher_id) {
+        // Step 7: Validate the coupon's teacher association
+        if (! empty($coupon->teacher_id) && $coupon->teacher_id != $action->teacher_id) {
             return $this->responseContent(__('coupon_errors_not_related_to_teacher'), false);
         }
-        if (!empty($this->model->classModel) && $this->model->classModel->id != $action->classModel->class_id) {
+
+        // Step 8: Validate the coupon's class association
+        if (! empty($this->model->classModel) && $this->model->classModel->id != $action->classModel->class_id) {
             return $this->responseContent(__('coupon_errors_not_related_to_class'), false);
         }
-        if ( isset($coupon->subject_id) && $coupon->subject_id != $action->subject_id && empty($this->model->classModel->allSubjects->firstWhere('subject_id', $coupon->subject_id))) {
+
+        // Step 9: Validate the coupon's subject association
+        if (isset($coupon->subject_id) && $coupon->subject_id != $action->subject_id && empty($this->model->classModel->allSubjects->firstWhere('subject_id', $coupon->subject_id))) {
             return $this->responseContent(__('coupon_errors_not_related_to_subject'), false);
         }
 
+        // Final Step: Return success if all checks are passed
         return $this->responseContent(__('coupon_is_available'), true);
     }
 
@@ -67,17 +104,15 @@ class CouponService
         if (! $coupon) {
             return $this->responseContent(__('coupon_errors_is_not_available'), false);
         }
+
         $couponCheck = $this->isCouponAvailable($coupon, $user, $action);
+
         if (! $couponCheck['status']) {
             return $this->responseContent($couponCheck['message'] ?? __('coupon_errors_is_not_available'), false);
         }
-        $coupon->usages()->create([
-            'applied_to_id' => $action->id,
-            'applied_to_type' => get_class($action),
-            // ----------------------------------------------- #
-            'used_by_user_id' => $user->id,
-            'used_by_user_type' => get_class($user),
-        ]);
+
+        $this->usageStore($coupon, $user, $action);
+
         return $this->responseContent(__('coupon_applied_successfully'), true);
     }
 
@@ -94,18 +129,15 @@ class CouponService
     ) {
         $expiryDate = $this->when($request->expiry_date, fn() => Carbon::parse("{$request->expiry_date} {$request->expiry_time}"));
 
-        $maxUsegeLimit = $request->maximum_usage;
 
         $couponData = [
+            'type' => CouponTypeEnum::PURCHASE,
+            'class_id' => $request->class_id,
             'teacher_id' => $request->teacher_id,
             'subject_id' => $request->subject_id,
-            'class_id' => $request->class_id,
-
-            'code' => $request->code,
             'expiry_date' => optional($expiryDate)->toDateTimeString(),
-            'price' => null,
-            'type' => CouponTypeEnum::PURCHASE,
-            'maximum_usage' => $maxUsegeLimit,
+            'price' => $request->price,
+            'maximum_usage' => $request->usage_limit,
         ];
         // ----------------------------------------------- #
         $lesson = Lesson::find($request->lesson_id);
@@ -116,11 +148,25 @@ class CouponService
             }
         }
         // ----------------------------------------------- #
-        return tap($coupon, function ($coupon) use ($couponData) {
+        $coupon = tap($coupon, function ($coupon) use ($couponData) {
             $coupon->update($couponData);
         });
+        $this->insertTags(explode(',', $request->tags), $coupon);
+        return $coupon;
     }
-
+    private function usageStore(
+        Coupon $coupon,
+        User $user,
+        Model $action
+    ) {
+        return $coupon->usages()->create([
+            'applied_to_id' => $action->id,
+            'applied_to_type' => get_class($action),
+            // ----------------------------------------------- #
+            'used_by_user_id' => $user->id,
+            'used_by_user_type' => get_class($user),
+        ]);
+    }
     public function exportCouponCode($coupons)
     {
         $path = "temp/exports/coupons/";
@@ -141,6 +187,7 @@ class CouponService
     {
         $ids = [];
         $lesson = Lesson::find($request->lesson_id);
+
         DB::transaction(function () use ($request, $lesson, &$ids) {
             $expiryDate = $this->when($request->expiry_date, fn() => Carbon::parse($request->expiry_date));
 
@@ -152,15 +199,15 @@ class CouponService
                     expiryDate: $expiryDate,
                     price: $request->price,
                     maxUsageLimit: $request->usage_limit,
-                    appliedTo: $lesson
+                    appliedTo: $lesson,
+                    tags: explode(',', $request->tags),
                 )->id;
             }
-
         });
 
         return $ids;
     }
-    private function storePurchaseCoupon($teacherId = null, $subjectId = null, $classId = null, ?Carbon $expiryDate, $price, $maxUsageLimit, $appliedTo = null)
+    private function storePurchaseCoupon($teacherId = null, $subjectId = null, $classId = null, ?Carbon $expiryDate, $price, $maxUsageLimit, $appliedTo = null, array $tags = [])
     {
         $couponData = [
             'teacher_id' => $teacherId,
@@ -168,7 +215,7 @@ class CouponService
             'class_id' => $classId,
             'code' => $this->generateCouponCode(),
             'expiry_date' => $expiryDate->toDateString(),
-            // 'price' => 0,
+            'price' => $price,
             'type' => CouponTypeEnum::PURCHASE,
             'maximum_usage' => $maxUsageLimit,
         ];
@@ -177,8 +224,9 @@ class CouponService
             $couponData['only_applied_to_id'] = $appliedTo->id;
             $couponData['only_applied_to_type'] = get_class($appliedTo);
         }
-
-        return Coupon::create($couponData);
+        $coupon = Coupon::create($couponData);
+        $this->insertTags($tags, $coupon);
+        return $coupon;
     }
     private function generateCouponCode($prefix = null)
     {
@@ -187,5 +235,13 @@ class CouponService
             return $this->generateCouponCode();
         }
         return $code;
+    }
+    private function insertTags(array $tags, Coupon $coupon)
+    {
+        $tags = array_map('trim', $tags);
+        $tagModels = collect($tags)->map(function ($tag) {
+            return Tag::firstOrCreate(['name' => $tag]);
+        });
+        $coupon->tags()->sync($tagModels->pluck('id'));
     }
 }

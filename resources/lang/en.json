@@ -656,5 +656,14 @@
     "coupon_errors_already_used": "This coupon has already been used.",
     "lesson_thumbnail": "Lesson Thumbnail",
     "preferred_size" : "Preferred Size (:w x :h)",
-    "download_link" : "Download Link"
+    "download_link" : "Download Link",
+    "coupon_errors_price_limit":"Coupon price limit exceeded",
+    "all_teachers" : "All Teachers",
+    "all_lessons" : "All Lessons",
+    "select_medium" : "Select Medium",
+    "enter_tags": "Enter Tags",
+    "select_status": "Select Status",
+    "enter_price": "Enter Price",
+    "all_classes" : "All Classes",
+    "all_subjects" : "All Subjects"
 }
