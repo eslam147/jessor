@@ -21,7 +21,7 @@ class CouponRequest extends FormRequest
             'usage_limit' => 'required|integer|min:1|max:100',
             'expiry_date' => 'nullable|date|after:today',
             // ------------------------------------------------ \\
-            'price' => 'required|min:0.01|numeric',
+            'price' => 'nullable|min:0.01|numeric',
             // ------------------------------------------------ \\
             'class_id' => 'required|exists:classes,id',
             'subject_id' => 'nullable|exists:subjects,id',
@@ -46,7 +46,7 @@ class CouponRequest extends FormRequest
             'usage_limit' => 'required|integer|min:1|max:100',
             'expiry_date' => 'nullable|date|after:today',
             // ------------------------------------------------ \\
-            'price' => 'required|min:0.01|numeric',
+            'price' => 'nullable|min:0.01|numeric',
             // ------------------------------------------------ \\
             'class_id' => 'required|exists:classes,id',
             // ------------------------------------------------ \\

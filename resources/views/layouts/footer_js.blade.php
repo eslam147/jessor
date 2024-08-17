@@ -37,9 +37,9 @@
 
 <script src="{{ url('assets/js/custom/validate.js') }}"></script>
 <script src="{{ url('assets/js/jquery-additional-methods.min.js') }}"></script>
-<script src="{{ url('assets/js/custom/function.js') }}?v=1.0.4""></script>
-<script src="{{ url('assets/js/custom/custom.js') }}?v=1.0.5"></script>
-<script src="{{ url('assets/js/custom/custom-bootstrap-table.js') }}?v=1.0.6"></script>
+<script src="{{ url('assets/js/custom/function.js') }}?v=1.0.7"></script>
+<script src="{{ url('assets/js/custom/custom.js') }}?v=1.0.7"></script>
+<script src="{{ url('assets/js/custom/custom-bootstrap-table.js') }}?v=1.0.7"></script>
 
 <script src="{{ url('assets/ckeditor-4/ckeditor.js') }}"></script>
 <script src="{{ url('assets/ckeditor-4/adapters/jquery.js') }}" async></script>
@@ -61,7 +61,7 @@
 @if (Session::has('success'))
     <script>
         $.toast({
-            text: '{{ Session::get('success') }}',
+            text: `{{ Session::get('success') }}`,
             showHideTransition: 'slide',
             icon: 'success',
             loaderBg: '#f96868',

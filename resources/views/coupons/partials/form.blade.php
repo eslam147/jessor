@@ -41,13 +41,25 @@
     </div>
 
     <div class="form-group col-sm-12">
+
+        <div class="form-check form-check-inline">
+            <label class="form-check-label">
+                <input type="checkbox" value="true" class="form-check-input coupon_has_price"
+                    id="coupon_has_price">With Price
+                <i class="input-helper"></i><i class="input-helper"></i></label>
+        </div>
+    </div>
+
+    <div class="form-group col-sm-12 coupon_price d-none">
         <label>{{ __('price') }}<span class="text-danger">*</span></label>
+
         {!! Form::number('price', isset($coupon) ? $coupon->price : '', [
             'required',
             'min' => 0,
             'step' => '0.01',
             'placeholder' => __('price'),
-            'class' => 'form-control',
+            'disabled',
+            'class' => 'form-control  ',
         ]) !!}
         @error('price')
             <p class="text-danger" role="alert">{{ $message }}</p>
@@ -160,6 +172,15 @@
                 $('input[name="action"]').val(type);
             }
         });
+        $('.coupon_has_price').change(function(e) {
+            if ($(this).is(':checked')) {
+                $('.coupon_price').removeClass('d-none');
+                $('.coupon_price input').removeAttr('disabled');
+            } else {
+                $('.coupon_price input').attr('disabled', true);
+                $('.coupon_price').addClass('d-none');
+            }
+        });
         $('.coupon-create-form').on('submit', function(e) {
             e.preventDefault();
             e.stopPropagation();
@@ -170,18 +191,16 @@
             let data = new FormData(this);
 
             function successCallback(response) {
-                let type = submitButtonElement.data('value');
+                let type = $(`input[name="action"]`).val();
 
                 var a = document.createElement('a');
                 if (type == 'save_and_print') {
-
                     a.href = response.data.file_url;
                     a.download = response.data.file_name;
                     document.body.appendChild(a);
                     a.click();
                     a.remove();
                 }
-
                 formElement[0].reset();
             }
             // To Remove Red Border from the Validation tag.
@@ -289,7 +308,6 @@
             $this.removeAttr('readonly');
             $this.empty();
             const classSections = classes[Number(mediumId)];
-            console.log(classSections);
             // $('#class_m_id').append(`<option>All</option>`);
             if (classSections && classSections.length > 0) {
                 for (let i = 0; i < classSections.length; i++) {

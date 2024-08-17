@@ -53,13 +53,14 @@ class CouponService
         ) {
             return $this->responseContent(__('coupon_errors_used_by_others'), false);
         }
-        
-        if ($coupon->usages()->sum('amount') >= $coupon->price) {
-            return $this->responseContent(__('coupon_errors_price_limit'), false);
-        }
-        
-        if ($action->price >= $coupon->price) {
-            return $this->responseContent(__('coupon_errors_price_limit'), false);
+        if (! is_null($coupon->price)) {
+            if ($coupon->usages()->sum('amount') >= $coupon->price) {
+                return $this->responseContent(__('coupon_errors_price_limit'), false);
+            }
+
+            if ($action->price >= $coupon->price) {
+                return $this->responseContent(__('coupon_errors_price_limit'), false);
+            }
         }
 
         // Step 4: Check if the coupon is expired
@@ -72,7 +73,7 @@ class CouponService
             return $this->responseContent(__('coupon_errors_limited'), false);
         }
 
-        // -------------------- 
+        // ------------------------- \\
 
         // Step 6: Check if the coupon has already been used by the user for this action
         if ($coupon->usages()->whereMorphedTo('usedByUser', $user)->whereMorphedTo('appliedTo', $action)->exists()) {
@@ -207,8 +208,16 @@ class CouponService
 
         return $ids;
     }
-    private function storePurchaseCoupon($teacherId = null, $subjectId = null, $classId = null, ?Carbon $expiryDate, $price, $maxUsageLimit, $appliedTo = null, array $tags = [])
-    {
+    private function storePurchaseCoupon(
+        $teacherId = null,
+        $subjectId = null,
+        $classId = null,
+        ?Carbon $expiryDate,
+        $price = null,
+        $maxUsageLimit,
+        $appliedTo = null,
+        array $tags = []
+    ) {
         $couponData = [
             'teacher_id' => $teacherId,
             'subject_id' => $subjectId,
