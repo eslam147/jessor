@@ -31,7 +31,7 @@ class CouponService
     public function isCouponAvailable(Coupon $coupon, User $user, Lesson $action): array
     {
         // Step 1: Load related data for coupon and action
-        $coupon->loadCount(['usages', 'onlyAppliedTo']);
+        $coupon->load(['usages', 'onlyAppliedTo']);
         $action->load(['teacher', 'subject', 'class.allSubjects']);
 
         // Step 2: Check if the coupon is disabled
@@ -46,7 +46,7 @@ class CouponService
 
         // Step 3: Verify the coupon's applicability to the specific user
         if (
-            $coupon->usages()->where(function ($query) use ($user) {
+            $coupon->usages->where(function ($query) use ($user) {
                 $query->whereNotNull('used_by_user_id') // Ensure used_by_user_id is not null
                     ->where('used_by_user_id', '!=', $user->id); // Check it's not the current user
             })->exists()
@@ -54,7 +54,7 @@ class CouponService
             return $this->responseContent(__('coupon_errors_used_by_others'), false);
         }
         if (! is_null($coupon->price)) {
-            if ($coupon->usages()->sum('amount') >= $coupon->price) {
+            if ($coupon->usages->sum('amount') >= $coupon->price) {
                 return $this->responseContent(__('coupon_errors_price_limit'), false);
             }
 
@@ -69,7 +69,7 @@ class CouponService
         }
 
         // Step 5: Check if the coupon has reached its usage limit
-        if ($coupon->usages_count >= $coupon->maximum_usage) {
+        if ($coupon->usages->count() >= $coupon->maximum_usage) {
             return $this->responseContent(__('coupon_errors_limited'), false);
         }
 

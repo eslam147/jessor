@@ -67,7 +67,6 @@ class CouponController extends Controller
                 array_map('trim', $tags);
                 foreach ($tags as $tag) {
                     if (filled($tag)) {
-                        // $query->orWhereJsonContains("your_json_column->{$lang}", $searchValue);
 
                         $query->orWhereJsonContains('name->en', 'LIKE', "%{$tag}%");
                     }
