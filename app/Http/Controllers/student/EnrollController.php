@@ -28,7 +28,7 @@ class EnrollController extends Controller
             'purchase_code' => 'required|string',
             'lesson_id' => 'required|exists:lessons,id'
         ]);
-
+        $msg = "";
         if ($validator->fails()) {
             Alert::warning('warning', $validator->messages()->all()[0]);
             return redirect()->back();
@@ -57,11 +57,11 @@ class EnrollController extends Controller
                 return redirect()->back();
             } catch (\Exception $e) {
                 DB::rollBack();
-
-                if ($applyCouponCode['status'] == false) {
-                    Alert::error('error', $applyCouponCode['message']);
-                    return redirect()->back();
-                }
+                report($e);
+                // if ($applyCouponCode['status'] == false) {
+                // }
+                Alert::error('error', "Error When Unlocking Lesson.");
+                return redirect()->back();
             }
 
         }

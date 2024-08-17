@@ -61,7 +61,19 @@ class CouponController extends Controller
         } elseif ($limit > 100) {
             $limit = 100;
         }
+        $coupons->when(request()->filled('tags'), function ($q) {
+            $tags = explode(',', request('tags'));
+            return $q->whereHas('tags', function ($query) use ($tags) {
+                array_map('trim', $tags);
+                foreach ($tags as $tag) {
+                    if (filled($tag)) {
+                        // $query->orWhereJsonContains("your_json_column->{$lang}", $searchValue);
 
+                        $query->orWhereJsonContains('name->en', 'LIKE', "%{$tag}%");
+                    }
+                }
+            });
+        });
         $coupons = $this->filter($coupons);
         $total = $coupons->count();
 
@@ -270,18 +282,7 @@ class CouponController extends Controller
             return $q->where('lesson_id', $val);
         });
 
-        $couponQuery->when(request()->filled('tags'), function ($q) {
-            $tags = explode(' ', request('tags')); // Split by space for space-separated tags
-            return $q->whereHas('tags', function ($query) use ($tags) {
-                array_map('trim', $tags);
-                foreach ($tags as $tag) {
-                    if (filled(trim($tag))) { // Ignore empty tags
-                        $query->orWhere('name', 'LIKE', "%{$tag}%");
-                    }
 
-                }
-            });
-        });
 
         $couponQuery->when(request()->filled('filter_start_date'), function ($q) {
             return $q->whereDate('created_at', '>=', request('filter_start_date'));
