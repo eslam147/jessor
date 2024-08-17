@@ -162,17 +162,16 @@ class ClassSchoolController extends Controller
         }
         $validator = Validator::make($request->all(), [
             'medium_id' => 'required|numeric',
-            'name' => 'required|regex:/^[A-Za-z0-9_]+$/',
+            'name' => 'required',
             'section_id' => 'required',
 
         ]);
 
         if ($validator->fails()) {
-            $response = array(
+            return response()->json([
                 'error' => true,
                 'message' => $validator->errors()->first()
-            );
-            return response()->json($response);
+            ]);
         }
         try {
             $class = ClassSchool::find($id);
@@ -184,11 +183,10 @@ class ClassSchoolController extends Controller
                 if (! $existingrow) {
                     $class->stream_id = $request->stream_id;
                 } else {
-                    $response = array(
+                    return response()->json([
                         'error' => true,
                         'message' => trans('class_with_stream_already_exists'),
-                    );
-                    return response()->json($response);
+                    ]);
                 }
             }
             $class->save();

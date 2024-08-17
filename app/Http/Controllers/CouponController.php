@@ -280,8 +280,6 @@ class CouponController extends Controller
             return $q->where('lesson_id', $val);
         });
 
-
-
         $couponQuery->when(request()->filled('filter_start_date'), function ($q) {
             return $q->whereDate('created_at', '>=', request('filter_start_date'));
         });
