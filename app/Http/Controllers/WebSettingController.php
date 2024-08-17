@@ -604,19 +604,19 @@ class WebSettingController extends Controller
             ];
 
 
-            Mail::send('web_settings.testmail', $data, function ($message) use ($data, $admin_mail, $school_name) {
-                $message->to($data['email'])->subject($data['subject']);
-                $message->from($admin_mail, $school_name);
+            // Mail::send('web_settings.testmail', $data, function ($message) use ($data, $admin_mail, $school_name) {
+            //     $message->to($data['email'])->subject($data['subject']);
+            //     $message->from($admin_mail, $school_name);
 
-                if ($data['attachments']) {
-                    foreach ($data['attachments'] as $attachment) {
-                        $message->attach($attachment['path'], [
-                            'as' => $attachment['name'],
-                            'mime' => $attachment['mime'],
-                        ]);
-                    }
-                }
-            });
+            //     if ($data['attachments']) {
+            //         foreach ($data['attachments'] as $attachment) {
+            //             $message->attach($attachment['path'], [
+            //                 'as' => $attachment['name'],
+            //                 'mime' => $attachment['mime'],
+            //             ]);
+            //         }
+            //     }
+            // });
 
             $response = array(
                 'error' => false,

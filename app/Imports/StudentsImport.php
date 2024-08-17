@@ -321,9 +321,9 @@ class StudentsImport implements ToCollection, WithHeadingRow
                     'child_grnumber' => ' ' . $admission_no,
                     'child_password' => ' ' . $child_plaintext_password,
                 ];
-                Mail::send('students.email', $father_data, function ($message) use ($father_data) {
-                    $message->to($father_data['email'])->subject($father_data['subject']);
-                });
+                // Mail::send('students.email', $father_data, function ($message) use ($father_data) {
+                //     $message->to($father_data['email'])->subject($father_data['subject']);
+                // });
 
                 $mother_data = [
                     'subject' => 'Welcome to ' . $school_name['school_name'],
@@ -335,9 +335,9 @@ class StudentsImport implements ToCollection, WithHeadingRow
                     'child_grnumber' => ' ' . $admission_no,
                     'child_password' => ' ' . $child_plaintext_password,
                 ];
-                Mail::send('students.email', $mother_data, function ($message) use ($mother_data) {
-                    $message->to($mother_data['email'])->subject($mother_data['subject']);
-                });
+                // Mail::send('students.email', $mother_data, function ($message) use ($mother_data) {
+                //     $message->to($mother_data['email'])->subject($mother_data['subject']);
+                // });
             }
             else{
                 $guardian_data = [
@@ -350,9 +350,9 @@ class StudentsImport implements ToCollection, WithHeadingRow
                     'child_grnumber' => ' ' .$admission_no,
                     'child_password' => ' ' . $child_plaintext_password,
                 ];
-                Mail::send('students.email', $guardian_data, function ($message) use ($guardian_data) {
-                    $message->to($guardian_data['email'])->subject($guardian_data['subject']);
-                });
+                // Mail::send('students.email', $guardian_data, function ($message) use ($guardian_data) {
+                //     $message->to($guardian_data['email'])->subject($guardian_data['subject']);
+                // });
             }
 
         }

@@ -141,9 +141,9 @@ class StaffController extends Controller
 
                 ];
 
-                Mail::send('staff.email', $data, function ($message) use ($data) {
-                    $message->to($data['email'])->subject($data['subject']);
-                });
+                // Mail::send('staff.email', $data, function ($message) use ($data) {
+                //     $message->to($data['email'])->subject($data['subject']);
+                // });
 
             } else {
                 $user = new User;
@@ -194,9 +194,9 @@ class StaffController extends Controller
 
                 ];
 
-                Mail::send('staff.email', $data, function ($message) use ($data) {
-                    $message->to($data['email'])->subject($data['subject']);
-                });
+                // Mail::send('staff.email', $data, function ($message) use ($data) {
+                //     $message->to($data['email'])->subject($data['subject']);
+                // });
 
             }
 
