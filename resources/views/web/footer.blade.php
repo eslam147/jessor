@@ -207,6 +207,7 @@
 <script src="{{ global_asset('/assets/js/ekko-lightbox.min.js') }}"></script>
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/owl.carousel.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@fingerprintjs/fingerprintjs@3/dist/fp.min.js"></script>
 <script>
     $(document).ready(function() {
         // Initialize each carousel separately
@@ -259,6 +260,31 @@
             ],
         });
     });
+</script>
+<script>
+    // Load FingerprintJS
+    const fpPromise = FingerprintJS.load();
+
+    fpPromise
+      .then(fp => fp.get())
+      .then(result => {
+          // The visitor’s fingerprint
+          const fingerprint = result.visitorId;
+
+          // Send the fingerprint to your Laravel backend using AJAX
+          fetch('/store-fingerprint', {
+              method: 'POST',
+              headers: {
+                  'Content-Type': 'application/json',
+                  'X-CSRF-TOKEN': '{{ csrf_token() }}',
+              },
+              body: JSON.stringify({ fingerprint: fingerprint })
+          })
+          .then(response => response.json())
+          .then(data => {
+              console.log(data.message);
+          });
+      });
 </script>
 
 @php

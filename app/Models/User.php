@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Models\Staff;
+use App\Models\UserDevice;
 use App\Models\Notification;
 use App\Models\UserNotification;
 use Laravel\Sanctum\HasApiTokens;
@@ -30,6 +31,11 @@ class User extends Authenticatable
         'last_name',
         'mobile',
     ];
+
+    public function devices()
+    {
+        return $this->hasMany(UserDevice::class);
+    }
     // protected $appends =[
     //     'original_image'
     // ];

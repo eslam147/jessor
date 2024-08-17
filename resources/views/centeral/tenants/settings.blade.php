@@ -11,9 +11,20 @@
         @csrf
         <div class="container mt-5" >
             <div class="row" >
-                <div class="col-12" >
-                    @csrf
-                    <button type="submit" class="btn btn-success">add new fileds</button>
+                <div class="col-6" >
+                    <div class="form-group" >
+                        <input type="text" class="form-control" name="type" placeholder="type" >
+                    </div>
+                </div>
+                <div class="col-6" >
+                    <div class="form-group" >
+                        <input type="text" class="form-control" name="message" placeholder="message" >
+                    </div>
+                </div>
+                <div class="col-6 mt-3" >
+                    <div class="form-group" >
+                        <button type="submit" class="btn btn-success">add new fileds</button>
+                    </div>
                 </div>
             </div>
         </div>

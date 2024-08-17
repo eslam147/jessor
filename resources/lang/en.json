@@ -656,5 +656,7 @@
     "coupon_errors_already_used": "This coupon has already been used.",
     "lesson_thumbnail": "Lesson Thumbnail",
     "preferred_size" : "Preferred Size (:w x :h)",
-    "download_link" : "Download Link"
+    "download_link" : "Download Link",
+    "device_limit" : "device limit",
+    "Protection_browser" : "Protection browser"
 }

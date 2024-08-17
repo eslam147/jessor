@@ -22,7 +22,7 @@
             <section class="content">
                 <div class="row">
                     @foreach ($lessons as $row)
-                        <div class="col-4">
+                        <div class="col-xs-12 col-lg-4">
                             <div class="box pull-up">
                                 <img @class([
                                     "box-img-top",

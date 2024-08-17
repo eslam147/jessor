@@ -95,6 +95,7 @@ class HomeController extends Controller
     public function index()
     {
 
+        
         $teacher = null;
         $student = null;
         $parent = null;

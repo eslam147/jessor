@@ -129,6 +129,34 @@
                 $('#togglePassword').addClass('fa-eye');
             }
         });
+
+
+        import FingerprintJS from '@fingerprintjs/fingerprintjs';
+        import axios from 'axios';
+
+        // تحميل FingerprintJS
+        (async () => {
+            const fp = await FingerprintJS.load();
+
+            // توليد بصمة الجهاز
+            const result = await fp.get();
+
+            // بصمة الجهاز الفريدة
+            const deviceFingerprint = result.visitorId;
+
+            // إرسال البصمة إلى السيرفر
+            axios.post('/api/store-device', {
+                device_fingerprint: deviceFingerprint
+            }).then(response => {
+                console.log(response.data.message);
+            }).catch(error => {
+                if (error.response && error.response.status === 403) {
+                    alert(error.response.data.error);
+                    // ربما تقوم بتسجيل الخروج من الحساب هنا
+                }
+            });
+        })();
+
     </script>
 </body>
 

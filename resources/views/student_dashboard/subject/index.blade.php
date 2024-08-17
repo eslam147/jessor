@@ -22,7 +22,7 @@
             <section class="content">
                 <div class="row">
                     @foreach ($subjects as $row)
-                        <div class="col-4">
+                        <div class="col-xs-12 col-lg-4">
                             <div class="box-body bg-primary-light mb-30 px-xl-5 px-xxl-20 pull-up">
                                 <div class="d-flex align-items-center ps-xl-20">
                                     <div class="me-20">

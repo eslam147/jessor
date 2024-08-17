@@ -13,8 +13,13 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::table('sliders', function (Blueprint $table) {
-            $table->string('type')->nullable()->after('image')->comment('1- app, 2-web ,3-both');
+        Schema::create('user_devices', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('user_id')->constrained()->onDelete('cascade');
+            $table->string('device_name')->nullable();
+            $table->string('device_ip');
+            $table->string('device_agent');
+            $table->timestamps();
         });
     }
 
@@ -25,8 +30,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::table('sliders', function (Blueprint $table) {
-            $table->dropColumn('type');
-        });
+        Schema::dropIfExists('user_devices');
     }
 };

@@ -5,6 +5,18 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>landing</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        pre {
+            background-color: #161616;
+            padding: 10px;
+            border-radius: 5px;
+            overflow-x: auto;
+        }
+        code {
+            font-family: 'Courier New', Courier, monospace;
+            color: #ffffff !important;
+        }
+    </style>
 </head>
 <body>
     <form action="{{ route('tenants.store') }}" method="POST" >
@@ -15,7 +27,14 @@
                     @csrf
                     <button type="submit" class="btn btn-success">Update</button>
                 </div>
-                <div class="mt-5" >{{ $migrateOutput }}</div>
+                <div class="mt-5" >
+                    <pre>
+                        <code>
+                            {{ $migrateOutput }}
+                        </code>
+                    </pre>
+
+                </div>
             </div>
         </div>
     </form>

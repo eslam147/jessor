@@ -31,6 +31,18 @@ class SettingsSeeder extends Seeder
             'type'      => "show_teachers",
             'message'   => 'allow'
         ]);
+        Settings::create([
+            'type'      => "custom_browser",
+            'message'   => 'disabled'
+        ]);
+        Settings::create([
+            'type'      => "device_limit",
+            'message'   => '5'
+        ]);
+        Settings::create([
+            'type'      => "browser_url",
+            'message'   => 'Https://sample-browser-link.com'
+        ]);
 
     }
 }

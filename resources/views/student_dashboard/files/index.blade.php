@@ -48,7 +48,7 @@
                             <div class="tab-content">
                                 <div id="home4" class="tab-pane active">
                                     <div class="row">
-                                        <div class="col-2" >
+                                        <div class="col-lg-2 col-xs-12" >
                                             <div class="accordion" id="accordionExample">
                                                     {{-- videos --}}
                                                     <h2 class="accordion-header" id="headingOne">
@@ -98,7 +98,7 @@
                                                     </div>
                                             </div>
                                         </div>
-                                        <div class="col-10 d-flex justify-content-center align-items-center" id="content" >
+                                        <div class="col-lg-10 col-xs-12 d-flex justify-content-center align-items-center" id="content" >
                                             <input type="hidden" id="download_for_browser" value="">
 
                                         </div>

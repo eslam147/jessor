@@ -139,3 +139,4 @@
     const lang_enable = "{{ __('enable') }}";
     const lang_disable = "{{ __('disable') }}";
 </script>
+

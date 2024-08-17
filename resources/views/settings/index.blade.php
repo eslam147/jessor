@@ -298,23 +298,36 @@
                             </h4>
                             <hr>
                             <div class="row mb-5">
-                                <div class="ml-4 d-flex">
+                                <div class="col-4 d-flex">
                                     <div class="form-check form-check-inline">
                                         <label class="form-check-label">
-                                            <input type="radio" name="custom_browser" class="online_payment_toggle"
-                                                value="enabled" checked>
+                                            <input type="radio" name="custom_browser" class="online_payment_toggle" value="enabled" @if($settings['custom_browser'] == 'enabled') checked @endif>
                                             {{ __('enable') }}
                                         </label>
                                     </div>
                                     <div class="form-check form-check-inline">
                                         <label class="form-check-label">
-                                            <input type="radio" name="custom_browser" class="online_payment_toggle"
-                                                value="disabled">
+                                            <input type="radio" name="custom_browser" class="online_payment_toggle" value="disabled" @if($settings['custom_browser'] == 'disabled') checked @endif>
                                             {{ __('disable') }}
                                         </label>
                                     </div>
                                 </div>
+                                <div class="col-8" style="text-align: center" >
+                                    <input type="text" class="form-control" name="browser_url" value="@if(isset(getSettings('browser_url')['browser_url'])){{ getSettings('browser_url')['browser_url'] }}@else @endif" >
+                                </div>
                             </div>
+                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                            <h4 class="card-title">
+                                {{ __('device_limit') }}
+                            </h4>
+                            <hr>
+                            <div class="row mb-5">
+                                <div class="col-8" style="text-align: center" >
+                                    <input type="number" min="1" class="form-control" name="device_limit" value="@if(isset(getSettings('device_limit')['device_limit'])){{ getSettings('device_limit')['device_limit'] }}@else @endif" >
+                                </div>
+                            </div>
+
+
                             <input class="btn btn-theme" type="submit" value="Submit">
                         </form>
                     </div>
