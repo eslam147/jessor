@@ -742,7 +742,7 @@ class StudentController extends Controller
             $tempRow['image'] = $user->image;
             $tempRow['image_link'] = $user->image;
             $tempRow['class_section_id'] = $row->class_section_id;
-            $tempRow['class_section_name'] = $row->class_section->class->name . "-" . $row->class_section->section->name;
+            $tempRow['class_section_name'] = $row->class_section?->class?->name . "-" . $row->class_section?->section?->name;
             $tempRow['stream_name'] = $row->class_section->class->streams->name ?? '';
             $tempRow['category_id'] = $row->category_id;
             $tempRow['category_name'] = $row->category->name;

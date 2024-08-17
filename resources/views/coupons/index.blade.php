@@ -195,5 +195,5 @@
         };
     </script>
     <script src="https://cdn.jsdelivr.net/npm/@yaireo/tagify"></script>
-    <script src="{{ global_asset('assets/js/custom/coupon.js') }}"></script>
+    <script src="{{ global_asset('assets/js/custom/coupon.js') }}?v=1.0.6"></script>
 @endsection

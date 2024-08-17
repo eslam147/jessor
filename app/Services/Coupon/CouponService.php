@@ -49,7 +49,7 @@ class CouponService
             $coupon->usages->where(function ($query) use ($user) {
                 $query->whereNotNull('used_by_user_id') // Ensure used_by_user_id is not null
                     ->where('used_by_user_id', '!=', $user->id); // Check it's not the current user
-            })->exists()
+            })->count()
         ) {
             return $this->responseContent(__('coupon_errors_used_by_others'), false);
         }
@@ -74,9 +74,12 @@ class CouponService
         }
 
         // ------------------------- \\
-
+        $usageCount = $coupon->usages->filter(function ($usage) use ($user, $action) {
+            return $usage->usedByUser->is($user) && $usage->appliedTo->is($action);
+        })->count();
+        
         // Step 6: Check if the coupon has already been used by the user for this action
-        if ($coupon->usages()->whereMorphedTo('usedByUser', $user)->whereMorphedTo('appliedTo', $action)->exists()) {
+        if ($usageCount) {
             return $this->responseContent(__('coupon_errors_already_used'), false);
         }
 
