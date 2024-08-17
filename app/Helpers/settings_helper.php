@@ -247,3 +247,9 @@ if (! function_exists('convertDateFormat')) {
         }
     }
 }
+if(! function_exists('isRouteActive')) {
+    function isRouteActive($routeName, $activeClassName = 'active')
+    {
+        return request()->routeIs($routeName) ? $activeClassName : '';
+    }
+}

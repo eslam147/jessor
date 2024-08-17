@@ -11,21 +11,57 @@ $(function () {
         var dupl = false;
         $("#" + listName + " > div").each(function () {
             if ($(this)[0] !== newItem[0]) {
-                if ($(this).find("li").attr('id') == newItem.find("li").attr('id')) {
+                if (
+                    $(this).find("li").attr("id") ==
+                    newItem.find("li").attr("id")
+                ) {
                     dupl = true;
                 }
             }
         });
         return dupl;
     }
-    $('#table_list_exam_questions').on('check.bs.table', function (e, row) {
-        var questions = $(this).bootstrapTable('getSelections');
-        let li = ''
+    $("#table_list_exam_questions").on("check.bs.table", function (e, row) {
+        var questions = $(this).bootstrapTable("getSelections");
+        let li = "";
         $.each(questions, function (index, value) {
             if (value.question_type) {
-                li = $('<div class="list-group"><input type="hidden" name="assign_questions[' + value.question_id + '][question_id]" value="' + value.question_id + '"><li id="q' + value.question_id + '"class="list-group-item d-flex justify-content-between align-items-center ui-state-default list-group-item-secondary m-2">' + value.question_id + ". " + value.question + ' <span class="text-right row"><input type="number" class="list-group-item col-md-6" name="assign_questions[' + value.question_id + '][marks]" style="width: 10rem"><a class="btn btn-danger btn-sm remove-row ml-2" data-id="' + value.question_id + '"><i class="fa fa-times" aria-hidden="true"></i></a></span></li></div>');
+                li = $(
+                    '<div class="list-group"><input type="hidden" name="assign_questions[' +
+                        value.question_id +
+                        '][question_id]" value="' +
+                        value.question_id +
+                        '"><li id="q' +
+                        value.question_id +
+                        '"class="list-group-item d-flex justify-content-between align-items-center ui-state-default list-group-item-secondary m-2">' +
+                        value.question_id +
+                        ". " +
+                        value.question +
+                        ' <span class="text-right row"><input type="number" class="list-group-item col-md-6" name="assign_questions[' +
+                        value.question_id +
+                        '][marks]" style="width: 10rem"><a class="btn btn-danger btn-sm remove-row ml-2" data-id="' +
+                        value.question_id +
+                        '"><i class="fa fa-times" aria-hidden="true"></i></a></span></li></div>'
+                );
             } else {
-                li = $('<div class="list-group"><input type="hidden" name="assign_questions[' + value.question_id + '][question_id]" value="' + value.question_id + '"><li id="q' + value.question_id + '"class="list-group-item d-flex justify-content-between align-items-center ui-state-default list-group-item-secondary m-2">' + value.question_id + ". " + '<span class="text-center">' + value.question + '</span> <span class="text-right row"><input type="number" class="list-group-item col-md-6" name="assign_questions[' + value.question_id + '][marks]" style="width: 10rem"><a class="btn btn-danger btn-sm remove-row ml-2" data-id="' + value.question_id + '"><i class="fa fa-times" aria-hidden="true"></i></a></span></li></div>');
+                li = $(
+                    '<div class="list-group"><input type="hidden" name="assign_questions[' +
+                        value.question_id +
+                        '][question_id]" value="' +
+                        value.question_id +
+                        '"><li id="q' +
+                        value.question_id +
+                        '"class="list-group-item d-flex justify-content-between align-items-center ui-state-default list-group-item-secondary m-2">' +
+                        value.question_id +
+                        ". " +
+                        '<span class="text-center">' +
+                        value.question +
+                        '</span> <span class="text-right row"><input type="number" class="list-group-item col-md-6" name="assign_questions[' +
+                        value.question_id +
+                        '][marks]" style="width: 10rem"><a class="btn btn-danger btn-sm remove-row ml-2" data-id="' +
+                        value.question_id +
+                        '"><i class="fa fa-times" aria-hidden="true"></i></a></span></li></div>'
+                );
             }
             var pasteItem = checkList("sortable-row", li, row.question_id);
             if (!pasteItem) {
@@ -33,50 +69,62 @@ $(function () {
             }
         });
         createCkeditor();
-    })
-    $('#table_list_exam_questions').on('uncheck.bs.table', function (e, row) {
+    });
+    $("#table_list_exam_questions").on("uncheck.bs.table", function (e, row) {
         $("#sortable-row > div").each(function () {
-            $(this).find('#q' + row.question_id).remove();
+            $(this)
+                .find("#q" + row.question_id)
+                .remove();
         });
-    })
-    $table.bootstrapTable('destroy').bootstrapTable({
-        exportTypes: ['csv', 'excel', 'pdf', 'txt', 'json'],
+    });
+    $table.bootstrapTable("destroy").bootstrapTable({
+        exportTypes: ["csv", "excel", "pdf", "txt", "json"],
     });
 
     $("#toolbar")
         .find("select")
         .change(function () {
             $table.bootstrapTable("refreshOptions", {
-                exportDataType: $(this).val()
+                exportDataType: $(this).val(),
             });
         });
 
     //File Upload Custom Component
-    $('.file-upload-browse').on('click', function () {
-        var file = $(this).parent().parent().parent().find('.file-upload-default');
-        file.trigger('click');
+    $(".file-upload-browse").on("click", function () {
+        var file = $(this)
+            .parent()
+            .parent()
+            .parent()
+            .find(".file-upload-default");
+        file.trigger("click");
     });
-    $('.file-upload-default').on('change', function () {
-
-        $(this).parent().find('.form-control').val($(this).val().replace(/C:\\fakepath\\/i, ''));
+    $(".file-upload-default").on("change", function () {
+        $(this)
+            .parent()
+            .find(".form-control")
+            .val(
+                $(this)
+                    .val()
+                    .replace(/C:\\fakepath\\/i, "")
+            );
     });
     tinymce.init({
         height: "400",
-        selector: '#tinymce_message',
-        menubar: 'file edit view formate tools',
+        selector: "#tinymce_message",
+        menubar: "file edit view formate tools",
         toolbar: [
-            'styleselect fontselect fontsizeselect',
-            'undo redo | cut copy paste | bold italic | alignleft aligncenter alignright alignjustify',
-            'bullist numlist | outdent indent | blockquote autolink | lists |  code'
+            "styleselect fontselect fontsizeselect",
+            "undo redo | cut copy paste | bold italic | alignleft aligncenter alignright alignjustify",
+            "bullist numlist | outdent indent | blockquote autolink | lists |  code",
         ],
-        plugins: 'autolink link image lists code'
+        plugins: "autolink link image lists code",
     });
 
-    $('.modal').on('hidden.bs.modal', function () {
+    $(".modal").on("hidden.bs.modal", function () {
         //Reset input file on modal close
-        $('.file-upload-default').val('');
-        $('.file-upload-info').val('');
-    })
+        $(".file-upload-default").val("");
+        $(".file-upload-info").val("");
+    });
     /*simplemde editor*/
     if ($("#simpleMde").length) {
         var simplemde = new SimpleMDE({
@@ -87,19 +135,19 @@ $(function () {
 
     //Color Picker Custom Component
     if ($(".color-picker").length) {
-        $('.color-picker').asColorPicker({
-            format: 'hex',
+        $(".color-picker").asColorPicker({
+            format: "hex",
             keepInput: true, // Keep the input value in HEX format
             hideInput: true, // Hide the original input field
-            onChange: function(color) {
-                $('.color_value').val(color); // Update the HEX color value
-            }
+            onChange: function (color) {
+                $(".color_value").val(color); // Update the HEX color value
+            },
         });
     }
 
     //Added this for Dynamic No Future Date Picker input Initialization
-    $('body').on('focus', ".datepicker-popup-no-future", function () {
-        if (!$(this).hasClass('hasDatepicker')) {
+    $("body").on("focus", ".datepicker-popup-no-future", function () {
+        if (!$(this).hasClass("hasDatepicker")) {
             var today = new Date();
             var maxDate = new Date();
             maxDate.setDate(today.getDate());
@@ -112,11 +160,10 @@ $(function () {
         }
     });
 
-
     //Added this for Dynamic Date Picker input Initialization
-    $('body').on('focus', ".datepicker-popup", function () {
+    $("body").on("focus", ".datepicker-popup", function () {
         // Check if the element has the `hasDatepicker` class
-        if (!$(this).hasClass('hasDatepicker')) {
+        if (!$(this).hasClass("hasDatepicker")) {
             $(this).datepicker({
                 enableOnReadonly: false,
                 todayHighlight: true,
@@ -125,11 +172,10 @@ $(function () {
         }
     });
 
-
     //Time Picker
     if ($("#timepicker-example").length) {
-        $('#timepicker-example').datetimepicker({
-            format: 'LT'
+        $("#timepicker-example").datetimepicker({
+            format: "LT",
         });
     }
     //Select
@@ -137,14 +183,14 @@ $(function () {
         $(".js-example-basic-single").select2();
     }
     // form reapeater
-    $('.repeater').repeater({
+    $(".repeater").repeater({
         // (Optional)
         // "defaultValues" sets the values of added items.  The keys of
         // defaultValues refer to the value of the input's name attribute.
         // If a default value is not specified for an input, then it will
         // have its value cleared.
         defaultValues: {
-            'text-input': 'foo'
+            "text-input": "foo",
         },
         // (Optional)
         // "show" is called just after an item is added.  The item is hidden
@@ -164,31 +210,37 @@ $(function () {
             // if (confirm('Are you sure you want to delete this element?')) {
             //     $(this).slideUp(deleteElement);
             // }
-            if ($(this).find('input:first').val() != '') {
+            if ($(this).find("input:first").val() != "") {
                 Swal.fire({
-                    title: 'Are you sure?',
+                    title: "Are you sure?",
                     text: "You won't to delete this element?",
-                    icon: 'warning',
+                    icon: "warning",
                     showCancelButton: true,
-                    confirmButtonColor: '#3085d6',
-                    cancelButtonColor: '#d33',
-                    confirmButtonText: 'Yes, delete it!'
+                    confirmButtonColor: "#3085d6",
+                    cancelButtonColor: "#d33",
+                    confirmButtonText: "Yes, delete it!",
                 }).then((result) => {
                     if (result.isConfirmed) {
                         $.ajax({
-                            url: location.protocol + "//" + location.hostname + (location.port && ":" + location.port) + "/timetable/" + $(this).find('input:first').val(),
+                            url:
+                                location.protocol +
+                                "//" +
+                                location.hostname +
+                                (location.port && ":" + location.port) +
+                                "/timetable/" +
+                                $(this).find("input:first").val(),
                             type: "DELETE",
                             success: function (response) {
-                                if (response['error'] == false) {
-                                    showSuccessToast(response['message']);
+                                if (response["error"] == false) {
+                                    showSuccessToast(response["message"]);
                                     $(this).slideUp(deleteElement);
                                 } else {
-                                    showErrorToast(response['message']);
+                                    showErrorToast(response["message"]);
                                 }
-                            }
+                            },
                         });
                     }
-                })
+                });
             } else {
                 $(this).slideUp(deleteElement);
             }
@@ -196,73 +248,86 @@ $(function () {
         // (Optional)
         // Removes the delete button from the first list item,
         // defaults to false.
-        isFirstItemUndeletable: true
-    })
-    $(document).on('click', '[data-toggle="lightbox"]', function (event) {
+        isFirstItemUndeletable: true,
+    });
+    $(document).on("click", '[data-toggle="lightbox"]', function (event) {
         event.preventDefault();
         $(this).ekkoLightbox();
     });
-
 });
 //Setup CSRF Token default in AJAX Request
 $.ajaxSetup({
     headers: {
-        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-    }
+        "X-CSRF-TOKEN": $('meta[name="csrf-token"]').attr("content"),
+    },
 });
 
-$('#create-form,.create-form').on('submit', function (e) {
+$("#create-form,.create-form").on("submit", function (e) {
     e.preventDefault();
     let formElement = $(this);
-    let submitButtonElement = $(this).find(':submit');
-    let url = $(this).attr('action');
+    let submitButtonElement = $(this).find(":submit");
+    let url = $(this).attr("action");
     let data = new FormData(this);
 
     function successCallback() {
         formElement[0].reset();
-        $('#table_list').bootstrapTable('refresh');
+        $("#table_list").bootstrapTable("refresh");
     }
 
-    formAjaxRequest('POST', url, data, formElement, submitButtonElement, successCallback);
-})
+    formAjaxRequest(
+        "POST",
+        url,
+        data,
+        formElement,
+        submitButtonElement,
+        successCallback
+    );
+});
 
-$('#edit-form,.editform').on('submit', function (e) {
+$("#edit-form,.editform").on("submit", function (e) {
     e.preventDefault();
     let formElement = $(this);
-    let submitButtonElement = $(this).find(':submit');
+    let submitButtonElement = $(this).find(":submit");
     let data = new FormData(this);
     data.append("_method", "PUT");
-    let url = $(this).attr('action') + "/" + data.get('edit_id');
+    let url = $(this).attr("action") + "/" + data.get("edit_id");
 
     function successCallback(response) {
-        $('#table_list').bootstrapTable('refresh');
+        $("#table_list").bootstrapTable("refresh");
         setTimeout(function () {
-            $('#editModal').modal('hide');
-        }, 1000)
+            $("#editModal").modal("hide");
+        }, 1000);
     }
 
-    formAjaxRequest('POST', url, data, formElement, submitButtonElement, successCallback);
-})
+    formAjaxRequest(
+        "POST",
+        url,
+        data,
+        formElement,
+        submitButtonElement,
+        successCallback
+    );
+});
 
-$(document).on('click', '.delete-form', function (e) {
+$(document).on("click", ".delete-form", function (e) {
     e.preventDefault();
     Swal.fire({
-        title: 'Are you sure?',
+        title: "Are you sure?",
         text: "You won't be able to revert this!",
-        icon: 'warning',
+        icon: "warning",
         showCancelButton: true,
-        confirmButtonColor: '#3085d6',
-        cancelButtonColor: '#d33',
-        confirmButtonText: 'Yes, delete it!'
+        confirmButtonColor: "#3085d6",
+        cancelButtonColor: "#d33",
+        confirmButtonText: "Yes, delete it!",
     }).then((result) => {
         if (result.isConfirmed) {
-            let url = $(this).attr('href');
+            let url = $(this).attr("href");
             let data = new FormData();
             data.append("_method", "DELETE");
             data.append("_token", $("meta[name=csrf-token]").attr("content"));
 
             function successCallback(response) {
-                $('#table_list').bootstrapTable('refresh');
+                $("#table_list").bootstrapTable("refresh");
                 showSuccessToast(response.message);
             }
 
@@ -270,60 +335,81 @@ $(document).on('click', '.delete-form', function (e) {
                 showErrorToast(response.message);
             }
 
-            ajaxRequest('POST', url, data, null, successCallback, errorCallback);
+            ajaxRequest(
+                "POST",
+                url,
+                data,
+                null,
+                successCallback,
+                errorCallback
+            );
         }
-    })
-})
-$('.edit-class-teacher-form').on('submit', function (e) {
+    });
+});
+$(".edit-class-teacher-form").on("submit", function (e) {
     e.preventDefault();
     let formElement = $(this);
-    let submitButtonElement = $(this).find(':submit');
+    let submitButtonElement = $(this).find(":submit");
     let data = new FormData(this);
-    let url = $(this).attr('action');
+    let url = $(this).attr("action");
 
     function successCallback(response) {
-        $('#table_list').bootstrapTable('refresh');
+        $("#table_list").bootstrapTable("refresh");
 
         //Reset input file field
-        $('.file-upload-default').val('');
-        $('.file-upload-info').val('');
+        $(".file-upload-default").val("");
+        $(".file-upload-info").val("");
         setTimeout(function () {
             window.location.reload();
-        }, 1000)
+        }, 1000);
     }
 
-    formAjaxRequest('POST', url, data, formElement, submitButtonElement, successCallback);
-})
-
-$('.add-new-core-subject').on('click', function (e) {
-    e.preventDefault();
-    let core_subject = cloneNewCoreSubjectTemplate();
-    $(this).parent().parent().siblings('.edit-extra-core-subjects').append(core_subject);
+    formAjaxRequest(
+        "POST",
+        url,
+        data,
+        formElement,
+        submitButtonElement,
+        successCallback
+    );
 });
 
-$(document).on('click', '.remove-core-subject', function (e) {
+$(".add-new-core-subject").on("click", function (e) {
+    e.preventDefault();
+    let core_subject = cloneNewCoreSubjectTemplate();
+    $(this)
+        .parent()
+        .parent()
+        .siblings(".edit-extra-core-subjects")
+        .append(core_subject);
+});
+
+$(document).on("click", ".remove-core-subject", function (e) {
     e.preventDefault();
     let $this = $(this);
-    if ($this.data('id')) {
+    if ($this.data("id")) {
         Swal.fire({
-            title: 'Are you sure?',
+            title: "Are you sure?",
             text: "You won't be able to revert this!",
-            icon: 'warning',
+            icon: "warning",
             showCancelButton: true,
-            confirmButtonColor: '#3085d6',
-            cancelButtonColor: '#d33',
-            confirmButtonText: 'Yes, delete it!'
+            confirmButtonColor: "#3085d6",
+            cancelButtonColor: "#d33",
+            confirmButtonText: "Yes, delete it!",
         }).then((result) => {
             if (result.isConfirmed) {
-                let id = $this.data('id');
-                let url = baseUrl + '/class/subject/' + id;
+                let id = $this.data("id");
+                let url = baseUrl + "/class/subject/" + id;
 
                 let data = new FormData();
                 data.append("_method", "DELETE");
-                data.append("_token", $("meta[name=csrf-token]").attr("content"));
+                data.append(
+                    "_token",
+                    $("meta[name=csrf-token]").attr("content")
+                );
 
                 function successCallback() {
-                    $('#table_list').bootstrapTable('refresh');
+                    $("#table_list").bootstrapTable("refresh");
                     $this.parent().parent().remove();
                 }
 
@@ -331,7 +417,14 @@ $(document).on('click', '.remove-core-subject', function (e) {
                     showErrorToast(response.message);
                 }
 
-                ajaxRequest('POST', url, data, null, successCallback, errorCallback);
+                ajaxRequest(
+                    "POST",
+                    url,
+                    data,
+                    null,
+                    successCallback,
+                    errorCallback
+                );
             }
         });
     } else {
@@ -339,50 +432,63 @@ $(document).on('click', '.remove-core-subject', function (e) {
     }
 });
 
-
-$(document).on('click', '.add-new-elective-subject', function (e) {
+$(document).on("click", ".add-new-elective-subject", function (e) {
     e.preventDefault();
     let subject_list = cloneNewElectiveSubject($(this));
     //Removed Class subject id because its new elective subject
-    subject_list.find('.edit-elective-subject-class-id').remove();
-    subject_list.find('.remove-elective-subject').removeAttr('data-id');
-    let total_selectable_subject = $(this).parent().next().children().children('input')
-    let max = $(this).siblings('.elective-subject-div').length;
+    subject_list.find(".edit-elective-subject-class-id").remove();
+    subject_list.find(".remove-elective-subject").removeAttr("data-id");
+    let total_selectable_subject = $(this)
+        .parent()
+        .next()
+        .children()
+        .children("input");
+    let max = $(this).siblings(".elective-subject-div").length;
     $(total_selectable_subject).rules("add", {
         max: max,
     });
     $(subject_list).insertBefore($(this));
 });
 
-$(document).on('click', '.remove-elective-subject', function (e) {
+$(document).on("click", ".remove-elective-subject", function (e) {
     e.preventDefault();
     let $this = $(this);
-    let total_selectable_subject = $(this).parent().parent().next().children().children('input');
-    if ($(this).data('id')) {
+    let total_selectable_subject = $(this)
+        .parent()
+        .parent()
+        .next()
+        .children()
+        .children("input");
+    if ($(this).data("id")) {
         Swal.fire({
-            title: 'Are you sure?',
+            title: "Are you sure?",
             text: "You won't be able to revert this!",
-            icon: 'warning',
+            icon: "warning",
             showCancelButton: true,
-            confirmButtonColor: '#3085d6',
-            cancelButtonColor: '#d33',
-            confirmButtonText: 'Yes, delete it!'
+            confirmButtonColor: "#3085d6",
+            cancelButtonColor: "#d33",
+            confirmButtonText: "Yes, delete it!",
         }).then((result) => {
             if (result.isConfirmed) {
-                let id = $this.data('id');
-                let url = baseUrl + '/class/subject/' + id;
+                let id = $this.data("id");
+                let url = baseUrl + "/class/subject/" + id;
 
                 let data = new FormData();
                 data.append("_method", "DELETE");
-                data.append("_token", $("meta[name=csrf-token]").attr("content"));
+                data.append(
+                    "_token",
+                    $("meta[name=csrf-token]").attr("content")
+                );
 
                 function successCallback() {
-                    let max = $this.parent().siblings('.elective-subject-div').length - 1;
+                    let max =
+                        $this.parent().siblings(".elective-subject-div")
+                            .length - 1;
                     $(total_selectable_subject).rules("add", {
                         max: max,
                     });
-                    $('#table_list').bootstrapTable('refresh');
-                    $this.parent().prev('span').remove();
+                    $("#table_list").bootstrapTable("refresh");
+                    $this.parent().prev("span").remove();
                     $this.parent().remove();
                 }
 
@@ -390,48 +496,58 @@ $(document).on('click', '.remove-elective-subject', function (e) {
                     showErrorToast(response.message);
                 }
 
-                ajaxRequest('POST', url, data, null, successCallback, errorCallback);
+                ajaxRequest(
+                    "POST",
+                    url,
+                    data,
+                    null,
+                    successCallback,
+                    errorCallback
+                );
             }
-        })
+        });
     } else {
-        let max = $(this).parent().siblings('.elective-subject-div').length - 1;
+        let max = $(this).parent().siblings(".elective-subject-div").length - 1;
         $(total_selectable_subject).rules("add", {
             max: max,
         });
-        $(this).parent().prev('span').remove();
+        $(this).parent().prev("span").remove();
         $(this).parent().remove();
     }
 });
 
-$(document).on('click', '.add-elective-subject-group', function (e) {
+$(document).on("click", ".add-elective-subject-group", function (e) {
     e.preventDefault();
     let html = cloneNewElectiveSubjectGroup();
-    html.appendTo('#edit-extra-elective-subject-group');
+    html.appendTo("#edit-extra-elective-subject-group");
 });
 
-$(document).on('click', '.remove-elective-subject-group', function (e) {
+$(document).on("click", ".remove-elective-subject-group", function (e) {
     e.preventDefault();
     let $this = $(this);
-    if ($this.data('id')) {
+    if ($this.data("id")) {
         Swal.fire({
-            title: 'Are you sure?',
+            title: "Are you sure?",
             text: "You won't be able to revert this!",
-            icon: 'warning',
+            icon: "warning",
             showCancelButton: true,
-            confirmButtonColor: '#3085d6',
-            cancelButtonColor: '#d33',
-            confirmButtonText: 'Yes, delete it!'
+            confirmButtonColor: "#3085d6",
+            cancelButtonColor: "#d33",
+            confirmButtonText: "Yes, delete it!",
         }).then((result) => {
             if (result.isConfirmed) {
-                let id = $this.data('id');
-                let url = baseUrl + '/class/subject-group/' + id;
+                let id = $this.data("id");
+                let url = baseUrl + "/class/subject-group/" + id;
 
                 let data = new FormData();
                 data.append("_method", "DELETE");
-                data.append("_token", $("meta[name=csrf-token]").attr("content"));
+                data.append(
+                    "_token",
+                    $("meta[name=csrf-token]").attr("content")
+                );
 
                 function successCallback() {
-                    $('#table_list').bootstrapTable('refresh');
+                    $("#table_list").bootstrapTable("refresh");
                     $this.parent().parent().remove();
                 }
 
@@ -439,7 +555,14 @@ $(document).on('click', '.remove-elective-subject-group', function (e) {
                     showErrorToast(response.message);
                 }
 
-                ajaxRequest('POST', url, data, null, successCallback, errorCallback);
+                ajaxRequest(
+                    "POST",
+                    url,
+                    data,
+                    null,
+                    successCallback,
+                    errorCallback
+                );
             }
         });
     } else {
@@ -447,190 +570,187 @@ $(document).on('click', '.remove-elective-subject-group', function (e) {
     }
 });
 
-
-$('#show-guardian-details').on('change', function () {
-    if ($(this).is(':checked')) {
-        $('#guardian_div').show();
-        $('#guardian_div input,#guardian_div select').attr('disabled', false);
+$("#show-guardian-details").on("change", function () {
+    if ($(this).is(":checked")) {
+        $("#guardian_div").show();
+        $("#guardian_div input,#guardian_div select").attr("disabled", false);
     } else {
-        $('#guardian_div').hide();
+        $("#guardian_div").hide();
         //Added this to prevent data submission while elective subject option is Off.
-        $('#guardian_div input,#guardian_div select').attr('disabled', true);
+        $("#guardian_div input,#guardian_div select").attr("disabled", true);
     }
-})
+});
 
-$('#show-edit-guardian-details').on('change', function () {
-    if ($(this).is(':checked')) {
-        $('#edit_guardian_div').show();
-        $('#edit_guardian_div input,#edit_guardian_div select').attr('disabled', false);
+$("#show-edit-guardian-details").on("change", function () {
+    if ($(this).is(":checked")) {
+        $("#edit_guardian_div").show();
+        $("#edit_guardian_div input,#edit_guardian_div select").attr(
+            "disabled",
+            false
+        );
     } else {
-        $('#edit_guardian_div').hide();
+        $("#edit_guardian_div").hide();
         //Added this to prevent data submission while elective subject option is Off.
-        $('#edit_guardian_div input,#edit_guardian_div select').attr('disabled', true);
+        $("#edit_guardian_div input,#edit_guardian_div select").attr(
+            "disabled",
+            true
+        );
     }
-})
+});
 
-$('#show-parents-details').on('change', function () {
-    if ($(this).is(':checked')) {
-        $('#parents_div').show();
-        $('#parents_div input,#parents_div select').attr('disabled', false);
+$("#show-parents-details").on("change", function () {
+    if ($(this).is(":checked")) {
+        $("#parents_div").show();
+        $("#parents_div input,#parents_div select").attr("disabled", false);
     } else {
-        $('#parents_div').hide();
+        $("#parents_div").hide();
         //Added this to prevent data submission while elective subject option is Off.
-        $('#parents_div input,#parents_div select').attr('disabled', true);
+        $("#parents_div input,#parents_div select").attr("disabled", true);
     }
-})
+});
 
-if ($('#show-parents-details').is(':checked')) {
-    $('#show-parents-details').change();
+if ($("#show-parents-details").is(":checked")) {
+    $("#show-parents-details").change();
 }
 
-$('#show-edit-parents-details').on('change', function () {
-    if ($(this).is(':checked')) {
-        $('#edit_parents_div').show();
-        $('#edit_parents_div input,#edit_parents_div select').attr('disabled', false);
+$("#show-edit-parents-details").on("change", function () {
+    if ($(this).is(":checked")) {
+        $("#edit_parents_div").show();
+        $("#edit_parents_div input,#edit_parents_div select").attr(
+            "disabled",
+            false
+        );
     } else {
-        $('#edit_parents_div').hide();
+        $("#edit_parents_div").hide();
         //Added this to prevent data submission while elective subject option is Off.
-        $('#edit_parents_div input,#edit_parents_div select').attr('disabled', true);
+        $("#edit_parents_div input,#edit_parents_div select").attr(
+            "disabled",
+            true
+        );
     }
-})
-if ($('#show-edit-parents-details').is(':checked')) {
-    $('#show-edit-parents-details').change();
+});
+if ($("#show-edit-parents-details").is(":checked")) {
+    $("#show-edit-parents-details").change();
 }
 
-$(document).on('change', '.file_type', function () {
+$(document).on("change", ".file_type", function () {
     var type = $(this).val();
     var parent = $(this).parent();
-    if (type == "file_upload") {
-        parent.siblings('#file_name_div').show();
-        parent.siblings('#file_thumbnail_div').hide();
-        parent.siblings('#file_div').show();
-        parent.siblings('#file_link_div').hide();
-        parent.siblings('#video_corner_url_div').hide();
-        parent.siblings('#video_corner_download_div').hide();
-        parent.siblings('#video_corner_download_link_div').hide();
-   } else if (type == "video_upload") {
-        parent.siblings('#file_name_div').show();
-        parent.siblings('#file_thumbnail_div').show();
-        parent.siblings('#file_div').show();
-        parent.siblings('#file_link_div').hide();
-        parent.siblings('#video_corner_url_div').hide();
-        parent.siblings('#video_corner_download_div').hide();
-        parent.siblings('#video_corner_download_link_div').hide();
-   } else if (type == "youtube_link") {
-        parent.siblings('#file_name_div').show();
-        parent.siblings('#file_thumbnail_div').show();
-        parent.siblings('#file_div').hide();
-        parent.siblings('#file_link_div').show();
-        parent.siblings('#video_corner_url_div').hide();
-        parent.siblings('#video_corner_download_div').hide();
-        parent.siblings('#video_corner_download_link_div').hide();
-    } else if (type == "external_link") {
-        parent.siblings('#file_name_div,#external_link_div').show();
-        parent.siblings('#file_thumbnail_div,#file_div,#file_link_div,#video_corner_download_div,#video_corner_download_link_div').hide();
-    } else if (type == "other_link") {
-        parent.siblings('#file_name_div').show();
-        parent.siblings('#file_thumbnail_div').show();
-        parent.siblings('#file_div').hide();
-        parent.siblings('#file_link_div').show();
-        parent.siblings('#video_corner_url_div').hide();
-        parent.siblings('#video_corner_download_div').hide();
-        parent.siblings('#video_corner_download_link_div').hide();
-    } else if (type == "video_corner_link") {
-        parent.siblings('#file_name_div').show();
-        parent.siblings('#file_thumbnail_div').show();
-        parent.siblings('#file_div').hide();
-        parent.siblings('#file_link_div').hide();
-        parent.siblings('#video_corner_url_div').show();
-        parent.siblings('#video_corner_download_div').hide();
-        parent.siblings('#video_corner_download_link_div').hide();
-    } else if (type == "video_corner_download_link") {
-        parent.siblings('#file_name_div').show();
-        parent.siblings('#file_thumbnail_div').show();
-        parent.siblings('#file_div').hide();
-        parent.siblings('#file_link_div').hide();
-        parent.siblings('#video_corner_url_div').show();
-        parent.siblings('#video_corner_download_link_div').show();
-    } else {
-        parent.siblings('#file_name_div').hide();
-        parent.siblings('#file_thumbnail_div').hide();
-        parent.siblings('#file_div').hide();
-        parent.siblings('#file_link_div').hide();
-        parent.siblings('#video_corner_url_div').hide();
-        parent.siblings('#video_corner_download_div').hide();
-        parent.siblings('#video_corner_download_link_div').hide();
+    parent.siblings(".input_file_content").hide();
+
+    switch (type) {
+        case "file_upload":
+            parent.siblings("#file_name_div, #file_div").show();
+            break;
+        case "video_upload":
+            parent
+                .siblings("#file_name_div, #file_thumbnail_div, #file_div")
+                .show();
+            break;
+        case "youtube_link":
+            parent
+                .siblings("#file_name_div, #file_thumbnail_div, #file_link_div")
+                .show();
+            break;
+        case "other_link":
+            parent
+                .siblings("#file_name_div, #file_thumbnail_div, #file_link_div")
+                .show();
+            break;
+        case "external_link":
+            parent.siblings("#file_name_div, #external_link_div").show();
+            break;
+        case "video_corner_link":
+            parent
+                .siblings(
+                    "#file_name_div, #file_thumbnail_div, #video_corner_url_div"
+                )
+                .show();
+            break;
+        case "video_corner_download_link":
+            parent
+                .siblings(
+                    "#file_name_div, #file_thumbnail_div, #video_corner_url_div, #video_corner_download_link_div"
+                )
+                .show();
+            break;
     }
 });
 
-
-$(document).on('click', '.add-lesson-file', function (e) {
+$(document).on("click", ".add-lesson-file", function (e) {
     e.preventDefault();
-    let html = $('.file_type_div:last').clone();
-    html.find('.error').remove();
-    html.find('.has-danger').removeClass('has-danger');
+    let html = $(".file_type_div:last").clone();
+    html.find(".error").remove();
+    html.find(".has-danger").removeClass("has-danger");
     // This function will replace the last index value and increment in the multidimensional name attribute
-    html.find(':input').each(function (key, element) {
+    html.find(":input").each(function (key, element) {
         this.name = this.name.replace(/\[(\d+)\]/, function (str, p1) {
-            return '[' + (parseInt(p1, 10) + 1) + ']';
+            return "[" + (parseInt(p1, 10) + 1) + "]";
         });
-    })
-    html.find('.add-lesson-file i').addClass('fa-times').removeClass('fa-plus');
-    html.find('.add-lesson-file').addClass('btn-inverse-danger remove-lesson-file').removeClass('btn-inverse-success add-lesson-file');
-    $(this).parent().parent().siblings('.extra-files').append(html);
+    });
+    html.find(".add-lesson-file i").addClass("fa-times").removeClass("fa-plus");
+    html.find(".add-lesson-file")
+        .addClass("btn-inverse-danger remove-lesson-file")
+        .removeClass("btn-inverse-success add-lesson-file");
+    $(this).parent().parent().siblings(".extra-files").append(html);
     // Trigger change only after the html is appended to DOM
-    html.find('.file_type').val('').trigger('change');
-    html.find('input').val('');
+    html.find(".file_type").val("").trigger("change");
+    html.find("input").val("");
 });
 
-$(document).on('click', '.edit-lesson-file', function (e) {
+$(document).on("click", ".edit-lesson-file", function (e) {
     e.preventDefault();
-    let html = $('.file_type_div:last').clone();
-    html.find('.error').remove();
-    html.find('.has-danger').removeClass('has-danger');
+    let html = $(".file_type_div:last").clone();
+    html.find(".error").remove();
+    html.find(".has-danger").removeClass("has-danger");
     // This function will replace the last index value and increment in the multidimensional name attribute
-    html.find(':input').each(function (key, element) {
+    html.find(":input").each(function (key, element) {
         this.name = this.name.replace(/\[(\d+)\]/, function (str, p1) {
-            return '[' + (parseInt(p1, 10) + 1) + ']';
+            return "[" + (parseInt(p1, 10) + 1) + "]";
         });
-    })
-    html.find('.add-lesson-file i').addClass('fa-times').removeClass('fa-plus');
-    html.find('.add-lesson-file').addClass('btn-inverse-danger remove-lesson-file').removeClass('btn-inverse-success add-lesson-file');
-    $(this).parent().parent().siblings('.edit-extra-files').append(html);
+    });
+    html.find(".add-lesson-file i").addClass("fa-times").removeClass("fa-plus");
+    html.find(".add-lesson-file")
+        .addClass("btn-inverse-danger remove-lesson-file")
+        .removeClass("btn-inverse-success add-lesson-file");
+    $(this).parent().parent().siblings(".edit-extra-files").append(html);
     // Trigger change only after the html is appended to DOM
-    html.find('.file_type').val('').trigger('change');
-    html.find('input').val('');
+    html.find(".file_type").val("").trigger("change");
+    html.find("input").val("");
 });
 
-$(document).on('click', '.remove-lesson-file', function (e) {
+$(document).on("click", ".remove-lesson-file", function (e) {
     e.preventDefault();
     var $this = $(this);
     // If button has Data ID then Call ajax function to delete file
-    if ($(this).data('id')) {
-        var file_id = $(this).data('id');
+    if ($(this).data("id")) {
+        var file_id = $(this).data("id");
 
         Swal.fire({
-            title: 'Are you sure?',
+            title: "Are you sure?",
             text: "You won't be able to revert this!",
-            icon: 'warning',
+            icon: "warning",
             showCancelButton: true,
-            confirmButtonColor: '#3085d6',
-            cancelButtonColor: '#d33',
-            confirmButtonText: 'Yes, delete it!'
+            confirmButtonColor: "#3085d6",
+            cancelButtonColor: "#d33",
+            confirmButtonText: "Yes, delete it!",
         }).then((result) => {
             if (result.isConfirmed) {
-                let url = baseUrl + '/file/delete/' + file_id;
+                let url = baseUrl + "/file/delete/" + file_id;
 
                 let data = new FormData();
                 data.append("_method", "DELETE");
-                data.append("_token", $("meta[name=csrf-token]").attr("content"));
+                data.append(
+                    "_token",
+                    $("meta[name=csrf-token]").attr("content")
+                );
 
                 function successCallback(response) {
                     $this.parent().parent().remove();
                     setTimeout(function () {
-                        $('#editModal').modal('hide');
-                    }, 1000)
-                    $('#table_list').bootstrapTable('refresh');
+                        $("#editModal").modal("hide");
+                    }, 1000);
+                    $("#table_list").bootstrapTable("refresh");
 
                     showSuccessToast(response.message);
                 }
@@ -639,109 +759,125 @@ $(document).on('click', '.remove-lesson-file', function (e) {
                     showErrorToast(response.message);
                 }
 
-                ajaxRequest('POST', url, data, null, successCallback, errorCallback);
+                ajaxRequest(
+                    "POST",
+                    url,
+                    data,
+                    null,
+                    successCallback,
+                    errorCallback
+                );
             }
-        })
+        });
     } else {
         // If button doesn't have any Data Id then simply remove that row from DOM
         $(this).parent().parent().remove();
     }
 });
 
-
-$('#topic_class_section_id').on('change', function () {
+$("#topic_class_section_id").on("change", function () {
     let html = "<option value=''>--Select Lesson--</option>";
-    $('#topic_lesson_id').html(html);
-    $('#topic_subect_id').trigger('change');
-})
+    $("#topic_lesson_id").html(html);
+    $("#topic_subect_id").trigger("change");
+});
 
-$('#topic_subject_id').on('change', function () {
-    let url = baseUrl + '/search-lesson';
+$("#topic_subject_id").on("change", function () {
+    let url = baseUrl + "/search-lesson";
     let data = {
-        'subject_id': $(this).val(),
-        'class_section_id': $('#topic_class_section_id').val()
+        subject_id: $(this).val(),
+        class_section_id: $("#topic_class_section_id").val(),
     };
 
     function successCallback(response) {
-        let html = ""
+        let html = "";
         if (response.data.length > 0) {
-            html += "<option>--Select Lesson--</option>"
+            html += "<option>--Select Lesson--</option>";
             response.data.forEach(function (data) {
-                html += "<option value='" + data.id + "'>" + data.name + "</option>";
-            })
+                html +=
+                    "<option value='" +
+                    data.id +
+                    "'>" +
+                    data.name +
+                    "</option>";
+            });
         } else {
             html = "<option value=''>No Data Found</option>";
         }
-        $('#topic_lesson_id').html(html);
+        $("#topic_lesson_id").html(html);
     }
 
-    ajaxRequest('GET', url, data, null, successCallback, null, null, true);
-})
+    ajaxRequest("GET", url, data, null, successCallback, null, null, true);
+});
 
-$('#resubmission_allowed').on('change', function () {
-    if ($(this).is(':checked')) {
+$("#resubmission_allowed").on("change", function () {
+    if ($(this).is(":checked")) {
         $(this).val(1);
-        $('#extra_days_for_resubmission_div').show();
+        $("#extra_days_for_resubmission_div").show();
     } else {
         $(this).val(0);
-        $('#extra_days_for_resubmission_div').hide();
+        $("#extra_days_for_resubmission_div").hide();
     }
-})
+});
 
-$('#edit_resubmission_allowed').on('change', function () {
-    if ($(this).is(':checked')) {
+$("#edit_resubmission_allowed").on("change", function () {
+    if ($(this).is(":checked")) {
         $(this).val(1);
-        $('#edit_extra_days_for_resubmission_div').show();
+        $("#edit_extra_days_for_resubmission_div").show();
     } else {
         $(this).val(0);
-        $('#edit_extra_days_for_resubmission_div').hide();
+        $("#edit_extra_days_for_resubmission_div").hide();
     }
-})
+});
 
-$('#edit_topic_class_section_id').on('change', function () {
+$("#edit_topic_class_section_id").on("change", function () {
     let html = "<option value=''>--Select Lesson--</option>";
-    $('#topic_lesson_id').html(html);
-    $('#topic_subect_id').trigger('change');
-})
+    $("#topic_lesson_id").html(html);
+    $("#topic_subect_id").trigger("change");
+});
 
-$('#edit_topic_subject_id').on('change', function () {
-    let url = baseUrl + '/search-lesson';
+$("#edit_topic_subject_id").on("change", function () {
+    let url = baseUrl + "/search-lesson";
     let data = {
-        'subject_id': $(this).val(),
-        'class_section_id': $('#edit_topic_class_section_id').val()
+        subject_id: $(this).val(),
+        class_section_id: $("#edit_topic_class_section_id").val(),
     };
 
     function successCallback(response) {
-        let html = ""
+        let html = "";
         if (response.data.length > 0) {
             response.data.forEach(function (data) {
-                html += "<option value='" + data.id + "'>" + data.name + "</option>";
-            })
+                html +=
+                    "<option value='" +
+                    data.id +
+                    "'>" +
+                    data.name +
+                    "</option>";
+            });
         } else {
             html = "<option value=''>No Data Found</option>";
         }
-        $('#edit_topic_lesson_id').html(html);
+        $("#edit_topic_lesson_id").html(html);
     }
 
-    ajaxRequest('GET', url, data, null, successCallback, null, null, true);
-})
+    ajaxRequest("GET", url, data, null, successCallback, null, null, true);
+});
 
-$(document).on('click', '.remove-assignment-file', function (e) {
+$(document).on("click", ".remove-assignment-file", function (e) {
     e.preventDefault();
     var $this = $(this);
-    var file_id = $(this).data('id');
+    var file_id = $(this).data("id");
 
     Swal.fire({
-        title: 'Are you sure?',
+        title: "Are you sure?",
         text: "You won't be able to revert this!",
-        icon: 'warning',
+        icon: "warning",
         showCancelButton: true,
-        confirmButtonColor: '#3085d6',
-        cancelButtonColor: '#d33',
-        confirmButtonText: 'Yes, delete it!'
+        confirmButtonColor: "#3085d6",
+        cancelButtonColor: "#d33",
+        confirmButtonText: "Yes, delete it!",
     }).then((result) => {
         if (result.isConfirmed) {
-            let url = baseUrl + '/file/delete/' + file_id;
+            let url = baseUrl + "/file/delete/" + file_id;
 
             let data = new FormData();
             data.append("_method", "DELETE");
@@ -749,7 +885,7 @@ $(document).on('click', '.remove-assignment-file', function (e) {
 
             function successCallback(response) {
                 $this.parent().remove();
-                $('#table_list').bootstrapTable('refresh');
+                $("#table_list").bootstrapTable("refresh");
                 showSuccessToast(response.message);
             }
 
@@ -757,72 +893,89 @@ $(document).on('click', '.remove-assignment-file', function (e) {
                 showErrorToast(response.message);
             }
 
-            ajaxRequest('POST', url, data, null, successCallback, errorCallback);
+            ajaxRequest(
+                "POST",
+                url,
+                data,
+                null,
+                successCallback,
+                errorCallback
+            );
         }
-    })
+    });
 });
 
-
-$(document).on('click', '.add-exam-timetable', function (e) {
+$(document).on("click", ".add-exam-timetable", function (e) {
     e.preventDefault();
-    let html = $('.exam_timetable:last').clone();
-    html.find('.error').remove();
-    html.find('.has-danger').removeClass('has-danger');
+    let html = $(".exam_timetable:last").clone();
+    html.find(".error").remove();
+    html.find(".has-danger").removeClass("has-danger");
     // This function will replace the last index value and increment in the multidimensional name attribute
-    html.find('.form-control').each(function (key, element) {
+    html.find(".form-control").each(function (key, element) {
         this.name = this.name.replace(/\[(\d+)\]/, function (str, p1) {
-            return '[' + (parseInt(p1, 10) + 1) + ']';
+            return "[" + (parseInt(p1, 10) + 1) + "]";
         });
-    })
-    html.find('.add-exam-timetable i').addClass('fa-times').removeClass('fa-plus');
-    html.find('.add-exam-timetable').addClass('btn-inverse-danger remove-exam-timetable').removeClass('btn-inverse-success add-exam-timetable');
-    $(this).parent().parent().siblings('.extra-timetable').append(html);
-    html.find('.form-control').val('');
+    });
+    html.find(".add-exam-timetable i")
+        .addClass("fa-times")
+        .removeClass("fa-plus");
+    html.find(".add-exam-timetable")
+        .addClass("btn-inverse-danger remove-exam-timetable")
+        .removeClass("btn-inverse-success add-exam-timetable");
+    $(this).parent().parent().siblings(".extra-timetable").append(html);
+    html.find(".form-control").val("");
 });
 
-$(document).on('click', '.edit-exam-timetable', function (e) {
+$(document).on("click", ".edit-exam-timetable", function (e) {
     e.preventDefault();
-    let html = $('.exam_timetable:last').clone();
-    html.find('.error').remove();
-    html.find('.has-danger').removeClass('has-danger');
+    let html = $(".exam_timetable:last").clone();
+    html.find(".error").remove();
+    html.find(".has-danger").removeClass("has-danger");
     // This function will replace the last index value and increment in the multidimensional name attribute
-    html.find('.form-control').each(function (key, element) {
+    html.find(".form-control").each(function (key, element) {
         this.name = this.name.replace(/\[(\d+)\]/, function (str, p1) {
-            return '[' + (parseInt(p1, 10) + 1) + ']';
+            return "[" + (parseInt(p1, 10) + 1) + "]";
         });
-    })
-    html.find('.add-exam-timetable i').addClass('fa-times').removeClass('fa-plus');
-    html.find('.add-exam-timetable').addClass('btn-inverse-danger remove-exam-timetable').removeClass('btn-inverse-success add-exam-timetable');
-    $(this).parent().parent().siblings('.edit-extra-timetable').append(html);
-    html.find('.form-control').val('');
+    });
+    html.find(".add-exam-timetable i")
+        .addClass("fa-times")
+        .removeClass("fa-plus");
+    html.find(".add-exam-timetable")
+        .addClass("btn-inverse-danger remove-exam-timetable")
+        .removeClass("btn-inverse-success add-exam-timetable");
+    $(this).parent().parent().siblings(".edit-extra-timetable").append(html);
+    html.find(".form-control").val("");
 });
 
-$(document).on('click', '.remove-exam-timetable', function (e) {
+$(document).on("click", ".remove-exam-timetable", function (e) {
     e.preventDefault();
     let $this = $(this);
     // If button has Data ID then call ajax function to delete file
-    if ($(this).data('id')) {
-        let timetable_id = $(this).data('id');
+    if ($(this).data("id")) {
+        let timetable_id = $(this).data("id");
 
         Swal.fire({
-            title: 'Are you sure?',
+            title: "Are you sure?",
             text: "You won't be able to revert this!",
-            icon: 'warning',
+            icon: "warning",
             showCancelButton: true,
-            confirmButtonColor: '#3085d6',
-            cancelButtonColor: '#d33',
-            confirmButtonText: 'Yes, delete it!'
+            confirmButtonColor: "#3085d6",
+            cancelButtonColor: "#d33",
+            confirmButtonText: "Yes, delete it!",
         }).then((result) => {
             if (result.isConfirmed) {
-                let url = baseUrl + '/exams/delete-timetable/' + timetable_id;
+                let url = baseUrl + "/exams/delete-timetable/" + timetable_id;
 
                 let data = new FormData();
                 data.append("_method", "DELETE");
-                data.append("_token", $("meta[name=csrf-token]").attr("content"));
+                data.append(
+                    "_token",
+                    $("meta[name=csrf-token]").attr("content")
+                );
 
                 function successCallback(response) {
                     $this.parent().parent().remove();
-                    $('#table_list').bootstrapTable('refresh');
+                    $("#table_list").bootstrapTable("refresh");
                     showSuccessToast(response.message);
                 }
 
@@ -830,679 +983,852 @@ $(document).on('click', '.remove-exam-timetable', function (e) {
                     showErrorToast(response.message);
                 }
 
-                ajaxRequest('POST', url, data, null, successCallback, errorCallback);
+                ajaxRequest(
+                    "POST",
+                    url,
+                    data,
+                    null,
+                    successCallback,
+                    errorCallback
+                );
             }
-        })
+        });
     } else {
         // If button doesn't have any Data Id then simply remove that row from DOM
         $(this).parent().parent().remove();
     }
 });
 
-
-$('#exam_id').on('change', function () {
-
-    let class_id = $('#class_id').val();
+$("#exam_id").on("change", function () {
+    let class_id = $("#class_id").val();
     let exam_id = $(this).val();
 
-    let url = baseUrl + '/exams/get-subjects/' + class_id + '/' + exam_id;
-    $('#subject_id option').hide();
+    let url = baseUrl + "/exams/get-subjects/" + class_id + "/" + exam_id;
+    $("#subject_id option").hide();
 
     function successCallback(response) {
-        let html = ''
-        html = '<option>No Subjects</option>';
+        let html = "";
+        html = "<option>No Subjects</option>";
         if (response.data) {
             html = '<option value="">Select Subject</option>';
             $.each(response.data, function (key, data) {
-                html += '<option value=' + data.subject.id + '>' + data.subject.name + ' - ' + data.subject.type + '</option>';
+                html +=
+                    "<option value=" +
+                    data.subject.id +
+                    ">" +
+                    data.subject.name +
+                    " - " +
+                    data.subject.type +
+                    "</option>";
             });
         } else {
-            html = '<option>No Subjects Found</option>';
+            html = "<option>No Subjects Found</option>";
         }
-        $('#subject_id').html(html);
+        $("#subject_id").html(html);
     }
 
-    ajaxRequest('GET', url, null, null, successCallback, null);
+    ajaxRequest("GET", url, null, null, successCallback, null);
 });
 
-$('#class_id').on('change', function () {
-
+$("#class_id").on("change", function () {
     // let exam_id = $('#exam_id').val();
     let class_id = $(this).val();
 
-    let url = baseUrl + '/exams/get-exams/' + class_id;
-    $('#exam_id option').hide();
-    $('#subject_id option').hide();
-
+    let url = baseUrl + "/exams/get-exams/" + class_id;
+    $("#exam_id option").hide();
+    $("#subject_id option").hide();
 
     function successCallback(response) {
-        let html = ''
-        html = '<option>No Exams</option>';
+        let html = "";
+        html = "<option>No Exams</option>";
         if (response.data) {
             // html = '<option value="">Select Exam</option>';
             $.each(response.data, function (key, data) {
-                html += '<option value=' + data.id + '>' + data.name +  '</option>';
+                html +=
+                    "<option value=" + data.id + ">" + data.name + "</option>";
             });
         } else {
-            html = '<option>No Exams Found</option>';
+            html = "<option>No Exams Found</option>";
         }
-        $('#exam_id').html(html);
+        $("#exam_id").html(html);
     }
 
-    ajaxRequest('GET', url, null, null, successCallback, null);
+    ajaxRequest("GET", url, null, null, successCallback, null);
 });
 
-$('#filter_class_id').on('change', function () {
-
+$("#filter_class_id").on("change", function () {
     let class_id = $(this).val();
 
-    let url = baseUrl + '/exams/get-publish-exam/' + class_id;
+    let url = baseUrl + "/exams/get-publish-exam/" + class_id;
 
-    $('#filter_exam_id option').hide();
-
+    $("#filter_exam_id option").hide();
 
     function successCallback(response) {
-        let html = ''
-        html = '<option>No Exams</option>';
+        let html = "";
+        html = "<option>No Exams</option>";
 
         if (response.data) {
             html = '<option value="">Select Exam</option>';
             $.each(response.data, function (key, data) {
-                html += '<option value=' + data.exam.id + '>' + data.exam.name +  '</option>';
+                html +=
+                    "<option value=" +
+                    data.exam.id +
+                    ">" +
+                    data.exam.name +
+                    "</option>";
             });
         } else {
-            html = '<option>No Exams Found</option>';
+            html = "<option>No Exams Found</option>";
         }
-        $('#filter_exam_id').html(html);
+        $("#filter_exam_id").html(html);
     }
 
-    ajaxRequest('GET', url, null, null, successCallback, null);
+    ajaxRequest("GET", url, null, null, successCallback, null);
 });
 //Father Search
-parentSearch($(".father-search"), baseUrl + "/parent/search", { 'type': 'father' }, 'Search for Father Email', parentSearchSelect2DesignTemplate, function (repo) {
-    if (!repo.text) {
-        //Remove dynamic jquery validation
-        $(".father-search").rules("remove", "email");
-        $(".father_image").rules("remove", "required");
-        $('#father_first_name').val(repo.first_name).attr('readonly', true);
-        $('#father_last_name').val(repo.last_name).attr('readonly', true);
-        $('#father_mobile').val(repo.mobile).attr('readonly', true);
-        $('#father_occupation').val(repo.occupation).attr('readonly', true);
-        $('#father_dob').val(repo.dob).attr('readonly', true);
-        $('#father-image-tag').attr('src', repo.image);
+parentSearch(
+    $(".father-search"),
+    baseUrl + "/parent/search",
+    { type: "father" },
+    "Search for Father Email",
+    parentSearchSelect2DesignTemplate,
+    function (repo) {
+        if (!repo.text) {
+            //Remove dynamic jquery validation
+            $(".father-search").rules("remove", "email");
+            $(".father_image").rules("remove", "required");
+            $("#father_first_name").val(repo.first_name).attr("readonly", true);
+            $("#father_last_name").val(repo.last_name).attr("readonly", true);
+            $("#father_mobile").val(repo.mobile).attr("readonly", true);
+            $("#father_occupation").val(repo.occupation).attr("readonly", true);
+            $("#father_dob").val(repo.dob).attr("readonly", true);
+            $("#father-image-tag").attr("src", repo.image);
 
-        $('.father-extra-div').hide();
+            $(".father-extra-div").hide();
+        } else {
+            //Add dynamic jquery validation
+            $(".father-search").rules("add", {
+                email: true,
+            });
 
-    } else {
-        //Add dynamic jquery validation
-        $(".father-search").rules("add", {
-            email: true,
-        });
-
-        $(".father_image").rules("add", {
-            required: true,
-        });
-        $('#father_first_name').val('').attr('readonly', false);
-        $('#father_last_name').val('').attr('readonly', false);
-        $('#father_mobile').val('').attr('readonly', false);
-        $('#father_occupation').val('').attr('readonly', false);
-        $('#father_dob').val('').attr('readonly', false);
-        $('#father-image-tag').attr('src', '');
-        $('.father-extra-div').show();
+            $(".father_image").rules("add", {
+                required: true,
+            });
+            $("#father_first_name").val("").attr("readonly", false);
+            $("#father_last_name").val("").attr("readonly", false);
+            $("#father_mobile").val("").attr("readonly", false);
+            $("#father_occupation").val("").attr("readonly", false);
+            $("#father_dob").val("").attr("readonly", false);
+            $("#father-image-tag").attr("src", "");
+            $(".father-extra-div").show();
+        }
+        return repo.email || repo.text;
     }
-    return repo.email || repo.text;
-});
-parentSearch($(".mother-search"), baseUrl + "/parent/search", { 'type': 'mother' }, 'Search for Mother Email', parentSearchSelect2DesignTemplate, function (repo) {
-    if (!repo.text) {
-        //Remove dynamic jquery validation
-        $(".mother-search").rules("remove", "email");
-        $(".mother_image").rules("remove", "required");
-        $('#mother_first_name').val(repo.first_name).attr('readonly', true);
-        $('#mother_last_name').val(repo.last_name).attr('readonly', true);
-        $('#mother_mobile').val(repo.mobile).attr('readonly', true);
-        $('#mother_occupation').val(repo.occupation).attr('readonly', true);
-        $('#mother_dob').val(repo.dob).attr('readonly', true);
-        $('#mother-image-tag').attr('src', repo.image);
-        $('.mother-extra-div').hide();
-
-    } else {
-        //Add dynamic jquery validation
-        $(".mother-search").rules("add", {
-            email: true,
-        });
-        $(".mother_image").rules("add", {
-            required: true,
-        });
-        $('#mother_first_name').val('').attr('readonly', false);
-        $('#mother_last_name').val('').attr('readonly', false);
-        $('#mother_mobile').val('').attr('readonly', false);
-        $('#mother_occupation').val('').attr('readonly', false);
-        $('#mother_dob').val('').attr('readonly', false);
-        $('#mother-image-tag').attr('src', '');
-        $('.mother-extra-div').show();
+);
+parentSearch(
+    $(".mother-search"),
+    baseUrl + "/parent/search",
+    { type: "mother" },
+    "Search for Mother Email",
+    parentSearchSelect2DesignTemplate,
+    function (repo) {
+        if (!repo.text) {
+            //Remove dynamic jquery validation
+            $(".mother-search").rules("remove", "email");
+            $(".mother_image").rules("remove", "required");
+            $("#mother_first_name").val(repo.first_name).attr("readonly", true);
+            $("#mother_last_name").val(repo.last_name).attr("readonly", true);
+            $("#mother_mobile").val(repo.mobile).attr("readonly", true);
+            $("#mother_occupation").val(repo.occupation).attr("readonly", true);
+            $("#mother_dob").val(repo.dob).attr("readonly", true);
+            $("#mother-image-tag").attr("src", repo.image);
+            $(".mother-extra-div").hide();
+        } else {
+            //Add dynamic jquery validation
+            $(".mother-search").rules("add", {
+                email: true,
+            });
+            $(".mother_image").rules("add", {
+                required: true,
+            });
+            $("#mother_first_name").val("").attr("readonly", false);
+            $("#mother_last_name").val("").attr("readonly", false);
+            $("#mother_mobile").val("").attr("readonly", false);
+            $("#mother_occupation").val("").attr("readonly", false);
+            $("#mother_dob").val("").attr("readonly", false);
+            $("#mother-image-tag").attr("src", "");
+            $(".mother-extra-div").show();
+        }
+        return repo.email || repo.text;
     }
-    return repo.email || repo.text;
-});
+);
 //Father Search
-parentSearch($(".guardian-search"), baseUrl + "/parent/search", null, 'Search for Guardian Email', parentSearchSelect2DesignTemplate, function (repo) {
-    if (!repo.text) {
-        //Remove dynamic jquery validation
-        $(".guardian-search").rules("remove", "email");
-        $(".guardian_image").rules("remove", "required");
-        $('#guardian_first_name').val(repo.first_name).attr('readonly', true);
-        $('#guardian_last_name').val(repo.last_name).attr('readonly', true);
-        $('#guardian_mobile').val(repo.mobile).attr('readonly', true);
-        $('#guardian_occupation').val(repo.occupation).attr('readonly', true);
-        if (repo.gender == 'Male') {
-            $('#guardian_female').removeAttr('checked');
-            $('#guardian_male').attr('checked', 'true');
+parentSearch(
+    $(".guardian-search"),
+    baseUrl + "/parent/search",
+    null,
+    "Search for Guardian Email",
+    parentSearchSelect2DesignTemplate,
+    function (repo) {
+        if (!repo.text) {
+            //Remove dynamic jquery validation
+            $(".guardian-search").rules("remove", "email");
+            $(".guardian_image").rules("remove", "required");
+            $("#guardian_first_name")
+                .val(repo.first_name)
+                .attr("readonly", true);
+            $("#guardian_last_name").val(repo.last_name).attr("readonly", true);
+            $("#guardian_mobile").val(repo.mobile).attr("readonly", true);
+            $("#guardian_occupation")
+                .val(repo.occupation)
+                .attr("readonly", true);
+            if (repo.gender == "Male") {
+                $("#guardian_female").removeAttr("checked");
+                $("#guardian_male").attr("checked", "true");
+            } else {
+                $("#guardian_male").removeAttr("checked");
+                $("#guardian_female").attr("checked", "true");
+            }
+            $("#guardian_dob").val(repo.dob).attr("readonly", true);
+            $("#guardian-image-tag")
+                .attr("src", repo.image)
+                .attr("readonly", true);
+
+            $(".guardian-extra-div").hide();
         } else {
-            $('#guardian_male').removeAttr('checked');
-            $('#guardian_female').attr('checked', 'true');
+            //Add dynamic jquery validation
+            $(".guardian-search").rules("add", {
+                email: true,
+            });
+
+            $(".guardian_image").rules("add", {
+                required: true,
+            });
+            $("#guardian_first_name").val("").attr("readonly", false);
+            $("#guardian_last_name").val("").attr("readonly", false);
+            $("#guardian_mobile").val("").attr("readonly", false);
+            $("#guardian_occupation").val("").attr("readonly", false);
+            $("#guardian_dob").val("").attr("readonly", false);
+            $("#guardian-image-tag").attr("src", "").attr("readonly", false);
+
+            $(".guardian-extra-div").show();
         }
-        $('#guardian_dob').val(repo.dob).attr('readonly', true);
-        $('#guardian-image-tag').attr('src', repo.image).attr('readonly', true);
-
-        $('.guardian-extra-div').hide();
-    } else {
-        //Add dynamic jquery validation
-        $(".guardian-search").rules("add", {
-            email: true,
-        });
-
-        $(".guardian_image").rules("add", {
-            required: true,
-        });
-        $('#guardian_first_name').val('').attr('readonly', false);
-        $('#guardian_last_name').val('').attr('readonly', false);
-        $('#guardian_mobile').val('').attr('readonly', false);
-        $('#guardian_occupation').val('').attr('readonly', false);
-        $('#guardian_dob').val('').attr('readonly', false);
-        $('#guardian-image-tag').attr('src', '').attr('readonly', false);
-
-        $('.guardian-extra-div').show();
+        return repo.email || repo.text;
     }
-    return repo.email || repo.text;
-});
+);
 
-parentSearch($(".edit-father-search"), baseUrl + "/parent/search", { 'type': 'father' }, 'Search for Father Email', parentSearchSelect2DesignTemplate, function (repo) {
-    if (!repo.text) {
-        //Remove dynamic jquery validation
-        $(".edit-father-search").rules("remove", "email");
-        $(".father_image").rules("remove", "required");
-        $('#edit_father_first_name').val(repo.first_name).attr('readonly', true);
-        $('#edit_father_last_name').val(repo.last_name).attr('readonly', true);
-        $('#edit_father_mobile').val(repo.mobile).attr('readonly', true);
-        $('#edit_father_occupation').val(repo.occupation).attr('readonly', true);
-        $('#edit_father_dob').val(repo.dob).attr('readonly', true);
-        $('#edit-father-image-tag').attr('src', repo.image);
-        // } else if (repo.text !== "Search for Father Email") {
-    } else {
-
-        //Add dynamic jquery validation
-        $(".edit-father-search").rules("add", {
-            email: true,
-        });
-
-        $(".father_image").rules("add", {
-            required: true,
-        });
-        $('#edit_father_first_name').val('').attr('readonly', false);
-        $('#edit_father_last_name').val('').attr('readonly', false);
-        $('#edit_father_mobile').val('').attr('readonly', false);
-        $('#edit_father_occupation').val('').attr('readonly', false);
-        $('#edit_father_dob').val('').attr('readonly', false);
-        $('#edit-father-image-tag').attr('src', '');
-    }
-    // }
-    return repo.email || repo.text;
-});
-
-parentSearch($(".edit-mother-search"), baseUrl + "/parent/search", { 'type': 'mother' }, 'Search for Mother Email', parentSearchSelect2DesignTemplate, function (repo) {
-    if (!repo.text) {
-        //Remove dynamic jquery validation
-        $(".edit-mother-search").rules("remove", "email");
-        $(".mother_image").rules("remove", "required");
-        $('#edit_mother_first_name').val(repo.first_name).attr('readonly', true);
-        $('#edit_mother_last_name').val(repo.last_name).attr('readonly', true);
-        $('#edit_mother_mobile').val(repo.mobile).attr('readonly', true);
-        $('#edit_mother_occupation').val(repo.occupation).attr('readonly', true);
-        $('#edit_mother_dob').val(repo.dob).attr('readonly', true);
-        $('#edit-mother-image-tag').attr('src', repo.image);
-    } else {
-        //Add dynamic jquery validation
-        $(".edit-mother-search").rules("add", {
-            email: true,
-        });
-        $(".mother_image").rules("add", {
-            required: true,
-        });
-        $('#edit_mother_first_name').val('').attr('readonly', false);
-        $('#edit_mother_last_name').val('').attr('readonly', false);
-        $('#edit_mother_mobile').val('').attr('readonly', false);
-        $('#edit_mother_occupation').val('').attr('readonly', false);
-        $('#edit_mother_dob').val('').attr('readonly', false);
-        $('#edit-mother-image-tag').attr('src', '');
-    }
-    return repo.email || repo.text;
-});
-
-parentSearch($(".edit-guardian-search"), baseUrl + "/parent/search", null, 'Search for Guardian Email', parentSearchSelect2DesignTemplate, function (repo) {
-    if (!repo.text) {
-        //Remove dynamic jquery validation
-        $(".edit-guardian-search").rules("remove", "email");
-        $(".guardian_image").rules("remove", "required");
-        $('#edit_guardian_first_name').val(repo.first_name).attr('readonly', true);
-        $('#edit_guardian_last_name').val(repo.last_name).attr('readonly', true);
-        if (repo.gender == 'Male') {
-            $('#edit_guardian_female').removeAttr('checked');
-            $('#edit_guardian_male').attr('checked', 'true');
+parentSearch(
+    $(".edit-father-search"),
+    baseUrl + "/parent/search",
+    { type: "father" },
+    "Search for Father Email",
+    parentSearchSelect2DesignTemplate,
+    function (repo) {
+        if (!repo.text) {
+            //Remove dynamic jquery validation
+            $(".edit-father-search").rules("remove", "email");
+            $(".father_image").rules("remove", "required");
+            $("#edit_father_first_name")
+                .val(repo.first_name)
+                .attr("readonly", true);
+            $("#edit_father_last_name")
+                .val(repo.last_name)
+                .attr("readonly", true);
+            $("#edit_father_mobile").val(repo.mobile).attr("readonly", true);
+            $("#edit_father_occupation")
+                .val(repo.occupation)
+                .attr("readonly", true);
+            $("#edit_father_dob").val(repo.dob).attr("readonly", true);
+            $("#edit-father-image-tag").attr("src", repo.image);
+            // } else if (repo.text !== "Search for Father Email") {
         } else {
-            $('#edit_guardian_male').removeAttr('checked');
-            $('#edit_guardian_female').attr('checked', 'true');
+            //Add dynamic jquery validation
+            $(".edit-father-search").rules("add", {
+                email: true,
+            });
+
+            $(".father_image").rules("add", {
+                required: true,
+            });
+            $("#edit_father_first_name").val("").attr("readonly", false);
+            $("#edit_father_last_name").val("").attr("readonly", false);
+            $("#edit_father_mobile").val("").attr("readonly", false);
+            $("#edit_father_occupation").val("").attr("readonly", false);
+            $("#edit_father_dob").val("").attr("readonly", false);
+            $("#edit-father-image-tag").attr("src", "");
         }
-        $('#edit_guardian_mobile').val(repo.mobile).attr('readonly', true);
-        $('#edit_guardian_occupation').val(repo.occupation).attr('readonly', true);
-        $('#edit_guardian_dob').val(repo.dob).attr('readonly', true);
-        $('#edit-guardian-image-tag').attr('src', repo.image).attr('readonly', true);
-    } else {
-        //Add dynamic jquery validation
-        $(".edit-guardian-search").rules("add", {
-            email: true,
-        });
-        $(".guardian_image").rules("add", {
-            required: true,
-        });
-        $('#edit_guardian_first_name').val('').attr('readonly', false);
-        $('#edit_guardian_last_name').val('').attr('readonly', false);
-        $('#edit_guardian_mobile').val('').attr('readonly', false);
-        $('#edit_guardian_occupation').val('').attr('readonly', false);
-        $('#edit_guardian_dob').val('').attr('readonly', false);
-        $('#edit-guardian-image-tag').attr('src', '').attr('readonly', false);
+        // }
+        return repo.email || repo.text;
     }
-    return repo.email || repo.text;
-});
-$(document).on('submit', '.setting-form', function (e) {
+);
+
+parentSearch(
+    $(".edit-mother-search"),
+    baseUrl + "/parent/search",
+    { type: "mother" },
+    "Search for Mother Email",
+    parentSearchSelect2DesignTemplate,
+    function (repo) {
+        if (!repo.text) {
+            //Remove dynamic jquery validation
+            $(".edit-mother-search").rules("remove", "email");
+            $(".mother_image").rules("remove", "required");
+            $("#edit_mother_first_name")
+                .val(repo.first_name)
+                .attr("readonly", true);
+            $("#edit_mother_last_name")
+                .val(repo.last_name)
+                .attr("readonly", true);
+            $("#edit_mother_mobile").val(repo.mobile).attr("readonly", true);
+            $("#edit_mother_occupation")
+                .val(repo.occupation)
+                .attr("readonly", true);
+            $("#edit_mother_dob").val(repo.dob).attr("readonly", true);
+            $("#edit-mother-image-tag").attr("src", repo.image);
+        } else {
+            //Add dynamic jquery validation
+            $(".edit-mother-search").rules("add", {
+                email: true,
+            });
+            $(".mother_image").rules("add", {
+                required: true,
+            });
+            $("#edit_mother_first_name").val("").attr("readonly", false);
+            $("#edit_mother_last_name").val("").attr("readonly", false);
+            $("#edit_mother_mobile").val("").attr("readonly", false);
+            $("#edit_mother_occupation").val("").attr("readonly", false);
+            $("#edit_mother_dob").val("").attr("readonly", false);
+            $("#edit-mother-image-tag").attr("src", "");
+        }
+        return repo.email || repo.text;
+    }
+);
+
+parentSearch(
+    $(".edit-guardian-search"),
+    baseUrl + "/parent/search",
+    null,
+    "Search for Guardian Email",
+    parentSearchSelect2DesignTemplate,
+    function (repo) {
+        if (!repo.text) {
+            //Remove dynamic jquery validation
+            $(".edit-guardian-search").rules("remove", "email");
+            $(".guardian_image").rules("remove", "required");
+            $("#edit_guardian_first_name")
+                .val(repo.first_name)
+                .attr("readonly", true);
+            $("#edit_guardian_last_name")
+                .val(repo.last_name)
+                .attr("readonly", true);
+            if (repo.gender == "Male") {
+                $("#edit_guardian_female").removeAttr("checked");
+                $("#edit_guardian_male").attr("checked", "true");
+            } else {
+                $("#edit_guardian_male").removeAttr("checked");
+                $("#edit_guardian_female").attr("checked", "true");
+            }
+            $("#edit_guardian_mobile").val(repo.mobile).attr("readonly", true);
+            $("#edit_guardian_occupation")
+                .val(repo.occupation)
+                .attr("readonly", true);
+            $("#edit_guardian_dob").val(repo.dob).attr("readonly", true);
+            $("#edit-guardian-image-tag")
+                .attr("src", repo.image)
+                .attr("readonly", true);
+        } else {
+            //Add dynamic jquery validation
+            $(".edit-guardian-search").rules("add", {
+                email: true,
+            });
+            $(".guardian_image").rules("add", {
+                required: true,
+            });
+            $("#edit_guardian_first_name").val("").attr("readonly", false);
+            $("#edit_guardian_last_name").val("").attr("readonly", false);
+            $("#edit_guardian_mobile").val("").attr("readonly", false);
+            $("#edit_guardian_occupation").val("").attr("readonly", false);
+            $("#edit_guardian_dob").val("").attr("readonly", false);
+            $("#edit-guardian-image-tag")
+                .attr("src", "")
+                .attr("readonly", false);
+        }
+        return repo.email || repo.text;
+    }
+);
+$(document).on("submit", ".setting-form", function (e) {
     e.preventDefault();
     var data = new FormData(this);
-    var message = data.get('setting_message');
-    let submitButtonElement = $(this).find(':submit');
-    var type = $('#type').val();
-    var url = $(this).attr('action');
+    var message = data.get("setting_message");
+    let submitButtonElement = $(this).find(":submit");
+    var type = $("#type").val();
+    var url = $(this).attr("action");
     let submitButtonText = submitButtonElement.val();
     $.ajax({
         type: "POST",
         url: url,
         data: { message: message, type: type },
         beforeSend: function () {
-            submitButtonElement.val('Please Wait...').attr('disabled', true);
+            submitButtonElement.val("Please Wait...").attr("disabled", true);
         },
         success: function (response) {
             if (response.error == false) {
                 showSuccessToast(response.message);
-                submitButtonElement.val(submitButtonText).attr('disabled', false);
+                submitButtonElement
+                    .val(submitButtonText)
+                    .attr("disabled", false);
             } else {
                 showErrorToast(response.message);
             }
-        }
-
+        },
     });
 });
 
-$('.general-setting').on('submit', function (e) {
+$(".general-setting").on("submit", function (e) {
     e.preventDefault();
     let formElement = $(this);
-    let submitButtonElement = $(this).find(':submit');
-    let url = $(this).attr('action');
+    let submitButtonElement = $(this).find(":submit");
+    let url = $(this).attr("action");
     let data = new FormData(this);
 
     function successCallback() {
         setTimeout(function () {
             location.reload();
-        }, 3000)
+        }, 3000);
     }
 
-    formAjaxRequest('POST', url, data, formElement, submitButtonElement, successCallback);
+    formAjaxRequest(
+        "POST",
+        url,
+        data,
+        formElement,
+        submitButtonElement,
+        successCallback
+    );
 });
 
-$('#timetable_class_section').on('change', function () {
+$("#timetable_class_section").on("change", function () {
     if ($(this).val() !== "") {
-        $('#timetable-div').removeClass('d-none');
+        $("#timetable-div").removeClass("d-none");
     } else {
-        $('#timetable-div').addClass('d-none');
+        $("#timetable-div").addClass("d-none");
     }
 });
 
-
-$('.assign_student_class').on('submit', function (e) {
+$(".assign_student_class").on("submit", function (e) {
     e.preventDefault();
     let formElement = $(this);
-    let submitButtonElement = $(this).find(':submit');
-    let url = $(this).attr('action');
+    let submitButtonElement = $(this).find(":submit");
+    let url = $(this).attr("action");
     let data = new FormData(this);
 
     function successCallback() {
         formElement[0].reset();
-        $('#assign_table_list').bootstrapTable('refresh');
+        $("#assign_table_list").bootstrapTable("refresh");
     }
 
-    formAjaxRequest('POST', url, data, formElement, submitButtonElement, successCallback);
-})
-$('.class_section_id').on('change', function () {
+    formAjaxRequest(
+        "POST",
+        url,
+        data,
+        formElement,
+        submitButtonElement,
+        successCallback
+    );
+});
+$(".class_section_id").on("change", function () {
     // let class_id = $(this).find(':selected').data('class');
     let class_section_id = $(this).val();
-    let url = baseUrl + '/subject-by-class-section';
+    let url = baseUrl + "/subject-by-class-section";
     let data = { class_section_id: class_section_id };
 
     function successCallback(response) {
         if (response.length > 0) {
-            let html = '';
-            html += '<option>--Select Subject--</option>';
+            let html = "";
+            html += "<option>--Select Subject--</option>";
             $.each(response, function (key, value) {
-                html += '<option value="' + value.subject_id + '">' + value.subject.name + ' - ' + value.subject.type + '</option>'
+                html +=
+                    '<option value="' +
+                    value.subject_id +
+                    '">' +
+                    value.subject.name +
+                    " - " +
+                    value.subject.type +
+                    "</option>";
             });
-            $('.subject_id').html(html);
+            $(".subject_id").html(html);
         } else {
-            $('.subject_id').html("<option value=''>--No data Found--</option>>");
+            $(".subject_id").html(
+                "<option value=''>--No data Found--</option>>"
+            );
         }
     }
 
-    ajaxRequest('GET', url, data, null, successCallback, null, null, true)
-})
+    ajaxRequest("GET", url, data, null, successCallback, null, null, true);
+});
 
-$('#edit_class_section_id').on('change', function (e, subject_id) {
+$("#edit_class_section_id").on("change", function (e, subject_id) {
     // let class_id = $(this).find(':selected').data('class');
     let class_section_id = $(this).val();
-    let url = baseUrl + '/subject-by-class-section';
+    let url = baseUrl + "/subject-by-class-section";
     let data = { class_section_id: class_section_id };
 
     function successCallback(response) {
         if (response.length > 0) {
-            let html = '';
+            let html = "";
             $.each(response, function (key, value) {
-                html += '<option value="' + value.subject_id + '">' + value.subject.name + ' - ' + value.subject.type + '</option>'
+                html +=
+                    '<option value="' +
+                    value.subject_id +
+                    '">' +
+                    value.subject.name +
+                    " - " +
+                    value.subject.type +
+                    "</option>";
             });
-            $('#edit_subject_id').html(html);
+            $("#edit_subject_id").html(html);
             if (subject_id) {
-                $('#edit_subject_id').val(subject_id);
+                $("#edit_subject_id").val(subject_id);
             }
         } else {
-            $('#edit_subject_id').html("<option value=''>--No data Found--</option>>");
+            $("#edit_subject_id").html(
+                "<option value=''>--No data Found--</option>>"
+            );
         }
     }
 
-    ajaxRequest('GET', url, data, null, successCallback, null, null, true)
-})
+    ajaxRequest("GET", url, data, null, successCallback, null, null, true);
+});
 
-$(document).on('change', '.timetable_start_time', function () {
+$(document).on("change", ".timetable_start_time", function () {
     let $this = $(this);
-    let end_time = $(this).parent().siblings().children('.timetable_end_time');
+    let end_time = $(this).parent().siblings().children(".timetable_end_time");
     $(end_time).rules("add", {
         timeGreaterThan: $this,
     });
-})
+});
 
-$('#system-update').on('submit', function (e) {
+$("#system-update").on("submit", function (e) {
     e.preventDefault();
     let formElement = $(this);
-    let submitButtonElement = $(this).find(':submit');
-    let url = $(this).attr('action');
+    let submitButtonElement = $(this).find(":submit");
+    let url = $(this).attr("action");
     let data = new FormData(this);
 
     function successCallback() {
         setTimeout(function () {
             window.location.reload();
-        }, 1000)
+        }, 1000);
     }
 
-    formAjaxRequest('POST', url, data, formElement, submitButtonElement, successCallback);
-})
+    formAjaxRequest(
+        "POST",
+        url,
+        data,
+        formElement,
+        submitButtonElement,
+        successCallback
+    );
+});
 
 $("#create-form-bulk-data").submit(function (e) {
     e.preventDefault();
     let formElement = $(this);
-    let submitButtonElement = $(this).find(':submit');
-    let url = $(this).attr('action');
+    let submitButtonElement = $(this).find(":submit");
+    let url = $(this).attr("action");
     let data = new FormData(this);
 
     function successCallback(response) {
         formElement[0].reset();
     }
-    function errorCallback(response) {
-    }
+    function errorCallback(response) {}
 
-    formAjaxRequest('POST', url, data, formElement, submitButtonElement, successCallback, errorCallback);
+    formAjaxRequest(
+        "POST",
+        url,
+        data,
+        formElement,
+        submitButtonElement,
+        successCallback,
+        errorCallback
+    );
 });
 
-
 // get classes on Drop down exam changes
-$('#exam_options').on('change', function () {
+$("#exam_options").on("change", function () {
     let exam_id = $(this).val();
-    let url = baseUrl + '/exam/get-classes/' + exam_id;
+    let url = baseUrl + "/exam/get-classes/" + exam_id;
     $.ajax({
         type: "get",
         url: url,
         success: function (response) {
-            let html = ""
+            let html = "";
             if (response.data.length > 0) {
                 html += "<option value=''>--- Select ---</option>";
                 $.each(response.data, function (key, data) {
-                    html += "<option value='" + data.class_id + "'>" + data.class.name + ' ' + data.class.medium.name + ' ' + data.class.streams.name + "</option>";
+                    html +=
+                        "<option value='" +
+                        data.class_id +
+                        "'>" +
+                        data.class.name +
+                        " " +
+                        data.class.medium.name +
+                        " " +
+                        data.class.streams.name +
+                        "</option>";
                 });
             } else {
                 html = "<option value=''>No Data Found</option>";
             }
-            $('#exam_classes_options').html(html);
-        }
+            $("#exam_classes_options").html(html);
+        },
     });
 });
 
 // get Subjects on Drop down classes changes
-$('#exam_classes_options').on('change', function () {
+$("#exam_classes_options").on("change", function () {
     let class_id = $(this).val();
-    let url = baseUrl + '/exam/get-subjects/' + class_id;
+    let url = baseUrl + "/exam/get-subjects/" + class_id;
     $.ajax({
         type: "get",
         url: url,
         success: function (response) {
-            let html = ""
+            let html = "";
             html += "<option value=''>--- Select ---</option>";
             if (response.data.length > 0) {
                 $.each(response.data, function (key, data) {
-                    html += "<option value='" + data.subject.id + "'>" + data.subject.name + ' (' + data.subject.type + ')' + "</option>";
+                    html +=
+                        "<option value='" +
+                        data.subject.id +
+                        "'>" +
+                        data.subject.name +
+                        " (" +
+                        data.subject.type +
+                        ")" +
+                        "</option>";
                 });
             } else {
                 html = "<option value=''>No Data Found</option>";
             }
-            $('.exam_subjects_options').html(html);
-        }
+            $(".exam_subjects_options").html(html);
+        },
     });
 });
 
-
 // add more subject in create exam timetable
-$(document).on('click', '.add-exam-timetable-content', function (e) {
+$(document).on("click", ".add-exam-timetable-content", function (e) {
     e.preventDefault();
-    let html = $('.exam_timetable_content:last').clone();
-    html.find('.error').remove();
-    html.find('.has-danger').removeClass('has-danger');
+    let html = $(".exam_timetable_content:last").clone();
+    html.find(".error").remove();
+    html.find(".has-danger").removeClass("has-danger");
     // This function will replace the last index value and increment in the multidimensional name attribute
-    html.find('.form-control').each(function (key, element) {
+    html.find(".form-control").each(function (key, element) {
         this.name = this.name.replace(/\[(\d+)\]/, function (str, p1) {
-            return '[' + (parseInt(p1, 10) + 1) + ']';
+            return "[" + (parseInt(p1, 10) + 1) + "]";
         });
-    })
-    html.find('.add-exam-timetable-content i').addClass('fa-times').removeClass('fa-plus');
-    html.find('.add-exam-timetable-content').addClass('btn-inverse-danger remove-exam-timetable-content').removeClass('btn-inverse-success add-exam-timetable');
-    $(this).parent().parent().parent().siblings('.extra-timetable').append(html);
-    html.find('.form-control').val('');
+    });
+    html.find(".add-exam-timetable-content i")
+        .addClass("fa-times")
+        .removeClass("fa-plus");
+    html.find(".add-exam-timetable-content")
+        .addClass("btn-inverse-danger remove-exam-timetable-content")
+        .removeClass("btn-inverse-success add-exam-timetable");
+    $(this)
+        .parent()
+        .parent()
+        .parent()
+        .siblings(".extra-timetable")
+        .append(html);
+    html.find(".form-control").val("");
 });
 
 // remove more subject in create exam timetable
-$(document).on('click', '.remove-exam-timetable-content', function (e) {
+$(document).on("click", ".remove-exam-timetable-content", function (e) {
     e.preventDefault();
     $(this).parent().parent().parent().remove();
 });
 
-$(".exam_class_filter").find("select").change(function () {
-    $table.bootstrapTable("refreshOptions", {
-        exportDataType: $(this).val()
+$(".exam_class_filter")
+    .find("select")
+    .change(function () {
+        $table.bootstrapTable("refreshOptions", {
+            exportDataType: $(this).val(),
+        });
     });
-});
 
-$("#edit_class_id").on('change', function () {
-    let data = $(this).find(':selected').data("medium");
-    let url = baseUrl + "/class-subject-list/" + data
+$("#edit_class_id").on("change", function () {
+    let data = $(this).find(":selected").data("medium");
+    let url = baseUrl + "/class-subject-list/" + data;
     $.ajax({
         type: "GET",
         url: url,
         success: function (response) {
-            let html = ""
+            let html = "";
             if (response.data.length > 0) {
                 response.data.forEach(function (data) {
-                    html += "<option value='" + data.id + "'>" + data.name + "</option>";
-                })
+                    html +=
+                        "<option value='" +
+                        data.id +
+                        "'>" +
+                        data.name +
+                        "</option>";
+                });
             } else {
                 html = "<option value=''>No Data Found</option>";
             }
-            $('.core-subject-id').html(html);
-            $('.elective-subject-name').html(html)
-        }
+            $(".core-subject-id").html(html);
+            $(".elective-subject-name").html(html);
+        },
     });
 });
 
 // According to Conditions Show the Button of Adding new row
 function checkAddNewRowBtn() {
-    if ($('.grade_content').find('.ending_range').length) {
+    if ($(".grade_content").find(".ending_range").length) {
         let chk_max = $(this).val();
-        if (chk_max < 100 && chk_max != '') {
-            $('.add-grade-content').prop('disabled', false);
+        if (chk_max < 100 && chk_max != "") {
+            $(".add-grade-content").prop("disabled", false);
         } else {
-            $('.add-grade-content').prop('disabled', true);
+            $(".add-grade-content").prop("disabled", true);
         }
-        $('.ending_range:last').keyup(function (e) {
+        $(".ending_range:last").keyup(function (e) {
             let chk_max = $(this).val();
-            if (chk_max < 100 && chk_max != '') {
-                $('.add-grade-content').prop('disabled', false);
+            if (chk_max < 100 && chk_max != "") {
+                $(".add-grade-content").prop("disabled", false);
             } else {
-                $('.add-grade-content').prop('disabled', true);
+                $(".add-grade-content").prop("disabled", true);
             }
         });
-
     } else {
-        $('.add-grade-content').prop('disabled', false);
+        $(".add-grade-content").prop("disabled", false);
     }
 }
 
 checkAddNewRowBtn();
 
 // create grade ajax
-$('#create-grades').on('submit', function (e) {
+$("#create-grades").on("submit", function (e) {
     e.preventDefault();
     let formElement = $(this);
-    let submitButtonElement = $(this).find(':submit');
-    let url = $(this).attr('action');
+    let submitButtonElement = $(this).find(":submit");
+    let url = $(this).attr("action");
     let data = new FormData(this);
 
     function successCallback() {
-        setTimeout(function() {
+        setTimeout(function () {
             location.reload();
         }, 1000);
         checkAddNewRowBtn(); // calling the function of adding new row btn
     }
 
-    formAjaxRequest('POST', url, data, formElement, submitButtonElement, successCallback);
-})
-$('.remove-grades').hide();
-$('.grade_content:last').find('.remove-grades').show();
-let value = parseInt($('.grade_content:last').find('.ending_range').val());
+    formAjaxRequest(
+        "POST",
+        url,
+        data,
+        formElement,
+        submitButtonElement,
+        successCallback
+    );
+});
+$(".remove-grades").hide();
+$(".grade_content:last").find(".remove-grades").show();
+let value = parseInt($(".grade_content:last").find(".ending_range").val());
 if (value >= 100) {
-    $('.add-grade-content').prop('disabled', true);
+    $(".add-grade-content").prop("disabled", true);
 } else {
-    $('.add-grade-content').prop('disabled', false);
+    $(".add-grade-content").prop("disabled", false);
 }
 //adding new row for grade
-$(document).on('click', '.add-grade-content', function (e) {
+$(document).on("click", ".add-grade-content", function (e) {
     e.preventDefault();
-    let value = parseFloat($('.grade_content:last').find('.ending_range').val());
+    let value = parseFloat(
+        $(".grade_content:last").find(".ending_range").val()
+    );
     if (value) {
         value = value + 1;
     } else {
         value = 0;
     }
-    let html = $('.grade_content:last').clone();
-    $('.grade_content:last').find('.remove-grades').hide();
-    html.find('.error').remove();
-    html.find('.temp_starting_range').removeClass('temp_starting_range').addClass('starting_range');
-    html.find('.temp_ending_range').removeClass('temp_ending_range').addClass('ending_range');
-    html.find('.temp_grade').removeClass('temp_grade').addClass('grade');
-    html.css('display', 'block');
-    html.find('.has-danger').removeClass('has-danger');
-    html.find('.hidden').remove();
-    html.find(".remove-grades").removeAttr('data-id');
+    let html = $(".grade_content:last").clone();
+    $(".grade_content:last").find(".remove-grades").hide();
+    html.find(".error").remove();
+    html.find(".temp_starting_range")
+        .removeClass("temp_starting_range")
+        .addClass("starting_range");
+    html.find(".temp_ending_range")
+        .removeClass("temp_ending_range")
+        .addClass("ending_range");
+    html.find(".temp_grade").removeClass("temp_grade").addClass("grade");
+    html.css("display", "block");
+    html.find(".has-danger").removeClass("has-danger");
+    html.find(".hidden").remove();
+    html.find(".remove-grades").removeAttr("data-id");
     // This function will replace the last index value and increment in the multidimensional name attribute
-    $(this).parent().siblings('.extra-grade-content').append(html);
-    $('.add-grade-content').prop('disabled', true);
-    html.find('.starting_range').val('')
-    html.find('.ending_range').val('');
-    html.find('.grade').val('');
-    html.find('input').each(function (key, element) {
+    $(this).parent().siblings(".extra-grade-content").append(html);
+    $(".add-grade-content").prop("disabled", true);
+    html.find(".starting_range").val("");
+    html.find(".ending_range").val("");
+    html.find(".grade").val("");
+    html.find("input").each(function (key, element) {
         this.name = this.name.replace(/\[(\d+)\]/, function (str, p1) {
-            return '[' + (parseInt(p1, 10) + 1) + ']';
+            return "[" + (parseInt(p1, 10) + 1) + "]";
         });
-    })
-    let increment_stating_range = html.find('.starting_range').val(value);
-    increment_stating_range.attr('min', value);
+    });
+    let increment_stating_range = html.find(".starting_range").val(value);
+    increment_stating_range.attr("min", value);
     let min_attr = parseInt(increment_stating_range.attr("min"));
     increment_stating_range.keyup(function () {
         if ($(this).val()) {
             if ($(this).val() < min_attr) {
-                $('.add-grade-content').prop('disabled', true);
+                $(".add-grade-content").prop("disabled", true);
             }
         } else {
-            $('.add-grade-content').prop('disabled', true);
+            $(".add-grade-content").prop("disabled", true);
         }
     });
 
-    let ending_range = html.find('.ending_range');
-    ending_range.attr('max', 100);
+    let ending_range = html.find(".ending_range");
+    ending_range.attr("max", 100);
     ending_range.keyup(function () {
         if ($(this).val()) {
             if ($(this).val() <= min_attr) {
-                $('.add-grade-content').prop('disabled', true);
+                $(".add-grade-content").prop("disabled", true);
             } else {
                 if ($(this).val() < 100) {
-                    $('.add-grade-content').prop('disabled', false);
+                    $(".add-grade-content").prop("disabled", false);
                 } else {
-                    $('.add-grade-content').prop('disabled', true);
+                    $(".add-grade-content").prop("disabled", true);
                 }
             }
         } else {
-            $('.add-grade-content').prop('disabled', true);
+            $(".add-grade-content").prop("disabled", true);
         }
     });
 });
 // remove more grade in create grade
-$(document).on('click', '.remove-grades', function (e) {
+$(document).on("click", ".remove-grades", function (e) {
     e.preventDefault();
     let $this = $(this);
-    if ($(this).data('id')) {
+    if ($(this).data("id")) {
         Swal.fire({
-            title: 'Are you sure?',
+            title: "Are you sure?",
             text: "You won't be able to revert this!",
-            icon: 'warning',
+            icon: "warning",
             showCancelButton: true,
-            confirmButtonColor: '#3085d6',
-            cancelButtonColor: '#d33',
-            confirmButtonText: 'Yes, delete it!'
+            confirmButtonColor: "#3085d6",
+            cancelButtonColor: "#d33",
+            confirmButtonText: "Yes, delete it!",
         }).then((result) => {
             if (result.isConfirmed) {
-                let id = $this.data('id');
-                let url = baseUrl + '/destroy-grades/' + id;
+                let id = $this.data("id");
+                let url = baseUrl + "/destroy-grades/" + id;
 
                 let data = new FormData();
                 data.append("_method", "DELETE");
-                data.append("_token", $("meta[name=csrf-token]").attr("content"));
+                data.append(
+                    "_token",
+                    $("meta[name=csrf-token]").attr("content")
+                );
 
                 function successCallback() {
                     $this.parent().parent().remove();
@@ -1514,65 +1840,86 @@ $(document).on('click', '.remove-grades', function (e) {
                     showErrorToast(response.message);
                 }
 
-                ajaxRequest('POST', url, data, null, successCallback, errorCallback);
+                ajaxRequest(
+                    "POST",
+                    url,
+                    data,
+                    null,
+                    successCallback,
+                    errorCallback
+                );
             }
-        })
+        });
     } else {
         $(this).parent().parent().parent().remove();
-        $('.grade_content:last').find('.remove-grades').show();
-        let last_ending_val = $('.grade_content:last').find('.ending_range').val();
-        if (last_ending_val >= 100 && last_ending_val == '') {
-            $('.add-grade-content').prop('disabled', true);
+        $(".grade_content:last").find(".remove-grades").show();
+        let last_ending_val = $(".grade_content:last")
+            .find(".ending_range")
+            .val();
+        if (last_ending_val >= 100 && last_ending_val == "") {
+            $(".add-grade-content").prop("disabled", true);
         } else {
-            $('.add-grade-content').prop('disabled', false);
+            $(".add-grade-content").prop("disabled", false);
         }
-        $('.ending_range:last').keyup(function (e) {
+        $(".ending_range:last").keyup(function (e) {
             let chk_max = $(this).val();
-            if (chk_max < 100 && chk_max != '') {
-                $('.add-grade-content').prop('disabled', false);
+            if (chk_max < 100 && chk_max != "") {
+                $(".add-grade-content").prop("disabled", false);
             } else {
-                $('.add-grade-content').prop('disabled', true);
+                $(".add-grade-content").prop("disabled", true);
             }
         });
     }
 });
 
-
-$('.assign_subject_teacher').on('submit', function (e) {
+$(".assign_subject_teacher").on("submit", function (e) {
     e.preventDefault();
     let formElement = $(this);
-    let submitButtonElement = $(this).find(':submit');
-    let url = $(this).attr('action');
+    let submitButtonElement = $(this).find(":submit");
+    let url = $(this).attr("action");
     let data = new FormData(this);
 
     function successCallback() {
         formElement[0].reset();
-        $('.select2-selection__rendered').html('');
-        $('#table_list').bootstrapTable('refresh');
+        $(".select2-selection__rendered").html("");
+        $("#table_list").bootstrapTable("refresh");
     }
 
-    formAjaxRequest('POST', url, data, formElement, submitButtonElement, successCallback);
-})
-$('#student-registration-form').on('submit', function (e) {
+    formAjaxRequest(
+        "POST",
+        url,
+        data,
+        formElement,
+        submitButtonElement,
+        successCallback
+    );
+});
+$("#student-registration-form").on("submit", function (e) {
     e.preventDefault();
     let formElement = $(this);
-    let submitButtonElement = $(this).find(':submit');
-    let url = $(this).attr('action');
+    let submitButtonElement = $(this).find(":submit");
+    let url = $(this).attr("action");
     let data = new FormData(this);
 
     function successCallback() {
         window.location.reload();
     }
 
-    formAjaxRequest('POST', url, data, formElement, submitButtonElement, successCallback);
-})
-$('#admin-profile-update').on('submit', function (e) {
+    formAjaxRequest(
+        "POST",
+        url,
+        data,
+        formElement,
+        submitButtonElement,
+        successCallback
+    );
+});
+$("#admin-profile-update").on("submit", function (e) {
     e.preventDefault();
     let formElement = $(this);
-    let submitButtonElement = $(this).find(':submit');
-    let url = $(this).attr('action');
+    let submitButtonElement = $(this).find(":submit");
+    let url = $(this).attr("action");
     let data = new FormData(this);
-
 
     function successCallback() {
         setTimeout(() => {
@@ -1580,30 +1927,42 @@ $('#admin-profile-update').on('submit', function (e) {
         }, 3000);
     }
 
-    formAjaxRequest('POST', url, data, formElement, submitButtonElement, successCallback);
-})
-$('.edit_exam_result_marks_form').on('submit', function (e) {
+    formAjaxRequest(
+        "POST",
+        url,
+        data,
+        formElement,
+        submitButtonElement,
+        successCallback
+    );
+});
+$(".edit_exam_result_marks_form").on("submit", function (e) {
     e.preventDefault();
     let formElement = $(this);
-    let submitButtonElement = $(this).find(':submit');
-    let url = $(this).attr('action');
+    let submitButtonElement = $(this).find(":submit");
+    let url = $(this).attr("action");
     let data = new FormData(this);
-
 
     function successCallback() {
-        $('#editModal').modal('hide');
-        $('#table_list').bootstrapTable('refresh');
+        $("#editModal").modal("hide");
+        $("#table_list").bootstrapTable("refresh");
     }
 
-    formAjaxRequest('POST', url, data, formElement, submitButtonElement, successCallback);
-})
-$('.create_exam_timetable_form').on('submit', function (e) {
+    formAjaxRequest(
+        "POST",
+        url,
+        data,
+        formElement,
+        submitButtonElement,
+        successCallback
+    );
+});
+$(".create_exam_timetable_form").on("submit", function (e) {
     e.preventDefault();
     let formElement = $(this);
-    let submitButtonElement = $(this).find(':submit');
-    let url = $(this).attr('action');
+    let submitButtonElement = $(this).find(":submit");
+    let url = $(this).attr("action");
     let data = new FormData(this);
-
 
     function successCallback() {
         setTimeout(() => {
@@ -1611,54 +1970,71 @@ $('.create_exam_timetable_form').on('submit', function (e) {
         }, 3000);
     }
 
-    formAjaxRequest('POST', url, data, formElement, submitButtonElement, successCallback);
-})
-$('.add-new-timetable-data').click(function (e) {
+    formAjaxRequest(
+        "POST",
+        url,
+        data,
+        formElement,
+        submitButtonElement,
+        successCallback
+    );
+});
+$(".add-new-timetable-data").click(function (e) {
     e.preventDefault();
     let html;
-    if (!$('.edit-timetable-container:last').is(':empty')) {
-        html = $('.edit-timetable-container').find('.edit_exam_timetable:last').clone();
+    if (!$(".edit-timetable-container:last").is(":empty")) {
+        html = $(".edit-timetable-container")
+            .find(".edit_exam_timetable:last")
+            .clone();
     } else {
-        html = $('.edit_exam_timetable_tamplate').clone();
+        html = $(".edit_exam_timetable_tamplate").clone();
     }
-    html.css('display', 'block');
-    html.find('.error').remove();
-    html.removeClass('edit_exam_timetable_tamplate').addClass('edit_exam_timetable');
-    html.find('.has-danger').removeClass('has-danger');
-    html.find('.remove-edit-exam-timetable-content').removeAttr('data-timetable_id');
+    html.css("display", "block");
+    html.find(".error").remove();
+    html.removeClass("edit_exam_timetable_tamplate").addClass(
+        "edit_exam_timetable"
+    );
+    html.find(".has-danger").removeClass("has-danger");
+    html.find(".remove-edit-exam-timetable-content").removeAttr(
+        "data-timetable_id"
+    );
     // This function will replace the last index value and increment in the multidimensional name attribute
-    html.find('.form-control').each(function (key, element) {
+    html.find(".form-control").each(function (key, element) {
         this.name = this.name.replace(/\[(\d+)\]/, function (str, p1) {
-            return '[' + (parseInt(p1, 10) + 1) + ']';
+            return "[" + (parseInt(p1, 10) + 1) + "]";
         });
-    })
-    $(this).parent().siblings('.edit-timetable-container').append(html);
-    html.find('.form-control').val('');
-
+    });
+    $(this).parent().siblings(".edit-timetable-container").append(html);
+    html.find(".form-control").val("");
 });
 
-$('.edit-form-timetable').on('submit', function (e) {
+$(".edit-form-timetable").on("submit", function (e) {
     e.preventDefault();
     let formElement = $(this);
-    let submitButtonElement = $(this).find(':submit');
-    let url = $(this).attr('action');
+    let submitButtonElement = $(this).find(":submit");
+    let url = $(this).attr("action");
     let data = new FormData(this);
-
 
     function successCallback() {
-        $('#editModal').modal('hide');
-        $('#table_list').bootstrapTable('refresh');
+        $("#editModal").modal("hide");
+        $("#table_list").bootstrapTable("refresh");
     }
 
-    formAjaxRequest('POST', url, data, formElement, submitButtonElement, successCallback);
-})
-$('.verify_email').on('submit', function (e) {
+    formAjaxRequest(
+        "POST",
+        url,
+        data,
+        formElement,
+        submitButtonElement,
+        successCallback
+    );
+});
+$(".verify_email").on("submit", function (e) {
     e.preventDefault();
     let formElement = $(this);
-    let submitButtonElement = $(this).find(':submit');
-    let url = $(this).attr('action');
+    let submitButtonElement = $(this).find(":submit");
+    let url = $(this).attr("action");
     let data = new FormData(this);
-
 
     function successCallback() {
         setTimeout(() => {
@@ -1666,198 +2042,248 @@ $('.verify_email').on('submit', function (e) {
         }, 3000);
     }
 
-    formAjaxRequest('POST', url, data, formElement, submitButtonElement, successCallback);
+    formAjaxRequest(
+        "POST",
+        url,
+        data,
+        formElement,
+        submitButtonElement,
+        successCallback
+    );
 });
-$('.subject_id').on('change', function () {
+$(".subject_id").on("change", function () {
     // let class_id = $(this).find(':selected').data('class');
-    let class_section_id = $('.class_section_id').val();
+    let class_section_id = $(".class_section_id").val();
     let subject_id = $(this).val();
-    let url = baseUrl + '/teacher-by-class-subject';
+    let url = baseUrl + "/teacher-by-class-subject";
     let data = {
         class_section_id: class_section_id,
-        subject_id: subject_id
+        subject_id: subject_id,
     };
-
 
     function successCallback(response) {
         if (response.length > 0) {
-            let html = '';
+            let html = "";
             $.each(response, function (key, value) {
-                html += '<option value="' + value.id + '">' + value.user.first_name + ' ' + value.user.last_name + '</option>'
+                html +=
+                    '<option value="' +
+                    value.id +
+                    '">' +
+                    value.user.first_name +
+                    " " +
+                    value.user.last_name +
+                    "</option>";
             });
-            $('#teacher_id').html(html);
+            $("#teacher_id").html(html);
         } else {
-            $('#teacher_id').html("<option value=''>--No data Found--</option>>");
+            $("#teacher_id").html(
+                "<option value=''>--No data Found--</option>>"
+            );
         }
     }
 
-    ajaxRequest('GET', url, data, null, successCallback, null, null, true)
-})
-$('#edit_subject_id').on('change', function () {
-
-    let edit_id = $('#id').val();
-    let class_section_id = $('#edit_class_section_id').val();
+    ajaxRequest("GET", url, data, null, successCallback, null, null, true);
+});
+$("#edit_subject_id").on("change", function () {
+    let edit_id = $("#id").val();
+    let class_section_id = $("#edit_class_section_id").val();
     let subject_id = $(this).val();
-    let url = baseUrl + '/teacher-by-class-subject';
+    let url = baseUrl + "/teacher-by-class-subject";
     let data = {
         edit_id: edit_id,
         class_section_id: class_section_id,
-        subject_id: subject_id
+        subject_id: subject_id,
     };
     function successCallback(response) {
         if (response.length > 0) {
-            let html = '';
+            let html = "";
             $.each(response, function (key, value) {
-                html += '<option value="' + value.id + '">' + value.user.first_name + ' ' + value.user.last_name + '</option>'
+                html +=
+                    '<option value="' +
+                    value.id +
+                    '">' +
+                    value.user.first_name +
+                    " " +
+                    value.user.last_name +
+                    "</option>";
             });
-            $('#edit_teacher_id').html(html);
+            $("#edit_teacher_id").html(html);
         } else {
-            $('#edit_teacher_id').html("<option value=''>--No data Found--</option>>");
+            $("#edit_teacher_id").html(
+                "<option value=''>--No data Found--</option>>"
+            );
         }
     }
 
-    ajaxRequest('GET', url, data, null, successCallback, null, null, true)
-})
-$('.add-new-fees-type').on('click', function (e) {
+    ajaxRequest("GET", url, data, null, successCallback, null, null, true);
+});
+$(".add-new-fees-type").on("click", function (e) {
     e.preventDefault();
-    let html = ''
-    if ($('.edit-extra-fees-types').find('.template_fees_type:last').html()) {
-        html = $('.edit-extra-fees-types').find('.template_fees_type:last').clone();
-        html.find('.form-control').each(function (key, element) {
+    let html = "";
+    if ($(".edit-extra-fees-types").find(".template_fees_type:last").html()) {
+        html = $(".edit-extra-fees-types")
+            .find(".template_fees_type:last")
+            .clone();
+        html.find(".form-control").each(function (key, element) {
             this.name = this.name.replace(/\[(\d+)\]/, function (str, p1) {
-                return '[' + (parseInt(p1, 10) + 1) + ']';
+                return "[" + (parseInt(p1, 10) + 1) + "]";
             });
             this.id = this.id.replace(/\_(\d+)/, function (str, p1) {
-                return '_' + (parseInt(p1, 10) + 1);
+                return "_" + (parseInt(p1, 10) + 1);
             });
-            $(element).attr('disabled', false);
-        })
+            $(element).attr("disabled", false);
+        });
     } else {
-        html = $('.template_fees_type').clone().show();
+        html = $(".template_fees_type").clone().show();
     }
-    html.find('select').siblings('.error').remove();
-    html.find('.add-fees-type i').addClass('fa-times').removeClass('fa-plus');
-    html.find('.add-fees-type').addClass('btn-inverse-danger remove-fees-type').removeClass('btn-inverse-success add-fees-type');
-    $('.edit-extra-fees-types').append(html);
+    html.find("select").siblings(".error").remove();
+    html.find(".add-fees-type i").addClass("fa-times").removeClass("fa-plus");
+    html.find(".add-fees-type")
+        .addClass("btn-inverse-danger remove-fees-type")
+        .removeClass("btn-inverse-success add-fees-type");
+    $(".edit-extra-fees-types").append(html);
 });
 
-$('#fees-class-create-form').on('submit', function (e) {
+$("#fees-class-create-form").on("submit", function (e) {
     e.preventDefault();
     let formElement = $(this);
-    let submitButtonElement = $(this).find(':submit');
-    let url = $(this).attr('action');
+    let submitButtonElement = $(this).find(":submit");
+    let url = $(this).attr("action");
     let data = new FormData(this);
 
     function successCallback() {
         setTimeout(function () {
-            $('#editModal').modal('hide');
-        }, 1000)
-        $('#table_list').bootstrapTable('refresh');
+            $("#editModal").modal("hide");
+        }, 1000);
+        $("#table_list").bootstrapTable("refresh");
     }
 
-    formAjaxRequest('POST', url, data, formElement, submitButtonElement, successCallback);
+    formAjaxRequest(
+        "POST",
+        url,
+        data,
+        formElement,
+        submitButtonElement,
+        successCallback
+    );
 });
-$(document).on('click', '.remove-fees-type', function (e) {
+$(document).on("click", ".remove-fees-type", function (e) {
     e.preventDefault();
     // let $this = $(this);
-    if ($(this).data('id')) {
+    if ($(this).data("id")) {
         Swal.fire({
-            title: 'Are you sure?',
+            title: "Are you sure?",
             text: "You won't be able to revert this!",
-            icon: 'warning',
+            icon: "warning",
             showCancelButton: true,
-            confirmButtonColor: '#3085d6',
-            cancelButtonColor: '#d33',
-            confirmButtonText: 'Yes, delete it!'
+            confirmButtonColor: "#3085d6",
+            cancelButtonColor: "#d33",
+            confirmButtonText: "Yes, delete it!",
         }).then((result) => {
             if (result.isConfirmed) {
-                let id = $(this).data('id');
-                let url = baseUrl + '/class/fees-type/' + id;
+                let id = $(this).data("id");
+                let url = baseUrl + "/class/fees-type/" + id;
 
                 let data = new FormData();
                 data.append("_method", "DELETE");
-                data.append("_token", $("meta[name=csrf-token]").attr("content"));
+                data.append(
+                    "_token",
+                    $("meta[name=csrf-token]").attr("content")
+                );
 
                 function successCallback(response) {
-                    showSuccessToast(response['message']);
+                    showSuccessToast(response["message"]);
                     setTimeout(function () {
-                        $('#editModal').modal('hide');
-                    }, 1000)
-                    $('#table_list').bootstrapTable('refresh');
+                        $("#editModal").modal("hide");
+                    }, 1000);
+                    $("#table_list").bootstrapTable("refresh");
                     $(this).parent().parent().remove();
                 }
                 function errorCallback(response) {
-                    showErrorToast(response['message']);
+                    showErrorToast(response["message"]);
                 }
 
-                ajaxRequest('POST', url, data, null, successCallback, errorCallback);
+                ajaxRequest(
+                    "POST",
+                    url,
+                    data,
+                    null,
+                    successCallback,
+                    errorCallback
+                );
             }
-        })
+        });
     } else {
         $(this).parent().parent().remove();
     }
 });
 
-$('.mode').on('change', function (e) {
+$(".mode").on("change", function (e) {
     e.preventDefault();
     let mode_val = $(this).val();
     if (mode_val == 1) {
-        $('.cheque_no_container').show(200);
+        $(".cheque_no_container").show(200);
     } else {
-        $('.cheque_no_container').hide(200);
+        $(".cheque_no_container").hide(200);
     }
 });
-$('.pay_student_fees_offline').on('submit', function (e) {
+$(".pay_student_fees_offline").on("submit", function (e) {
     e.preventDefault();
     let formElement = $(this);
-    let submitButtonElement = $(this).find(':submit');
-    let url = $(this).attr('action');
+    let submitButtonElement = $(this).find(":submit");
+    let url = $(this).attr("action");
     let data = new FormData(this);
 
-
     function successCallback() {
-        $('#editModal').modal('hide');
-        $('.cheque_no_container').hide();
+        $("#editModal").modal("hide");
+        $(".cheque_no_container").hide();
         formElement[0].reset();
-        $('#table_list').bootstrapTable('refresh');
+        $("#table_list").bootstrapTable("refresh");
     }
 
-    formAjaxRequest('POST', url, data, formElement, submitButtonElement, successCallback);
-})
-$('.edit_mode').on('change', function (e) {
+    formAjaxRequest(
+        "POST",
+        url,
+        data,
+        formElement,
+        submitButtonElement,
+        successCallback
+    );
+});
+$(".edit_mode").on("change", function (e) {
     e.preventDefault();
     let mode_val = $(this).val();
     if (mode_val == 1) {
-        $('.edit_cheque_no_container').show(200);
+        $(".edit_cheque_no_container").show(200);
     } else {
-        $('.edit_cheque_no_container').hide(200);
+        $(".edit_cheque_no_container").hide(200);
     }
 });
-$(document).on('click', '.remove-paid-choiceable-fees', function (e) {
+$(document).on("click", ".remove-paid-choiceable-fees", function (e) {
     e.preventDefault();
     Swal.fire({
-        title: 'Are you sure?',
+        title: "Are you sure?",
         text: "You won't be able to revert this!",
-        icon: 'warning',
+        icon: "warning",
         showCancelButton: true,
-        confirmButtonColor: '#3085d6',
-        cancelButtonColor: '#d33',
-        confirmButtonText: 'Yes, delete it!'
+        confirmButtonColor: "#3085d6",
+        cancelButtonColor: "#d33",
+        confirmButtonText: "Yes, delete it!",
     }).then((result) => {
         if (result.isConfirmed) {
             let amount = $(this).data("amount");
             let id = $(this).data("id");
-            let url = baseUrl + '/fees/paid/remove-choiceable-fees/' + id;
-            
+            let url = baseUrl + "/fees/paid/remove-choiceable-fees/" + id;
+
             let data = new FormData();
             data.append("_method", "DELETE");
             data.append("_token", $("meta[name=csrf-token]").attr("content"));
 
             function successCallback(response) {
-                $('#table_list').bootstrapTable('refresh');
+                $("#table_list").bootstrapTable("refresh");
                 setTimeout(function () {
-                    $('#editFeesPaidModal').modal('hide');
-                }, 1000)
+                    $("#editFeesPaidModal").modal("hide");
+                }, 1000);
                 showSuccessToast(response.message);
             }
 
@@ -1865,16 +2291,23 @@ $(document).on('click', '.remove-paid-choiceable-fees', function (e) {
                 showErrorToast(response.message);
             }
 
-            ajaxRequest('POST', url, data, null, successCallback, errorCallback);
+            ajaxRequest(
+                "POST",
+                url,
+                data,
+                null,
+                successCallback,
+                errorCallback
+            );
         }
-    })
+    });
 });
 
-$('#create-fees-config-form').on('submit', function (e) {
+$("#create-fees-config-form").on("submit", function (e) {
     e.preventDefault();
     let formElement = $(this);
-    let submitButtonElement = $(this).find(':submit');
-    let url = $(this).attr('action');
+    let submitButtonElement = $(this).find(":submit");
+    let url = $(this).attr("action");
     let data = new FormData(this);
 
     function successCallback() {
@@ -1883,268 +2316,396 @@ $('#create-fees-config-form').on('submit', function (e) {
         }, 3000);
     }
 
-    formAjaxRequest('POST', url, data, formElement, submitButtonElement, successCallback);
-})
-$('#edit-fees-paid-form').on('submit', function (e) {
+    formAjaxRequest(
+        "POST",
+        url,
+        data,
+        formElement,
+        submitButtonElement,
+        successCallback
+    );
+});
+$("#edit-fees-paid-form").on("submit", function (e) {
     e.preventDefault();
     let formElement = $(this);
-    let submitButtonElement = $(this).find(':submit');
+    let submitButtonElement = $(this).find(":submit");
     let data = new FormData(this);
     data.append("_method", "PUT");
-    let url = $(this).attr('action') + "/" + data.get('edit_id');
+    let url = $(this).attr("action") + "/" + data.get("edit_id");
 
     function successCallback(response) {
-        $('#table_list').bootstrapTable('refresh');
+        $("#table_list").bootstrapTable("refresh");
         setTimeout(function () {
-            $('#editFeesPaidModal').modal('hide');
-        }, 1000)
+            $("#editFeesPaidModal").modal("hide");
+        }, 1000);
     }
 
-    formAjaxRequest('POST', url, data, formElement, submitButtonElement, successCallback);
-})
-$('#class_timetable_class_section').on('change', function (e) {
-    $('.list_buttons').show(200);
+    formAjaxRequest(
+        "POST",
+        url,
+        data,
+        formElement,
+        submitButtonElement,
+        successCallback
+    );
+});
+$("#class_timetable_class_section").on("change", function (e) {
+    $(".list_buttons").show(200);
     var class_section_id = $(this).val();
     // var class_id = $(this).find(':selected').attr('data-class');
     // var section_id = $(this).find(':selected').attr('data-section');
-    $('.set_timetable').html('');
+    $(".set_timetable").html("");
     $.ajax({
-        url: baseUrl + '/gettimetablebyclass',
+        url: baseUrl + "/gettimetablebyclass",
         type: "GET",
         data: { class_section_id: class_section_id },
         success: function (response) {
-            var html = '';
-            if (response['days'].length) {
-                $('.warning_no_data').hide(300);
-                for (let i = 0; i < response['days'].length; i++) {
-                    html += '<div class="col-lg-4 col-xl-4 col-xxl-2 col-md-4 col-sm-12 col-12 project-grid">';
+            var html = "";
+            if (response["days"].length) {
+                $(".warning_no_data").hide(300);
+                for (let i = 0; i < response["days"].length; i++) {
+                    html +=
+                        '<div class="col-lg-4 col-xl-4 col-xxl-2 col-md-4 col-sm-12 col-12 project-grid">';
                     html += '<div class="project-grid-inner">';
                     html += '<div class="wrapper bg-light">';
-                    html += '<h5 class="card-header header-sm bg-secondary">' + response['days'][i]['day_name'].charAt(0).toUpperCase() + response['days'][i]['day_name'].slice(1) + '</h5>';
-                    for (let j = 0; j < response['timetable'].length; j++) {
-                        if (response['days'][i]['day'] == response['timetable'][j]['day']) {
-                            html += '<p class="timetable-body p-3">'
-                                + response['timetable'][j]['subject_teacher']['subject']['name'] + ' - ' + response['timetable'][j]['subject_teacher']['subject']['type']
-                                + '<br>' + response['timetable'][j]['subject_teacher']['teacher']['user']['first_name'] + ' ' + response['timetable'][j]['subject_teacher']['teacher']['user']['last_name']
-                                + '<br>start time: ' + response['timetable'][j]['start_time'] + '<br>end time: '
-                                + response['timetable'][j]['end_time'] + '</p><hr>';
-
+                    html +=
+                        '<h5 class="card-header header-sm bg-secondary">' +
+                        response["days"][i]["day_name"]
+                            .charAt(0)
+                            .toUpperCase() +
+                        response["days"][i]["day_name"].slice(1) +
+                        "</h5>";
+                    for (let j = 0; j < response["timetable"].length; j++) {
+                        if (
+                            response["days"][i]["day"] ==
+                            response["timetable"][j]["day"]
+                        ) {
+                            html +=
+                                '<p class="timetable-body p-3">' +
+                                response["timetable"][j]["subject_teacher"][
+                                    "subject"
+                                ]["name"] +
+                                " - " +
+                                response["timetable"][j]["subject_teacher"][
+                                    "subject"
+                                ]["type"] +
+                                "<br>" +
+                                response["timetable"][j]["subject_teacher"][
+                                    "teacher"
+                                ]["user"]["first_name"] +
+                                " " +
+                                response["timetable"][j]["subject_teacher"][
+                                    "teacher"
+                                ]["user"]["last_name"] +
+                                "<br>start time: " +
+                                response["timetable"][j]["start_time"] +
+                                "<br>end time: " +
+                                response["timetable"][j]["end_time"] +
+                                "</p><hr>";
                         }
                     }
-                    html += '</div>';
-                    html += '</div>';
-                    html += '</div>';
-                    $('.set_timetable').html(html);
+                    html += "</div>";
+                    html += "</div>";
+                    html += "</div>";
+                    $(".set_timetable").html(html);
                 }
             } else {
-                $('.warning_no_data').show(300);
-                $('.table_content').hide();
+                $(".warning_no_data").show(300);
+                $(".table_content").hide();
             }
-        }
-    })
+        },
+    });
 });
 
-$('#teacher_timetable_class_section').on('change', function (e) {
+$("#teacher_timetable_class_section").on("change", function (e) {
     var class_section_id = $(this).val();
-    var class_id = $(this).find(':selected').attr('data-class');
-    var section_id = $(this).find(':selected').attr('data-section');
-    $('.set_timetable').html('');
+    var class_id = $(this).find(":selected").attr("data-class");
+    var section_id = $(this).find(":selected").attr("data-section");
+    $(".set_timetable").html("");
     $.ajax({
         url: baseUrl + "/get-timetable-by-subject-teacher-class",
         type: "GET",
         data: { class_section_id: class_section_id, class_id: class_id },
         success: function (response) {
-            if (response['days'].length) {
-                $('.warning_no_data').hide(300);
-                var html = '';
-                let counter = 0
-                for (let i = 0; i < response['days'].length; i++) {
-                    html += '<div class="col-lg-4 col-xl-4 col-xxl-2 col-md-4 col-sm-12 col-12 project-grid">';
+            if (response["days"].length) {
+                $(".warning_no_data").hide(300);
+                var html = "";
+                let counter = 0;
+                for (let i = 0; i < response["days"].length; i++) {
+                    html +=
+                        '<div class="col-lg-4 col-xl-4 col-xxl-2 col-md-4 col-sm-12 col-12 project-grid">';
                     html += '<div class="project-grid-inner">';
                     html += '<div class="wrapper bg-light">';
-                    html += '<h5 class="card-header header-sm bg-secondary">' + response['days'][i]['day_name'].charAt(0).toUpperCase() + response['days'][i]['day_name'].slice(1) + '</h5>';
-                    for (let j = 0; j < response['timetable'].length; j++) {
-                        if (response['days'][i]['day'] == response['timetable'][j]['day']) {
-                            html += '<p class="timetable-body p-3">'
-                                + response['timetable'][j]['class_section']['class']['name'] + ' - ' + response['timetable'][j]['class_section']['section']['name']
-                                + '<br>' + response['timetable'][j]['subject_teacher']['subject']['name'] + ' - ' + response['timetable'][j]['subject_teacher']['subject']['type']
-                                + '<br>start time: ' + response['timetable'][j]['start_time'] + '<br>end time: '
-                                + response['timetable'][j]['end_time'] + '</p><hr>';
-
+                    html +=
+                        '<h5 class="card-header header-sm bg-secondary">' +
+                        response["days"][i]["day_name"]
+                            .charAt(0)
+                            .toUpperCase() +
+                        response["days"][i]["day_name"].slice(1) +
+                        "</h5>";
+                    for (let j = 0; j < response["timetable"].length; j++) {
+                        if (
+                            response["days"][i]["day"] ==
+                            response["timetable"][j]["day"]
+                        ) {
+                            html +=
+                                '<p class="timetable-body p-3">' +
+                                response["timetable"][j]["class_section"][
+                                    "class"
+                                ]["name"] +
+                                " - " +
+                                response["timetable"][j]["class_section"][
+                                    "section"
+                                ]["name"] +
+                                "<br>" +
+                                response["timetable"][j]["subject_teacher"][
+                                    "subject"
+                                ]["name"] +
+                                " - " +
+                                response["timetable"][j]["subject_teacher"][
+                                    "subject"
+                                ]["type"] +
+                                "<br>start time: " +
+                                response["timetable"][j]["start_time"] +
+                                "<br>end time: " +
+                                response["timetable"][j]["end_time"] +
+                                "</p><hr>";
                         }
                     }
-                    html += '</div>';
-                    html += '</div>';
-                    html += '</div>';
-                    $('.set_timetable').html(html);
+                    html += "</div>";
+                    html += "</div>";
+                    html += "</div>";
+                    $(".set_timetable").html(html);
                 }
             } else {
-                $('.warning_no_data').show(300);
+                $(".warning_no_data").show(300);
             }
-        }
-    })
+        },
+    });
 });
 
-$('#teacher_timetable_teacher_id').on('change', function (e) {
+$("#teacher_timetable_teacher_id").on("change", function (e) {
     var teacher_id = $(this).val();
-    $('.set_timetable').html('');
+    $(".set_timetable").html("");
     $.ajax({
         url: baseUrl + "/gettimetablebyteacher",
         type: "GET",
         data: {
-            teacher_id: teacher_id
+            teacher_id: teacher_id,
         },
         success: function (response) {
-            var html = '';
+            var html = "";
             let counter = 0;
-            for (let n = 0; n < response['days'].length; n++) {
-                for (let i = 0; i < response['days'][n].length; i++) {
+            for (let n = 0; n < response["days"].length; n++) {
+                for (let i = 0; i < response["days"][n].length; i++) {
                     counter += 1;
-                    html += '<div class="col-lg-4 col-xl-4 col-xxl-2 col-md-4 col-sm-12 col-12 project-grid">';
+                    html +=
+                        '<div class="col-lg-4 col-xl-4 col-xxl-2 col-md-4 col-sm-12 col-12 project-grid">';
                     html += '<div class="project-grid-inner">';
                     html += '<div class="wrapper bg-light">';
-                    html += '<h5 class="card-header header-sm bg-secondary">' + response['days'][n][i]['day_name'].charAt(0).toUpperCase() + response['days'][n][i]['day_name'].slice(1) + '</h5>';
-                    for (let m = 0; m < response['timetable'].length; m++) {
-                        if (response['timetable'][m] != '') {
-                            for (let j = 0; j < response['timetable'][m].length; j++) {
-                                if (response['days'][n][i]['day'] == response['timetable'][m][j]['day']) {
-                                    html += '<p class="timetable-body p-3">' + response['timetable'][m][j]['class_section']['class']['name'] +
-                                        ' - ' + response['timetable'][m][j]['class_section']['section']['name'] +
-                                        '<br>' + response['timetable'][m][j]['subject_teacher']['subject']['name'] + '-' + response['timetable'][m][j]['subject_teacher']['subject']['type'] +
-                                        '<br>start time: ' + response['timetable'][m][j]['start_time'] +
-                                        '<br>end time: ' + response['timetable'][m][j]['end_time'] + '</p><hr>';
+                    html +=
+                        '<h5 class="card-header header-sm bg-secondary">' +
+                        response["days"][n][i]["day_name"]
+                            .charAt(0)
+                            .toUpperCase() +
+                        response["days"][n][i]["day_name"].slice(1) +
+                        "</h5>";
+                    for (let m = 0; m < response["timetable"].length; m++) {
+                        if (response["timetable"][m] != "") {
+                            for (
+                                let j = 0;
+                                j < response["timetable"][m].length;
+                                j++
+                            ) {
+                                if (
+                                    response["days"][n][i]["day"] ==
+                                    response["timetable"][m][j]["day"]
+                                ) {
+                                    html +=
+                                        '<p class="timetable-body p-3">' +
+                                        response["timetable"][m][j][
+                                            "class_section"
+                                        ]["class"]["name"] +
+                                        " - " +
+                                        response["timetable"][m][j][
+                                            "class_section"
+                                        ]["section"]["name"] +
+                                        "<br>" +
+                                        response["timetable"][m][j][
+                                            "subject_teacher"
+                                        ]["subject"]["name"] +
+                                        "-" +
+                                        response["timetable"][m][j][
+                                            "subject_teacher"
+                                        ]["subject"]["type"] +
+                                        "<br>start time: " +
+                                        response["timetable"][m][j][
+                                            "start_time"
+                                        ] +
+                                        "<br>end time: " +
+                                        response["timetable"][m][j][
+                                            "end_time"
+                                        ] +
+                                        "</p><hr>";
                                 }
                             }
                         }
                     }
-                    html += '</div>';
-                    html += '</div>';
-                    html += '</div>';
-                    $('.set_timetable').html(html);
+                    html += "</div>";
+                    html += "</div>";
+                    html += "</div>";
+                    $(".set_timetable").html(html);
                 }
             }
             if (counter != 0) {
-                $('.warning_no_data').hide(300);
+                $(".warning_no_data").hide(300);
             } else {
-                $('.warning_no_data').show(300);
+                $(".warning_no_data").show(300);
             }
-        }
-    })
+        },
+    });
 });
-$('#razorpay_status').on('change', function (e) {
+$("#razorpay_status").on("change", function (e) {
     e.preventDefault();
     if ($(this).val() == 1) {
-        $('#stripe_status').val(0);
-        $('#paystack_status').val(0);
+        $("#stripe_status").val(0);
+        $("#paystack_status").val(0);
     }
 });
-$('#stripe_status').on('change', function (e) {
+$("#stripe_status").on("change", function (e) {
     e.preventDefault();
     if ($(this).val() == 1) {
-        $('#razorpay_status').val(0);
-        $('#paystack_status').val(0);
+        $("#razorpay_status").val(0);
+        $("#paystack_status").val(0);
     }
 });
-$('#paystack_status').on('change', function (e) {
+$("#paystack_status").on("change", function (e) {
     e.preventDefault();
     if ($(this).val() == 1) {
-        $('#razorpay_status').val(0);
-        $('#stripe_status').val(0);
+        $("#razorpay_status").val(0);
+        $("#stripe_status").val(0);
     }
 });
-$('#assign-roll-no-form').on('submit', function (e) {
+$("#assign-roll-no-form").on("submit", function (e) {
     e.preventDefault();
     Swal.fire({
         title: lang_delete_title,
         text: lang_delete_warning,
-        icon: 'warning',
+        icon: "warning",
         showCancelButton: true,
-        confirmButtonColor: '#3085d6',
-        cancelButtonColor: '#d33',
-        confirmButtonText: lang_yes_change_it
+        confirmButtonColor: "#3085d6",
+        cancelButtonColor: "#d33",
+        confirmButtonText: lang_yes_change_it,
     }).then((result) => {
         if (result.isConfirmed) {
             let formElement = $(this);
-            let submitButtonElement = $(this).find(':submit');
-            let url = $(this).attr('action');
+            let submitButtonElement = $(this).find(":submit");
+            let url = $(this).attr("action");
             let data = new FormData(this);
 
             function successCallback() {
-                $('#table_list').bootstrapTable('refresh');
+                $("#table_list").bootstrapTable("refresh");
             }
 
-            formAjaxRequest('POST', url, data, formElement, submitButtonElement, successCallback);
+            formAjaxRequest(
+                "POST",
+                url,
+                data,
+                formElement,
+                submitButtonElement,
+                successCallback
+            );
         }
-    })
-})
-$('.online-exam-class-section-id').on('change', function (e) {
+    });
+});
+$(".online-exam-class-section-id").on("change", function (e) {
     e.preventDefault();
-    let url = baseUrl + '/get-subject-online-exam';
+    let url = baseUrl + "/get-subject-online-exam";
     let data = {
-        'based_on': 1,
-        'class_section_id': $(this).val()
+        based_on: 1,
+        class_section_id: $(this).val(),
     };
 
     function successCallback(response) {
-        let html = ""
+        let html = "";
         if (response.data.length) {
-            html += "<option value=''>-- " + lang_select_subject + " --</option>"
+            html +=
+                "<option value=''>-- " + lang_select_subject + " --</option>";
             response.data.forEach(function (data) {
-                html += "<option value='" + data.id + "'>" + data.name + ' - ' + data.type + "</option>";
-            })
+                html +=
+                    "<option value='" +
+                    data.id +
+                    "'>" +
+                    data.name +
+                    " - " +
+                    data.type +
+                    "</option>";
+            });
         } else {
             html = "<option value=''>" + lang_no_data_found + "</option>";
         }
-        $('.online-exam-subject-id').html(html);
+        $(".online-exam-subject-id").html(html);
     }
 
-    ajaxRequest('GET', url, data, null, successCallback, null, null, true);
-})
-$('#add-new-option').on('click', function (e) {
+    ajaxRequest("GET", url, data, null, successCallback, null, null, true);
+});
+$("#add-new-option").on("click", function (e) {
     e.preventDefault();
-    let html = $('.option-container').find('.form-group:last').clone();
-    html.find('.add-question-option').val('');
-    html.find('.error').remove();
-    html.find('.has-danger').removeClass('has-danger');
-    $('.remove-option-content').css('display', 'none');
-    html.addClass('quation-option-extra');
+    let html = $(".option-container").find(".form-group:last").clone();
+    html.find(".add-question-option").val("");
+    html.find(".error").remove();
+    html.find(".has-danger").removeClass("has-danger");
+    $(".remove-option-content").css("display", "none");
+    html.addClass("quation-option-extra");
 
     // html.removeClass('col-md-6').addClass('col-md-5');
     // This function will increment in the label option number
-    let inner_html = html.find('.option-number:last').html();
-    html.find('.option-number:last').each(function (key, element) {
+    let inner_html = html.find(".option-number:last").html();
+    html.find(".option-number:last").each(function (key, element) {
         inner_html = inner_html.replace(/(\d+)/, function (str, p1) {
-            return (parseInt(p1, 10) + 1);
+            return parseInt(p1, 10) + 1;
         });
-    })
-    html.find('.option-number:last').html(inner_html)
+    });
+    html.find(".option-number:last").html(inner_html);
 
     // This function will replace the last index value and increment in the multidimensional name attribute
-    html.find(':input').each(function (key, element) {
+    html.find(":input").each(function (key, element) {
         this.name = this.name.replace(/\[(\d+)\]/, function (str, p1) {
-            return '[' + (parseInt(p1, 10) + 1) + ']';
+            return "[" + (parseInt(p1, 10) + 1) + "]";
         });
-    })
-    html.find('.remove-option-content').html('<button class="btn btn-inverse-danger remove-option btn-sm mt-1" type="button"><i class="fa fa-times"></i></button>')
-    $('.option-container').append(html)
+    });
+    html.find(".remove-option-content").html(
+        '<button class="btn btn-inverse-danger remove-option btn-sm mt-1" type="button"><i class="fa fa-times"></i></button>'
+    );
+    $(".option-container").append(html);
 
-    let select_answer_option = '<option value=' + inner_html + ' class="answer_option extra_answers_options">' + lang_option + ' ' + inner_html + '</option>'
-    $('#answer_select').append(select_answer_option)
+    let select_answer_option =
+        "<option value=" +
+        inner_html +
+        ' class="answer_option extra_answers_options">' +
+        lang_option +
+        " " +
+        inner_html +
+        "</option>";
+    $("#answer_select").append(select_answer_option);
 });
-$(document).on('click', '.remove-option', function (e) {
+$(document).on("click", ".remove-option", function (e) {
     e.preventDefault();
     $(this).parent().parent().remove();
-    $('.option-container').find('.form-group:last').find('.remove-option-content').css('display', 'block');
-    $('#answer_select').find('.answer_option:last').remove();
-})
-$('#create-online-exam-questions-form').on('submit', function (e) {
+    $(".option-container")
+        .find(".form-group:last")
+        .find(".remove-option-content")
+        .css("display", "block");
+    $("#answer_select").find(".answer_option:last").remove();
+});
+$("#create-online-exam-questions-form").on("submit", function (e) {
     e.preventDefault();
     for (var equation_editor in CKEDITOR.instances) {
         CKEDITOR.instances[equation_editor].updateElement();
     }
     let formElement = $(this);
-    let submitButtonElement = $(this).find(':submit');
-    let url = $(this).attr('action');
+    let submitButtonElement = $(this).find(":submit");
+    let url = $(this).attr("action");
     let data = new FormData(this);
 
     function successCallback() {
@@ -2153,169 +2714,226 @@ $('#create-online-exam-questions-form').on('submit', function (e) {
         }, 3000);
     }
 
-    formAjaxRequest('POST', url, data, formElement, submitButtonElement, successCallback);
-})
-$('.question_type').on('change', function (e) {
-    $('.quation-option-extra').remove();
-    $('#answer_select').val(null).trigger("change");
+    formAjaxRequest(
+        "POST",
+        url,
+        data,
+        formElement,
+        submitButtonElement,
+        successCallback
+    );
+});
+$(".question_type").on("change", function (e) {
+    $(".quation-option-extra").remove();
+    $("#answer_select").val(null).trigger("change");
     if ($(this).val() == 1) {
-        $('#simple-question').hide();
-        $('#equation-question').show(500);
+        $("#simple-question").hide();
+        $("#equation-question").show(500);
     } else {
-        $('#simple-question').show(500);
-        $('#equation-question').hide();
+        $("#simple-question").show(500);
+        $("#equation-question").hide();
     }
-})
-$('#add-new-eqation-option').on('click', function (e) {
+});
+$("#add-new-eqation-option").on("click", function (e) {
     e.preventDefault();
-    let html = $('.equation-option-container').find('.quation-option-template:last').clone();
-    html.find('.error').remove();
-    html.find('.has-danger').removeClass('has-danger');
-    $('.remove-equation-option-content').css('display', 'none');
+    let html = $(".equation-option-container")
+        .find(".quation-option-template:last")
+        .clone();
+    html.find(".error").remove();
+    html.find(".has-danger").removeClass("has-danger");
+    $(".remove-equation-option-content").css("display", "none");
 
     // html.removeClass('col-md-6').addClass('col-md-5');
     // This function will increment in the label equation-option-number
-    let inner_html = html.find('.equation-option-number:last').html();
-    html.find('.equation-option-number:last').each(function (key, element) {
+    let inner_html = html.find(".equation-option-number:last").html();
+    html.find(".equation-option-number:last").each(function (key, element) {
         inner_html = inner_html.replace(/(\d+)/, function (str, p1) {
-            return (parseInt(p1, 10) + 1);
+            return parseInt(p1, 10) + 1;
         });
-    })
+    });
 
     // This function will replace the last index value and increment in the multidimensional name attribute
     let name;
-    html.find(':input').each(function (key, element) {
+    html.find(":input").each(function (key, element) {
         this.name = this.name.replace(/\[(\d+)\]/, function (str, p1) {
-            name = '[' + (parseInt(p1, 10) + 1) + ']';
+            name = "[" + (parseInt(p1, 10) + 1) + "]";
             return name;
         });
-    })
-
-    let option_html = '<div class="form-group col-md-6 equation-editor-options-extra quation-option-template"><label>' + lang_option + ' <span class="equation-option-number">' + inner_html + '</span> <span class="text-danger">*</span></label><textarea class="editor_options" name="eoption' + name + '" placeholder="' + lang_select_option + '"></textarea><div class="remove-equation-option-content"><button class="btn btn-inverse-danger remove-equation-option btn-sm mt-1" type="button"><i class="fa fa-times"></i></button></div></div>'
-    $('.equation-option-container').append(option_html).ready(function () {
-        createCkeditor();
     });
-    let select_answer_option = '<option value=' + inner_html + ' class="answer_option extra_answers_options">' + lang_option + ' ' + inner_html + '</option>'
-    $('#answer_select').append(select_answer_option)
+
+    let option_html =
+        '<div class="form-group col-md-6 equation-editor-options-extra quation-option-template"><label>' +
+        lang_option +
+        ' <span class="equation-option-number">' +
+        inner_html +
+        '</span> <span class="text-danger">*</span></label><textarea class="editor_options" name="eoption' +
+        name +
+        '" placeholder="' +
+        lang_select_option +
+        '"></textarea><div class="remove-equation-option-content"><button class="btn btn-inverse-danger remove-equation-option btn-sm mt-1" type="button"><i class="fa fa-times"></i></button></div></div>';
+    $(".equation-option-container")
+        .append(option_html)
+        .ready(function () {
+            createCkeditor();
+        });
+    let select_answer_option =
+        "<option value=" +
+        inner_html +
+        ' class="answer_option extra_answers_options">' +
+        lang_option +
+        " " +
+        inner_html +
+        "</option>";
+    $("#answer_select").append(select_answer_option);
 });
-$(document).on('click', '.remove-equation-option', function (e) {
+$(document).on("click", ".remove-equation-option", function (e) {
     e.preventDefault();
     $(this).parent().parent().remove();
-    $('.equation-option-container').find('.form-group:last').find('.remove-equation-option-content').css('display', 'block');
-    $('#answer_select').find('.answer_option:last').remove();
-})
+    $(".equation-option-container")
+        .find(".form-group:last")
+        .find(".remove-equation-option-content")
+        .css("display", "block");
+    $("#answer_select").find(".answer_option:last").remove();
+});
 
-$('.edit-question-type').on('change', function (e) {
+$(".edit-question-type").on("change", function (e) {
     if ($(this).val() == 1) {
-        $('#edit-simple-question-content').hide();
-        $('#edit-equation-question-content').show(500);
+        $("#edit-simple-question-content").hide();
+        $("#edit-equation-question-content").show(500);
     } else {
-        $('#edit-simple-question-content').show(500);
-        $('#edit-equation-question-content').hide();
+        $("#edit-simple-question-content").show(500);
+        $("#edit-equation-question-content").hide();
     }
-})
-$(document).on('click', '.add-new-edit-option', function (e) {
+});
+$(document).on("click", ".add-new-edit-option", function (e) {
     e.preventDefault();
-    let html = $('.edit_option_container').find('.form-group:last').clone();
-    html.find('.add-edit-question-option').val('');
-    html.find('.error').remove();
-    html.find('.has-danger').removeClass('has-danger');
-    html.find('.edit_option_id').val('')
-    let hide_button = {}
-    hide_button = $('.remove-edit-option-content:last').find('.remove-edit-option')
-    if (hide_button.data('id')) {
-        $('.remove-edit-option-content:last').css('display', 'block');
+    let html = $(".edit_option_container").find(".form-group:last").clone();
+    html.find(".add-edit-question-option").val("");
+    html.find(".error").remove();
+    html.find(".has-danger").removeClass("has-danger");
+    html.find(".edit_option_id").val("");
+    let hide_button = {};
+    hide_button = $(".remove-edit-option-content:last").find(
+        ".remove-edit-option"
+    );
+    if (hide_button.data("id")) {
+        $(".remove-edit-option-content:last").css("display", "block");
     } else {
-        $('.remove-edit-option-content:last').css('display', 'none');
+        $(".remove-edit-option-content:last").css("display", "none");
     }
 
     // This function will increment in the label option number
-    let inner_html = html.find('.edit-option-number:last').html();
-    html.find('.edit-option-number:last').each(function (key, element) {
+    let inner_html = html.find(".edit-option-number:last").html();
+    html.find(".edit-option-number:last").each(function (key, element) {
         inner_html = inner_html.replace(/(\d+)/, function (str, p1) {
-            return (parseInt(p1, 10) + 1);
+            return parseInt(p1, 10) + 1;
         });
-    })
-    html.find('.edit-option-number:last').html(inner_html)
+    });
+    html.find(".edit-option-number:last").html(inner_html);
 
     // This function will replace the last index value and increment in the multidimensional name attribute
-    html.find(':input').each(function (key, element) {
+    html.find(":input").each(function (key, element) {
         this.name = this.name.replace(/\[(\d+)\]/, function (str, p1) {
-            return '[' + (parseInt(p1, 10) + 1) + ']';
+            return "[" + (parseInt(p1, 10) + 1) + "]";
         });
-    })
-    html.find('.remove-edit-option-content').html('<button class="btn btn-inverse-danger remove-edit-option btn-sm mt-1" type="button"><i class="fa fa-times"></i></button>')
-    $('.edit_option_container').append(html)
+    });
+    html.find(".remove-edit-option-content").html(
+        '<button class="btn btn-inverse-danger remove-edit-option btn-sm mt-1" type="button"><i class="fa fa-times"></i></button>'
+    );
+    $(".edit_option_container").append(html);
 
-    let select_answer_option = '<option value="new' + $.trim(inner_html) + '" class="edit_answer_option">' + lang_option + ' ' + inner_html + '</option>'
-    $('.edit_answer_select').append(select_answer_option)
+    let select_answer_option =
+        '<option value="new' +
+        $.trim(inner_html) +
+        '" class="edit_answer_option">' +
+        lang_option +
+        " " +
+        inner_html +
+        "</option>";
+    $(".edit_answer_select").append(select_answer_option);
 });
-$(document).on('click', '.remove-edit-option', function (e) {
+$(document).on("click", ".remove-edit-option", function (e) {
     e.preventDefault();
-    if ($(this).data('id')) {
+    if ($(this).data("id")) {
         Swal.fire({
             title: lang_delete_title,
             text: lang_delete_warning,
-            icon: 'warning',
+            icon: "warning",
             showCancelButton: true,
-            confirmButtonColor: '#3085d6',
-            cancelButtonColor: '#d33',
-            confirmButtonText: lang_yes_delete
+            confirmButtonColor: "#3085d6",
+            cancelButtonColor: "#d33",
+            confirmButtonText: lang_yes_delete,
         }).then((result) => {
             if (result.isConfirmed) {
-                let id = $(this).data('id');
-                let url = baseUrl + '/online-exam-question/remove-option/' + id;
+                let id = $(this).data("id");
+                let url = baseUrl + "/online-exam-question/remove-option/" + id;
 
                 let data = new FormData();
                 data.append("_method", "DELETE");
-                data.append("_token", $("meta[name=csrf-token]").attr("content"));
+                data.append(
+                    "_token",
+                    $("meta[name=csrf-token]").attr("content")
+                );
 
                 function successCallback(response) {
-                    $('#editModal').modal('hide');
+                    $("#editModal").modal("hide");
                     setTimeout(function () {
-                        $('#table_list_questions').bootstrapTable('refresh');
-                    }, 500)
+                        $("#table_list_questions").bootstrapTable("refresh");
+                    }, 500);
                     showSuccessToast(response.message);
                 }
 
                 function errorCallback(response) {
                     showErrorToast(response.message);
                 }
-                
-                ajaxRequest('POST', url, data, null, successCallback, errorCallback);
+
+                ajaxRequest(
+                    "POST",
+                    url,
+                    data,
+                    null,
+                    successCallback,
+                    errorCallback
+                );
             }
-        })
+        });
     } else {
         $(this).parent().parent().remove();
-        $('.edit_answer_select').find('.edit_answer_option:last').remove();
-        $('.edit_option_container').find('.form-group:last').find('.remove-edit-option-content').css('display', 'block');
-        $('.edit_eoption_container').find('.form-group:last').find('.remove-edit-option-content').css('display', 'block');
+        $(".edit_answer_select").find(".edit_answer_option:last").remove();
+        $(".edit_option_container")
+            .find(".form-group:last")
+            .find(".remove-edit-option-content")
+            .css("display", "block");
+        $(".edit_eoption_container")
+            .find(".form-group:last")
+            .find(".remove-edit-option-content")
+            .css("display", "block");
     }
 });
 
-$(document).on('click', '.remove-answers', function (e) {
+$(document).on("click", ".remove-answers", function (e) {
     e.preventDefault();
     Swal.fire({
         title: lang_delete_title,
         text: lang_delete_warning,
-        icon: 'warning',
+        icon: "warning",
         showCancelButton: true,
-        confirmButtonColor: '#3085d6',
-        cancelButtonColor: '#d33',
-        confirmButtonText: lang_yes_delete
+        confirmButtonColor: "#3085d6",
+        cancelButtonColor: "#d33",
+        confirmButtonText: lang_yes_delete,
     }).then((result) => {
         if (result.isConfirmed) {
-            let id = $(this).data('id');
-            let url = baseUrl + '/online-exam-question/remove-answer/' + id;
+            let id = $(this).data("id");
+            let url = baseUrl + "/online-exam-question/remove-answer/" + id;
 
             let data = new FormData();
             data.append("_method", "DELETE");
             data.append("_token", $("meta[name=csrf-token]").attr("content"));
 
             function successCallback(response) {
-                $('#editModal').modal('hide');
+                $("#editModal").modal("hide");
                 setTimeout(function () {
-                    $('#table_list_questions').bootstrapTable('refresh');
+                    $("#table_list_questions").bootstrapTable("refresh");
                 }, 500);
                 showSuccessToast(response.message);
             }
@@ -2324,53 +2942,64 @@ $(document).on('click', '.remove-answers', function (e) {
                 showErrorToast(response.message);
             }
 
-            ajaxRequest('POST', url, data, null, successCallback, errorCallback);
+            ajaxRequest(
+                "POST",
+                url,
+                data,
+                null,
+                successCallback,
+                errorCallback
+            );
         }
     });
 });
 
-$('#add-new-question-online-exam').on('submit', function (e) {
+$("#add-new-question-online-exam").on("submit", function (e) {
     e.preventDefault();
     for (var equation_editor in CKEDITOR.instances) {
         CKEDITOR.instances[equation_editor].updateElement();
     }
     let formElement = $(this);
-    let submitButtonElement = $(this).find(':submit');
-    let url = $(this).attr('action');
+    let submitButtonElement = $(this).find(":submit");
+    let url = $(this).attr("action");
     let data = new FormData(this);
 
     function successCallback(response) {
         // Get the CKEditor instance
         var editors = Object.values(CKEDITOR.instances);
 
-
         // Loop through each instance
-        editors.filter(editor => editor.element.hasClass('editor_question')).forEach(editor => {
-            editor.setData(''); // clear the text
-            editor.resetDirty(); // reset the points to save the changes
-        });
+        editors
+            .filter((editor) => editor.element.hasClass("editor_question"))
+            .forEach((editor) => {
+                editor.setData(""); // clear the text
+                editor.resetDirty(); // reset the points to save the changes
+            });
 
-        editors.filter(editor => editor.element.hasClass('editor_options')).forEach(editor => {
-            editor.setData(''); // clear the text
-            editor.resetDirty(); // reset the points to save the changes
-        });
-
+        editors
+            .filter((editor) => editor.element.hasClass("editor_options"))
+            .forEach((editor) => {
+                editor.setData(""); // clear the text
+                editor.resetDirty(); // reset the points to save the changes
+            });
 
         // remove the extra options of ckeditors
-        $(document).find('.equation-editor-options-extra').remove();
-        $(document).find('.extra_answers_options').remove();
+        $(document).find(".equation-editor-options-extra").remove();
+        $(document).find(".extra_answers_options").remove();
 
-        $('.add-new-question-container').hide(200)
-        $('.add-new-question-button').show(300).ready(function () {
-            $('.add-new-question-button').html(lang_add_new_question);
-        })
+        $(".add-new-question-container").hide(200);
+        $(".add-new-question-button")
+            .show(300)
+            .ready(function () {
+                $(".add-new-question-button").html(lang_add_new_question);
+            });
         formElement[0].reset();
-        $('#simple-question').show();
-        $('#equation-question').hide();
+        $("#simple-question").show();
+        $("#equation-question").hide();
 
-        $('#answer_select').val(null).trigger("change");
-        $('.quation-option-extra').remove();
-        $('#table_list_exam_questions').bootstrapTable('refresh');
+        $("#answer_select").val(null).trigger("change");
+        $(".quation-option-extra").remove();
+        $("#table_list_exam_questions").bootstrapTable("refresh");
         function checkList(listName, newItem) {
             var dupl = false;
             $("#" + listName + " > div").each(function () {
@@ -2382,11 +3011,44 @@ $('#add-new-question-online-exam').on('submit', function (e) {
             });
             return !dupl;
         }
-        let li = ''
+        let li = "";
         if (response.data.question_type == 1) {
-            li = $('<div class="list-group"><input type="hidden" name="assign_questions[' + response.data.question_id + '][question_id]" value="' + response.data.question_id + '"><li id="q' + response.data.question_id + '"class="list-group-item d-flex justify-content-between align-items-center ui-state-default list-group-item-secondary m-2">' + response.data.question_id + ". " + response.data.question + ' <span class="text-right row"><input type="number" class="list-group-item col-md-6" name="assign_questions[' + response.data.question_id + '][marks]" style="width: 10rem"><a class="btn btn-danger btn-sm remove-row ml-2" data-id="' + response.data.question_id + '"><i class="fa fa-times" aria-hidden="true"></i></a></span></li></div>');
+            li = $(
+                '<div class="list-group"><input type="hidden" name="assign_questions[' +
+                    response.data.question_id +
+                    '][question_id]" value="' +
+                    response.data.question_id +
+                    '"><li id="q' +
+                    response.data.question_id +
+                    '"class="list-group-item d-flex justify-content-between align-items-center ui-state-default list-group-item-secondary m-2">' +
+                    response.data.question_id +
+                    ". " +
+                    response.data.question +
+                    ' <span class="text-right row"><input type="number" class="list-group-item col-md-6" name="assign_questions[' +
+                    response.data.question_id +
+                    '][marks]" style="width: 10rem"><a class="btn btn-danger btn-sm remove-row ml-2" data-id="' +
+                    response.data.question_id +
+                    '"><i class="fa fa-times" aria-hidden="true"></i></a></span></li></div>'
+            );
         } else {
-            li = $('<div class="list-group"><input type="hidden" name="assign_questions[' + response.data.question_id + '][question_id]" value="' + response.data.question_id + '"><li id="q' + response.data.question_id + '"class="list-group-item d-flex justify-content-between align-items-center ui-state-default list-group-item-secondary m-2">' + response.data.question_id + ". " + '<span class="text-center">' + response.data.question + '</span> <span class="text-right row"><input type="number" class="list-group-item col-md-6" name="assign_questions[' + response.data.question_id + '][marks]" style="width: 10rem"><a class="btn btn-danger btn-sm remove-row ml-2" data-id="' + response.data.question + '"><i class="fa fa-times" aria-hidden="true"></i></a></span></li></div>');
+            li = $(
+                '<div class="list-group"><input type="hidden" name="assign_questions[' +
+                    response.data.question_id +
+                    '][question_id]" value="' +
+                    response.data.question_id +
+                    '"><li id="q' +
+                    response.data.question_id +
+                    '"class="list-group-item d-flex justify-content-between align-items-center ui-state-default list-group-item-secondary m-2">' +
+                    response.data.question_id +
+                    ". " +
+                    '<span class="text-center">' +
+                    response.data.question +
+                    '</span> <span class="text-right row"><input type="number" class="list-group-item col-md-6" name="assign_questions[' +
+                    response.data.question_id +
+                    '][marks]" style="width: 10rem"><a class="btn btn-danger btn-sm remove-row ml-2" data-id="' +
+                    response.data.question +
+                    '"><i class="fa fa-times" aria-hidden="true"></i></a></span></li></div>'
+            );
         }
         var pasteItem = checkList("sortable-row", li);
         if (pasteItem) {
@@ -2394,117 +3056,154 @@ $('#add-new-question-online-exam').on('submit', function (e) {
         }
     }
 
-    formAjaxRequest('POST', url, data, formElement, submitButtonElement, successCallback);
+    formAjaxRequest(
+        "POST",
+        url,
+        data,
+        formElement,
+        submitButtonElement,
+        successCallback
+    );
 });
-$('.add-new-question-button').on('click', function (e) {
+$(".add-new-question-button").on("click", function (e) {
     e.preventDefault();
-    $('#answer_select').val(null).trigger("change");
-    $('.add-new-question-container').show(300);
+    $("#answer_select").val(null).trigger("change");
+    $(".add-new-question-container").show(300);
     $(this).hide();
-    $(this).html('');
-})
-$('.remove-add-new-question').on('click', function (e) {
+    $(this).html("");
+});
+$(".remove-add-new-question").on("click", function (e) {
     e.preventDefault();
-    $('.add-new-question-container').hide(300);
-    $('.add-new-question-button').show(300).ready(function () {
-        $('.add-new-question-button').html(lang_add_new_question);
-    });
-})
-$(document).on('click', '.remove-row', function (e) {
-    let id = $(this).data('id');
-    let edit_id = $(this).data('edit_id');
+    $(".add-new-question-container").hide(300);
+    $(".add-new-question-button")
+        .show(300)
+        .ready(function () {
+            $(".add-new-question-button").html(lang_add_new_question);
+        });
+});
+$(document).on("click", ".remove-row", function (e) {
+    let id = $(this).data("id");
+    let edit_id = $(this).data("edit_id");
     let $this = $(this);
     if (edit_id) {
         Swal.fire({
             title: lang_delete_title,
             text: lang_delete_warning,
-            icon: 'warning',
+            icon: "warning",
             showCancelButton: true,
-            confirmButtonColor: '#3085d6',
-            cancelButtonColor: '#d33',
-            confirmButtonText: lang_yes_delete
+            confirmButtonColor: "#3085d6",
+            cancelButtonColor: "#d33",
+            confirmButtonText: lang_yes_delete,
         }).then((result) => {
             if (result.isConfirmed) {
-                let url = baseUrl + '/online-exam/remove-choiced-question/' + edit_id;
+                let url =
+                    baseUrl + "/online-exam/remove-choiced-question/" + edit_id;
 
                 let data = new FormData();
                 data.append("_method", "DELETE");
-                data.append("_token", $("meta[name=csrf-token]").attr("content"));
+                data.append(
+                    "_token",
+                    $("meta[name=csrf-token]").attr("content")
+                );
 
                 function successCallback(response) {
                     showSuccessToast(response.message);
                     $this.parent().parent().parent().remove();
-                    $('#table_list_exam_questions').bootstrapTable('refresh');
+                    $("#table_list_exam_questions").bootstrapTable("refresh");
                 }
 
                 function errorCallback(response) {
                     showErrorToast(response.message);
                 }
 
-                ajaxRequest('POST', url, data, null, successCallback, errorCallback);
+                ajaxRequest(
+                    "POST",
+                    url,
+                    data,
+                    null,
+                    successCallback,
+                    errorCallback
+                );
             }
-        })
+        });
     } else {
         $(this).parent().parent().parent().remove();
-        $('#table_list_exam_questions').bootstrapTable('uncheckBy', { field: 'question_id', values: [id] });
+        $("#table_list_exam_questions").bootstrapTable("uncheckBy", {
+            field: "question_id",
+            values: [id],
+        });
     }
 });
 
-$('#store-assign-questions-form').on('submit', function (e) {
+$("#store-assign-questions-form").on("submit", function (e) {
     e.preventDefault();
     let formElement = $(this);
-    let submitButtonElement = $(this).find(':submit');
-    let url = $(this).attr('action');
+    let submitButtonElement = $(this).find(":submit");
+    let url = $(this).attr("action");
     let data = new FormData(this);
 
     function successCallback() {
         window.location.reload();
     }
 
-    formAjaxRequest('POST', url, data, formElement, submitButtonElement, successCallback);
-})
+    formAjaxRequest(
+        "POST",
+        url,
+        data,
+        formElement,
+        submitButtonElement,
+        successCallback
+    );
+});
 
-$('#edit-question-form').on('submit', function (e) {
+$("#edit-question-form").on("submit", function (e) {
     e.preventDefault();
     for (var equation_editor in CKEDITOR.instances) {
         CKEDITOR.instances[equation_editor].updateElement();
     }
     let formElement = $(this);
-    let submitButtonElement = $(this).find(':submit');
+    let submitButtonElement = $(this).find(":submit");
     let data = new FormData(this);
     data.append("_method", "PUT");
-    let url = $(this).attr('action') + "/" + data.get('edit_id');
+    let url = $(this).attr("action") + "/" + data.get("edit_id");
 
     function successCallback(response) {
-        $('#table_list_questions').bootstrapTable('refresh');
+        $("#table_list_questions").bootstrapTable("refresh");
         setTimeout(function () {
-            $('#editModal').modal('hide');
-        }, 1000)
+            $("#editModal").modal("hide");
+        }, 1000);
     }
 
-    formAjaxRequest('POST', url, data, formElement, submitButtonElement, successCallback);
-})
+    formAjaxRequest(
+        "POST",
+        url,
+        data,
+        formElement,
+        submitButtonElement,
+        successCallback
+    );
+});
 
-$(document).on('click', '.delete-question-form', function (e) {
+$(document).on("click", ".delete-question-form", function (e) {
     e.preventDefault();
     Swal.fire({
-        title: 'Are you sure?',
+        title: "Are you sure?",
         text: "You won't be able to revert this!",
-        icon: 'warning',
+        icon: "warning",
         showCancelButton: true,
-        confirmButtonColor: '#3085d6',
-        cancelButtonColor: '#d33',
-        confirmButtonText: 'Yes, delete it!'
+        confirmButtonColor: "#3085d6",
+        cancelButtonColor: "#d33",
+        confirmButtonText: "Yes, delete it!",
     }).then((result) => {
         if (result.isConfirmed) {
-            let url = $(this).attr('href');
-            
+            let url = $(this).attr("href");
+
             let data = new FormData();
             data.append("_method", "DELETE");
             data.append("_token", $("meta[name=csrf-token]").attr("content"));
 
             function successCallback(response) {
-                $('#table_list_questions').bootstrapTable('refresh');
+                $("#table_list_questions").bootstrapTable("refresh");
                 showSuccessToast(response.message);
             }
 
@@ -2512,137 +3211,173 @@ $(document).on('click', '.delete-question-form', function (e) {
                 showErrorToast(response.message);
             }
 
-            ajaxRequest('POST', url, data, null, successCallback, errorCallback);
+            ajaxRequest(
+                "POST",
+                url,
+                data,
+                null,
+                successCallback,
+                errorCallback
+            );
         }
-    })
+    });
 });
 
-$('#table_list_questions').on('load-success.bs.table', function () {
+$("#table_list_questions").on("load-success.bs.table", function () {
     createCkeditor();
 });
-$('#table_list_exam_questions').on('load-success.bs.table', function () {
+$("#table_list_exam_questions").on("load-success.bs.table", function () {
     createCkeditor();
 });
-$(document).on('click', '.add-new-edit-eoption', function (e) {
+$(document).on("click", ".add-new-edit-eoption", function (e) {
     e.preventDefault();
 
     // destroy the editors for no cloning the last ckeditor
     for (var equation_editor in CKEDITOR.instances) {
         CKEDITOR.instances[equation_editor].destroy();
     }
-    let html = $('.edit_eoption_container').find('.form-group:last').clone();
-    html.find('.editor_options').val('');
-    html.find('.error').remove();
-    html.find('.has-danger').removeClass('has-danger');
-    html.find('.edit_eoption_id').val('')
-    let hide_button = {}
-    hide_button = $('.remove-edit-option-content:last').find('.remove-edit-option')
-    if (hide_button.data('id')) {
-        $('.remove-edit-option-content:last').css('display', 'block');
+    let html = $(".edit_eoption_container").find(".form-group:last").clone();
+    html.find(".editor_options").val("");
+    html.find(".error").remove();
+    html.find(".has-danger").removeClass("has-danger");
+    html.find(".edit_eoption_id").val("");
+    let hide_button = {};
+    hide_button = $(".remove-edit-option-content:last").find(
+        ".remove-edit-option"
+    );
+    if (hide_button.data("id")) {
+        $(".remove-edit-option-content:last").css("display", "block");
     } else {
-        $('.remove-edit-option-content:last').css('display', 'none');
+        $(".remove-edit-option-content:last").css("display", "none");
     }
 
     // This function will increment in the label option number
-    let inner_html = html.find('.edit-eoption-number:last').html();
-    html.find('.edit-eoption-number:last').each(function (key, element) {
+    let inner_html = html.find(".edit-eoption-number:last").html();
+    html.find(".edit-eoption-number:last").each(function (key, element) {
         inner_html = inner_html.replace(/(\d+)/, function (str, p1) {
-            return (parseInt(p1, 10) + 1);
+            return parseInt(p1, 10) + 1;
         });
-    })
-    html.find('.edit-eoption-number:last').html(inner_html)
+    });
+    html.find(".edit-eoption-number:last").html(inner_html);
 
     // This function will replace the last index value and increment in the multidimensional name attribute
-    html.find(':input').each(function (key, element) {
+    html.find(":input").each(function (key, element) {
         this.name = this.name.replace(/\[(\d+)\]/, function (str, p1) {
-            return '[' + (parseInt(p1, 10) + 1) + ']';
+            return "[" + (parseInt(p1, 10) + 1) + "]";
         });
-    })
-    html.find('.remove-edit-option-content').html('<button class="btn btn-inverse-danger remove-edit-option btn-sm mt-1" type="button"><i class="fa fa-times"></i></button>')
-    $('.edit_eoption_container').append(html).ready(function () {
-        createCkeditor();
-    })
+    });
+    html.find(".remove-edit-option-content").html(
+        '<button class="btn btn-inverse-danger remove-edit-option btn-sm mt-1" type="button"><i class="fa fa-times"></i></button>'
+    );
+    $(".edit_eoption_container")
+        .append(html)
+        .ready(function () {
+            createCkeditor();
+        });
 
-    let select_answer_option = '<option value="new' + $.trim(inner_html) + '" class="edit_answer_option">' + lang_option + ' ' + inner_html + '</option>'
-    $('.edit_answer_select').append(select_answer_option)
+    let select_answer_option =
+        '<option value="new' +
+        $.trim(inner_html) +
+        '" class="edit_answer_option">' +
+        lang_option +
+        " " +
+        inner_html +
+        "</option>";
+    $(".edit_answer_select").append(select_answer_option);
 });
-$('.online_exam_based_on').on('change', function (e) {
+$(".online_exam_based_on").on("change", function (e) {
     if ($(this).val() == 1) {
-        $('.class_container').hide(200);
-        $('.class_section_container').show(500);
-        $('.online-exam-class-section-id').val('');
-        $('.online-exam-subject-id').val('');
+        $(".class_container").hide(200);
+        $(".class_section_container").show(500);
+        $(".online-exam-class-section-id").val("");
+        $(".online-exam-subject-id").val("");
     } else {
-        $('.online-exam-class-id').val('');
-        $('.online-exam-subject-id').val('');
-        $('.class_section_container').hide(200);
-        $('.class_container').show(500);
+        $(".online-exam-class-id").val("");
+        $(".online-exam-subject-id").val("");
+        $(".class_section_container").hide(200);
+        $(".class_container").show(500);
     }
-})
-$('.online-exam-class-id').on('change', function (e) {
+});
+$(".online-exam-class-id").on("change", function (e) {
     e.preventDefault();
-    let url = baseUrl + '/get-subject-online-exam';
+    let url = baseUrl + "/get-subject-online-exam";
     let data = {
-        'based_on': 0,
-        'class_id': $(this).val()
+        based_on: 0,
+        class_id: $(this).val(),
     };
 
     function successCallback(response) {
-        let html = ""
+        let html = "";
         if (response.data.length) {
-            html += "<option value=''>-- " + lang_select_subject + " --</option>"
+            html +=
+                "<option value=''>-- " + lang_select_subject + " --</option>";
             response.data.forEach(function (data) {
-                html += "<option value='" + data.id + "'>" + data.name + ' - ' + data.type + "</option>";
-            })
+                html +=
+                    "<option value='" +
+                    data.id +
+                    "'>" +
+                    data.name +
+                    " - " +
+                    data.type +
+                    "</option>";
+            });
         } else {
             html = "<option value=''>" + lang_no_data_found + "</option>";
         }
-        $('.online-exam-subject-id').html(html);
+        $(".online-exam-subject-id").html(html);
     }
 
-    ajaxRequest('GET', url, data, null, successCallback, null, null, true);
-})
-$('input[type="file"]').on('change', function (e) {
-    $(this).closest('form').valid();
-})
+    ajaxRequest("GET", url, data, null, successCallback, null, null, true);
+});
+$('input[type="file"]').on("change", function (e) {
+    $(this).closest("form").valid();
+});
 
-$('.fees_installment_toggle').on('change',function(e){
+$(".fees_installment_toggle").on("change", function (e) {
     e.preventDefault();
-    if($(this).val() == 1){
-        $('.fees_installment_content').show(200)
-    }else{
-        $('.fees_installment_content').hide(200)
+    if ($(this).val() == 1) {
+        $(".fees_installment_content").show(200);
+    } else {
+        $(".fees_installment_content").hide(200);
     }
-})
-
+});
 
 // add installment content
-$(document).on('click', '.add-fee-installment-content', function (e) {
+$(document).on("click", ".add-fee-installment-content", function (e) {
     e.preventDefault();
-    let html = $('.fees_installment_content:last').clone();
-    html.find('.error').remove();
-    html.find('.has-danger').removeClass('has-danger');
+    let html = $(".fees_installment_content:last").clone();
+    html.find(".error").remove();
+    html.find(".has-danger").removeClass("has-danger");
     // This function will replace the last index value and increment in the multidimensional name attribute
-    html.find('.form-control').each(function (key, element) {
+    html.find(".form-control").each(function (key, element) {
         this.name = this.name.replace(/\[(\d+)\]/, function (str, p1) {
-            return '[' + (parseInt(p1, 10) + 1) + ']';
+            return "[" + (parseInt(p1, 10) + 1) + "]";
         });
         this.id = this.id.replace(/_(\d+)/, function (str, p1) {
-            return '_' + (parseInt(p1, 10) + 1);
+            return "_" + (parseInt(p1, 10) + 1);
         });
-    })
-    html.find('.add-fee-installment-content i').addClass('fa-times').removeClass('fa-plus');
-    html.find('.add-fee-installment-content').addClass('btn-inverse-danger remove-exam-timetable-content').removeClass('btn-inverse-success add-exam-timetable');
-    $(this).parent().parent().parent().siblings('.extra-fee-installment-content').append(html);
-    html.find('.form-control').val('');
+    });
+    html.find(".add-fee-installment-content i")
+        .addClass("fa-times")
+        .removeClass("fa-plus");
+    html.find(".add-fee-installment-content")
+        .addClass("btn-inverse-danger remove-exam-timetable-content")
+        .removeClass("btn-inverse-success add-exam-timetable");
+    $(this)
+        .parent()
+        .parent()
+        .parent()
+        .siblings(".extra-fee-installment-content")
+        .append(html);
+    html.find(".form-control").val("");
 });
 
 // general form ajax with reload
-$('#create-form-reload,.create-form-reload').on('submit', function (e) {
+$("#create-form-reload,.create-form-reload").on("submit", function (e) {
     e.preventDefault();
     let formElement = $(this);
-    let submitButtonElement = $(this).find(':submit');
-    let url = $(this).attr('action');
+    let submitButtonElement = $(this).find(":submit");
+    let url = $(this).attr("action");
     let data = new FormData(this);
 
     function successCallback() {
@@ -2651,55 +3386,72 @@ $('#create-form-reload,.create-form-reload').on('submit', function (e) {
         }, 3000);
     }
 
-    formAjaxRequest('POST', url, data, formElement, submitButtonElement, successCallback);
-})
-$('.add-extra-fee-installment-data').on('click', function (e) {
+    formAjaxRequest(
+        "POST",
+        url,
+        data,
+        formElement,
+        submitButtonElement,
+        successCallback
+    );
+});
+$(".add-extra-fee-installment-data").on("click", function (e) {
     e.preventDefault();
-    let html = $('.installment-div').find('.edit-installment-container').find('.edit-installment-content:last').clone();
-    html.find('.error').remove();
-    html.find('.has-danger').removeClass('has-danger');
+    let html = $(".installment-div")
+        .find(".edit-installment-container")
+        .find(".edit-installment-content:last")
+        .clone();
+    html.find(".error").remove();
+    html.find(".has-danger").removeClass("has-danger");
     // This function will replace the last index value and increment in the multidimensional name attribute
-    html.find('.form-control').each(function (key, element) {
+    html.find(".form-control").each(function (key, element) {
         this.name = this.name.replace(/\[(\d+)\]/, function (str, p1) {
-            return '[' + (parseInt(p1, 10) + 1) + ']';
+            return "[" + (parseInt(p1, 10) + 1) + "]";
         });
         this.id = this.id.replace(/_(\d+)/, function (str, p1) {
-            return '_' + (parseInt(p1, 10) + 1);
+            return "_" + (parseInt(p1, 10) + 1);
         });
-    })
-    html.find('.add-edit-fee-installment-content i').addClass('fa-times').removeClass('fa-plus');
-    html.find('.add-edit-fee-installment-content').addClass('btn-inverse-danger remove-edit-fee-installment-content').removeClass('btn-inverse-success add-edit-fee-installment-content');
-    html.find('.remove-edit-fee-installment-content').removeAttr("data-id")
-    $(this).parent().siblings('.edit-installment-container').append(html);
-    html.find('.form-control').val('');
+    });
+    html.find(".add-edit-fee-installment-content i")
+        .addClass("fa-times")
+        .removeClass("fa-plus");
+    html.find(".add-edit-fee-installment-content")
+        .addClass("btn-inverse-danger remove-edit-fee-installment-content")
+        .removeClass("btn-inverse-success add-edit-fee-installment-content");
+    html.find(".remove-edit-fee-installment-content").removeAttr("data-id");
+    $(this).parent().siblings(".edit-installment-container").append(html);
+    html.find(".form-control").val("");
 });
 // remove more grade in create grade
-$(document).on('click', '.remove-edit-fee-installment-content', function (e) {
+$(document).on("click", ".remove-edit-fee-installment-content", function (e) {
     e.preventDefault();
     let $this = $(this);
-    if ($this.data('id')) {
+    if ($this.data("id")) {
         Swal.fire({
-            title: 'Are you sure?',
+            title: "Are you sure?",
             text: "You won't be able to revert this!",
-            icon: 'warning',
+            icon: "warning",
             showCancelButton: true,
-            confirmButtonColor: '#3085d6',
-            cancelButtonColor: '#d33',
-            confirmButtonText: 'Yes, delete it!'
+            confirmButtonColor: "#3085d6",
+            cancelButtonColor: "#d33",
+            confirmButtonText: "Yes, delete it!",
         }).then((result) => {
             if (result.isConfirmed) {
-                let id = $this.data('id');
-                let url = baseUrl + '/remove-installment-data/' + id;
+                let id = $this.data("id");
+                let url = baseUrl + "/remove-installment-data/" + id;
 
                 let data = new FormData();
                 data.append("_method", "DELETE");
-                data.append("_token", $("meta[name=csrf-token]").attr("content"));
+                data.append(
+                    "_token",
+                    $("meta[name=csrf-token]").attr("content")
+                );
 
                 function successCallback(response) {
-                    $('#table_list').bootstrapTable('refresh');
+                    $("#table_list").bootstrapTable("refresh");
                     setTimeout(function () {
-                        $('#editModal').modal('hide');
-                    }, 500)
+                        $("#editModal").modal("hide");
+                    }, 500);
                     showSuccessToast(response.message);
                 }
 
@@ -2707,57 +3459,73 @@ $(document).on('click', '.remove-edit-fee-installment-content', function (e) {
                     showErrorToast(response.message);
                 }
 
-                ajaxRequest('POST', url, data, null, successCallback, errorCallback);
+                ajaxRequest(
+                    "POST",
+                    url,
+                    data,
+                    null,
+                    successCallback,
+                    errorCallback
+                );
             }
-        })
+        });
     } else {
         $this.parent().parent().parent().remove();
     }
 });
 
-$('.pay_optional_fees_offline').on('submit', function (e) {
+$(".pay_optional_fees_offline").on("submit", function (e) {
     e.preventDefault();
     let formElement = $(this);
-    let submitButtonElement = $(this).find(':submit');
-    let url = $(this).attr('action');
+    let submitButtonElement = $(this).find(":submit");
+    let url = $(this).attr("action");
     let data = new FormData(this);
 
-
     function successCallback() {
-        $('#optionalModal').modal('hide');
-        $('.cheque_no_container').hide();
+        $("#optionalModal").modal("hide");
+        $(".cheque_no_container").hide();
         formElement[0].reset();
-        $('#table_list').bootstrapTable('refresh');
+        $("#table_list").bootstrapTable("refresh");
     }
 
-    formAjaxRequest('POST', url, data, formElement, submitButtonElement, successCallback);
-})
+    formAjaxRequest(
+        "POST",
+        url,
+        data,
+        formElement,
+        submitButtonElement,
+        successCallback
+    );
+});
 
-$(document).on('click', '.remove-optional-fees-paid', function (e) {
+$(document).on("click", ".remove-optional-fees-paid", function (e) {
     e.preventDefault();
     let $this = $(this);
-    if ($this.data('id')) {
+    if ($this.data("id")) {
         Swal.fire({
-            title: 'Are you sure?',
+            title: "Are you sure?",
             text: "You won't be able to revert this!",
-            icon: 'warning',
+            icon: "warning",
             showCancelButton: true,
-            confirmButtonColor: '#3085d6',
-            cancelButtonColor: '#d33',
-            confirmButtonText: 'Yes, delete it!'
+            confirmButtonColor: "#3085d6",
+            cancelButtonColor: "#d33",
+            confirmButtonText: "Yes, delete it!",
         }).then((result) => {
             if (result.isConfirmed) {
-                let id = $this.data('id');
-                let url = baseUrl + '/fees/paid/remove-choiceable-fees/' + id;
+                let id = $this.data("id");
+                let url = baseUrl + "/fees/paid/remove-choiceable-fees/" + id;
 
                 let data = new FormData();
                 data.append("_method", "DELETE");
-                data.append("_token", $("meta[name=csrf-token]").attr("content"));
+                data.append(
+                    "_token",
+                    $("meta[name=csrf-token]").attr("content")
+                );
 
                 function successCallback() {
-                    $('#table_list').bootstrapTable('refresh');
+                    $("#table_list").bootstrapTable("refresh");
                     setTimeout(() => {
-                        $('#optionalModal').modal('hide');
+                        $("#optionalModal").modal("hide");
                     }, 500);
                 }
 
@@ -2765,7 +3533,14 @@ $(document).on('click', '.remove-optional-fees-paid', function (e) {
                     showErrorToast(response.message);
                 }
 
-                ajaxRequest('POST', url, data, null, successCallback, errorCallback);
+                ajaxRequest(
+                    "POST",
+                    url,
+                    data,
+                    null,
+                    successCallback,
+                    errorCallback
+                );
             }
         });
     } else {
@@ -2773,71 +3548,82 @@ $(document).on('click', '.remove-optional-fees-paid', function (e) {
     }
 });
 
-$(document).on('click','.pay_in_installment' ,function(e){
-    if ($(this).is(':checked')) {
-        $('#installment_mode').val(1)
-        $('.due_charges_whole_year').hide(200);
-        $('.installment_rows').show(200);
-        $('.compulsory_amount').html(Number(0).toFixed(2))
+$(document).on("click", ".pay_in_installment", function (e) {
+    if ($(this).is(":checked")) {
+        $("#installment_mode").val(1);
+        $(".due_charges_whole_year").hide(200);
+        $(".installment_rows").show(200);
+        $(".compulsory_amount").html(Number(0).toFixed(2));
 
-        let choice_amount = parseInt($('.compulsory_amount').html());
+        let choice_amount = parseInt($(".compulsory_amount").html());
         // Check the Amount And Make PAY Button Clickable Or Not
-        if(choice_amount > 1){
-            $(document).find('.compulsory_fees_payment').prop('disabled', false);
-        }else{
-            $(document).find('.compulsory_fees_payment').prop('disabled', true);
+        if (choice_amount > 1) {
+            $(document)
+                .find(".compulsory_fees_payment")
+                .prop("disabled", false);
+        } else {
+            $(document).find(".compulsory_fees_payment").prop("disabled", true);
         }
-    }else{
-        $(document).find('.compulsory_fees_payment').prop('disabled', false);
-        $('#installment_mode').val(0)
-        $('.installment_rows').hide(200);
-        $('.due_charges_whole_year').show(200);
-        $('.compulsory_amount').html($(this).data("base_amount"))
+    } else {
+        $(document).find(".compulsory_fees_payment").prop("disabled", false);
+        $("#installment_mode").val(0);
+        $(".installment_rows").hide(200);
+        $(".due_charges_whole_year").show(200);
+        $(".compulsory_amount").html($(this).data("base_amount"));
     }
-})
-$('.pay_compulsory_fees_offline').on('submit', function (e) {
+});
+$(".pay_compulsory_fees_offline").on("submit", function (e) {
     e.preventDefault();
     let formElement = $(this);
-    let submitButtonElement = $(this).find(':submit');
-    let url = $(this).attr('action');
+    let submitButtonElement = $(this).find(":submit");
+    let url = $(this).attr("action");
     let data = new FormData(this);
 
-
     function successCallback() {
-        $('#compulsoryModal').modal('hide');
-        $('.cheque_no_container').hide();
+        $("#compulsoryModal").modal("hide");
+        $(".cheque_no_container").hide();
         formElement[0].reset();
-        $('#table_list').bootstrapTable('refresh');
+        $("#table_list").bootstrapTable("refresh");
     }
 
-    formAjaxRequest('POST', url, data, formElement, submitButtonElement, successCallback);
-})
-$(document).on('click', '.remove-installment-fees-paid', function (e) {
+    formAjaxRequest(
+        "POST",
+        url,
+        data,
+        formElement,
+        submitButtonElement,
+        successCallback
+    );
+});
+$(document).on("click", ".remove-installment-fees-paid", function (e) {
     e.preventDefault();
     let $this = $(this);
-    if ($this.data('id')) {
+    if ($this.data("id")) {
         Swal.fire({
-            title: 'Are you sure?',
+            title: "Are you sure?",
             text: "You won't be able to revert this!",
-            icon: 'warning',
+            icon: "warning",
             showCancelButton: true,
-            confirmButtonColor: '#3085d6',
-            cancelButtonColor: '#d33',
-            confirmButtonText: 'Yes, delete it!'
+            confirmButtonColor: "#3085d6",
+            cancelButtonColor: "#d33",
+            confirmButtonText: "Yes, delete it!",
         }).then((result) => {
             if (result.isConfirmed) {
-                let id = $this.data('id');
-                let url = baseUrl + '/fees/paid/remove-installment-fees/' + id;
+                let id = $this.data("id");
+                let url = baseUrl + "/fees/paid/remove-installment-fees/" + id;
 
                 let data = new FormData();
                 data.append("_method", "DELETE");
-                data.append("_token", $("meta[name=csrf-token]").attr("content"));
+                data.append(
+                    "_token",
+                    $("meta[name=csrf-token]").attr("content")
+                );
 
                 function successCallback(response) {
                     showSuccessToast(response.message);
-                    $('#table_list').bootstrapTable('refresh');
+                    $("#table_list").bootstrapTable("refresh");
                     setTimeout(() => {
-                        $('#compulsoryModal').modal('hide');
+                        $("#compulsoryModal").modal("hide");
                     }, 500);
                 }
 
@@ -2845,205 +3631,231 @@ $(document).on('click', '.remove-installment-fees-paid', function (e) {
                     showErrorToast(response.message);
                 }
 
-                ajaxRequest('POST', url, data, null, successCallback, errorCallback);
+                ajaxRequest(
+                    "POST",
+                    url,
+                    data,
+                    null,
+                    successCallback,
+                    errorCallback
+                );
             }
-        })
+        });
     }
 });
 
-
-$(function() {
-    $(".daterange").daterangepicker({
-        opens: 'right',
-        autoUpdateInput: false,
-    }).on('apply.daterangepicker', function(ev, picker) {
-        $(this).val(picker.startDate.format('DD-MM-YYYY') + ' - ' + picker.endDate.format('DD-MM-YYYY'));
-    }).on('cancel.daterangepicker', function(ev, picker) {
-        $(this).val('');
-    });
-
-
+$(function () {
+    $(".daterange")
+        .daterangepicker({
+            opens: "right",
+            autoUpdateInput: false,
+        })
+        .on("apply.daterangepicker", function (ev, picker) {
+            $(this).val(
+                picker.startDate.format("DD-MM-YYYY") +
+                    " - " +
+                    picker.endDate.format("DD-MM-YYYY")
+            );
+        })
+        .on("cancel.daterangepicker", function (ev, picker) {
+            $(this).val("");
+        });
 });
 
-$(function() {
-    $(".timerange").daterangepicker({
+$(function () {
+    $(".timerange")
+        .daterangepicker({
             autoUpdateInput: false,
-            timePicker : true,
-            timePicker24Hour : true,
-            timePickerIncrement : 1,
-            timePickerSeconds : true    ,
-            locale : {
-                format :  'HH:mm:ss'
-            }
-        }).on('show.daterangepicker', function(ev, picker) {
+            timePicker: true,
+            timePicker24Hour: true,
+            timePickerIncrement: 1,
+            timePickerSeconds: true,
+            locale: {
+                format: "HH:mm:ss",
+            },
+        })
+        .on("show.daterangepicker", function (ev, picker) {
             picker.container.find(".calendar-table").hide();
             // picker.container.find(".drp-buttons").hide();
-        }).on('apply.daterangepicker', function(ev, picker) {
-            $(this).val(picker.startDate.format('HH:mm:ss') + ' - ' + picker.endDate.format('HH:mm:ss'));
-        }).on('cancel.daterangepicker', function(ev, picker) {
-            $(this).val('');
+        })
+        .on("apply.daterangepicker", function (ev, picker) {
+            $(this).val(
+                picker.startDate.format("HH:mm:ss") +
+                    " - " +
+                    picker.endDate.format("HH:mm:ss")
+            );
+        })
+        .on("cancel.daterangepicker", function (ev, picker) {
+            $(this).val("");
         });
 });
 
 function initializeTimerangePicker() {
-    $(".timerange").daterangepicker({
-        autoUpdateInput: false,
-        timePicker: true,
-        timePicker24Hour: true,
-        timePickerIncrement: 1,
-        timePickerSeconds: true,
-        locale : {
-            format :  'HH:mm:ss'
-        }
-    }).on('show.daterangepicker', function(ev, picker) {
-        picker.container.find(".calendar-table").hide();
-    }).on('apply.daterangepicker', function(ev, picker) {
-        $(this).val(picker.startDate.format('HH:mm:ss') + ' - ' + picker.endDate.format('HH:mm:ss'));
-    }).on('cancel.daterangepicker', function(ev, picker) {
-        $(this).val('');
-    });
+    $(".timerange")
+        .daterangepicker({
+            autoUpdateInput: false,
+            timePicker: true,
+            timePicker24Hour: true,
+            timePickerIncrement: 1,
+            timePickerSeconds: true,
+            locale: {
+                format: "HH:mm:ss",
+            },
+        })
+        .on("show.daterangepicker", function (ev, picker) {
+            picker.container.find(".calendar-table").hide();
+        })
+        .on("apply.daterangepicker", function (ev, picker) {
+            $(this).val(
+                picker.startDate.format("HH:mm:ss") +
+                    " - " +
+                    picker.endDate.format("HH:mm:ss")
+            );
+        })
+        .on("cancel.daterangepicker", function (ev, picker) {
+            $(this).val("");
+        });
 }
 
-$('.type').on('change', function () {
-    if ($.inArray($(this).val(), ['dropdown', 'checkbox', 'radio']) > -1) {
-        $('#default-values-div').show(500);
-        $('.default_values').attr('disabled', false);
+$(".type").on("change", function () {
+    if ($.inArray($(this).val(), ["dropdown", "checkbox", "radio"]) > -1) {
+        $("#default-values-div").show(500);
+        $(".default_values").attr("disabled", false);
     } else {
-        $('#default-values-div').hide(500);
-        $('.default_values').attr('disabled', true);
+        $("#default-values-div").hide(500);
+        $(".default_values").attr("disabled", true);
     }
-})
+});
 
-$('.edit_type').on('change', function () {
-    if ($.inArray($(this).val(), ['dropdown', 'checkbox', 'radio']) > -1) {
-        $('#edit-default-values-div').show(500);
-        $('.edit_default_values').attr('disabled', false);
+$(".edit_type").on("change", function () {
+    if ($.inArray($(this).val(), ["dropdown", "checkbox", "radio"]) > -1) {
+        $("#edit-default-values-div").show(500);
+        $(".edit_default_values").attr("disabled", false);
     } else {
-        $('#edit-default-values-div').hide(500);
-        $('.edit_default_values').attr('disabled', true);
+        $("#edit-default-values-div").hide(500);
+        $(".edit_default_values").attr("disabled", true);
     }
-})
+});
 
-$('.event_type').on('change', function(){
+$(".event_type").on("change", function () {
     var type = $(this).val();
-    if(type == 'multiple')
-    {
-        $('#single-div').hide();
-        $('#date-range-div').show(500);
-        $('#add-multiple-event-div').show(500);
-        $('#extra-multiple-event').show(500);
-        $('#add-more').show();
-    }else{
-        $('#date-range-div').hide();
-        $('.add-multiple-event-div').hide();
-        $('#extra-multiple-event').hide();
-        $('#add-more').hide();
-        $('#single-div').show(500);
+    if (type == "multiple") {
+        $("#single-div").hide();
+        $("#date-range-div").show(500);
+        $("#add-multiple-event-div").show(500);
+        $("#extra-multiple-event").show(500);
+        $("#add-more").show();
+    } else {
+        $("#date-range-div").hide();
+        $(".add-multiple-event-div").hide();
+        $("#extra-multiple-event").hide();
+        $("#add-more").hide();
+        $("#single-div").show(500);
     }
+});
 
-})
-
-$('.edit_event_type').on('change', function(){
+$(".edit_event_type").on("change", function () {
     var type = $(this).val();
-    if(type == 'multiple')
-    {
-        $('#edit-single-div').hide();
-        $('#edit-date-range-div').show(500);
-        $('#edit-multiple-event-group-div').show(500);
-        $('#edit-extra-multiple-event').show(500);
-        $('#edit-add-more').show();
-    }else{
-        $('#edit-date-range-div').hide();
-        $('#edit-multiple-event-group-div').hide();
-        $('#edit-extra-multiple-event').hide();
-        $('#edit-add-more').hide();
-        $('#edit-single-div').show(500);
+    if (type == "multiple") {
+        $("#edit-single-div").hide();
+        $("#edit-date-range-div").show(500);
+        $("#edit-multiple-event-group-div").show(500);
+        $("#edit-extra-multiple-event").show(500);
+        $("#edit-add-more").show();
+    } else {
+        $("#edit-date-range-div").hide();
+        $("#edit-multiple-event-group-div").hide();
+        $("#edit-extra-multiple-event").hide();
+        $("#edit-add-more").hide();
+        $("#edit-single-div").show(500);
     }
+});
 
-})
-
-$('.add-multi-div').on('click', function (e) {
+$(".add-multi-div").on("click", function (e) {
     e.preventDefault();
-    var rowCount = $('.add-multiple-event-div').length + 1;
+    var rowCount = $(".add-multiple-event-div").length + 1;
 
     if (rowCount <= 2) {
-       $('.remove-multiple-event-div').attr('disabled', true);
-    }else{
-        $('.remove-multiple-event-div').attr('disabled', false);
+        $(".remove-multiple-event-div").attr("disabled", true);
+    } else {
+        $(".remove-multiple-event-div").attr("disabled", false);
     }
-    let html = $('.add-multiple-event-div:last').clone().show();
+    let html = $(".add-multiple-event-div:last").clone().show();
 
-    html.find(':input').each(function (key, element) {
+    html.find(":input").each(function (key, element) {
         this.name = this.name.replace(/\[(\d+)\]/, function (str, p1) {
-            return '[' + (parseInt(p1, 10) + 1) + ']';
+            return "[" + (parseInt(p1, 10) + 1) + "]";
         });
         this.id = this.id.replace(/\d+/, function (match) {
             return parseInt(match, 10) + 1;
         });
-    })
-    html.find('input[type="text"]').val('');
-    html.find('textarea').val('');
+    });
+    html.find('input[type="text"]').val("");
+    html.find("textarea").val("");
 
-    html.insertAfter('.add-multiple-event-div:last');
+    html.insertAfter(".add-multiple-event-div:last");
     initializeTimerangePicker(html);
-})
+});
 
-$(document).on('click','.remove-new-multiple-event-group',function (e){
+$(document).on("click", ".remove-new-multiple-event-group", function (e) {
     e.preventDefault();
     $(this).parent().parent().remove();
-})
+});
 
-$(document).on('click','.remove-multiple-event-div',function (e){
+$(document).on("click", ".remove-multiple-event-div", function (e) {
     e.preventDefault();
-    var rowCount = $('.add-multiple-event-div').length - 1;
+    var rowCount = $(".add-multiple-event-div").length - 1;
     if (rowCount <= 2) {
-       $('.remove-multiple-event-div').attr('disabled', true);
-    }else{
-        $('.remove-multiple-event-div').attr('disabled', false);
+        $(".remove-multiple-event-div").attr("disabled", true);
+    } else {
+        $(".remove-multiple-event-div").attr("disabled", false);
     }
     $(this).parent().parent().remove();
-})
+});
 
-$('.add-multiple-event-group-div').on('click', function (e) {
+$(".add-multiple-event-group-div").on("click", function (e) {
     e.preventDefault();
-    $('.remove-multiple-event-div').attr('disabled', false);
-    let html = $('.add-multiple-event-div:last').clone().show();
-    html.find(':input').each(function (key, element) {
+    $(".remove-multiple-event-div").attr("disabled", false);
+    let html = $(".add-multiple-event-div:last").clone().show();
+    html.find(":input").each(function (key, element) {
         this.name = this.name.replace(/\[(\d+)\]/, function (str, p1) {
-            return '[' + (parseInt(p1, 10) + 1) + ']';
+            return "[" + (parseInt(p1, 10) + 1) + "]";
         });
-    })
-    html.find('input[type="text"]').val('');
-    html.find('textarea').val('');
-    $('#edit-extra-multiple-event').append(html);
+    });
+    html.find('input[type="text"]').val("");
+    html.find("textarea").val("");
+    $("#edit-extra-multiple-event").append(html);
 
     initializeTimerangePicker(html);
-})
+});
 
-$(document).on('click', '.edit-remove-multiple-event-group', function (e) {
+$(document).on("click", ".edit-remove-multiple-event-group", function (e) {
     e.preventDefault();
 
     let $this = $(this);
-    if ($this.data('id')) {
+    if ($this.data("id")) {
         Swal.fire({
-            title: 'Are you sure?',
+            title: "Are you sure?",
             text: "You won't be able to revert this!",
-            icon: 'warning',
+            icon: "warning",
             showCancelButton: true,
-            confirmButtonColor: '#3085d6',
-            cancelButtonColor: '#d33',
-            confirmButtonText: 'Yes, delete it!'
+            confirmButtonColor: "#3085d6",
+            cancelButtonColor: "#d33",
+            confirmButtonText: "Yes, delete it!",
         }).then((result) => {
             if (result.isConfirmed) {
-                let id = $this.data('id');
-                let url = baseUrl + '/multiple-event/' + id;
+                let id = $this.data("id");
+                let url = baseUrl + "/multiple-event/" + id;
 
                 let data = new FormData();
                 data.append("_method", "DELETE");
-                data.append("_token", $("meta[name=csrf-token]").attr("content"));
+                data.append(
+                    "_token",
+                    $("meta[name=csrf-token]").attr("content")
+                );
 
                 function successCallback() {
-                    $('#table_list').bootstrapTable('refresh');
+                    $("#table_list").bootstrapTable("refresh");
                     $this.parent().parent().remove();
                 }
 
@@ -3051,81 +3863,88 @@ $(document).on('click', '.edit-remove-multiple-event-group', function (e) {
                     showErrorToast(response.message);
                 }
 
-                ajaxRequest('POST', url, data, null, successCallback, errorCallback);
+                ajaxRequest(
+                    "POST",
+                    url,
+                    data,
+                    null,
+                    successCallback,
+                    errorCallback
+                );
             }
         });
 
-        var rowCount = $('.edit-multiple-event-group-div').length - 1;
+        var rowCount = $(".edit-multiple-event-group-div").length - 1;
         if (rowCount <= 2) {
-            $('.edit-remove-multiple-event-group').attr('disabled', true);
+            $(".edit-remove-multiple-event-group").attr("disabled", true);
         }
     } else {
         $this.parent().parent().remove();
     }
 });
 
-
-$('.add-more-default-values').on('click', function (e) {
+$(".add-more-default-values").on("click", function (e) {
     e.preventDefault();
-    $('.remove-default-values').attr('disabled', false);
-    let html = $('#add-default-values .row:last').clone();
-    html.find('.default_values').val('');
-    $('#add-default-values').append(html);
-})
+    $(".remove-default-values").attr("disabled", false);
+    let html = $("#add-default-values .row:last").clone();
+    html.find(".default_values").val("");
+    $("#add-default-values").append(html);
+});
 
-$('.edit-add-more-default-values').on('click', function (e) {
+$(".edit-add-more-default-values").on("click", function (e) {
     e.preventDefault();
-    $('.edit-remove-default-values').attr('disabled', false);
-    let html = $('#edit-add-default-values .row:last').clone();
-    html.find('.edit_default_values').val('');
-    $('#edit-add-default-values').append(html);
-})
+    $(".edit-remove-default-values").attr("disabled", false);
+    let html = $("#edit-add-default-values .row:last").clone();
+    html.find(".edit_default_values").val("");
+    $("#edit-add-default-values").append(html);
+});
 
-$(document).on('click', '.remove-default-values', function (e) {
-    e.preventDefault();
-    $(this).parent().parent().remove();
-    if ($('#add-default-values .row').length === 2) {
-        $('.remove-default-values').attr('disabled', true);
-    }
-})
-
-$(document).on('click', '.edit-remove-default-values', function (e) {
+$(document).on("click", ".remove-default-values", function (e) {
     e.preventDefault();
     $(this).parent().parent().remove();
-    if ($('#edit-add-default-values .row').length === 2) {
-        $('.edit-remove-default-values').attr('disabled', true);
+    if ($("#add-default-values .row").length === 2) {
+        $(".remove-default-values").attr("disabled", true);
     }
-})
+});
+
+$(document).on("click", ".edit-remove-default-values", function (e) {
+    e.preventDefault();
+    $(this).parent().parent().remove();
+    if ($("#edit-add-default-values .row").length === 2) {
+        $(".edit-remove-default-values").attr("disabled", true);
+    }
+});
 
 function formFieldRequiredFormatter(index, row) {
     if (row.is_required) {
-        return "<span class='badge badge-success'>Yes</span>"
+        return "<span class='badge badge-success'>Yes</span>";
     } else {
-        return "<span class='badge badge-danger'>No</span>"
+        return "<span class='badge badge-danger'>No</span>";
     }
 }
 
 function forFormFormatter(index, row) {
     if (row.for == 1) {
         return "<span class='badge badge-info'>Student</span>";
-    } else if(row.for == 2){
+    } else if (row.for == 2) {
         return "<span class='badge badge-warning'>Parent</span>";
-    }else if(row.for == 3)
-    {
+    } else if (row.for == 3) {
         return "<span class='badge badge-secondary'>Teacher</span>";
-    }else{
+    } else {
         return "-";
     }
 }
 
 function formFieldDefaultValuesFormatter(index, row) {
-    let html = '';
+    let html = "";
     if (row.default_values && row.default_values.length) {
-        html += '<ul>'
+        html += "<ul>";
         $.each(row.default_values, function (index, value) {
-            if(value != null)
-            {
-                html += "<i class='fa fa-arrow-right' aria-hidden='true'></i> " + value + "<br>"
+            if (value != null) {
+                html +=
+                    "<i class='fa fa-arrow-right' aria-hidden='true'></i> " +
+                    value +
+                    "<br>";
             }
         });
     } else {
@@ -3136,12 +3955,17 @@ function formFieldDefaultValuesFormatter(index, row) {
 
 function formFieldOtherValueFormatter(index, row) {
     let otherObj = JSON.parse(row.other);
-    let html = '';
+    let html = "";
     if (otherObj) {
-        html += '<ul>'
-        otherObj.forEach(value => {
+        html += "<ul>";
+        otherObj.forEach((value) => {
             Object.entries(value).forEach(([key, data]) => {
-                html += "<i class='fa fa-arrow-right' aria-hidden='true'></i> " + key + ' - ' + data + '<br>'
+                html +=
+                    "<i class='fa fa-arrow-right' aria-hidden='true'></i> " +
+                    key +
+                    " - " +
+                    data +
+                    "<br>";
             });
         });
     } else {
@@ -3151,72 +3975,76 @@ function formFieldOtherValueFormatter(index, row) {
 }
 
 // Repeater On Default Values section's Option Section
-var editDefaultValuesRepeater = $('.edit-default-values-section').repeater({
+var editDefaultValuesRepeater = $(".edit-default-values-section").repeater({
     show: function () {
-        var optionNumber = parseInt($('.edit-option-section:nth-last-child(2)').find('.edit-option-number').text()) + 1;
+        var optionNumber =
+            parseInt(
+                $(".edit-option-section:nth-last-child(2)")
+                    .find(".edit-option-number")
+                    .text()
+            ) + 1;
 
         if (!optionNumber) {
             optionNumber = 1;
         }
 
-        $(this).find('.edit-option-number').text(optionNumber);
+        $(this).find(".edit-option-number").text(optionNumber);
 
         $(this).slideDown();
-        $(this).addClass('extra-edit-option-section');
+        $(this).addClass("extra-edit-option-section");
 
         editToggleAccessOfDeleteButtons();
-
     },
     hide: function (deleteElement) {
         Swal.fire({
-            title: 'Are you sure?',
+            title: "Are you sure?",
             text: "You won't to delete this element?",
-            icon: 'warning',
+            icon: "warning",
             showCancelButton: true,
-            confirmButtonColor: '#3085d6',
-            cancelButtonColor: '#d33',
-            confirmButtonText: 'Yes, delete it!'
+            confirmButtonColor: "#3085d6",
+            cancelButtonColor: "#d33",
+            confirmButtonText: "Yes, delete it!",
         }).then((result) => {
             if (result.isConfirmed) {
                 $(this).slideUp(deleteElement);
             }
-        })
-
-    }
+        });
+    },
 });
 
-
 let toggleAccessOfDeleteButtons = () => {
-    if ($('.option-section').length >= 3) {
-        $('.remove-default-option').removeAttr('disabled');
+    if ($(".option-section").length >= 3) {
+        $(".remove-default-option").removeAttr("disabled");
     } else {
-        $('.remove-default-option').attr('disabled', false);
+        $(".remove-default-option").attr("disabled", false);
     }
-}
+};
 
 // Function to make remove button accessible on the basis of Option Section Length
 let editToggleAccessOfDeleteButtons = () => {
-    if ($('.edit-option-section').length >= 3) {
-        $('.remove-edit-default-option').removeAttr('disabled');
+    if ($(".edit-option-section").length >= 3) {
+        $(".remove-edit-default-option").removeAttr("disabled");
     } else {
-        $('.remove-edit-default-option').attr('disabled', false);
+        $(".remove-edit-default-option").attr("disabled", false);
     }
-}
+};
 
 // Change the order of Form fields Data
-$('#change-order-form-field').click(async function () {
-    const ids = await $('#table_list').bootstrapTable('getData').map(function (row) {
-        return row.id;
-    });
+$("#change-order-form-field").click(async function () {
+    const ids = await $("#table_list")
+        .bootstrapTable("getData")
+        .map(function (row) {
+            return row.id;
+        });
     $.ajax({
         type: "post",
         url: baseUrl + "/form-fields/change-rank",
         data: {
-            ids: ids
+            ids: ids,
         },
         dataType: "json",
         success: function (data) {
-            $('#table_list').bootstrapTable('refresh');
+            $("#table_list").bootstrapTable("refresh");
             if (!data.error) {
                 showSuccessToast(data.message);
                 setTimeout(() => {
@@ -3225,91 +4053,108 @@ $('#change-order-form-field').click(async function () {
             } else {
                 showErrorToast(data.message);
             }
-        }
+        },
     });
-})
+});
 
 $(".create-form-field").submit(function (e) {
     e.preventDefault();
     let formElement = $(this);
-    let submitButtonElement = $(this).find(':submit');
-    let url = $(this).attr('action');
+    let submitButtonElement = $(this).find(":submit");
+    let url = $(this).attr("action");
     let data = new FormData(this);
 
     function successCallback(response) {
         formElement[0].reset();
-        setTimeout(function() {
+        setTimeout(function () {
             location.reload();
         }, 1000);
     }
-    function errorCallback(response) {
-    }
+    function errorCallback(response) {}
 
-    formAjaxRequest('POST', url, data, formElement, submitButtonElement, successCallback, errorCallback);
+    formAjaxRequest(
+        "POST",
+        url,
+        data,
+        formElement,
+        submitButtonElement,
+        successCallback,
+        errorCallback
+    );
 });
-
 
 $(".edit-form-field").submit(function (e) {
     e.preventDefault();
     let formElement = $(this);
-    let submitButtonElement = $(this).find(':submit');
-    let url = $(this).attr('action');
+    let submitButtonElement = $(this).find(":submit");
+    let url = $(this).attr("action");
     let data = new FormData(this);
 
     function successCallback(response) {
         setTimeout(function () {
-            $('#editModal').modal('hide');
+            $("#editModal").modal("hide");
             location.reload();
-        }, 1000)
+        }, 1000);
         formElement[0].reset();
     }
-    function errorCallback(response) {
-    }
+    function errorCallback(response) {}
 
-    formAjaxRequest('POST', url, data, formElement, submitButtonElement, successCallback, errorCallback);
+    formAjaxRequest(
+        "POST",
+        url,
+        data,
+        formElement,
+        submitButtonElement,
+        successCallback,
+        errorCallback
+    );
 });
 
-$('.send_to').on('change', function () {
+$(".send_to").on("change", function () {
     let send = $(this).val();
-    if(send == 2)
-    {
-        $('#user_div').show(400);
-        $('.user_div').attr('disabled', false);
-    }
-    else{
-        $('#user_div').hide(400);
-        $('.user_div').attr('disabled', true);
+    if (send == 2) {
+        $("#user_div").show(400);
+        $(".user_div").attr("disabled", false);
+    } else {
+        $("#user_div").hide(400);
+        $(".user_div").attr("disabled", true);
     }
 });
 
-
-$('#show-image-uploader').on('change', function () {
-    if ($(this).is(':checked')) {
-        $('#image-uploader').show(400);
-        $('#image-uploader').attr('disabled', false);
+$("#show-image-uploader").on("change", function () {
+    if ($(this).is(":checked")) {
+        $("#image-uploader").show(400);
+        $("#image-uploader").attr("disabled", false);
     } else {
-        $('#image-uploader').hide(400);
-        $('#image-uploader').attr('disabled', true);
+        $("#image-uploader").hide(400);
+        $("#image-uploader").attr("disabled", true);
     }
 });
 
 $(".create-notification").submit(function (e) {
     e.preventDefault();
     let formElement = $(this);
-    let submitButtonElement = $(this).find(':submit');
-    let url = $(this).attr('action');
+    let submitButtonElement = $(this).find(":submit");
+    let url = $(this).attr("action");
     let data = new FormData(this);
 
     function successCallback(response) {
         formElement[0].reset();
-        setTimeout(function() {
+        setTimeout(function () {
             location.reload();
         }, 1000);
     }
-    function errorCallback(response) {
-    }
+    function errorCallback(response) {}
 
-    formAjaxRequest('POST', url, data, formElement, submitButtonElement, successCallback, errorCallback);
+    formAjaxRequest(
+        "POST",
+        url,
+        data,
+        formElement,
+        submitButtonElement,
+        successCallback,
+        errorCallback
+    );
 });
 
 // $(document).ready(function () {
@@ -3321,351 +4166,470 @@ $(".create-notification").submit(function (e) {
 $(".event-form").submit(function (e) {
     e.preventDefault();
     let formElement = $(this);
-    let submitButtonElement = $(this).find(':submit');
-    let url = $(this).attr('action');
+    let submitButtonElement = $(this).find(":submit");
+    let url = $(this).attr("action");
     let data = new FormData(this);
 
     function successCallback(response) {
         formElement[0].reset();
-        setTimeout(function() {
+        setTimeout(function () {
             location.reload();
         }, 1000);
     }
-    function errorCallback(response) {
-    }
+    function errorCallback(response) {}
 
-    formAjaxRequest('POST', url, data, formElement, submitButtonElement, successCallback, errorCallback);
+    formAjaxRequest(
+        "POST",
+        url,
+        data,
+        formElement,
+        submitButtonElement,
+        successCallback,
+        errorCallback
+    );
 });
 
 $("#edit-event").submit(function (e) {
     e.preventDefault();
     let formElement = $(this);
-    let submitButtonElement = $(this).find(':submit');
-    let url = $(this).attr('action');
+    let submitButtonElement = $(this).find(":submit");
+    let url = $(this).attr("action");
     let data = new FormData(this);
     data.append("_method", "PUT");
     function successCallback(response) {
         setTimeout(function () {
-            $('#editModal').modal('hide');
+            $("#editModal").modal("hide");
             location.reload();
-        }, 1000)
+        }, 1000);
         formElement[0].reset();
     }
-    function errorCallback(response) {
-    }
+    function errorCallback(response) {}
 
-    formAjaxRequest('POST', url, data, formElement, submitButtonElement, successCallback, errorCallback);
+    formAjaxRequest(
+        "POST",
+        url,
+        data,
+        formElement,
+        submitButtonElement,
+        successCallback,
+        errorCallback
+    );
 });
 
 $("#edit-content-about").submit(function (e) {
     e.preventDefault();
     let formElement = $(this);
-    let submitButtonElement = $(this).find(':submit');
-    let url = $(this).attr('action');
+    let submitButtonElement = $(this).find(":submit");
+    let url = $(this).attr("action");
     let data = new FormData(this);
 
     function successCallback(response) {
         setTimeout(function () {
-            $('#editModal').modal('hide');
+            $("#editModal").modal("hide");
             location.reload();
-        }, 1000)
+        }, 1000);
         formElement[0].reset();
     }
-    function errorCallback(response) {
-    }
+    function errorCallback(response) {}
 
-    formAjaxRequest('POST', url, data, formElement, submitButtonElement, successCallback, errorCallback);
+    formAjaxRequest(
+        "POST",
+        url,
+        data,
+        formElement,
+        submitButtonElement,
+        successCallback,
+        errorCallback
+    );
 });
 
 $("#edit-content-whoweare").submit(function (e) {
     e.preventDefault();
     let formElement = $(this);
-    let submitButtonElement = $(this).find(':submit');
-    let url = $(this).attr('action');
+    let submitButtonElement = $(this).find(":submit");
+    let url = $(this).attr("action");
     let data = new FormData(this);
 
     function successCallback(response) {
         setTimeout(function () {
-            $('#editModal').modal('hide');
+            $("#editModal").modal("hide");
             location.reload();
-        }, 1000)
+        }, 1000);
         formElement[0].reset();
     }
-    function errorCallback(response) {
-    }
+    function errorCallback(response) {}
 
-    formAjaxRequest('POST', url, data, formElement, submitButtonElement, successCallback, errorCallback);
+    formAjaxRequest(
+        "POST",
+        url,
+        data,
+        formElement,
+        submitButtonElement,
+        successCallback,
+        errorCallback
+    );
 });
 
 $("#edit-content-teacher").submit(function (e) {
     e.preventDefault();
     let formElement = $(this);
-    let submitButtonElement = $(this).find(':submit');
-    let url = $(this).attr('action');
+    let submitButtonElement = $(this).find(":submit");
+    let url = $(this).attr("action");
     let data = new FormData(this);
 
     function successCallback(response) {
         setTimeout(function () {
-            $('#editModal').modal('hide');
+            $("#editModal").modal("hide");
             location.reload();
-        }, 1000)
+        }, 1000);
         formElement[0].reset();
     }
-    function errorCallback(response) {
-    }
+    function errorCallback(response) {}
 
-    formAjaxRequest('POST', url, data, formElement, submitButtonElement, successCallback, errorCallback);
+    formAjaxRequest(
+        "POST",
+        url,
+        data,
+        formElement,
+        submitButtonElement,
+        successCallback,
+        errorCallback
+    );
 });
 
 $("#edit-content-event").submit(function (e) {
     e.preventDefault();
     let formElement = $(this);
-    let submitButtonElement = $(this).find(':submit');
-    let url = $(this).attr('action');
+    let submitButtonElement = $(this).find(":submit");
+    let url = $(this).attr("action");
     let data = new FormData(this);
 
     function successCallback(response) {
         setTimeout(function () {
-            $('#editModal').modal('hide');
+            $("#editModal").modal("hide");
             location.reload();
-        }, 1000)
+        }, 1000);
         formElement[0].reset();
     }
-    function errorCallback(response) {
-    }
+    function errorCallback(response) {}
 
-    formAjaxRequest('POST', url, data, formElement, submitButtonElement, successCallback, errorCallback);
+    formAjaxRequest(
+        "POST",
+        url,
+        data,
+        formElement,
+        submitButtonElement,
+        successCallback,
+        errorCallback
+    );
 });
 
 $("#edit-content-program").submit(function (e) {
     e.preventDefault();
     let formElement = $(this);
-    let submitButtonElement = $(this).find(':submit');
-    let url = $(this).attr('action');
+    let submitButtonElement = $(this).find(":submit");
+    let url = $(this).attr("action");
     let data = new FormData(this);
 
     function successCallback(response) {
         setTimeout(function () {
-            $('#editModal').modal('hide');
+            $("#editModal").modal("hide");
             location.reload();
-        }, 1000)
+        }, 1000);
         formElement[0].reset();
     }
-    function errorCallback(response) {
-    }
+    function errorCallback(response) {}
 
-    formAjaxRequest('POST', url, data, formElement, submitButtonElement, successCallback, errorCallback);
+    formAjaxRequest(
+        "POST",
+        url,
+        data,
+        formElement,
+        submitButtonElement,
+        successCallback,
+        errorCallback
+    );
 });
 
 $("#edit-content-photo").submit(function (e) {
     e.preventDefault();
     let formElement = $(this);
-    let submitButtonElement = $(this).find(':submit');
-    let url = $(this).attr('action');
+    let submitButtonElement = $(this).find(":submit");
+    let url = $(this).attr("action");
     let data = new FormData(this);
 
     function successCallback(response) {
         setTimeout(function () {
-            $('#editModal').modal('hide');
+            $("#editModal").modal("hide");
             location.reload();
-        }, 1000)
+        }, 1000);
         formElement[0].reset();
     }
-    function errorCallback(response) {
-    }
+    function errorCallback(response) {}
 
-    formAjaxRequest('POST', url, data, formElement, submitButtonElement, successCallback, errorCallback);
+    formAjaxRequest(
+        "POST",
+        url,
+        data,
+        formElement,
+        submitButtonElement,
+        successCallback,
+        errorCallback
+    );
 });
 
 $("#edit-content-video").submit(function (e) {
     e.preventDefault();
     let formElement = $(this);
-    let submitButtonElement = $(this).find(':submit');
-    let url = $(this).attr('action');
+    let submitButtonElement = $(this).find(":submit");
+    let url = $(this).attr("action");
     let data = new FormData(this);
 
     function successCallback(response) {
         setTimeout(function () {
-            $('#editModal').modal('hide');
+            $("#editModal").modal("hide");
             location.reload();
-        }, 1000)
+        }, 1000);
         formElement[0].reset();
     }
-    function errorCallback(response) {
-    }
+    function errorCallback(response) {}
 
-    formAjaxRequest('POST', url, data, formElement, submitButtonElement, successCallback, errorCallback);
+    formAjaxRequest(
+        "POST",
+        url,
+        data,
+        formElement,
+        submitButtonElement,
+        successCallback,
+        errorCallback
+    );
 });
 
 $("#edit-content-faq").submit(function (e) {
     e.preventDefault();
     let formElement = $(this);
-    let submitButtonElement = $(this).find(':submit');
-    let url = $(this).attr('action');
+    let submitButtonElement = $(this).find(":submit");
+    let url = $(this).attr("action");
     let data = new FormData(this);
 
     function successCallback(response) {
         setTimeout(function () {
-            $('#editModal').modal('hide');
+            $("#editModal").modal("hide");
             location.reload();
-        }, 1000)
+        }, 1000);
         formElement[0].reset();
     }
-    function errorCallback(response) {
-    }
+    function errorCallback(response) {}
 
-    formAjaxRequest('POST', url, data, formElement, submitButtonElement, successCallback, errorCallback);
+    formAjaxRequest(
+        "POST",
+        url,
+        data,
+        formElement,
+        submitButtonElement,
+        successCallback,
+        errorCallback
+    );
 });
 
 $("#edit-content-app").submit(function (e) {
     e.preventDefault();
     let formElement = $(this);
-    let submitButtonElement = $(this).find(':submit');
-    let url = $(this).attr('action');
+    let submitButtonElement = $(this).find(":submit");
+    let url = $(this).attr("action");
     let data = new FormData(this);
 
     function successCallback(response) {
         setTimeout(function () {
-            $('#editModal').modal('hide');
+            $("#editModal").modal("hide");
             location.reload();
-        }, 1000)
+        }, 1000);
         formElement[0].reset();
     }
-    function errorCallback(response) {
-    }
+    function errorCallback(response) {}
 
-    formAjaxRequest('POST', url, data, formElement, submitButtonElement, successCallback, errorCallback);
+    formAjaxRequest(
+        "POST",
+        url,
+        data,
+        formElement,
+        submitButtonElement,
+        successCallback,
+        errorCallback
+    );
 });
 
 $("#edit-content-question").submit(function (e) {
     e.preventDefault();
     let formElement = $(this);
-    let submitButtonElement = $(this).find(':submit');
-    let url = $(this).attr('action');
+    let submitButtonElement = $(this).find(":submit");
+    let url = $(this).attr("action");
     let data = new FormData(this);
 
     function successCallback(response) {
         setTimeout(function () {
-            $('#editModal').modal('hide');
+            $("#editModal").modal("hide");
             location.reload();
-        }, 1000)
+        }, 1000);
         formElement[0].reset();
     }
-    function errorCallback(response) {
-    }
+    function errorCallback(response) {}
 
-    formAjaxRequest('POST', url, data, formElement, submitButtonElement, successCallback, errorCallback);
+    formAjaxRequest(
+        "POST",
+        url,
+        data,
+        formElement,
+        submitButtonElement,
+        successCallback,
+        errorCallback
+    );
 });
 
 $("#edit-program").submit(function (e) {
     e.preventDefault();
     let formElement = $(this);
-    let submitButtonElement = $(this).find(':submit');
-    let url = $(this).attr('action');
+    let submitButtonElement = $(this).find(":submit");
+    let url = $(this).attr("action");
     let data = new FormData(this);
 
     function successCallback(response) {
         setTimeout(function () {
-            $('#editModal').modal('hide');
+            $("#editModal").modal("hide");
             location.reload();
-        }, 1000)
+        }, 1000);
         formElement[0].reset();
     }
-    function errorCallback(response) {
-    }
+    function errorCallback(response) {}
 
-    formAjaxRequest('POST', url, data, formElement, submitButtonElement, successCallback, errorCallback);
+    formAjaxRequest(
+        "POST",
+        url,
+        data,
+        formElement,
+        submitButtonElement,
+        successCallback,
+        errorCallback
+    );
 });
 
 $("#edit-photo").submit(function (e) {
     e.preventDefault();
     let formElement = $(this);
-    let submitButtonElement = $(this).find(':submit');
-    let url = $(this).attr('action');
+    let submitButtonElement = $(this).find(":submit");
+    let url = $(this).attr("action");
     let data = new FormData(this);
 
     function successCallback(response) {
         setTimeout(function () {
             location.reload();
-        }, 1000)
+        }, 1000);
         formElement[0].reset();
     }
-    function errorCallback(response) {
-    }
+    function errorCallback(response) {}
 
-    formAjaxRequest('POST', url, data, formElement, submitButtonElement, successCallback, errorCallback);
+    formAjaxRequest(
+        "POST",
+        url,
+        data,
+        formElement,
+        submitButtonElement,
+        successCallback,
+        errorCallback
+    );
 });
 
 $("#edit-image").submit(function (e) {
     e.preventDefault();
     let formElement = $(this);
-    let submitButtonElement = $(this).find(':submit');
-    let url = $(this).attr('action');
+    let submitButtonElement = $(this).find(":submit");
+    let url = $(this).attr("action");
     let data = new FormData(this);
 
     function successCallback(response) {
         setTimeout(function () {
             location.reload();
-        }, 1000)
+        }, 1000);
         formElement[0].reset();
     }
-    function errorCallback(response) {
-    }
+    function errorCallback(response) {}
 
-    formAjaxRequest('POST', url, data, formElement, submitButtonElement, successCallback, errorCallback);
+    formAjaxRequest(
+        "POST",
+        url,
+        data,
+        formElement,
+        submitButtonElement,
+        successCallback,
+        errorCallback
+    );
 });
 
 $("#staff-form").submit(function (e) {
     e.preventDefault();
     let formElement = $(this);
-    let submitButtonElement = $(this).find(':submit');
-    let url = $(this).attr('action');
+    let submitButtonElement = $(this).find(":submit");
+    let url = $(this).attr("action");
     let data = new FormData(this);
 
     function successCallback(response) {
         setTimeout(function () {
             location.reload();
-        }, 1000)
+        }, 1000);
         formElement[0].reset();
     }
-    function errorCallback(response) {
-    }
+    function errorCallback(response) {}
 
-    formAjaxRequest('POST', url, data, formElement, submitButtonElement, successCallback, errorCallback);
+    formAjaxRequest(
+        "POST",
+        url,
+        data,
+        formElement,
+        submitButtonElement,
+        successCallback,
+        errorCallback
+    );
 });
 
 $("#staff-edit-form").submit(function (e) {
     e.preventDefault();
     let formElement = $(this);
-    let submitButtonElement = $(this).find(':submit');
-    let url = $(this).attr('action');
+    let submitButtonElement = $(this).find(":submit");
+    let url = $(this).attr("action");
     let data = new FormData(this);
     data.append("_method", "PUT");
     function successCallback(response) {
         setTimeout(function () {
             location.reload();
-        }, 1000)
+        }, 1000);
         formElement[0].reset();
     }
-    function errorCallback(response) {
-    }
+    function errorCallback(response) {}
 
-    formAjaxRequest('POST', url, data, formElement, submitButtonElement, successCallback, errorCallback);
+    formAjaxRequest(
+        "POST",
+        url,
+        data,
+        formElement,
+        submitButtonElement,
+        successCallback,
+        errorCallback
+    );
 });
 
-$(document).on('click', '.image-delete', function (e) {
+$(document).on("click", ".image-delete", function (e) {
     e.preventDefault();
     Swal.fire({
-        title: 'Are you sure?',
+        title: "Are you sure?",
         text: "You won't be able to revert this!",
-        icon: 'warning',
+        icon: "warning",
         showCancelButton: true,
-        confirmButtonColor: '#3085d6',
-        cancelButtonColor: '#d33',
-        confirmButtonText: 'Yes, delete it!'
+        confirmButtonColor: "#3085d6",
+        cancelButtonColor: "#d33",
+        confirmButtonText: "Yes, delete it!",
     }).then((result) => {
         if (result.isConfirmed) {
-            let url = $(this).attr('href');
+            let url = $(this).attr("href");
 
             let data = new FormData();
             data.append("_method", "DELETE");
@@ -3682,62 +4646,82 @@ $(document).on('click', '.image-delete', function (e) {
                 showErrorToast(response.message);
             }
 
-            ajaxRequest('POST', url, data, null, successCallback, errorCallback);
+            ajaxRequest(
+                "POST",
+                url,
+                data,
+                null,
+                successCallback,
+                errorCallback
+            );
         }
     });
 });
 
-
 $("#edit-video").submit(function (e) {
     e.preventDefault();
     let formElement = $(this);
-    let submitButtonElement = $(this).find(':submit');
-    let url = $(this).attr('action');
+    let submitButtonElement = $(this).find(":submit");
+    let url = $(this).attr("action");
     let data = new FormData(this);
 
     function successCallback(response) {
         setTimeout(function () {
             location.reload();
-        }, 1000)
+        }, 1000);
         formElement[0].reset();
     }
-    function errorCallback(response) {
-    }
+    function errorCallback(response) {}
 
-    formAjaxRequest('POST', url, data, formElement, submitButtonElement, successCallback, errorCallback);
+    formAjaxRequest(
+        "POST",
+        url,
+        data,
+        formElement,
+        submitButtonElement,
+        successCallback,
+        errorCallback
+    );
 });
 
 $("#id-card-setting").submit(function (e) {
     e.preventDefault();
     let formElement = $(this);
-    let submitButtonElement = $(this).find(':submit');
-    let url = $(this).attr('action');
+    let submitButtonElement = $(this).find(":submit");
+    let url = $(this).attr("action");
     let data = new FormData(this);
 
     function successCallback(response) {
         setTimeout(function () {
             location.reload();
-        }, 1000)
+        }, 1000);
         formElement[0].reset();
     }
-    function errorCallback(response) {
-    }
+    function errorCallback(response) {}
 
-    formAjaxRequest('POST', url, data, formElement, submitButtonElement, successCallback, errorCallback);
+    formAjaxRequest(
+        "POST",
+        url,
+        data,
+        formElement,
+        submitButtonElement,
+        successCallback,
+        errorCallback
+    );
 });
 
-$(document).on('click', '.student-id-card-settings', function (e) {
+$(document).on("click", ".student-id-card-settings", function (e) {
     e.preventDefault();
-    let type = $(this).data('type');
-    let link = baseUrl + '/remove-image/';
+    let type = $(this).data("type");
+    let link = baseUrl + "/remove-image/";
     Swal.fire({
-        title: 'Are you sure?',
+        title: "Are you sure?",
         text: "You won't be able to revert this!",
-        icon: 'warning',
+        icon: "warning",
         showCancelButton: true,
-        confirmButtonColor: '#3085d6',
-        cancelButtonColor: '#d33',
-        confirmButtonText: 'Yes, delete it!'
+        confirmButtonColor: "#3085d6",
+        cancelButtonColor: "#d33",
+        confirmButtonText: "Yes, delete it!",
     }).then((result) => {
         if (result.isConfirmed) {
             let url = link + type;
@@ -3747,7 +4731,7 @@ $(document).on('click', '.student-id-card-settings', function (e) {
             data.append("_token", $("meta[name=csrf-token]").attr("content"));
 
             function successCallback(response) {
-                $('#' + type).hide(500);
+                $("#" + type).hide(500);
                 setTimeout(function () {
                     location.reload();
                 }, 1000);
@@ -3758,138 +4742,215 @@ $(document).on('click', '.student-id-card-settings', function (e) {
                 showErrorToast(response.message);
             }
 
-            ajaxRequest('POST', url, data, null, successCallback, errorCallback);
+            ajaxRequest(
+                "POST",
+                url,
+                data,
+                null,
+                successCallback,
+                errorCallback
+            );
         }
     });
 });
 
-
 $("#leave-setting").submit(function (e) {
     e.preventDefault();
     let formElement = $(this);
-    let submitButtonElement = $(this).find(':submit');
-    let url = $(this).attr('action');
+    let submitButtonElement = $(this).find(":submit");
+    let url = $(this).attr("action");
     let data = new FormData(this);
     data.append("_method", "PUT");
 
     function successCallback(response) {
         setTimeout(function () {
             location.reload();
-        }, 1000)
+        }, 1000);
         formElement[0].reset();
     }
-    function errorCallback(response) {
-    }
+    function errorCallback(response) {}
 
-    formAjaxRequest('POST', url, data, formElement, submitButtonElement, successCallback, errorCallback);
+    formAjaxRequest(
+        "POST",
+        url,
+        data,
+        formElement,
+        submitButtonElement,
+        successCallback,
+        errorCallback
+    );
 });
 
-$('#to_date,#from_date').change(function (e) {
+$("#to_date,#from_date").change(function (e) {
     e.preventDefault();
-    let from_date = $('#from_date').val().split("-").reverse().join("-");
-    let to_date = $('#to_date').val().split("-").reverse().join("-");
-    let div = '.leave_dates';
-    let to_date_null = '#to_date';
-    let disabled = '';
-    let holiday_days = $('.holiday_days').val();
+    let from_date = $("#from_date").val().split("-").reverse().join("-");
+    let to_date = $("#to_date").val().split("-").reverse().join("-");
+    let div = ".leave_dates";
+    let to_date_null = "#to_date";
+    let disabled = "";
+    let holiday_days = $(".holiday_days").val();
     // public_holiday
-    let public_holiday = $('.public_holiday').val();
+    let public_holiday = $(".public_holiday").val();
     if (holiday_days) {
-        holiday_days = holiday_days.split(',');
+        holiday_days = holiday_days.split(",");
     } else {
         holiday_days = [];
     }
-    let html = date_list(from_date, to_date, div, to_date_null, disabled, holiday_days, public_holiday);
+    let html = date_list(
+        from_date,
+        to_date,
+        div,
+        to_date_null,
+        disabled,
+        holiday_days,
+        public_holiday
+    );
 
-    $('.leave_dates').html(html);
+    $(".leave_dates").html(html);
 });
 
-$('#edit_to_date,#edit_from_date').change(function (e) {
+$("#edit_to_date,#edit_from_date").change(function (e) {
     e.preventDefault();
-    let from_date = $('#edit_from_date').val().split("-").reverse().join("-");
-    let to_date = $('#edit_to_date').val().split("-").reverse().join("-");
-    let div = '.edit_leave_dates';
-    let to_date_null = '#edit_to_date';
-    let disabled = 'disabled';
-    let holiday_days = $('.holiday_days').val();
-    let public_holiday = $('.public_holiday').val();
+    let from_date = $("#edit_from_date").val().split("-").reverse().join("-");
+    let to_date = $("#edit_to_date").val().split("-").reverse().join("-");
+    let div = ".edit_leave_dates";
+    let to_date_null = "#edit_to_date";
+    let disabled = "disabled";
+    let holiday_days = $(".holiday_days").val();
+    let public_holiday = $(".public_holiday").val();
     console.log(holiday_days);
     if (holiday_days) {
-        holiday_days = holiday_days.split(',');
+        holiday_days = holiday_days.split(",");
     } else {
         holiday_days = [];
     }
-    let html = date_list(from_date, to_date, div, to_date_null, disabled, holiday_days, public_holiday);
+    let html = date_list(
+        from_date,
+        to_date,
+        div,
+        to_date_null,
+        disabled,
+        holiday_days,
+        public_holiday
+    );
 
-    $('.edit_leave_dates').html(html);
+    $(".edit_leave_dates").html(html);
 });
 
-function date_list(from_date, to_date, div, to_date_null, disabled, holiday_days, public_holiday) {
+function date_list(
+    from_date,
+    to_date,
+    div,
+    to_date_null,
+    disabled,
+    holiday_days,
+    public_holiday
+) {
     if (from_date && to_date) {
         from_date = new Date(from_date);
         to_date = new Date(to_date);
-        var days = ["Sunday","Monday","Tuesday", "Wednesday", "Thursday","Friday","Saturday"];
+        var days = [
+            "Sunday",
+            "Monday",
+            "Tuesday",
+            "Wednesday",
+            "Thursday",
+            "Friday",
+            "Saturday",
+        ];
         if (from_date > to_date) {
-            $(to_date_null).val('');
+            $(to_date_null).val("");
         }
 
         if (public_holiday) {
-            public_holiday = public_holiday.split(',');
+            public_holiday = public_holiday.split(",");
         }
 
-        let html = '';
+        let html = "";
         $(div).slideDown(500);
         while (from_date <= to_date) {
-            let date = moment(from_date, 'YYYY-MM-DD').format('DD-MM-YYYY');
+            let date = moment(from_date, "YYYY-MM-DD").format("DD-MM-YYYY");
             let day = days[from_date.getDay()];
             if (!holiday_days.includes(day) && !public_holiday.includes(date)) {
                 html += '<div class="form-group col-sm-12 col-md-12">';
-                html += '<label class="mr-2">' + date + '</label>-';
-                html += '<label class="ml-2">' + day + '</label>';
-                html += '<div class="form-group row col-sm-12 col-md-12"> <div class="form-check mr-3"> <label class="form-check-label"> <input type="radio" class="form-check-input" name="type[' + date + '][]" id="optionsRadios1" checked="" ' + disabled + ' value="Full"> ' + 'Full' + ' <i class="input-helper"></i></label> </div> <div class="form-check mr-3"> <label class="form-check-label"> <input type="radio" class="form-check-input" name="type[' + date + '][]" id="optionsRadios2" ' + disabled + ' value="First Half"> ' + "First Half" + ' <i class="input-helper"></i></label> </div> <div class="form-check mr-3"> <label class="form-check-label"> <input type="radio" class="form-check-input" name="type[' + date + '][]" id="optionsRadios3" ' + disabled + ' value="Second Half">' + "Second Half" + ' <i class="input-helper"></i></label> </div> </div>';
-                html += '</div>';
+                html += '<label class="mr-2">' + date + "</label>-";
+                html += '<label class="ml-2">' + day + "</label>";
+                html +=
+                    '<div class="form-group row col-sm-12 col-md-12"> <div class="form-check mr-3"> <label class="form-check-label"> <input type="radio" class="form-check-input" name="type[' +
+                    date +
+                    '][]" id="optionsRadios1" checked="" ' +
+                    disabled +
+                    ' value="Full"> ' +
+                    "Full" +
+                    ' <i class="input-helper"></i></label> </div> <div class="form-check mr-3"> <label class="form-check-label"> <input type="radio" class="form-check-input" name="type[' +
+                    date +
+                    '][]" id="optionsRadios2" ' +
+                    disabled +
+                    ' value="First Half"> ' +
+                    "First Half" +
+                    ' <i class="input-helper"></i></label> </div> <div class="form-check mr-3"> <label class="form-check-label"> <input type="radio" class="form-check-input" name="type[' +
+                    date +
+                    '][]" id="optionsRadios3" ' +
+                    disabled +
+                    ' value="Second Half">' +
+                    "Second Half" +
+                    ' <i class="input-helper"></i></label> </div> </div>';
+                html += "</div>";
             }
             from_date.setDate(from_date.getDate() + 1);
         }
         return html;
     }
-
 }
 
 $(".status-update").submit(function (e) {
     e.preventDefault();
     let formElement = $(this);
-    let submitButtonElement = $(this).find(':submit');
-    let url = $(this).attr('action');
+    let submitButtonElement = $(this).find(":submit");
+    let url = $(this).attr("action");
     let data = new FormData(this);
 
     function successCallback(response) {
         setTimeout(function () {
             location.reload();
-        }, 1000)
+        }, 1000);
         formElement[0].reset();
     }
-    function errorCallback(response) {
-    }
+    function errorCallback(response) {}
 
-    formAjaxRequest('POST', url, data, formElement, submitButtonElement, successCallback, errorCallback);
+    formAjaxRequest(
+        "POST",
+        url,
+        data,
+        formElement,
+        submitButtonElement,
+        successCallback,
+        errorCallback
+    );
 });
 
 $("#create-leave").submit(function (e) {
     e.preventDefault();
     let formElement = $(this);
-    let submitButtonElement = $(this).find(':submit');
-    let url = $(this).attr('action');
+    let submitButtonElement = $(this).find(":submit");
+    let url = $(this).attr("action");
     let data = new FormData(this);
 
     function successCallback(response) {
         setTimeout(function () {
             location.reload();
-        }, 1000)
+        }, 1000);
         formElement[0].reset();
     }
-    function errorCallback(response) {
-    }
+    function errorCallback(response) {}
 
-    formAjaxRequest('POST', url, data, formElement, submitButtonElement, successCallback, errorCallback);
+    formAjaxRequest(
+        "POST",
+        url,
+        data,
+        formElement,
+        submitButtonElement,
+        successCallback,
+        errorCallback
+    );
 });

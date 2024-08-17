@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Traits\TenantImageTrait;
 use Throwable;
 use App\Models\User;
 use App\Models\Teacher;
@@ -18,21 +19,14 @@ use Illuminate\Support\Facades\{
     Storage,
     Validator
 };
-
 class TeacherController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
     public function index()
     {
         if (! Auth::user()->can('teacher-list')) {
-            $response = array(
+            return to_route('home')->withErrors([
                 'message' => trans('no_permission_message')
-            );
-            return redirect(route('home'))->withErrors($response);
+            ]);
         }
         $teacherFields = FormField::where('for', 3)->orderBy('rank', 'ASC')->get();
         return view('teacher.index', compact('teacherFields'));
@@ -41,28 +35,20 @@ class TeacherController extends Controller
     public function teacherListIndex()
     {
         if (! Auth::user()->can('teacher-list')) {
-            $response = array(
+            return to_route('home')->withErrors([
                 'message' => trans('no_permission_message')
-            );
-            return redirect(route('home'))->withErrors($response);
+            ]);
         }
         $teacherFields = FormField::where('for', 3)->orderBy('rank', 'ASC')->get();
         return view('teacher.details', compact('teacherFields'));
     }
 
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param \Illuminate\Http\Request $request
-     * @return \Illuminate\Http\Response
-     */
     public function store(Request $request)
     {
         if (! Auth::user()->can('teacher-create') || ! Auth::user()->can('teacher-edit')) {
-            $response = array(
+            return response()->json([
                 'message' => trans('no_permission_message')
-            );
-            return response()->json($response);
+            ]);
         }
         $validator = Validator::make(
             $request->all(),
@@ -82,11 +68,10 @@ class TeacherController extends Controller
             ]
         );
         if ($validator->fails()) {
-            $response = array(
+            return response()->json([
                 'error' => true,
                 'message' => $validator->errors()->first()
-            );
-            return response()->json($response);
+            ]);
         }
         try {
             DB::beginTransaction();
@@ -99,7 +84,7 @@ class TeacherController extends Controller
                 if ($request->hasFile('image')) {
                     $image = $request->file('image');
                     // made file name with combination of current time
-                    $file_name = time() . '-' . $image->getClientOriginalName();
+                    $file_name = time() . '-' . $image->hashName();
                     //made file path to store in database
                     $file_path = 'teachers/' . $file_name;
                     //resized image
@@ -207,9 +192,9 @@ class TeacherController extends Controller
                     'school_name' => $school_name['school_name']
                 ];
 
-                Mail::send('teacher.email', $data, function ($message) use ($data) {
-                    $message->to($data['email'])->subject($data['subject']);
-                });
+                // Mail::send('teacher.email', $data, function ($message) use ($data) {
+                //     $message->to($data['email'])->subject($data['subject']);
+                // });
             } else {
                 $user = new User();
                 if ($request->hasFile('image')) {
@@ -245,7 +230,7 @@ class TeacherController extends Controller
                 $teacher = new Teacher();
 
                 $formFields = FormField::where('for', 3)->orderBy('rank', 'ASC')->get();
-                $data = array();
+                $data = [];
                 $status = 0;
                 $dynamic_data = json_decode($teacher->dynamic_field_values, true);
                 foreach ($formFields as $form_field) {
@@ -318,9 +303,9 @@ class TeacherController extends Controller
                     'school_name' => $school_name['school_name']
                 ];
 
-                Mail::send('teacher.email', $data, function ($message) use ($data) {
-                    $message->to($data['email'])->subject($data['subject']);
-                });
+                // Mail::send('teacher.email', $data, function ($message) use ($data) {
+                //     $message->to($data['email'])->subject($data['subject']);
+                // });
             }
             $response = [
                 'error' => false,
@@ -390,10 +375,10 @@ class TeacherController extends Controller
         $sql->orderBy($sort, $order)->skip($offset)->take($limit);
         $res = $sql->get();
 
-        $bulkData = array();
+        $bulkData = [];
         $bulkData['total'] = $total;
-        $rows = array();
-        $tempRow = array();
+        $rows = [];
+        $tempRow = [];
         $no = 1;
         foreach ($res as $row) {
             $operate = '<a class="btn btn-xs btn-gradient-primary btn-rounded btn-icon editdata" data-id=' . $row->id . ' data-url=' . url('teachers') . ' title="Edit" data-toggle="modal" data-target="#editModal"><i class="fa fa-edit"></i></a>&nbsp;&nbsp;';
@@ -438,7 +423,7 @@ class TeacherController extends Controller
      */
     public function edit($id)
     {
-        $teacher = Teacher::find($id);
+        $teacher = Teacher::findOrFail($id);
         return response($teacher);
     }
 
@@ -469,11 +454,10 @@ class TeacherController extends Controller
             ]
         );
         if ($validator->fails()) {
-            $response = array(
+            return response()->json([
                 'error' => true,
                 'message' => $validator->errors()->first()
-            );
-            return response()->json($response);
+            ]);
         }
         try {
             $user = User::find($request->user_id);
@@ -508,7 +492,7 @@ class TeacherController extends Controller
 
             // Teacher dynamic fields
             $formFields = FormField::where('for', 3)->orderBy('rank', 'ASC')->get();
-            $data = array();
+            $data = [];
             $status = 0;
             $i = 0;
             $dynamic_data = json_decode($teacher->dynamic_fields, true);
@@ -605,10 +589,9 @@ class TeacherController extends Controller
     public function destroy($id)
     {
         if (! Auth::user()->can('teacher-delete')) {
-            $response = array(
+            return response()->json([
                 'message' => trans('no_permission_message')
-            );
-            return response()->json($response);
+            ]);
         }
         try {
             $teacher = Teacher::where('user_id', $id)->with('user')->first();
@@ -643,10 +626,10 @@ class TeacherController extends Controller
                 ];
             }
         } catch (Throwable $e) {
-            $response = array(
+            $response = [
                 'error' => true,
                 'message' => trans('error_occurred')
-            );
+            ];
         }
         return response()->json($response);
     }

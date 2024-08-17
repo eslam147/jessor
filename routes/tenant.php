@@ -114,6 +114,7 @@ Route::middleware([
         Route::prefix('student_dashboard')->group(function () {
             Route::group(['middleware' => 'student_authorized'], function () {
                 Route::resource('/home', StudentDashboardController::class);
+                Route::get('/coupon/history', [StudentDashboardController::class,'couponHistory'])->name('coupon.history');
                 Route::resource('/subjects', StudentSubjectController::class);
                 Route::controller(StudentSubjectController::class)->prefix('subjects')->as('subjects.')->group(function () {
                     Route::get('/', 'index')->name('index');
@@ -354,9 +355,7 @@ Route::middleware([
                 Route::get('fees/transaction-logs/list', [FeesTypeController::class, 'feesTransactionsLogsList'])->name('fees.transactions.log.list');
 
                 Route::get('fees/paid/receipt-pdf/{id}', [FeesTypeController::class, 'feesPaidReceiptPDF'])->name('fees.paid.receipt.pdf');
-                Route::get('fees/fees-receipt', function () {
-                    return view('fees.fees_receipt');
-                })->name('fees.receipt');
+                Route::view('fees/fees-receipt', 'fees.fees_receipt')->name('fees.receipt');
 
                 // //Pending Fees
                 // Route::get('fees/fees-pending',[FeesTypeController::class,'feesPendingIndex'])->name('fees.pending.index');
@@ -486,6 +485,7 @@ Route::middleware([
                     Route::get('/', 'index')->name('index');
                     Route::get('/list', 'list')->name('list');
                     Route::post('store', 'store')->name('store');
+                    Route::post('export', 'export')->name('export');
                     Route::put('status/{coupon}', 'changeStatus')->name('status');
 
                     Route::get('create', 'create')->name('create');

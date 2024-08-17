@@ -47,7 +47,7 @@ class RegisterAuthService
     {
         return Parents::whereId($parentId)->first();
     }
-    protected function createUser($firstName, $lastName, $mobile, $email, $password, $gender): User
+    private function createUser($firstName, $lastName, $mobile, $email, $password, $gender): User
     {
         return User::create([
             'first_name' => $firstName,

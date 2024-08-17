@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\student;
 
+use App\Models\Coupon;
 use App\Models\Students;
 use App\Models\ClassSection;
 use App\Models\ClassSubject;
@@ -48,8 +49,13 @@ class StudentDashboardController extends Controller
         //
     }
 
-    public function destroy($id)
+    public function couponHistory()
     {
-        //
+        $user = Auth::user();
+        $usagesCoupons = Coupon::withWhereHas('usages', function ($query) use ($user) {
+            $query->where('used_by_user_type', get_class($user))->where('used_by_user_id', $user->id);
+        })->get();
+
+        return view('student_dashboard.coupons.history', compact('usagesCoupons'));
     }
 }

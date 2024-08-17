@@ -658,5 +658,14 @@
     "preferred_size" : "Preferred Size (:w x :h)",
     "download_link" : "Download Link",
     "device_limit" : "device limit",
-    "Protection_browser" : "Protection browser"
+    "Protection_browser" : "Protection browser",
+    "coupon_errors_price_limit" :"Coupon price limit exceeded",
+    "all_teachers" : "All Teachers",
+    "all_lessons" : "All Lessons",
+    "select_medium" : "Select Medium",
+    "enter_tags": "Enter Tags",
+    "select_status": "Select Status",
+    "enter_price": "Enter Price",
+    "all_classes" : "All Classes",
+    "all_subjects" : "All Subjects"
 }

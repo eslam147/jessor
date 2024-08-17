@@ -245,7 +245,7 @@ class StudentApiController extends Controller
             //Set Category name
             $user->category_name = $user->student->category->name;
             unset($user->student->category);
-            $class_id = $user->student->class_section->class_id;
+            $class_id = $user->student->class_section?->class_id;
 
             if ($compulsory_fees_mode == 1) {
                 if (isset($free_app_use_date)) {

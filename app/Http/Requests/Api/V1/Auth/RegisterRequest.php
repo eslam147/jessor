@@ -20,7 +20,7 @@ class RegisterRequest extends ApiRequest
 
             'class_section_id' => 'required|exists:class_sections,id',
             'category_id' => 'required|exists:categories,id',
-            'email_addreess' => 'required|unique:users,email',
+            'email_addreess' => 'required|email|unique:users,email',
             // 'admission_date' => 'required',
 
             'parent' => 'required_without:guardian',

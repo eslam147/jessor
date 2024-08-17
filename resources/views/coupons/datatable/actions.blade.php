@@ -1,9 +1,9 @@
-{{-- @can('coupons-edit')
+@can('coupons-edit')
     <a href='{{ route('coupons.edit', $row->id) }}' class="btn btn-xs btn-gradient-primary btn-rounded btn-icon edit-data"
         data-id='{{ $row->id }}' title="Edit" href="{{ route('coupons.edit', $row->id) }}">
         <i class="fa fa-edit"></i>
     </a>
-@endcan --}}
+@endcan
 @can('coupons-list')
     <a href='{{ route('coupons.show', $row->id) }}' class="btn btn-xs btn-gradient-info btn-rounded btn-icon view_coupon"
         data-id='{{ $row->id }}'>

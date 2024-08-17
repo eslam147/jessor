@@ -2,13 +2,17 @@
 
 namespace App\Http\Controllers;
 
+use Spatie\Tags\Tag;
 use App\Models\Coupon;
 use App\Models\Lesson;
 use App\Models\Mediums;
 use App\Models\Teacher;
+use App\Models\ClassSchool;
 use App\Models\ClassSection;
 use App\Models\ClassSubject;
 use Illuminate\Http\Request;
+use App\Exports\CouponExport;
+use Maatwebsite\Excel\Facades\Excel;
 use App\Services\Coupon\CouponService;
 use App\Http\Requests\Dashboard\Coupon\CouponRequest;
 
@@ -24,11 +28,22 @@ class CouponController extends Controller
     }
     public function index()
     {
-        return view('coupons.index');
+        $classes = ClassSchool::get();
+        $tags = Tag::get();
+        $classSubjects = ClassSubject::with('subject')->get();
+        $mediums = Mediums::with('class')->has('class')->get();
+        $teachers = Teacher::has('lessons')->with('lessons', 'subjects')->get();
+        $lessons = Lesson::get();
+        return view('coupons.index', compact('classes', 'teachers', 'lessons', 'classSubjects', 'mediums', 'tags'));
+    }
+    public function export(Request $request)
+    {
+        $couponIds = $this->filter(Coupon::query())->pluck('id')->toArray();
+        return Excel::download(new CouponExport($couponIds), "coupons_list.xlsx");
     }
     public function list()
     {
-        $coupons = Coupon::query();
+        $coupons = Coupon::query()->with('tags');
         $mappedOrderKeys = [
             'id' => 'id',
             'code' => 'code',
@@ -39,27 +54,29 @@ class CouponController extends Controller
         $sort = request('sort', 'id');
         $limit = request('limit', 10);
         $order = request('order', 'DESC');
-        $purchased = request('purchased');
+        $purchased = request()->filled('purchased');
 
         if ($limit <= 0) {
             $limit = 10;
         } elseif ($limit > 100) {
             $limit = 100;
         }
-
-
-        $coupons->when(request()->has('search'), function ($q) {
-            $search = request('search');
-            return $q->where('id', 'LIKE', "%{$search}%")
-                ->orwhere('code', 'LIKE', "%{$search}%");
+        $coupons->when(request()->filled('tags'), function ($q) {
+            $tags = explode(',', request('tags'));
+            return $q->whereHas('tags', function ($query) use ($tags) {
+                array_map('trim', $tags);
+                $query->where(function () use ($tags, $query) {
+                    foreach ($tags as $tag) {
+                        $query->orWhere("name->en","LIKE", "%{$tag}%");
+                    }
+                });
+            });
         });
-        $coupons->when($purchased, fn($q) => $q->has('usages'));
-
+        $coupons = $this->filter($coupons);
         $total = $coupons->count();
 
         $findOrderKey = in_array($sort, array_keys($mappedOrderKeys));
 
-        $coupons->when($purchased, fn($q) => $q->has('usages'));
         $coupons
             ->withCount('usages')
             ->with('classModel', 'classModel.medium', 'classModel.streams', 'subject:id,name')
@@ -79,10 +96,11 @@ class CouponController extends Controller
             $tempRow['no'] = $no++;
             $tempRow['code'] = $row->code;
             $tempRow['used_count'] = $row->usages_count;
-            $tempRow['class_name'] = optional($row->classModel)->name . "-" . optional($row->classModel)->section?->name . " - " . optional($row->classModel)?->medium?->name . " " . optional($row->classModel)?->streams?->name;
-            $tempRow['subject_name'] = optional($row->subject)->name;
+            $tempRow['tags_imploded'] = $row->tags->pluck('name')->implode(', ');
+            $tempRow['class_name'] = optional($row->classModel)?->name ?? 'N/A';
+            $tempRow['subject_name'] = optional($row->subject)?->name ?? 'N/A';
             $tempRow['expiry_date'] = $row->expiry_date->toDateString();
-            $tempRow['price'] = number_format($row->price, 2);
+            $tempRow['price'] = !is_null($row->price) ? number_format($row->price, 2) : 'N/A';
             $tempRow['maximum_usage'] = $row->maximum_usage;
             $tempRow['created_at'] = convertDateFormat($row->created_at, 'd-m-Y H:i:s');
             $tempRow['updated_at'] = convertDateFormat($row->updated_at, 'd-m-Y H:i:s');
@@ -118,7 +136,7 @@ class CouponController extends Controller
         });
 
         $teachers = Teacher::with('user', 'subjects')->get();
-        $lessons = Lesson::select('name', 'teacher_id','subject_id', 'class_section_id', 'id')->addSelect([
+        $lessons = Lesson::select('name', 'teacher_id', 'subject_id', 'class_section_id', 'id')->addSelect([
             'class_id' => ClassSection::select('class_id')->whereColumn('id', 'lessons.class_section_id'),
         ])->get();
         return view('coupons.create', compact('teachers', 'lessons', 'mediums', 'subjects'));
@@ -159,7 +177,7 @@ class CouponController extends Controller
                 'only_applied_to' => $coupon->only_applied_to_type instanceof Lesson ? $coupon->onlyAppliedTo->name : '',
                 'is_disabled' => $coupon->is_disabled,
                 'used_count' => $coupon->usages()->count(),
-                'teacher' => $coupon->teacher->user->name,
+                'teacher' => optional($coupon->teacher)->user->name ?? 'N/A',
                 'created_at' => convertDateFormat($coupon->created_at, 'd-m-Y H:i:s'),
                 'type' => $coupon->type->translatedName()
             ],
@@ -169,7 +187,8 @@ class CouponController extends Controller
 
     public function changeStatus(Request $request, Coupon $coupon)
     {
-        $status = $request->json()->all()['status'] ?? 1;
+        $status = $request->json()->getBoolean('status');
+
         $coupon->update([
             'is_disabled' => $status
         ]);
@@ -214,7 +233,7 @@ class CouponController extends Controller
 
     public function update(CouponRequest $request, Coupon $coupon)
     {
-        $this->couponService->updateCoupon($request, $coupon);
+        $coupon = $this->couponService->updateCoupon($request, $coupon);
 
         return response()->json([
             'error' => false,
@@ -232,5 +251,53 @@ class CouponController extends Controller
             'error' => false,
             'message' => trans('data_delete_successfully')
         ]);
+    }
+    
+    private function filter($couponQuery){
+        $couponQuery->when(request()->filled('search'), function ($q) {
+            $search = request('search');
+            return $q->where('id', 'LIKE', "%{$search}%")->orWhere('code', 'LIKE', "%{$search}%");
+        });
+        $couponQuery->when(request()->filled('filter_by_medium'), function ($q) {
+            return $q->whereHas('classModel', function ($q) {
+                $q->where('medium_id', request('filter_by_medium'));
+            });
+        });
+
+        $couponQuery->when(request('class_id'), function ($q, $val) {
+            return $q->where('class_id', $val);
+        });
+
+        $couponQuery->when(request('teacher_id'), function ($q, $val) {
+            return $q->where('teacher_id', $val);
+        });
+
+        $couponQuery->when(request('subject_id'), function ($q, $val) {
+            return $q->where('subject_id', $val);
+        });
+
+        $couponQuery->when(request('lesson_id'), function ($q, $val) {
+            return $q->where('lesson_id', $val);
+        });
+
+        $couponQuery->when(request()->filled('filter_start_date'), function ($q) {
+            return $q->whereDate('created_at', '>=', request('filter_start_date'));
+        });
+
+        $couponQuery->when(request()->filled('filter_end_date'), function ($q) {
+            return $q->whereDate('created_at', '<=', request('filter_end_date'));
+        });
+
+        $couponQuery->when(request()->filled('filter_status'), function ($q) {
+            $selectedValue = request()->boolean('filter_status');
+            if ($selectedValue) {
+                return $q->where('is_disabled', 1);
+            }
+            return $q->where('is_disabled', 0);
+        });
+
+
+        $couponQuery->when(request()->filled('purchased'), fn($q) => $q->has('usages'));
+        return $couponQuery;
     }
 }
