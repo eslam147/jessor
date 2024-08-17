@@ -90,7 +90,7 @@ class CouponController extends Controller
             $tempRow['class_name'] = optional($row->classModel)?->name ?? 'N/A';
             $tempRow['subject_name'] = optional($row->subject)?->name ?? 'N/A';
             $tempRow['expiry_date'] = $row->expiry_date->toDateString();
-            $tempRow['price'] = number_format($row->price, 2);
+            $tempRow['price'] = !is_null($row->price) ? number_format($row->price, 2) : 'N/A';
             $tempRow['maximum_usage'] = $row->maximum_usage;
             $tempRow['created_at'] = convertDateFormat($row->created_at, 'd-m-Y H:i:s');
             $tempRow['updated_at'] = convertDateFormat($row->updated_at, 'd-m-Y H:i:s');

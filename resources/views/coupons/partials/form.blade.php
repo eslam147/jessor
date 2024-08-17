@@ -44,13 +44,13 @@
 
         <div class="form-check form-check-inline">
             <label class="form-check-label">
-                <input type="checkbox" value="true" class="form-check-input coupon_has_price"
+                <input type="checkbox" value="true" {{ !empty($coupon->price) ? 'checked' : ''}} class="form-check-input coupon_has_price"
                     id="coupon_has_price">With Price
                 <i class="input-helper"></i><i class="input-helper"></i></label>
         </div>
     </div>
 
-    <div class="form-group col-sm-12 coupon_price d-none">
+    <div class="form-group col-sm-12 coupon_price {{ !empty($coupon->price) ? '' : 'd-none' }}">
         <label>{{ __('price') }}<span class="text-danger">*</span></label>
 
         {!! Form::number('price', isset($coupon) ? $coupon->price : '', [

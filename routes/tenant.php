@@ -353,9 +353,7 @@ Route::middleware([
                 Route::get('fees/transaction-logs/list', [FeesTypeController::class, 'feesTransactionsLogsList'])->name('fees.transactions.log.list');
 
                 Route::get('fees/paid/receipt-pdf/{id}', [FeesTypeController::class, 'feesPaidReceiptPDF'])->name('fees.paid.receipt.pdf');
-                Route::get('fees/fees-receipt', function () {
-                    return view('fees.fees_receipt');
-                })->name('fees.receipt');
+                Route::view('fees/fees-receipt', 'fees.fees_receipt')->name('fees.receipt');
 
                 // //Pending Fees
                 // Route::get('fees/fees-pending',[FeesTypeController::class,'feesPendingIndex'])->name('fees.pending.index');
