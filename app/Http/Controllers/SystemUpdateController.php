@@ -13,7 +13,8 @@ class SystemUpdateController extends Controller
 {
     public function __construct()
     {
-        abort(404);
+        $this->errorResponse('no_permission_message', 403)->send();
+
         $this->destinationPath = base_path() . '/update/tmp/';
     }
 

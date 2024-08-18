@@ -2,22 +2,22 @@
 
 namespace App\Models;
 
-use App\Models\Staff;
-use App\Models\UserDevice;
-use App\Models\Notification;
-use App\Models\UserNotification;
+use Cog\Contracts\Ban\Bannable as BannableInterface;
+use Cog\Laravel\Ban\Traits\Bannable;
+
 use Laravel\Sanctum\HasApiTokens;
 use Spatie\Permission\Traits\HasRoles;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 
-class User extends Authenticatable
+class User extends Authenticatable implements BannableInterface
 {
     use HasApiTokens, HasFactory, Notifiable, HasRoles;
     use SoftDeletes;
+    use Bannable;
+
     /**
      * The attributes that are mass assignable.
      *
@@ -30,16 +30,16 @@ class User extends Authenticatable
         'first_name',
         'last_name',
         'mobile',
+        'banned_at'
+    ];
+    protected $appends =[
+        'full_name'
     ];
 
     public function devices()
     {
         return $this->hasMany(UserDevice::class);
     }
-    // protected $appends =[
-    //     'original_image'
-    // ];
-
     /**
      * The attributes that should be hidden for arrays.
      *
@@ -90,6 +90,10 @@ class User extends Authenticatable
     public function getImageAttribute($value)
     {
         return tenant_asset($value);
+    }
+    public function getFullNameAttribute()
+    {
+        return $this->first_name . ' ' . $this->last_name;
     }
 
     // //Getter Attributes

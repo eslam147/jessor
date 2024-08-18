@@ -101,6 +101,66 @@
             }
         })
     });
+    $(document).on('click', '.user_ban', function(e) {
+        e.preventDefault();
+        Swal.fire({
+            title: "{{ __('delete_title') }}",
+            text: "{{ __('confirm_message') }}",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: "{{ __('yes_ban') }}"
+        }).then((result) => {
+            if (result.isConfirmed) {
+                $.ajax({
+                    url: $(this).attr('data-url'),
+                    type: "POST",
+                    data:{
+                        _token: "{{ csrf_token() }}",
+                    },
+                    success: function(response) {
+                        if (response['error'] == false) {
+                            showSuccessToast(response['message']);
+                            $('#table_list').bootstrapTable('refresh');
+                        } else {
+                            showErrorToast(response['message']);
+                        }
+                    }
+                });
+            }
+        })
+    });
+    $(document).on('click', '.user_unban', function(e) {
+        e.preventDefault();
+        Swal.fire({
+            title: "{{ __('delete_title') }}",
+            text: "{{ __('confirm_message') }}",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: "{{ __('yes_unban') }}"
+        }).then((result) => {
+            if (result.isConfirmed) {
+                $.ajax({
+                    url: $(this).attr('data-url'),
+                    type: "POST",
+                    data:{
+                        _token: "{{ csrf_token() }}",
+                    },
+                    success: function(response) {
+                        if (response['error'] == false) {
+                            showSuccessToast(response['message']);
+                            $('#table_list').bootstrapTable('refresh');
+                        } else {
+                            showErrorToast(response['message']);
+                        }
+                    }
+                });
+            }
+        })
+    });
 </script>
 <script>
     const lang_no = "{{ __('no') }}"

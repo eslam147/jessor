@@ -666,6 +666,8 @@
     "enter_tags": "Enter Tags",
     "select_status": "Select Status",
     "enter_price": "Enter Price",
-    "all_classes" : "All Classes",
-    "all_subjects" : "All Subjects"
+    "all_classes": "All Classes",
+    "all_subjects": "All Subjects",
+    "yes_ban": "Yes Block User",
+    "yes_unban": "Yes Un Block User"
 }

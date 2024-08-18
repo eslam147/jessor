@@ -76,5 +76,8 @@ class Kernel extends HttpKernel
         'language' => \App\Http\Middleware\LanguageManager::class,
         'checkStudent' => \App\Http\Middleware\CheckStudent::class,
         'student_authorized' => StudentAuthorized::class,
+        'forbid-banned-user' => \Cog\Laravel\Ban\Http\Middleware\ForbidBannedUser::class,
+        'logs-out-banned-user' => \Cog\Laravel\Ban\Http\Middleware\LogsOutBannedUser::class,
+        'api-check-user-banned' => \App\Http\Middleware\CheckUserBanned::class,
     ];
 }

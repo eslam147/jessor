@@ -9,7 +9,8 @@ use Stancl\Tenancy\Middleware\PreventAccessFromCentralDomains;
 Route::prefix('student')->middleware([
   InitializeTenancyByDomain::class,
   PreventAccessFromCentralDomains::class,
-  InitializeSchool::class
+  InitializeSchool::class,
+  'api-check-user-banned',
 ])->group(function () {
 
   //Non Authenticated APIs
@@ -18,7 +19,7 @@ Route::prefix('student')->middleware([
   Route::post('forgot-password', [StudentApiController::class, 'forgotPassword']);
 
   //Authenticated APIs
-  Route::group(['middleware' => 'auth:sanctum'], function () {
+  Route::group(['middleware' => ['auth:sanctum','forbid-banned-user']], function () {
     Route::get('dashboard', [StudentApiController::class, 'dashboard']);
     Route::get('subjects', [StudentApiController::class, 'subjects']);
     Route::get('class-subjects', [StudentApiController::class, 'classSubjects']);

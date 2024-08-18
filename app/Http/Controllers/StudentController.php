@@ -706,10 +706,10 @@ class StudentController extends Controller
         $sql->orderBy($sort, $order)->skip($offset)->take($limit);
         $res = $sql->get();
 
-        $bulkData = array();
+        $bulkData = [];
         $bulkData['total'] = $total;
-        $rows = array();
-        $tempRow = array();
+        $rows = [];
+        $tempRow = [];
         $no = 1;
         $data = getSettings('date_formate');
         foreach ($res as $row) {
@@ -721,6 +721,14 @@ class StudentController extends Controller
             if (Auth::user()->can('student-delete')) {
                 $operate .= '<a class="btn btn-xs btn-gradient-danger btn-rounded btn-icon deletedata" data-id=' . $row->id . ' data-user_id=' . $row->user_id . ' data-url=' . url('students', $row->user_id) . ' title="Delete"><i class="fa fa-trash"></i></a>&nbsp;&nbsp;';
             }
+            if (Auth::user()->can('student-delete')) {
+                if ($row->user->isNotBanned()) {
+                    $operate .= "<a data-url=" . route('users.ban', $row->user->id) . " class='btn btn-xs btn-danger btn-rounded user_ban' data-id='{$row->user->id}' title='Ban Student'><i class='fa fa-lock'></i>Block</a>&nbsp;&nbsp;";
+                } else {
+                    $operate .= "<a data-url=" . route('users.unban', $row->user->id) . " class='btn btn-xs btn-success btn-rounded user_unban' data-id='{$row->user->id}' title='unBan Student'><i class='fa fa-unlock'></i>UnBlock</a>&nbsp;&nbsp;";
+                }
+            }
+
 
             if (Auth::user()->can('generate-document')) {
                 $operate .= '<div class="dropdown"><button class="btn btn-xs btn-gradient-success btn-rounded btn-icon dropdown-toggle" type="button" data-toggle="dropdown" title="Generate Document"><i class="fa fa-file-pdf-o"></i></button><div class="dropdown-menu">';
@@ -868,7 +876,6 @@ class StudentController extends Controller
         }
         return response()->json($response);
     }
-
 
     public function reset_password()
     {
@@ -1784,10 +1791,10 @@ class StudentController extends Controller
         $sql->orderBy($sort, $order)->skip($offset)->take($limit);
         $res = $sql->get();
 
-        $bulkData = array();
+        $bulkData = [];
         $bulkData['total'] = $total;
-        $rows = array();
-        $tempRow = array();
+        $rows = [];
+        $tempRow = [];
         $no = 1;
         $data = getSettings('date_formate');
         foreach ($res as $row) {

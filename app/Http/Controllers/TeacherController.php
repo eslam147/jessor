@@ -384,6 +384,13 @@ class TeacherController extends Controller
             $operate = '<a class="btn btn-xs btn-gradient-primary btn-rounded btn-icon editdata" data-id=' . $row->id . ' data-url=' . url('teachers') . ' title="Edit" data-toggle="modal" data-target="#editModal"><i class="fa fa-edit"></i></a>&nbsp;&nbsp;';
             $operate .= '<a class="btn btn-xs btn-gradient-danger btn-rounded btn-icon deletedata" data-id=' . $row->id . ' data-user_id=' . $row->user_id . ' data-url=' . url('teachers', $row->user_id) . ' title="Delete"><i class="fa fa-trash"></i></a>';
 
+            if (Auth::user()->can('teacher-delete')) {
+                if ($row->user->isNotBanned()) {
+                    $operate .= "<a data-url=" . route('users.ban', $row->user->id) . " class='btn btn-xs btn-danger btn-rounded user_ban' data-id='{$row->user->id}' title='Ban {$row->user->full_name}'><i class='fa fa-lock'></i>Block</a>&nbsp;&nbsp;";
+                } else {
+                    $operate .= "<a data-url=" . route('users.unban', $row->user->id) . " class='btn btn-xs btn-success btn-rounded user_unban' data-id='{$row->user->id}' title='unBan {$row->user->full_name}'><i class='fa fa-unlock'></i>UnBlock</a>&nbsp;&nbsp;";
+                }
+            }
             $data = getSettings('date_formate');
 
             $tempRow['id'] = $row->id;

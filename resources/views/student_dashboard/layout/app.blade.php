@@ -463,6 +463,8 @@
     <script src="{{ url('student/js/template.js') }}"></script>
     <script src="{{ url('student/js/pages/dashboard.js') }}"></script>
     <script src="{{ url('student/js/pages/calendar.js') }}"></script>
+    @include('sweetalert::alert')
+
     @yield('script')
 </body>
 </html>
