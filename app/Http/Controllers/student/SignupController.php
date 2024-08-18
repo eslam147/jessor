@@ -9,6 +9,7 @@ use App\Models\ClassSection;
 use Illuminate\Http\Request;
 use Spatie\Permission\Models\Role;
 use App\Http\Controllers\Controller;
+use App\Models\Mediums;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use RealRashid\SweetAlert\Facades\Alert;
@@ -16,29 +17,21 @@ use Illuminate\Support\Facades\Validator;
 
 class SignupController extends Controller
 {
-
     public function index()
     {
         $category = Category::where('status', 1)->get();
 
-        $class_section = ClassSection::with(['class', 'section'])->get();
-        return view('auth.register', compact('class_section', 'category'));
+        // $mediums = Mediums::get();
+        $class_section = ClassSection::with(['class', 'section'])->withOutTrashedRelations('class', 'section')->get();
+        return view('auth.register', compact('mediums', 'category'));
     }
 
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
     public function create()
     {
-
     }
-
 
     public function store(Request $request)
     {
-        //dd($request->all());
         //check student data
         $validator = Validator::make($request->all(), [
             //students
@@ -54,7 +47,7 @@ class SignupController extends Controller
             Alert::warning('Warning', $validator->messages()->all()[0]);
             return back()->withErrors($validator);
         } else {
-            $category_id = 1;
+            // $category_id = 1;
             // Add student to users table
             $studentUser = User::create([
                 'first_name' => $request->first_name,
@@ -85,7 +78,7 @@ class SignupController extends Controller
                 return $response;
             }
 
-            return redirect()->route('home.index');
+            return redirect()->intended(route('home.index'));
         }
     }
 
@@ -104,35 +97,16 @@ class SignupController extends Controller
         //
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
     public function edit($id)
     {
         //
     }
 
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
     public function update(Request $request, $id)
     {
         //
     }
 
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
     public function destroy($id)
     {
         //

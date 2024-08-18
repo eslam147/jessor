@@ -100,11 +100,14 @@ class ExamController extends Controller
                 'message' => trans('data_store_successfully'),
             );
         } catch (Throwable $e) {
-            $response = array(
+            report($e);
+
+            $response = [
                 'error' => true,
                 'message' => trans('error_occurred'),
                 'data' => $e
-            );
+
+            ];
         }
         return response()->json($response);
     }
@@ -271,6 +274,8 @@ class ExamController extends Controller
                 'message' => trans('data_store_successfully'),
             );
         } catch (Throwable $e) {
+            report($e);
+
             $response = array(
                 'error' => true,
                 'message' => trans('error_occurred'),
@@ -316,6 +321,8 @@ class ExamController extends Controller
                 );
             }
         } catch (Throwable $e) {
+            report($e);
+
             $response = array(
                 'error' => true,
                 'message' => trans('error_occurred')
@@ -411,6 +418,8 @@ class ExamController extends Controller
                 );
             }
         } catch (Throwable $e) {
+            report($e);
+
             $response = array(
                 'error' => true,
                 'message' => trans('error_occurred'),
@@ -450,6 +459,8 @@ class ExamController extends Controller
                 'data' => $subjects
             );
         } catch (Throwable $e) {
+            report($e);
+
             $response = array(
                 'error' => true,
                 'message' => trans('error_occurred')
@@ -640,6 +651,8 @@ class ExamController extends Controller
                 'message' => trans('data_store_successfully'),
             );
         } catch (Throwable $e) {
+            report($e);
+
             $response = array(
                 'error' => true,
                 'message' => trans('error_occurred'),
@@ -659,6 +672,8 @@ class ExamController extends Controller
                 'data' => $exam_timetable
             );
         } catch (Throwable $e) {
+            report($e);
+
             $response = array(
                 'error' => true,
                 'message' => trans('error_occurred')
@@ -677,6 +692,8 @@ class ExamController extends Controller
                 'message' => trans('data_delete_successfully')
             );
         } catch (Throwable $e) {
+            report($e);
+
             $response = array(
                 'error' => true,
                 'message' => trans('error_occurred')
@@ -729,6 +746,8 @@ class ExamController extends Controller
                 'message' => trans('data_store_successfully')
             );
         } catch (Throwable $e) {
+            report($e);
+
             $response = array(
                 'error' => true,
                 'message' => trans('error_occurred')
@@ -753,6 +772,8 @@ class ExamController extends Controller
                 'message' => trans('data_delete_successfully'),
             );
         } catch (Throwable $e) {
+            report($e);
+
             $response = array(
                 'error' => true,
                 'message' => trans('error_occurred')
@@ -944,6 +965,8 @@ class ExamController extends Controller
 
             }
         } catch (Throwable $e) {
+            report($e);
+
             $response = array(
                 'error' => true,
                 'message' => trans('error_occurred')
@@ -998,6 +1021,8 @@ class ExamController extends Controller
                 'data' => $exams
             );
         } catch (Throwable $e) {
+            report($e);
+
             $response = array(
                 'error' => true,
                 'message' => trans('error_occurred')
@@ -1020,6 +1045,8 @@ class ExamController extends Controller
                 'data' => $exam_data
             );
         } catch (Throwable $e) {
+            report($e);
+
             $response = array(
                 'error' => true,
                 'message' => trans('error_occurred')

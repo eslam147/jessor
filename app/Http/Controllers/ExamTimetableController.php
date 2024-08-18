@@ -98,6 +98,8 @@ class ExamTimetableController extends Controller
                 'message' => trans('data_store_successfully'),
             );
         } catch (Throwable $e) {
+            report($e);
+
             $response = array(
                 'error' => true,
                 'message' => trans('error_occurred'),
@@ -259,6 +261,8 @@ class ExamTimetableController extends Controller
                 'message' => trans('data_delete_successfully')
             );
         } catch (Throwable $e) {
+            report($e);
+
             $response = array(
                 'error' => true,
                 'message' => trans('error_occurred')
@@ -276,6 +280,8 @@ class ExamTimetableController extends Controller
                 'data' => $exam_classes
             );
         } catch (Throwable $e) {
+            report($e);
+
             $response = array(
                 'error' => true,
                 'message' => trans('error_occurred')
@@ -299,6 +305,8 @@ class ExamTimetableController extends Controller
                 'data' => $exam_subjects
             );
         } catch (Throwable $e) {
+            report($e);
+
             $response = array(
                 'error' => true,
                 'message' => trans('error_occurred')
@@ -386,6 +394,8 @@ class ExamTimetableController extends Controller
             }
 
         } catch (Throwable $e) {
+            report($e);
+
             $response = array(
                 'error' => true,
                 'message' => trans('error_occurred')
@@ -411,6 +421,8 @@ class ExamTimetableController extends Controller
                 'status' => 200
             );
         } catch (Throwable $e) {
+            report($e);
+
             $response = array(
                 'error' => true,
                 'message' => trans('error_occurred')

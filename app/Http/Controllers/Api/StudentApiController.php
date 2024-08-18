@@ -165,12 +165,11 @@ class StudentApiController extends Controller
         ]);
 
         if ($validator->fails()) {
-            $response = array(
+            return response()->json([
                 'error' => true,
                 'message' => $validator->errors()->first(),
                 'code' => 102,
-            );
-            return response()->json($response);
+            ]);
         }
 
 
@@ -336,12 +335,11 @@ class StudentApiController extends Controller
             );
             return response()->json($response, 200);
         } else {
-            $response = array(
+            return response()->json([
                 'error' => true,
                 'message' => 'Invalid Login Credentials',
                 'code' => 101
-            );
-            return response()->json($response, 200);
+            ], 200);
         }
     }
 

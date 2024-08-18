@@ -169,6 +169,7 @@ class OnlineExamController extends Controller
                 'message' => trans('data_store_successfully')
             );
         } catch (Throwable $e) {
+            report($e);
             $response = array(
                 'error' => true,
                 'message' => trans('error_occurred')
@@ -336,6 +337,8 @@ class OnlineExamController extends Controller
                 'message' => trans('data_update_successfully')
             );
         } catch (Throwable $e) {
+            report($e);
+
             $response = array(
                 'error' => true,
                 'message' => trans('error_occurred')
@@ -378,6 +381,8 @@ class OnlineExamController extends Controller
                 );
             }
         } catch (Throwable $e) {
+            report($e);
+
             $response = array(
                 'error' => true,
                 'message' => trans('error_occurred')
@@ -406,6 +411,8 @@ class OnlineExamController extends Controller
                 'data' => $subjects
             );
         } catch (Throwable $e) {
+            report($e);
+
             $response = array(
                 'error' => true,
                 'message' => trans('error_occurred')
@@ -605,6 +612,8 @@ class OnlineExamController extends Controller
                 );
             }
         } catch (Throwable $e) {
+            report($e);
+
             $response = array(
                 'error' => true,
                 'message' => trans('error_occurred')
@@ -785,6 +794,8 @@ class OnlineExamController extends Controller
                 'message' => trans('data_store_successfully'),
             );
         } catch (Throwable $e) {
+            report($e);
+
             $response = array(
                 'error' => true,
                 'message' => trans('error_occurred')
@@ -815,6 +826,8 @@ class OnlineExamController extends Controller
                 );
             }
         } catch (Throwable $e) {
+            report($e);
+
             $response = array(
                 'error' => true,
                 'message' => trans('error_occurred')
@@ -864,6 +877,8 @@ class OnlineExamController extends Controller
                 );
             }
         } catch (Throwable $e) {
+            report($e);
+
             $response = array(
                 'error' => true,
                 'message' => trans('error_occurred')

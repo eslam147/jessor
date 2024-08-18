@@ -56,9 +56,9 @@ class LoginController extends Controller
 
         // Redirect based on role
         if ($user->hasRole('Student')) {
-            return to_route('home.index');
+            return redirect()->intended(route('home.index'));
         } else {
-            return to_route('home');
+            return redirect()->intended(route('home'));
         }
     }
 }

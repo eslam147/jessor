@@ -88,11 +88,10 @@ class OnlineExamQuestionController extends Controller
         ]);
 
         if ($validator->fails()) {
-            $response = array(
+            return response()->json([
                 'error' => true,
                 'message' => $validator->errors()->first()
-            );
-            return response()->json($response);
+            ]);
         }
         try {
             if ($request->question_type == 1) {
@@ -124,7 +123,7 @@ class OnlineExamQuestionController extends Controller
                 $question_store->save();
 
                 // store options
-                $options_id = array();
+                $options_id = [];
                 foreach ($request->eoption as $key => $option) {
                     $question_option_store = new OnlineExamQuestionOption();
                     $question_option_store->question_id = $question_store->id;
@@ -195,6 +194,7 @@ class OnlineExamQuestionController extends Controller
                 'message' => trans('data_store_successfully')
             );
         } catch (Throwable $e) {
+            report($e);
             $response = array(
                 'error' => true,
                 'message' => trans('error_occurred')
@@ -272,10 +272,10 @@ class OnlineExamQuestionController extends Controller
 
         $sql->orderBy($sort, $order)->skip($offset)->take($limit);
         $res = $sql->get();
-        $bulkData = array();
+        $bulkData = [];
         $bulkData['total'] = $total;
-        $rows = array();
-        $tempRow = array();
+        $rows = [];
+        $tempRow = [];
         $no = 1;
         foreach ($res as $row) {
             // data for options which not answers
@@ -587,6 +587,8 @@ class OnlineExamQuestionController extends Controller
                 'message' => trans('data_update_successfully')
             );
         } catch (Throwable $e) {
+            report($e);
+
             $response = array(
                 'error' => true,
                 'message' => trans('error_occurred')
@@ -626,6 +628,8 @@ class OnlineExamQuestionController extends Controller
                 );
             }
         } catch (Throwable $e) {
+            report($e);
+
             $response = array(
                 'error' => true,
                 'message' => trans('error_occurred')
@@ -648,6 +652,8 @@ class OnlineExamQuestionController extends Controller
                 'message' => trans('data_delete_successfully')
             );
         } catch (Throwable $e) {
+            report($e);
+            
             $response = array(
                 'error' => true,
                 'message' => trans('error_occurred')
@@ -669,6 +675,8 @@ class OnlineExamQuestionController extends Controller
                 'message' => trans('data_delete_successfully')
             );
         } catch (Throwable $e) {
+            report($e);
+
             $response = array(
                 'error' => true,
                 'message' => trans('error_occurred')
