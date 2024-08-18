@@ -47,7 +47,7 @@ class OnlineExamController extends Controller
         $all_subjects = Subject::whereIn('id',$subject_id)->get();
 
         //get class section all data
-        $class_sections_query = ClassSection::whereIn('id',$class_section_id);
+        $class_sections_query = ClassSection::whereIn('id',$class_section_id)->withOutTrashedRelations('class','section');
 
         //get the class section data
         $class_sections = $class_sections_query->with('class.medium','section','class.streams')->get();
@@ -56,7 +56,7 @@ class OnlineExamController extends Controller
         $class_ids = $class_sections_query->pluck('class_id');
 
         //get the class data
-        $classes = ClassSchool::whereIn('id',$class_ids)->with('medium','streams')->get();
+        $classes = ClassSchool::whereIn('id',$class_ids)->with('medium','streams')->withOutTrashedRelations('medium','streams')->get();
 
         return response(view('online_exam.index', compact('class_sections', 'all_subjects','classes')));
     }
