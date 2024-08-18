@@ -20,7 +20,7 @@
                         هذا المتصفح غير مصرح به. يرجى استخدام
                         المتصفح المسموح.
                     </p>
-                    <a href="https://infohat.net/InfinitySchool_v2.exe"
+                    <a href="@if(isset(getSettings('browser_url')['browser_url'])){{ getSettings('browser_url')['browser_url'] }}@else @endif"
                         target="_blank" rel="noopener noreferrer"
                         class="btn btn-primary m-auto d-inline-block p-0 b-0">
                         <button type="button"

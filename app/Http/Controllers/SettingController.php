@@ -54,6 +54,8 @@ class SettingController extends Controller
             'school_tagline' => 'required',
             'online_payment' => 'required|in:0,1',
             'custom_browser' => 'required|in:enabled,disabled',
+            'browser_url' => 'required|string',
+            'device_limit' => 'required|string',
             'facebook' => 'required',
             'instagram' => 'required',
             'linkedin' => 'required',
@@ -78,6 +80,8 @@ class SettingController extends Controller
             'linkedin',
             'maplink',
             'custom_browser',
+            'browser_url',
+            'device_limit'
         ];
         try {
             foreach ($settings as $row) {

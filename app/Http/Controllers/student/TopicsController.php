@@ -46,7 +46,7 @@ class TopicsController extends Controller
             File::DOWNLOAD_LINK_TYPE,
             File::YOUTUBE_TYPE,
             File::VIDEO_UPLOAD_TYPE
-        ]); 
+        ]);
 
         $files = $topic->file->whereIn('type', [File::FILE_UPLOAD_TYPE, File::EXTERNAL_LINK]);
         return view('student_dashboard.files.index', compact('files', 'videos'));
@@ -65,11 +65,4 @@ class TopicsController extends Controller
         if(!$video) return '';
         return view('student_dashboard.files.video', compact('video'));
     }
-    public function get_video($id)
-    {
-        $video = File::find($id);
-        return view('student_dashboard.files.video', compact('video'));
-        //return response()->json(['id' => $id]);
-    }
-
 }

@@ -50,7 +50,7 @@ class TenantController extends Controller
         return view('centeral.tenants.settings');
 
     }
-    public function insert_settings_fields() {
+    public function insert_settings_fields(Request $request) {
         // Fetch all tenants from the central database
         $tenants = Tenant::all();
         foreach ($tenants as $tenant) {
@@ -59,16 +59,15 @@ class TenantController extends Controller
 
             // Check if the record already exists
             $exists = DB::table('settings')
-                ->where('type', 'custom_browser')
-                ->where('message', 'enabled')
+                ->where('type', $request->type)
                 // Add other columns as needed
                 ->exists();
 
             // If the record does not exist, insert it
             if (!$exists) {
                 DB::table('settings')->insert([
-                    'type' => 'custom_browser',
-                    'message' => 'enabled',
+                    'type' => $request->type,
+                    'message' => $request->message,
                     // Add other columns as needed
                 ]);
             }

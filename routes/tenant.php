@@ -55,6 +55,7 @@ use App\Http\Controllers\StudentSessionController;
 use App\Http\Controllers\SubjectTeacherController;
 use App\Http\Controllers\student\TeachersController;
 use App\Http\Controllers\OnlineExamQuestionController;
+use App\Http\Controllers\student\DeviceController;
 use Stancl\Tenancy\Middleware\InitializeTenancyByDomain;
 use App\Http\Controllers\student\StudentDashboardController;
 use Stancl\Tenancy\Middleware\PreventAccessFromCentralDomains;
@@ -80,6 +81,7 @@ Route::middleware([
     InitializeSchool::class,
 ])->group(function () {
         LaravelAuth::routes();
+        //Route::post('/store-fingerprint', [DeviceController::class, 'store']);
         Route::get('/', [WebController::class,'index']);
         Route::get('about',[WebController::class,'about'])->name('about.us');
         Route::get('contact',[WebController::class, 'contact_us'])->name('contact.us');

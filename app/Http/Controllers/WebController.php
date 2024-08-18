@@ -14,6 +14,7 @@ use App\Models\ContactUs;
 use App\Models\MediaFile;
 use App\Models\WebSetting;
 use Illuminate\Http\Request;
+use App\Helpers\DeviceHelper;
 use App\Models\SubjectTeacher;
 use Illuminate\Support\Carbon;
 use App\Models\EducationalProgram;
@@ -29,7 +30,6 @@ class WebController extends Controller
         $videos= null;
         $news = null;
         $faqs = null;
-
 
         $date = Carbon::now();
         $settings = getSettings();

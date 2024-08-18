@@ -21,8 +21,7 @@
     <link rel="stylesheet" href="{{ url('student/assets/icons/linea-icons/linea.css') }}">
     <link rel="stylesheet" href="{{ url('student/assets/icons/glyphicons/glyphicon.css') }}">
     <link rel="stylesheet" href="{{ url('student/assets/icons/flag-icon-css/css/flag-icon.css') }}">
-    <link rel="stylesheet"
-        href="{{ url('student/assets/icons/material-design-iconic-font/css/materialdesignicons.css') }}">
+    <link rel="stylesheet" href="{{ url('student/assets/icons/material-design-iconic-font/css/materialdesignicons.css') }}">
     <link rel="stylesheet" href="{{ url('student/assets/icons/simple-line-icons/css/simple-line-icons.css') }}">
     <link rel="stylesheet" href="{{ url('student/assets/icons/cryptocoins-master/cryptocoins.css') }}">
     <link rel="stylesheet" href="{{ url('student/assets/icons/weather-icons/css/weather-icons.min.css') }}">

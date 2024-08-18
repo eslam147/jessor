@@ -22,7 +22,7 @@
                                 <div id="navpills2-1" class="tab-pane active">
                                     <div class="row">
                                         @foreach ($topics as $row)
-                                            <div class="col-4">
+                                            <div class="col-xs-12 col-lg-4">
                                                 <div class="box pull-up">
                                                     <div class="box-body">
                                                         <p class="mb-0 fs-18"> {{ $row->name }} </p>
