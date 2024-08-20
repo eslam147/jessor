@@ -12,21 +12,20 @@ use Throwable;
 
 class MediumController extends Controller
 {
-    public function index() {
+    public function index()
+    {
 
-        if (!Auth::user()->can('medium-list')) {
-            $response = array(
+        if (! Auth::user()->can('medium-list')) {
+            return to_route('home')->withErrors([
                 'message' => trans('no_permission_message')
-            );
-            return redirect(route('home'))->withErrors($response);
-
+            ]);
         }
-
         return view('medium.index');
     }
 
-    public function store(Request $request) {
-        if (!Auth::user()->can('medium-create')) {
+    public function store(Request $request)
+    {
+        if (! Auth::user()->can('medium-create')) {
             $response = array(
                 'error' => true,
                 'message' => trans('no_permission_message')
@@ -53,13 +52,15 @@ class MediumController extends Controller
         return response()->json($response);
     }
 
-    public function edit($id) {
+    public function edit($id)
+    {
         $medium = Mediums::find($id);
         return response($medium);
     }
 
-    public function update(Request $request) {
-        if (!Auth::user()->can('medium-edit')) {
+    public function update(Request $request)
+    {
+        if (! Auth::user()->can('medium-edit')) {
             $response = array(
                 'error' => true,
                 'message' => trans('no_permission_message')
@@ -86,8 +87,9 @@ class MediumController extends Controller
         return response()->json($response);
     }
 
-    public function destroy($id) {
-        if (!Auth::user()->can('medium-delete')) {
+    public function destroy($id)
+    {
+        if (! Auth::user()->can('medium-delete')) {
             $response = array(
                 'error' => true,
                 'message' => trans('no_permission_message')
@@ -99,12 +101,12 @@ class MediumController extends Controller
             $class = ClassSchool::where('medium_id', $id)->count();
             $subject = Subject::where('medium_id', $id)->count();
 
-            if($class || $subject){
+            if ($class || $subject) {
                 $response = array(
                     'error' => true,
                     'message' => trans('cannot_delete_beacuse_data_is_associated_with_other_data')
                 );
-            }else{
+            } else {
                 Mediums::find($id)->delete();
                 $response = [
                     'error' => false,
@@ -121,8 +123,9 @@ class MediumController extends Controller
         return response()->json($response);
     }
 
-    public function show() {
-        if (!Auth::user()->can('medium-list')) {
+    public function show()
+    {
+        if (! Auth::user()->can('medium-list')) {
             return response()->json([
                 'error' => true,
                 'message' => trans('no_permission_message')
@@ -138,15 +141,15 @@ class MediumController extends Controller
 
         if ($search = request()->get('search')) {
             $query->where('id', 'LIKE', "%$search%")
-                  ->orWhere('name', 'LIKE', "%$search%");
+                ->orWhere('name', 'LIKE', "%$search%");
         }
 
         $total = $query->count();
 
         $data = $query->orderBy($sort, $order)
-                      ->skip($offset)
-                      ->take($limit)
-                      ->get();
+            ->skip($offset)
+            ->take($limit)
+            ->get();
 
         $rows = $data->map(function ($row, $index) {
             return [

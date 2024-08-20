@@ -24,17 +24,17 @@ class FormFieldController extends Controller
     }
     public function index()
     {
-        if (!Auth::user()->can('form-field-list')) {
-            $response = array(
+        if (! Auth::user()->can('form-field-list')) {
+            return to_route('home')->withErrors([
                 'message' => trans('no_permission_message')
-            );
-            return redirect(route('home'))->withErrors($response);
+            ]);
+
         }
         $studentFields = FormField::where('for', 1)->orderBy('rank', 'ASC')->get();
         $parentFields = FormField::where('for', 2)->orderBy('rank', 'ASC')->get();
         $teacherFields = FormField::where('for', 3)->orderBy('rank', 'ASC')->get();
 
-        return view('form_fields.index', compact('studentFields','parentFields', 'teacherFields'));
+        return view('form_fields.index', compact('studentFields', 'parentFields', 'teacherFields'));
     }
 
     /**
@@ -55,13 +55,13 @@ class FormFieldController extends Controller
      */
     public function store(Request $request): JsonResponse
     {
-        if (!Auth::user()->can('form-field-create')) {
-            $response = array(
+        if (! Auth::user()->can('form-field-create')) {
+            return to_route('home')->withErrors([
                 'message' => trans('no_permission_message')
-            );
-            return redirect(route('home'))->withErrors($response);
+            ]);
+
         }
-        $validator = Validator::make($request->all(),[
+        $validator = Validator::make($request->all(), [
             'name' => 'required|unique:form_fields,name',
             'type' => 'required',
             'for' => 'required',
@@ -78,11 +78,11 @@ class FormFieldController extends Controller
             $maxRank = FormField::max('rank');
 
             $data = new FormField();
-            $data->name = str_replace(" ","_",$request->name);
+            $data->name = str_replace(" ", "_", $request->name);
             $data->type = $request->type;
             $data->for = $request->for;
             $data->is_required = isset($request->is_required) ? 1 : 0;
-            $data->default_values = $request->default_values ? json_encode(str_replace(" ","_",$request->default_values)) : '';
+            $data->default_values = $request->default_values ? json_encode(str_replace(" ", "_", $request->default_values)) : '';
             $data->other = $request->other;
             $data->rank = $maxRank + 1;
             $data->save();
@@ -101,19 +101,12 @@ class FormFieldController extends Controller
         return response()->json($response);
     }
 
-    /**
-     * Display the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
     public function show(Request $request): JsonResponse
     {
-        if (!Auth::user()->can('form-field-list')) {
-            $response = array(
+        if (! Auth::user()->can('form-field-list')) {
+            return to_route('home')->withErrors([
                 'message' => trans('no_permission_message')
-            );
-            return redirect(route('home'))->withErrors($response);
+            ]);
         }
         $offset = 0;
         $limit = 10;
@@ -121,18 +114,18 @@ class FormFieldController extends Controller
         $order = 'ASC';
 
         if (isset($_GET['offset']))
-        $offset = $_GET['offset'];
+            $offset = $_GET['offset'];
         if (isset($_GET['limit']))
-        $limit = $_GET['limit'];
+            $limit = $_GET['limit'];
 
         if (isset($_GET['sort']))
-        $sort = $_GET['sort'];
+            $sort = $_GET['sort'];
         if (isset($_GET['order']))
-        $order = $_GET['order'];
+            $order = $_GET['order'];
 
-        $sql = FormField::where('id','!=',0);
+        $sql = FormField::where('id', '!=', 0);
 
-        if (isset($_GET['search']) && !empty($_GET['search'])) {
+        if (isset($_GET['search']) && ! empty($_GET['search'])) {
             $search = $_GET['search'];
             $sql->where('id', 'LIKE', "%$search%")
                 ->orwhere('name', 'LIKE', "%$search%")
@@ -160,11 +153,11 @@ class FormFieldController extends Controller
             $tempRow['id'] = $row->id;
             $tempRow['no'] = $no++;
             $tempRow['rank'] = $row->rank;
-            $tempRow['name'] = str_replace("_"," ",$row->name);
+            $tempRow['name'] = str_replace("_", " ", $row->name);
             $tempRow['for'] = $row->for;
             $tempRow['type'] = $row->type;
             $tempRow['is_required'] = $row->is_required;
-            $tempRow['default_values'] = json_decode($row->default_values, true)?? '';
+            $tempRow['default_values'] = json_decode($row->default_values, true) ?? '';
             $tempRow['other'] = $row->other;
             $tempRow['created_at'] = convertDateFormat($row->created_at, 'd-m-Y H:i:s');
             $tempRow['updated_at'] = convertDateFormat($row->updated_at, 'd-m-Y H:i:s');
@@ -187,22 +180,14 @@ class FormFieldController extends Controller
         //
     }
 
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
     public function update(Request $request)
     {
-        if (!Auth::user()->can('form-field-edit')) {
-            $response = array(
+        if (! Auth::user()->can('form-field-edit')) {
+            return to_route('home')->withErrors([
                 'message' => trans('no_permission_message')
-            );
-            return redirect(route('home'))->withErrors($response);
+            ]);
         }
-        $validator = Validator::make($request->all(),[
+        $validator = Validator::make($request->all(), [
             'edit_name' => 'required|unique:form_fields,name,' . $request->edit_id,
         ]);
 
@@ -217,7 +202,7 @@ class FormFieldController extends Controller
         try {
 
             $data = FormField::find($request->edit_id);
-            $data->name =  str_replace(" ","_",$request->edit_name);
+            $data->name = str_replace(" ", "_", $request->edit_name);
             $data->for = $request->edit_for;
             $data->type = $request->edit_type;
             $data->is_required = isset($request->edit_required) ? 1 : 0;
@@ -237,19 +222,12 @@ class FormFieldController extends Controller
         return response()->json($response);
     }
 
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
     public function destroy($id)
     {
-        if (!Auth::user()->can('form-field-delete')) {
-            $response = array(
+        if (! Auth::user()->can('form-field-delete')) {
+            return to_route('home')->withErrors([
                 'message' => trans('no_permission_message')
-            );
-            return redirect(route('home'))->withErrors($response);
+            ]);
         }
         try {
             $data = FormField::findOrFail($id);

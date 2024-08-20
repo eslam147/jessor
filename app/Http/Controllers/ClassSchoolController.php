@@ -34,18 +34,12 @@ use Exception;
 
 class ClassSchoolController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
     public function index()
     {
         if (! Auth::user()->can('class-list')) {
-            $response = array(
+            return to_route('home')->withErrors([
                 'message' => trans('no_permission_message')
-            );
-            return redirect(route('home'))->withErrors($response);
+            ]);
         }
         $classes = ClassSchool::orderByDesc('id')->with('medium', 'sections', 'streams')->get();
         $sections = Section::orderBy('id')->get();
@@ -249,9 +243,10 @@ class ClassSchoolController extends Controller
     public function destroy($id)
     {
         if (! Auth::user()->can('class-delete')) {
-            return response()->json([                'error' => true,
-            'message' => trans('no_permission_message')
-]);
+            return response()->json([
+                'error' => true,
+                'message' => trans('no_permission_message')
+            ]);
         }
         try {
             // check wheather the class exists in other table
@@ -385,10 +380,9 @@ class ClassSchoolController extends Controller
     public function subject()
     {
         if (! Auth::user()->can('class-list')) {
-            $response = array(
+            return to_route('home')->withErrors([
                 'message' => trans('no_permission_message')
-            );
-            return redirect(route('home'))->withErrors($response);
+            ]);
         }
 
         $classes = ClassSchool::orderBy('id', 'DESC')->with('medium', 'sections', 'streams')->get();
@@ -402,14 +396,6 @@ class ClassSchoolController extends Controller
 
     public function update_subjects(Request $request, $id)
     {
-        //        dd($request->all());
-        //        if (!Auth::user()->can('class-create')) {
-        //            $response = array(
-        //                'error' => true,
-        //                'message' => trans('no_permission_message')
-        //            );
-        //            return response()->json($response);
-        //        }
         $validation_rules = array(
             'class_id' => 'required|numeric',
             'edit_core_subject' => 'nullable|array',

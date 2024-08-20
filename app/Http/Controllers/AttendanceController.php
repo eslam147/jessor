@@ -32,8 +32,7 @@ class AttendanceController extends Controller
                 'message' => trans('no_permission_message')
             ]);
         }
-        
-        $teacher_id = Auth::user()->teacher->id ;
+        $teacher_id = Auth::user()->teacher->id;
 
         $class_section_ids = ClassTeacher::where('class_teacher_id', $teacher_id)->pluck('class_section_id');
         $class_sections = ClassSection::with('class', 'section', 'classTeachers', 'class.streams')->whereIn('id', $class_section_ids)->get();
@@ -44,10 +43,9 @@ class AttendanceController extends Controller
     public function view()
     {
         if (! Auth::user()->can('attendance-list')) {
-            $response = array(
+            return to_route('home')->withErrors([
                 'message' => trans('no_permission_message')
-            );
-            return redirect(route('home'))->withErrors($response);
+            ]);
         }
         $teacher_id = Auth::user()->teacher->id;
         $class_section_ids = ClassTeacher::where('class_teacher_id', $teacher_id)->pluck('class_section_id');
@@ -83,11 +81,10 @@ class AttendanceController extends Controller
             'date' => 'required',
         ]);
         if ($validator->fails()) {
-            $response = array(
+            return response()->json([
                 'error' => true,
                 'message' => $validator->errors()->first()
-            );
-            return response()->json($response);
+            ]);
         }
         try {
 
@@ -388,10 +385,9 @@ class AttendanceController extends Controller
     public function createBulkData()
     {
         if (! Auth::user()->can('attendance-list')) {
-            $response = array(
+            return to_route('home')->withErrors([
                 'message' => trans('no_permission_message')
-            );
-            return redirect(route('home'))->withErrors($response);
+            ]);
         }
         $teacher_id = Auth::user()->teacher->id;
         $class_section_ids = ClassTeacher::where('class_teacher_id', $teacher_id)->pluck('class_section_id');

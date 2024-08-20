@@ -16,21 +16,15 @@ use Illuminate\Support\Facades\Auth;
 
 class ExamTimetableController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
     public function index()
     {
-        if (!Auth::user()->can('exam-timetable-create')) {
-            $response = array(
+        if (! Auth::user()->can('exam-timetable-create')) {
+            return to_route('home')->withErrors([
                 'message' => trans('no_permission_message')
-            );
-            return redirect(route('home'))->withErrors($response);
+            ]);
         }
         $exams = Exam::where('publish', 0)->get();
-        $class_name = ClassSchool::with('medium','streams')->get();
+        $class_name = ClassSchool::with('medium', 'streams')->get();
         return response(view('exams.exam-timetable', compact('exams', 'class_name')));
     }
 
@@ -44,43 +38,41 @@ class ExamTimetableController extends Controller
         //
     }
 
-    /**class
-     * @param \Illuminate\Http\Request $request
-     * @return \Illuminate\Http\Response
-     */
+
     public function store(Request $request)
     {
-        if (!Auth::user()->can('exam-timetable-create')) {
-            $response = array(
+        if (! Auth::user()->can('exam-timetable-create')) {
+            return to_route('home')->withErrors([
                 'message' => trans('no_permission_message')
-            );
-            return redirect(route('home'))->withErrors($response);
+            ]);
         }
-        // dd($request->all());
-        $validator = Validator::make($request->all(), [
-            'exam_id' => 'required',
-            'class_id' => 'required',
-            'timetable.*.passing_marks' => 'required|lte:timetable.*.total_marks',
-            'timetable.*.end_time' => 'required|after:timetable.*.start_time',
-            'timetable.*.date' => 'required|date|after:yesterday',
-        ],
-        [
-            'timetable.*.passing_marks.lte' => trans('passing_marks_should_less_than_or_equal_to_total_marks'),
-            'timetable.*.end_time.after' => trans('end_time_should_be_greater_than_start_time')
-        ]);
+
+        $validator = Validator::make(
+            $request->all(),
+            [
+                'exam_id' => 'required',
+                'class_id' => 'required',
+                'timetable.*.passing_marks' => 'required|lte:timetable.*.total_marks',
+                'timetable.*.end_time' => 'required|after:timetable.*.start_time',
+                'timetable.*.date' => 'required|date|after:yesterday',
+            ],
+            [
+                'timetable.*.passing_marks.lte' => trans('passing_marks_should_less_than_or_equal_to_total_marks'),
+                'timetable.*.end_time.after' => trans('end_time_should_be_greater_than_start_time')
+            ]
+        );
         if ($validator->fails()) {
-            $response = array(
+            return response()->json([
                 'error' => true,
                 'message' => $validator->errors()->first()
-            );
-            return response()->json($response);
+            ]);
         }
         try {
             $session_year_id = Exam::with('session_year')->where('id', $request->exam_id)->pluck('session_year_id')->first();
 
             foreach ($request->timetable as $timetable) {
                 $date = date('Y-m-d', strtotime($timetable['date']));
-                $exam_timetable[] = array(
+                $exam_timetable[] = [
                     'exam_id' => $request->exam_id,
                     'class_id' => $request->class_id,
                     'subject_id' => $timetable['subject_id'],
@@ -90,13 +82,13 @@ class ExamTimetableController extends Controller
                     'end_time' => $timetable['end_time'],
                     'date' => $date,
                     'session_year_id' => $session_year_id
-                );
+                ];
             }
             ExamTimetable::insert($exam_timetable);
-            $response = array(
+            $response = [
                 'error' => false,
                 'message' => trans('data_store_successfully'),
-            );
+            ];
         } catch (Throwable $e) {
             report($e);
 
@@ -109,19 +101,13 @@ class ExamTimetableController extends Controller
         return response()->json($response);
     }
 
-    /**
-     * Display the specified resource.
-     *
-     * @param int $id
-     * @return \Illuminate\Http\Response
-     */
+
     public function show()
     {
-        if (!Auth::user()->can('exam-timetable-create')) {
-            $response = array(
+        if (! Auth::user()->can('exam-timetable-create')) {
+            return to_route('home')->withErrors([
                 'message' => trans('no_permission_message')
-            );
-            return redirect(route('home'))->withErrors($response);
+            ]);
         }
         $offset = 0;
         $limit = 10;
@@ -141,7 +127,7 @@ class ExamTimetableController extends Controller
         $sql = ExamClass::with(['exam.session_year:id,name', 'class_timetable.subject:id,name,type', 'class']);
 
 
-        if (isset($_GET['search']) && !empty($_GET['search'])) {
+        if (isset($_GET['search']) && ! empty($_GET['search'])) {
             $search = $_GET['search'];
             $sql->whereHas('class_timetable', function ($q) use ($search) {
                 $q->where('id', 'LIKE', "%$search%")
@@ -239,19 +225,12 @@ class ExamTimetableController extends Controller
         //
     }
 
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param int $id
-     * @return \Illuminate\Http\Response
-     */
     public function destroy($id)
     {
-        if (!Auth::user()->can('exam-timetable-create')) {
-            $response = array(
+        if (! Auth::user()->can('exam-timetable-create')) {
+            return to_route('home')->withErrors([
                 'message' => trans('no_permission_message')
-            );
-            return redirect(route('home'))->withErrors($response);
+            ]);
         }
         try {
             $exam = ExamTimetable::find($id);
@@ -274,7 +253,7 @@ class ExamTimetableController extends Controller
     public function getClassesByExam($exam_id)
     {
         try {
-            $exam_classes = ExamClass::with('class.medium','class.streams')->where('exam_id', $exam_id)->get();
+            $exam_classes = ExamClass::with('class.medium', 'class.streams')->where('exam_id', $exam_id)->get();
             $response = array(
                 'error' => false,
                 'data' => $exam_classes
@@ -292,11 +271,10 @@ class ExamTimetableController extends Controller
 
     public function getSubjectsByClass($class_id)
     {
-        if (!Auth::user()->can('exam-timetable-create')) {
-            $response = array(
+        if (! Auth::user()->can('exam-timetable-create')) {
+            return to_route('home')->withErrors([
                 'message' => trans('no_permission_message')
-            );
-            return redirect(route('home'))->withErrors($response);
+            ]);
         }
         try {
             $exam_subjects = ClassSubject::with('subject')->where('class_id', $class_id)->get();
@@ -318,25 +296,27 @@ class ExamTimetableController extends Controller
 
     public function updateTimetable(Request $request)
     {
-        if (!Auth::user()->can('exam-timetable-create')) {
-            $response = array(
+        if (! Auth::user()->can('exam-timetable-create')) {
+            return to_route('home')->withErrors([
                 'message' => trans('no_permission_message')
-            );
-            return redirect(route('home'))->withErrors($response);
+            ]);
         }
-        $validator = Validator::make($request->all(), [
-            'edit_timetable.*.subject_id' => 'required',
-            'edit_timetable.*.total_marks' => 'required',
-            'edit_timetable.*.passing_marks' => 'required|lte:edit_timetable.*.total_marks',
-            'edit_timetable.*.start_time' => 'required',
-            'edit_timetable.*.end_time' => 'required|after:edit_timetable.*.start_time',
-            'edit_timetable.*.date' => 'required|',
-        ],
-        [
+        $validator = Validator::make(
+            $request->all(),
+            [
+                'edit_timetable.*.subject_id' => 'required',
+                'edit_timetable.*.total_marks' => 'required',
+                'edit_timetable.*.passing_marks' => 'required|lte:edit_timetable.*.total_marks',
+                'edit_timetable.*.start_time' => 'required',
+                'edit_timetable.*.end_time' => 'required|after:edit_timetable.*.start_time',
+                'edit_timetable.*.date' => 'required|',
+            ],
+            [
 
-            'edit_timetable.*.passing_marks.lte' => trans('passing_marks_should_less_than_or_equal_to_total_marks'),
-            'edit_timetable.*.end_time.after' => trans('end_time_should_be_greater_than_start_time')
-        ]);
+                'edit_timetable.*.passing_marks.lte' => trans('passing_marks_should_less_than_or_equal_to_total_marks'),
+                'edit_timetable.*.end_time.after' => trans('end_time_should_be_greater_than_start_time')
+            ]
+        );
         if ($validator->fails()) {
             $response = array(
                 'error' => true,
@@ -345,8 +325,7 @@ class ExamTimetableController extends Controller
             return response()->json($response);
         }
         try {
-            if($request->edit_timetable !== null)
-            {
+            if ($request->edit_timetable !== null) {
                 foreach ($request->edit_timetable as $timetable) {
                     if (isset($timetable['timetable_id']) && $timetable['timetable_id'] != null) {
                         $timetable_db = ExamTimetable::find($timetable['timetable_id']);
@@ -386,7 +365,7 @@ class ExamTimetableController extends Controller
                         'status' => 200
                     );
                 }
-            }else{
+            } else {
                 $response = array(
                     'error' => true,
                     'message' => trans('no_exam_timetable_data_found')
@@ -406,11 +385,10 @@ class ExamTimetableController extends Controller
 
     public function deleteTimetable($id)
     {
-        if (!Auth::user()->can('exam-timetable-create')) {
-            $response = array(
+        if (! Auth::user()->can('exam-timetable-create')) {
+            return to_route('home')->withErrors([
                 'message' => trans('no_permission_message')
-            );
-            return redirect(route('home'))->withErrors($response);
+            ]);
         }
         try {
             $exam_timetable = ExamTimetable::find($id);

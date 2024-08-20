@@ -17,11 +17,11 @@ class StreamController extends Controller
      */
     public function index()
     {
-        if (!Auth::user()->can('stream-list')) {
-            $response = array(
+        if (! Auth::user()->can('stream-list')) {
+            return to_route('home')->withErrors([
                 'message' => trans('no_permission_message')
-            );
-            return redirect(route('home'))->withErrors($response);
+            ]);
+
 
         }
         $streams = Stream::orderBy('id', 'DESC')->get();
@@ -46,7 +46,7 @@ class StreamController extends Controller
      */
     public function store(Request $request)
     {
-        if (!Auth::user()->can('stream-create')) {
+        if (! Auth::user()->can('stream-create')) {
             $response = array(
                 'error' => true,
                 'message' => trans('no_permission_message')
@@ -90,7 +90,7 @@ class StreamController extends Controller
      */
     public function show()
     {
-        if (!Auth::user()->can('stream-list')) {
+        if (! Auth::user()->can('stream-list')) {
             $response = array(
                 'error' => true,
                 'message' => trans('no_permission_message')
@@ -103,17 +103,17 @@ class StreamController extends Controller
         $order = 'DESC';
 
         if (isset($_GET['offset']))
-        $offset = $_GET['offset'];
+            $offset = $_GET['offset'];
         if (isset($_GET['limit']))
-        $limit = $_GET['limit'];
+            $limit = $_GET['limit'];
 
         if (isset($_GET['sort']))
-        $sort = $_GET['sort'];
+            $sort = $_GET['sort'];
         if (isset($_GET['order']))
-        $order = $_GET['order'];
+            $order = $_GET['order'];
 
-        $sql = Stream::where('id','!=',0);
-        if (isset($_GET['search']) && !empty($_GET['search'])) {
+        $sql = Stream::where('id', '!=', 0);
+        if (isset($_GET['search']) && ! empty($_GET['search'])) {
             $search = $_GET['search'];
             $sql->where('id', 'LIKE', "%$search%")->orwhere('name', 'LIKE', "%$search%");
         }
@@ -126,10 +126,10 @@ class StreamController extends Controller
         $bulkData['total'] = $total;
         $rows = array();
         $tempRow = array();
-        $no=1;
+        $no = 1;
         foreach ($res as $row) {
-            $operate = '<a href='.route('stream.edit',$row->id).' class="btn btn-xs btn-gradient-primary btn-rounded btn-icon edit-data" data-id=' . $row->id . ' title="Edit" data-toggle="modal" data-target="#editModal"><i class="fa fa-edit"></i></a>&nbsp;&nbsp;';
-            $operate .= '<a href='.route('stream.destroy',$row->id).' class="btn btn-xs btn-gradient-danger btn-rounded btn-icon delete-form" data-id=' . $row->id . '><i class="fa fa-trash"></i></a>';
+            $operate = '<a href=' . route('stream.edit', $row->id) . ' class="btn btn-xs btn-gradient-primary btn-rounded btn-icon edit-data" data-id=' . $row->id . ' title="Edit" data-toggle="modal" data-target="#editModal"><i class="fa fa-edit"></i></a>&nbsp;&nbsp;';
+            $operate .= '<a href=' . route('stream.destroy', $row->id) . ' class="btn btn-xs btn-gradient-danger btn-rounded btn-icon delete-form" data-id=' . $row->id . '><i class="fa fa-trash"></i></a>';
 
             $tempRow['id'] = $row->id;
             $tempRow['no'] = $no++;
@@ -164,7 +164,7 @@ class StreamController extends Controller
      */
     public function update(Request $request, $id)
     {
-        if (!Auth::user()->can('stream-edit')) {
+        if (! Auth::user()->can('stream-edit')) {
             $response = array(
                 'error' => true,
                 'message' => trans('no_permission_message')
@@ -209,7 +209,7 @@ class StreamController extends Controller
      */
     public function destroy($id)
     {
-        if (!Auth::user()->can('stream-delete')) {
+        if (! Auth::user()->can('stream-delete')) {
             $response = array(
                 'error' => true,
                 'message' => trans('no_permission_message')

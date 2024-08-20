@@ -27,18 +27,13 @@ use Illuminate\Support\Facades\Validator;
 
 class FeesTypeController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
     public function index()
     {
         if (! Auth::user()->can('fees-type')) {
-            $response = array(
+            return to_route('home')->withErrors([
                 'message' => trans('no_permission_message')
-            );
-            return redirect(route('home'))->withErrors($response);
+            ]);
+
         }
         return view('fees.fees_types');
     }
@@ -62,10 +57,10 @@ class FeesTypeController extends Controller
     public function store(Request $request)
     {
         if (! Auth::user()->can('fees-type')) {
-            $response = array(
+            return to_route('home')->withErrors([
                 'message' => trans('no_permission_message')
-            );
-            return redirect(route('home'))->withErrors($response);
+            ]);
+
         }
         $validator = Validator::make($request->all(), [
             'name' => 'required',
@@ -99,19 +94,12 @@ class FeesTypeController extends Controller
         return response()->json($response);
     }
 
-    /**
-     * Display the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
     public function show($id)
     {
         if (! Auth::user()->can('fees-type')) {
-            $response = array(
+            return to_route('home')->withErrors([
                 'message' => trans('no_permission_message')
-            );
-            return redirect(route('home'))->withErrors($response);
+            ]);
         }
         $offset = 0;
         $limit = 10;
@@ -176,20 +164,12 @@ class FeesTypeController extends Controller
         //
     }
 
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
     public function update(Request $request, $id)
     {
         if (! Auth::user()->can('fees-type')) {
-            $response = array(
+            return to_route('home')->withErrors([
                 'message' => trans('no_permission_message')
-            );
-            return redirect(route('home'))->withErrors($response);
+            ]);
         }
         $validator = Validator::make($request->all(), [
             'edit_name' => 'required',
@@ -220,19 +200,12 @@ class FeesTypeController extends Controller
         return response()->json($response);
     }
 
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
     public function destroy($id)
     {
         if (! Auth::user()->can('fees-type')) {
-            $response = array(
+            return to_route('home')->withErrors([
                 'message' => trans('no_permission_message')
-            );
-            return redirect(route('home'))->withErrors($response);
+            ]);
         }
         try {
             // check wheather fees type id is associate with other tables...
@@ -260,13 +233,13 @@ class FeesTypeController extends Controller
         }
         return response()->json($response);
     }
+
     public function feesClassListIndex()
     {
         if (! Auth::user()->can('fees-classes')) {
-            $response = array(
+            return to_route('home')->withErrors([
                 'message' => trans('no_permission_message')
-            );
-            return redirect(route('home'))->withErrors($response);
+            ]);
         }
         $classes = ClassSchool::orderByRaw('CONVERT(name, SIGNED) asc')->with('medium', 'sections', 'streams')->get();
         $fees_type = FeesType::orderBy('id', 'ASC')->pluck('name', 'id');
@@ -278,10 +251,9 @@ class FeesTypeController extends Controller
     public function feesClassList()
     {
         if (! Auth::user()->can('fees-classes')) {
-            $response = array(
+            return to_route('home')->withErrors([
                 'message' => trans('no_permission_message')
-            );
-            return redirect(route('home'))->withErrors($response);
+            ]);
         }
         $offset = 0;
         $limit = 10;
@@ -422,10 +394,9 @@ class FeesTypeController extends Controller
     public function removeFeesClass($id)
     {
         if (! Auth::user()->can('fees-classes')) {
-            $response = array(
+            return to_route('home')->withErrors([
                 'message' => trans('no_permission_message')
-            );
-            return redirect(route('home'))->withErrors($response);
+            ]);
         }
         try {
             $fees_class = FeesClass::where('id', $id)->first();
@@ -457,10 +428,9 @@ class FeesTypeController extends Controller
     public function feesPaidListIndex()
     {
         if (! Auth::user()->can('fees-paid')) {
-            $response = array(
+            return to_route('home')->withErrors([
                 'message' => trans('no_permission_message')
-            );
-            return redirect(route('home'))->withErrors($response);
+            ]);
         }
         $classes = ClassSchool::orderByRaw('CONVERT(name, SIGNED) asc')->with('medium', 'sections', 'streams')->get();
         $session_year_all = SessionYear::select('id', 'name', 'default')->get();
@@ -471,10 +441,9 @@ class FeesTypeController extends Controller
     public function feesPaidList()
     {
         if (! Auth::user()->can('fees-paid')) {
-            $response = array(
+            return to_route('home')->withErrors([
                 'message' => trans('no_permission_message')
-            );
-            return redirect(route('home'))->withErrors($response);
+            ]);
         }
         $offset = 0;
         $limit = 10;
@@ -737,10 +706,9 @@ class FeesTypeController extends Controller
     public function feesConfigIndex()
     {
         if (! Auth::user()->can('fees-config')) {
-            $response = array(
+            return to_route('home')->withErrors([
                 'message' => trans('no_permission_message')
-            );
-            return redirect(route('home'))->withErrors($response);
+            ]);
         }
         $settings = getSettings();
         $domain = request()->getSchemeAndHttpHost();
@@ -750,10 +718,9 @@ class FeesTypeController extends Controller
     public function feesConfigUpdate(Request $request)
     {
         if (! Auth::user()->can('fees-config')) {
-            $response = array(
+            return to_route('home')->withErrors([
                 'message' => trans('no_permission_message')
-            );
-            return redirect(route('home'))->withErrors($response);
+            ]);
         }
         $validator = Validator::make($request->all(), [
             'razorpay_status' => 'required',
@@ -1064,10 +1031,10 @@ class FeesTypeController extends Controller
     public function feesTransactionsLogsIndex(Request $request)
     {
         if (! Auth::user()->can('fees-paid')) {
-            $response = array(
+            return to_route('home')->withErrors([
                 'message' => trans('no_permission_message')
-            );
-            return redirect(route('home'))->withErrors($response);
+            ]);
+
         }
         $session_year_all = SessionYear::select('id', 'name', 'default')->get();
         $classes = ClassSchool::orderByRaw('CONVERT(name, SIGNED) asc')->with('medium', 'sections', 'streams')->get();
@@ -1077,10 +1044,10 @@ class FeesTypeController extends Controller
     public function feesTransactionsLogsList(Request $request)
     {
         if (! Auth::user()->can('fees-paid')) {
-            $response = array(
+            return to_route('home')->withErrors([
                 'message' => trans('no_permission_message')
-            );
-            return redirect(route('home'))->withErrors($response);
+            ]);
+
         }
         $offset = 0;
         $limit = 10;
@@ -1152,10 +1119,9 @@ class FeesTypeController extends Controller
     public function feesPaidReceiptPDF($id)
     {
         if (! Auth::user()->can('fees-paid')) {
-            $response = array(
+            return to_route('home')->withErrors([
                 'message' => trans('no_permission_message')
-            );
-            return redirect(route('home'))->withErrors($response);
+            ]);
         }
         try {
             $logo = settingByType('logo2');
@@ -1207,10 +1173,10 @@ class FeesTypeController extends Controller
     public function optionalFeesPaidStore(Request $request)
     {
         if (! Auth::user()->can('fees-paid')) {
-            $response = array(
+            return to_route('home')->withErrors([
                 'message' => trans('no_permission_message')
-            );
-            return redirect(route('home'))->withErrors($response);
+            ]);
+
         }
         $validator = Validator::make($request->all(), [
             'date' => 'required|date',
@@ -1319,10 +1285,9 @@ class FeesTypeController extends Controller
     public function feesPaidRemoveChoiceableFees($id)
     {
         if (! Auth::user()->can('fees-paid')) {
-            $response = array(
+            return to_route('home')->withErrors([
                 'message' => trans('no_permission_message')
-            );
-            return redirect(route('home'))->withErrors($response);
+            ]);
         }
         try {
             $fees_choiceable = FeesChoiceable::find($id);
@@ -1393,10 +1358,9 @@ class FeesTypeController extends Controller
     public function compulsoryFeesPaidStore(Request $request)
     {
         if (! Auth::user()->can('fees-paid')) {
-            $response = array(
+            return to_route('home')->withErrors([
                 'message' => trans('no_permission_message')
-            );
-            return redirect(route('home'))->withErrors($response);
+            ]);
         }
         $validator = Validator::make($request->all(), [
             'date' => 'required|date',
@@ -1514,10 +1478,9 @@ class FeesTypeController extends Controller
     public function feesPaidRemoveInstallmentFees($id)
     {
         if (! Auth::user()->can('fees-paid')) {
-            $response = array(
+            return to_route('home')->withErrors([
                 'message' => trans('no_permission_message')
-            );
-            return redirect(route('home'))->withErrors($response);
+            ]);
         }
         try {
             $paid_installment_fee_db = PaidInstallmentFee::find($id);

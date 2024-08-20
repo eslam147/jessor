@@ -26,22 +26,22 @@ class OnlineExamQuestionController extends Controller
      */
     public function index()
     {
-        if (!Auth::user()->can('manage-online-exam')) {
-            $response = array(
+        if (! Auth::user()->can('manage-online-exam')) {
+            return to_route('home')->withErrors([
                 'message' => trans('no_permission_message')
-            );
-            return redirect(route('home'))->withErrors($response);
+            ]);
+
         }
         $teacher_id = Auth::user()->teacher->id;
 
         //get the class and subject according to subject teacher
-        $subject_teacher = SubjectTeacher::where('teacher_id',$teacher_id);
+        $subject_teacher = SubjectTeacher::where('teacher_id', $teacher_id);
         $class_section_id = $subject_teacher->pluck('class_section_id');
-        $class_id = ClassSection::whereIn('id',$class_section_id)->pluck('class_id');
+        $class_id = ClassSection::whereIn('id', $class_section_id)->pluck('class_id');
         $subject_id = $subject_teacher->pluck('subject_id');
 
-        $classes = ClassSchool::whereIn('id',$class_id)->with('medium','streams')->get();
-        $all_subjects = Subject::whereIn('id',$subject_id)->get();
+        $classes = ClassSchool::whereIn('id', $class_id)->with('medium', 'streams')->get();
+        $all_subjects = Subject::whereIn('id', $subject_id)->get();
         return response(view('online_exam.class_questions', compact('classes', 'all_subjects')));
     }
 
@@ -63,29 +63,32 @@ class OnlineExamQuestionController extends Controller
      */
     public function store(Request $request)
     {
-        if (!Auth::user()->can('manage-online-exam')) {
-            $response = array(
+        if (! Auth::user()->can('manage-online-exam')) {
+            return to_route('home')->withErrors([
                 'message' => trans('no_permission_message')
-            );
-            return redirect(route('home'))->withErrors($response);
+            ]);
+
         }
-        $validator = Validator::make($request->all(), [
-            'class_id' => 'required',
-            'subject_id' => 'required',
-            'question_type' => 'required|in:0,1',
-            'question' => 'required_if:question_type,0',
-            'option.*' => 'required_if:question_type,0',
-            'equestion' => 'required_if:question_type,1',
-            'eoption.*' => 'required_if:question_type,1',
-            'answer.*' => 'required_if:question_type,0',
-            'image' => 'nullable|mimes:jpeg,png,jpg|image|max:3048',
-        ],
-        [
-            'question.required_if' => __('question_is_required'),
-            'option.*.required_if' => __('all_options_are_required'),
-            'equestion.required_if' => __('question_is_required'),
-            'eoption.*.required_if' => __('all_options_are_required'),
-        ]);
+        $validator = Validator::make(
+            $request->all(),
+            [
+                'class_id' => 'required',
+                'subject_id' => 'required',
+                'question_type' => 'required|in:0,1',
+                'question' => 'required_if:question_type,0',
+                'option.*' => 'required_if:question_type,0',
+                'equestion' => 'required_if:question_type,1',
+                'eoption.*' => 'required_if:question_type,1',
+                'answer.*' => 'required_if:question_type,0',
+                'image' => 'nullable|mimes:jpeg,png,jpg|image|max:3048',
+            ],
+            [
+                'question.required_if' => __('question_is_required'),
+                'option.*.required_if' => __('all_options_are_required'),
+                'equestion.required_if' => __('question_is_required'),
+                'eoption.*.required_if' => __('all_options_are_required'),
+            ]
+        );
 
         if ($validator->fails()) {
             return response()->json([
@@ -203,24 +206,18 @@ class OnlineExamQuestionController extends Controller
         return response()->json($response);
     }
 
-    /**
-     * Display the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
     public function show($id)
     {
-        if (!Auth::user()->can('manage-online-exam')) {
-            $response = array(
+        if (! Auth::user()->can('manage-online-exam')) {
+            return to_route('home')->withErrors([
                 'message' => trans('no_permission_message')
-            );
-            return redirect(route('home'))->withErrors($response);
+            ]);
+
         }
-        $offset = request('offset',0);
-        $limit = request('limit',10);
-        $sort = request('sort','id');
-        $order = request('order','ASC');
+        $offset = request('offset', 0);
+        $limit = request('limit', 10);
+        $sort = request('sort', 'id');
+        $order = request('order', 'ASC');
         $search = request('search');
 
 
@@ -239,24 +236,24 @@ class OnlineExamQuestionController extends Controller
             ])->pluck('id');
         }
 
-        $sql = OnlineExamQuestion::with('class_subject','options','answers')
+        $sql = OnlineExamQuestion::with('class_subject', 'options', 'answers')
             //search queries
-            ->when($search,function($query)use($search){
-                $query->where(function($query)use($search){
+            ->when($search, function ($query) use ($search) {
+                $query->where(function ($query) use ($search) {
                     $query->where('id', 'LIKE', "%$search%")
                         ->orWhere('question', 'LIKE', "%$search%")
                         ->orWhere('created_at', 'LIKE', "%" . date('Y-m-d H:i:s', strtotime($search)) . "%")
                         ->orWhere('updated_at', 'LIKE', "%" . date('Y-m-d H:i:s', strtotime($search)) . "%")
                         ->orWhereHas('class_subject', function ($q) use ($search) {
-                            $q->WhereHas('class', function ($c) use ($search){
+                            $q->WhereHas('class', function ($c) use ($search) {
                                 $c->where('name', 'LIKE', "%$search%")
                                     ->orWhereHas('medium', function ($m) use ($search) {
                                         $m->where('name', 'LIKE', "%$search%");
                                     });
                             })
-                            ->orWhereHas('subject', function ($c) use ($search){
-                                $c->whereRaw("concat(name,' - ',type) LIKE '%" . $search . "%'");
-                            });
+                                ->orWhereHas('subject', function ($c) use ($search) {
+                                    $c->whereRaw("concat(name,' - ',type) LIKE '%" . $search . "%'");
+                                });
                         })
                         ->orWhereHas('options', function ($p) use ($search) {
                             $p->where('option', 'LIKE', "%$search%");
@@ -265,7 +262,7 @@ class OnlineExamQuestionController extends Controller
             });
 
         //class and subject filter data
-        if (!empty($class_subject_ids)) {
+        if (! empty($class_subject_ids)) {
             $sql = $sql->whereIn('class_subject_id', $class_subject_ids);
         }
         $total = $sql->count();
@@ -281,8 +278,8 @@ class OnlineExamQuestionController extends Controller
             // data for options which not answers
             $answers_id = '';
             $options_not_answers = '';
-            $answers_id = OnlineExamQuestionAnswer::where('question_id',$row->id)->pluck('answer');
-            $options_not_answers = OnlineExamQuestionOption::whereNotIn('id',$answers_id)->where('question_id',$row->id)->get();
+            $answers_id = OnlineExamQuestionAnswer::where('question_id', $row->id)->pluck('answer');
+            $options_not_answers = OnlineExamQuestionOption::whereNotIn('id', $answers_id)->where('question_id', $row->id)->get();
 
             $operate = '';
             $operate .= '<a href="#" class="btn btn-xs btn-gradient-primary btn-rounded btn-icon edit-data" data-id=' . $row->id . ' title="Edit" data-toggle="modal" data-target="#editModal"><i class="fa fa-edit"></i></a>&nbsp;&nbsp;';
@@ -291,7 +288,7 @@ class OnlineExamQuestionController extends Controller
             $tempRow['online_exam_question_id'] = $row->id;
             $tempRow['no'] = $no++;
             $tempRow['class_id'] = $row->class_subject->class_id;
-            $tempRow['class_name'] = $row->class_subject->class->name . ' - ' . $row->class_subject->class->medium->name .' '. ($row->class_subject->class->streams->name ?? '');
+            $tempRow['class_name'] = $row->class_subject->class->name . ' - ' . $row->class_subject->class->medium->name . ' ' . ($row->class_subject->class->streams->name ?? '');
             $tempRow['class_subject_id'] = $row->class_subject_id;
             $tempRow['subject_id'] = $row->class_subject->subject_id;
             $tempRow['subject_name'] = $row->class_subject->subject->name . ' - ' . $row->class_subject->subject->type;
@@ -300,8 +297,8 @@ class OnlineExamQuestionController extends Controller
             $tempRow['options'] = array();
             $tempRow['answers'] = array();
             $tempRow['options_not_answers'] = array();
-            if($row->question_type){
-                $tempRow['question'] = "<div class='equation-editor-inline' contenteditable=false>".htmlspecialchars_decode($row->question)."</div>";
+            if ($row->question_type) {
+                $tempRow['question'] = "<div class='equation-editor-inline' contenteditable=false>" . htmlspecialchars_decode($row->question) . "</div>";
                 $tempRow['question_row'] = htmlspecialchars_decode($row->question);
 
                 //options data
@@ -309,7 +306,7 @@ class OnlineExamQuestionController extends Controller
                 foreach ($row->options as $key => $options) {
                     $option_data = array(
                         'id' => $options->id,
-                        'option' => "<div class='equation-editor-inline' contenteditable=false>".htmlspecialchars_decode($options->option)."</div>",
+                        'option' => "<div class='equation-editor-inline' contenteditable=false>" . htmlspecialchars_decode($options->option) . "</div>",
                         'option_row' => htmlspecialchars_decode($options->option)
                     );
                     $tempRow['options'][] = $option_data;
@@ -321,7 +318,7 @@ class OnlineExamQuestionController extends Controller
                     $answer_data = array(
                         'id' => $answers->id,
                         'option_id' => $answers->answer,
-                        'answer' => "<div class='equation-editor-inline' contenteditable=false>".htmlspecialchars_decode($answers->options->option)."</div>",
+                        'answer' => "<div class='equation-editor-inline' contenteditable=false>" . htmlspecialchars_decode($answers->options->option) . "</div>",
                     );
                     $tempRow['answers'][] = $answer_data;
                 }
@@ -335,7 +332,7 @@ class OnlineExamQuestionController extends Controller
                     );
                     $tempRow['options_not_answers'][] = $no_answers_array;
                 }
-            }else{
+            } else {
                 $tempRow['question'] = htmlspecialchars_decode($row->question);
 
                 //options data
@@ -356,7 +353,7 @@ class OnlineExamQuestionController extends Controller
                         'option_id' => $answers->answer,
                         'answer' => htmlspecialchars_decode($answers->options->option),
                     );
-                    $tempRow['answers'][] =  $answer_data;
+                    $tempRow['answers'][] = $answer_data;
                 }
 
                 // options which are not answers
@@ -399,21 +396,24 @@ class OnlineExamQuestionController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $validator = Validator::make($request->all(), [
-            'edit_class_id' => 'required',
-            'edit_subject_id' => 'required',
-            'edit_question' => 'required_if:edit_question_type,0',
-            'edit_option.*.option' => 'required_if:edit_question_type,0',
-            'edit_equestion' => 'required_if:edit_question_type,1',
-            'edit_eoption.*.option' => 'required_if:edit_question_type,1',
-            'edit_image' => 'nullable|mimes:jpeg,png,jpg|image|max:3048',
-        ],
-        [
-            'edit_question.required_if' => __('question_is_required'),
-            'edit_option.*.option.required_if' => __('all_options_are_required'),
-            'edit_equestion.required_if' => __('question_is_required'),
-            'edit_eoption.*.option.required_if' => __('all_options_are_required'),
-        ]);
+        $validator = Validator::make(
+            $request->all(),
+            [
+                'edit_class_id' => 'required',
+                'edit_subject_id' => 'required',
+                'edit_question' => 'required_if:edit_question_type,0',
+                'edit_option.*.option' => 'required_if:edit_question_type,0',
+                'edit_equestion' => 'required_if:edit_question_type,1',
+                'edit_eoption.*.option' => 'required_if:edit_question_type,1',
+                'edit_image' => 'nullable|mimes:jpeg,png,jpg|image|max:3048',
+            ],
+            [
+                'edit_question.required_if' => __('question_is_required'),
+                'edit_option.*.option.required_if' => __('all_options_are_required'),
+                'edit_equestion.required_if' => __('question_is_required'),
+                'edit_eoption.*.option.required_if' => __('all_options_are_required'),
+            ]
+        );
         if ($validator->fails()) {
             $response = array(
                 'error' => true,
@@ -422,9 +422,9 @@ class OnlineExamQuestionController extends Controller
             return response()->json($response);
         }
         try {
-            if($request->edit_question_type){
+            if ($request->edit_question_type) {
                 $edit_equestion = OnlineExamQuestion::find($request->edit_id);
-                $class_subject_id = ClassSubject::where(['class_id' => $request->edit_class_id , 'subject_id' => $request->edit_subject_id])->pluck('id')->first();
+                $class_subject_id = ClassSubject::where(['class_id' => $request->edit_class_id, 'subject_id' => $request->edit_subject_id])->pluck('id')->first();
                 $edit_equestion->class_subject_id = $class_subject_id;
                 $edit_equestion->question = htmlspecialchars($request->edit_equestion);
 
@@ -456,16 +456,16 @@ class OnlineExamQuestionController extends Controller
 
                 $new_options_id = array();
                 foreach ($request->edit_eoption as $key => $edit_option_data) {
-                    if($edit_option_data['id']){
+                    if ($edit_option_data['id']) {
                         $edit_option = OnlineExamQuestionOption::find($edit_option_data['id']);
                         $edit_option->option = htmlspecialchars($edit_option_data['option']);
                         $edit_option->save();
-                    }else{
+                    } else {
                         $new_option = new OnlineExamQuestionOption();
                         $new_option->question_id = $request->edit_id;
                         $new_option->option = htmlspecialchars($edit_option_data['option']);
                         $new_option->save();
-                        $new_options_id['new'.$key] = $new_option->id;
+                        $new_options_id['new' . $key] = $new_option->id;
                     }
                 }
 
@@ -473,7 +473,7 @@ class OnlineExamQuestionController extends Controller
                 $answers_options = $request->edit_answer;
 
                 // add new answers first
-                if(isset($request->edit_answer) && !empty($request->edit_answer) ){
+                if (isset($request->edit_answer) && ! empty($request->edit_answer)) {
                     foreach ($request->edit_answer as $answer) {
                         foreach ($new_options_id as $key => $option) {
 
@@ -493,7 +493,7 @@ class OnlineExamQuestionController extends Controller
 
 
                 // add remaining answers
-                if(isset($answers_options) && !empty($answers_options) ){
+                if (isset($answers_options) && ! empty($answers_options)) {
                     foreach ($answers_options as $answer_key => $answer) {
                         $new_answers = new OnlineExamQuestionAnswer();
                         $new_answers->question_id = $request->edit_id;
@@ -501,9 +501,9 @@ class OnlineExamQuestionController extends Controller
                         $new_answers->save();
                     }
                 }
-            }else{
+            } else {
                 $edit_question = OnlineExamQuestion::find($request->edit_id);
-                $class_subject_id = ClassSubject::where(['class_id' => $request->edit_class_id , 'subject_id' => $request->edit_subject_id])->pluck('id')->first();
+                $class_subject_id = ClassSubject::where(['class_id' => $request->edit_class_id, 'subject_id' => $request->edit_subject_id])->pluck('id')->first();
                 $edit_question->class_subject_id = $class_subject_id;
                 $edit_question->question = htmlspecialchars($request->edit_question);
 
@@ -535,16 +535,16 @@ class OnlineExamQuestionController extends Controller
 
                 $new_options_id = array();
                 foreach ($request->edit_options as $key => $edit_option_data) {
-                    if($edit_option_data['id']){
+                    if ($edit_option_data['id']) {
                         $edit_option = OnlineExamQuestionOption::find($edit_option_data['id']);
                         $edit_option->option = htmlspecialchars($edit_option_data['option']);
                         $edit_option->save();
-                    }else{
+                    } else {
                         $new_option = new OnlineExamQuestionOption();
                         $new_option->question_id = $request->edit_id;
                         $new_option->option = htmlspecialchars($edit_option_data['option']);
                         $new_option->save();
-                        $new_options_id['new'.$key] = $new_option->id;
+                        $new_options_id['new' . $key] = $new_option->id;
                     }
                 }
 
@@ -552,7 +552,7 @@ class OnlineExamQuestionController extends Controller
                 $answers_options = $request->edit_answer;
 
                 // add new answers first
-                if(isset($request->edit_answer) && !empty($request->edit_answer) ){
+                if (isset($request->edit_answer) && ! empty($request->edit_answer)) {
                     foreach ($request->edit_answer as $answer) {
                         foreach ($new_options_id as $key => $option) {
 
@@ -572,7 +572,7 @@ class OnlineExamQuestionController extends Controller
 
 
                 // add remaining answers
-                if(isset($answers_options) && !empty($answers_options) ){
+                if (isset($answers_options) && ! empty($answers_options)) {
                     foreach ($answers_options as $answer_key => $answer) {
                         $new_answers = new OnlineExamQuestionAnswer();
                         $new_answers->question_id = $request->edit_id;
@@ -597,31 +597,24 @@ class OnlineExamQuestionController extends Controller
         return response()->json($response);
     }
 
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
     public function destroy($id)
     {
-        if (!Auth::user()->can('manage-online-exam')) {
-            $response = array(
+        if (! Auth::user()->can('manage-online-exam')) {
+            return to_route('home')->withErrors([
                 'message' => trans('no_permission_message')
-            );
-            return redirect(route('home'))->withErrors($response);
+            ]);
         }
         try {
 
             // check wheather question is associated with other table..
-            $online_exam_choice_questions = OnlineExamQuestionChoice::where('question_id',$id)->count();
-            if($online_exam_choice_questions){
+            $online_exam_choice_questions = OnlineExamQuestionChoice::where('question_id', $id)->count();
+            if ($online_exam_choice_questions) {
                 $response = array(
                     'error' => true,
                     'message' => trans('cannot_delete_beacuse_data_is_associated_with_other_data')
                 );
-            }else{
-                OnlineExamQuestion::where('id',$id)->delete();
+            } else {
+                OnlineExamQuestion::where('id', $id)->delete();
                 $response = array(
                     'error' => false,
                     'message' => trans('data_delete_successfully')
@@ -638,22 +631,23 @@ class OnlineExamQuestionController extends Controller
         return response()->json($response);
     }
 
-    public function removeOptions($id){
-        if (!Auth::user()->can('manage-online-exam')) {
-            $response = array(
+    public function removeOptions($id)
+    {
+        if (! Auth::user()->can('manage-online-exam')) {
+            return to_route('home')->withErrors([
                 'message' => trans('no_permission_message')
-            );
-            return redirect(route('home'))->withErrors($response);
+            ]);
+
         }
         try {
-            OnlineExamQuestionOption::where('id',$id)->delete();
+            OnlineExamQuestionOption::where('id', $id)->delete();
             $response = array(
                 'error' => false,
                 'message' => trans('data_delete_successfully')
             );
         } catch (Throwable $e) {
             report($e);
-            
+
             $response = array(
                 'error' => true,
                 'message' => trans('error_occurred')
@@ -661,15 +655,16 @@ class OnlineExamQuestionController extends Controller
         }
         return response()->json($response);
     }
-    public function removeAnswers($id){
-        if (!Auth::user()->can('manage-online-exam')) {
-            $response = array(
+    public function removeAnswers($id)
+    {
+        if (! Auth::user()->can('manage-online-exam')) {
+            return to_route('home')->withErrors([
                 'message' => trans('no_permission_message')
-            );
-            return redirect(route('home'))->withErrors($response);
+            ]);
+
         }
         try {
-            OnlineExamQuestionAnswer::where('id',$id)->delete();
+            OnlineExamQuestionAnswer::where('id', $id)->delete();
             $response = array(
                 'error' => false,
                 'message' => trans('data_delete_successfully')

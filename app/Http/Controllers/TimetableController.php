@@ -19,19 +19,19 @@ class TimetableController extends Controller
     public function index()
     {
 
-        if (!Auth::user()->can('timetable-list') || !Auth::user()->can('class-timetable')) {
-            $response = array(
+        if (! Auth::user()->can('timetable-list') || ! Auth::user()->can('class-timetable')) {
+            return to_route('home')->withErrors([
                 'message' => trans('no_permission_message')
-            );
-            return redirect(route('home'))->withErrors($response);
+            ]);
+
         }
-        $class_sections = ClassSection::with('class.medium', 'section')->withOutTrashedRelations('class','section')->get();
+        $class_sections = ClassSection::with('class.medium', 'section')->withOutTrashedRelations('class', 'section')->get();
         return view('timetable.index', compact('class_sections'));
     }
 
     public function store(Request $request)
     {
-        if (!Auth::user()->can('timetable-create') || !Auth::user()->can('timetable-edit')) {
+        if (! Auth::user()->can('timetable-create') || ! Auth::user()->can('timetable-edit')) {
             $response = array(
                 'error' => true,
                 'message' => trans('no_permission_message')
@@ -113,7 +113,7 @@ class TimetableController extends Controller
      */
     public function destroy($id)
     {
-        if (!Auth::user()->can('timetable-delete')) {
+        if (! Auth::user()->can('timetable-delete')) {
             $response = array(
                 'error' => true,
                 'message' => trans('no_permission_message')
@@ -143,7 +143,7 @@ class TimetableController extends Controller
         if ($user) {
             // if teacher exists then send the timetable data directly to view by its credentials
             $class_section_ids = ClassTeacher::where('class_teacher_id', $user->id)->pluck('class_section_id');
-            $class_sections = ClassSection::with('class','class.medium', 'section','class.streams')->withOutTrashedRelations('class','section')->whereIn('id',$class_section_ids)->get();
+            $class_sections = ClassSection::with('class', 'class.medium', 'section', 'class.streams')->withOutTrashedRelations('class', 'section')->whereIn('id', $class_section_ids)->get();
             // $timetable = Timetable::whereIn('class_section_id', $class_section_ids)->with('subject_teacher')->orderBy('day', 'asc')->get();
             // $day = Timetable::select('day', 'day_name')->whereIn('class_section_id', $class_section_ids)->groupBy('day', 'day_name')->get();
             // $teacher_data = [
@@ -154,14 +154,14 @@ class TimetableController extends Controller
             return view('timetable.class_timetable', compact('class_sections'));
         } else {
             // if teacher doesn't exists then send the class section data for select option directly to view
-            if (!Auth::user()->can('timetable-list') || !Auth::user()->can('class-timetable')) {
+            if (! Auth::user()->can('timetable-list') || ! Auth::user()->can('class-timetable')) {
                 $response = array(
                     'error' => true,
                     'message' => trans('no_permission_message')
                 );
                 return response()->json($response);
             }
-            $class_sections = ClassSection::ClassTeacher()->with('class.medium', 'section')->withOutTrashedRelations('class','section')->get();
+            $class_sections = ClassSection::ClassTeacher()->with('class.medium', 'section')->withOutTrashedRelations('class', 'section')->get();
             return view('timetable.class_timetable', compact('class_sections'));
         }
     }
@@ -186,7 +186,7 @@ class TimetableController extends Controller
         $user = Auth::user()->teacher;
         if ($user) {
             // if teacher exists then send the timetable data directly to view by its credentials
-            $class_sections = ClassSection::SubjectTeacher()->with('class.medium', 'section')->withOutTrashedRelations('class','section')->get();
+            $class_sections = ClassSection::SubjectTeacher()->with('class.medium', 'section')->withOutTrashedRelations('class', 'section')->get();
             // $subject_teacher = SubjectTeacher::where('teacher_id', $user->id)->pluck('id');
             // $timetable = Timetable::with('subject_teacher', 'class_section')->whereIn('subject_teacher_id', $subject_teacher)->get()->toArray();
             // $day = Timetable::select('day', 'day_name')->whereIn('subject_teacher_id', $subject_teacher)->groupBy('day', 'day_name')->get()->toArray();
@@ -197,7 +197,7 @@ class TimetableController extends Controller
             return view('timetable.teacher_timetable', compact('class_sections'));
         } else {
             // if teacher doesn't exists then send the class section data for select option directly to view
-            if (!Auth::user()->can('timetable-list') || !Auth::user()->can('teacher-timetable')) {
+            if (! Auth::user()->can('timetable-list') || ! Auth::user()->can('teacher-timetable')) {
                 $response = array(
                     'error' => true,
                     'message' => trans('no_permission_message')
@@ -231,17 +231,17 @@ class TimetableController extends Controller
     public function getTimetableBySubjectTeacherClass(Request $request)
     {
         $teacher = Auth::user()->teacher;
-        $subject_teacher_id = SubjectTeacher::where('teacher_id',$teacher->id)->pluck('id')->toArray();
+        $subject_teacher_id = SubjectTeacher::where('teacher_id', $teacher->id)->pluck('id')->toArray();
 
         // Session::put('class_timetable', $request->class_section_id);
-        if($request->class_section_id){
+        if ($request->class_section_id) {
 
-            $timetable = Timetable::whereIn('subject_teacher_id',$subject_teacher_id)->where('class_section_id' , $request->class_section_id)->with('subject_teacher','class_section')->orderBy('day', 'asc')->get();
+            $timetable = Timetable::whereIn('subject_teacher_id', $subject_teacher_id)->where('class_section_id', $request->class_section_id)->with('subject_teacher', 'class_section')->orderBy('day', 'asc')->get();
 
-            $day = Timetable::select('day', 'day_name')->whereIn('subject_teacher_id',$subject_teacher_id)->where('class_section_id' , $request->class_section_id)->groupBy('day', 'day_name')->get();
+            $day = Timetable::select('day', 'day_name')->whereIn('subject_teacher_id', $subject_teacher_id)->where('class_section_id', $request->class_section_id)->groupBy('day', 'day_name')->get();
             // dd($timetable->toArray());
-        }else{
-            $timetable = Timetable::whereIn('subject_teacher_id', $subject_teacher_id)->with('subject_teacher','class_section')->orderBy('day', 'asc')->get();
+        } else {
+            $timetable = Timetable::whereIn('subject_teacher_id', $subject_teacher_id)->with('subject_teacher', 'class_section')->orderBy('day', 'asc')->get();
 
             $day = Timetable::select('day', 'day_name')->whereIn('subject_teacher_id', $subject_teacher_id)->groupBy('day', 'day_name')->get();
         }

@@ -55,10 +55,9 @@ class StudentController extends Controller
     public function create()
     {
         if (! Auth::user()->can('student-create')) {
-            $response = array(
+            return to_route('home')->withErrors([
                 'message' => trans('no_permission_message')
-            );
-            return redirect(route('home'))->withErrors($response);
+            ]);
         }
         $class_section = ClassSection::with('class', 'section')->withOutTrashedRelations('class', 'section')->get();
         $studentFields = FormField::where('for', 1)->orderBy('rank')->get();
@@ -75,10 +74,10 @@ class StudentController extends Controller
     public function createBulkData()
     {
         if (! Auth::user()->can('student-create')) {
-            $response = array(
+            return to_route('home')->withErrors([
                 'message' => trans('no_permission_message')
-            );
-            return redirect(route('home'))->withErrors($response);
+            ]);
+
         }
         $class_section = ClassSection::with('class', 'section')->withOutTrashedRelations('class', 'section')->get();
 
@@ -98,11 +97,10 @@ class StudentController extends Controller
             'file' => 'required|mimes:csv,txt'
         ]);
         if ($validator->fails()) {
-            $response = array(
+            return response()->json([
                 'error' => true,
                 'message' => $validator->errors()->first()
-            );
-            return response()->json($response);
+            ]);
         }
         try {
             $class_section_id = $request->class_section_id;
@@ -1055,11 +1053,10 @@ class StudentController extends Controller
             'selected_id' => 'required',
         ]);
         if ($validator->fails()) {
-            $response = array(
+            return response()->json([
                 'error' => true,
                 'message' => $validator->errors()->first()
-            );
-            return response()->json($response);
+            ]);
         }
         try {
             $selected_student = explode(',', $request->selected_id);
@@ -1094,10 +1091,9 @@ class StudentController extends Controller
     public function indexStudentRollNumber()
     {
         if (! Auth::user()->can('student-create')) {
-            $response = array(
+            return to_route('home')->withErrors([
                 'message' => trans('no_permission_message')
-            );
-            return redirect(route('home'))->withErrors($response);
+            ]);
         }
         $class_section = ClassSection::with('class', 'section')->withOutTrashedRelations('class', 'section')->get();
 
@@ -1106,10 +1102,9 @@ class StudentController extends Controller
     public function listStudentRollNumber(Request $request)
     {
         if (! Auth::user()->can('student-create')) {
-            $response = array(
+            return to_route('home')->withErrors([
                 'message' => trans('no_permission_message')
-            );
-            return redirect(route('home'))->withErrors($response);
+            ]);
         }
         try {
             if (! Auth::user()->can('student-list')) {
@@ -1196,10 +1191,9 @@ class StudentController extends Controller
     public function storeStudentRollNumber(Request $request)
     {
         if (! Auth::user()->can('student-create')) {
-            $response = array(
+            return to_route('home')->withErrors([
                 'message' => trans('no_permission_message')
-            );
-            return redirect(route('home'))->withErrors($response);
+            ]);
         }
         $validator = Validator::make(
             $request->all(),
@@ -1211,11 +1205,10 @@ class StudentController extends Controller
             ]
         );
         if ($validator->fails()) {
-            $response = array(
+            return response()->json([
                 'error' => true,
                 'message' => $validator->errors()->first()
-            );
-            return response()->json($response);
+            ]);
         }
         $i = 1;
         if (! is_null($request->roll_number_data)) {
@@ -1283,10 +1276,9 @@ class StudentController extends Controller
     public function updateIdCardSetting(Request $request)
     {
         if (! Auth::user()->can('setting-create')) {
-            $response = array(
+            return to_route('home')->withErrors([
                 'message' => trans('no_permission_message')
-            );
-            return redirect(route('home'))->withErrors($response);
+            ]);
         }
         $request->validate([
             'header_color' => 'required',
@@ -1453,10 +1445,9 @@ class StudentController extends Controller
     public function bonafideCertificateIndex($id)
     {
         if (! Auth::user()->can('generate-document')) {
-            $response = array(
+            return to_route('home')->withErrors([
                 'message' => trans('no_permission_message')
-            );
-            return redirect(route('home'))->withErrors($response);
+            ]);
         }
         $student = Students::where('id', $id)->first();
         return view('students.bonafide_certificate', compact('student'));
@@ -1466,10 +1457,9 @@ class StudentController extends Controller
     {
 
         if (! Auth::user()->can('generate-document')) {
-            $response = array(
+            return to_route('home')->withErrors([
                 'message' => trans('no_permission_message')
-            );
-            return redirect(route('home'))->withErrors($response);
+            ]);
         }
         $reason = $request->reason;
         $valid_upto = $request->valid_upto;
@@ -1508,10 +1498,9 @@ class StudentController extends Controller
     public function leavingCertificateIndex($id)
     {
         if (! Auth::user()->can('generate-document')) {
-            $response = array(
+            return to_route('home')->withErrors([
                 'message' => trans('no_permission_message')
-            );
-            return redirect(route('home'))->withErrors($response);
+            ]);
         }
         $student = Students::where('id', $id)->first();
         return view('students.leaving_certificate', compact('student'));
@@ -1521,10 +1510,9 @@ class StudentController extends Controller
     {
 
         if (! Auth::user()->can('generate-document')) {
-            $response = array(
+            return to_route('home')->withErrors([
                 'message' => trans('no_permission_message')
-            );
-            return redirect(route('home'))->withErrors($response);
+            ]);
         }
         $reason = $request->reason;
         $promoted_to = $request->promoted_to;
@@ -1567,10 +1555,9 @@ class StudentController extends Controller
     public function resultIndex()
     {
         if (! Auth::user()->can('generate-result')) {
-            $response = array(
+            return to_route('home')->withErrors([
                 'message' => trans('no_permission_message')
-            );
-            return redirect(route('home'))->withErrors($response);
+            ]);
         }
 
         $classes = ClassSection::with('class', 'section', 'class.medium')->withOutTrashedRelations('class', 'section')->get();
@@ -1580,10 +1567,9 @@ class StudentController extends Controller
     public function generateResult(Request $request, $id)
     {
         if (! Auth::user()->can('generate-result')) {
-            $response = array(
+            return to_route('home')->withErrors([
                 'message' => trans('no_permission_message')
-            );
-            return redirect(route('home'))->withErrors($response);
+            ]);
         }
 
         $father_name = null;

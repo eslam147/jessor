@@ -21,18 +21,12 @@ use Illuminate\Support\Facades\Validator;
 
 class LessonTopicController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
     public function index()
     {
         if (! Auth::user()->can('topic-list')) {
-            $response = array(
+            return to_route('home')->withErrors([
                 'message' => trans('no_permission_message')
-            );
-            return redirect(route('home'))->withErrors($response);
+            ]);
         }
         $class_section = ClassSection::SubjectTeacher()->with('class', 'section')->withOutTrashedRelations('class', 'section')->get();
         $subjects = Subject::SubjectTeacher()->orderBy('id', 'ASC')->get();

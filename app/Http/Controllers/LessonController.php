@@ -24,21 +24,15 @@ use phpDocumentor\Reflection\Types\Nullable;
 
 class LessonController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
     public function index()
     {
         if (! Auth::user()->can('lesson-list')) {
-            $response = array(
+            return to_route('home')->withErrors([
                 'message' => trans('no_permission_message')
-            );
-            return redirect(route('home'))->withErrors($response);
+            ]);
         }
 
-        $class_section = ClassSection::SubjectTeacher()->with('class.medium', 'section', 'class.streams')->withOutTrashedRelations('class','section')->get();
+        $class_section = ClassSection::SubjectTeacher()->with('class.medium', 'section', 'class.streams')->withOutTrashedRelations('class', 'section')->get();
         $subjects = Subject::SubjectTeacher()->orderBy('id')->get();
         $lessons = Lesson::relatedToTeacher()->withCount('enrollments')->with('file')->get();
 

@@ -2,21 +2,14 @@
 
 namespace App\Imports;
 
-use Throwable;
 use App\Models\User;
 use App\Models\Parents;
 use App\Models\Category;
 use App\Models\Students;
 use App\Models\SessionYear;
-use Illuminate\Support\Arr;
-use GuzzleHttp\Psr7\Request;
-use Illuminate\Validation\Rule;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\DB;
 use Spatie\Permission\Models\Role;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Mail;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 use Maatwebsite\Excel\Concerns\ToCollection;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
@@ -29,30 +22,34 @@ class StudentsImport implements ToCollection, WithHeadingRow
      *
      * @return \Illuminate\Database\Eloquent\Model|null
      */
-    public function  __construct($class_section_id)
+    public function __construct($class_section_id)
     {
         $this->class_section_id = $class_section_id;
     }
     public function collection(Collection $rows)
     {
-        $validator = Validator::make($rows->toArray(), [
-            '*.first_name' => 'required',
-            '*.last_name' => 'required',
-            '*.mobile' => 'required|numeric|regex:/^[0-9]{7,16}$/',
-            '*.gender' => 'required',
-            '*.dob' => 'required|date',
-            '*.category' => 'required',
-            '*.caste' => 'nullable',
-            '*.religion' => 'nullable',
-            '*.admission_date' => 'required|date',
-            '*.blood_group' => 'required',
-            '*.current_address' => 'required',
-            '*.permanent_address' => 'required',
-            '*.parents' => 'required_without:guardian',
-            '*.guardian' => 'required_without:parent',
-        ],
-        [   '*.mobile.regex' => 'The mobile number must be a length of 7 to 15 digits.'
-        ]);
+        $validator = Validator::make(
+            $rows->toArray(),
+            [
+                '*.first_name' => 'required',
+                '*.last_name' => 'required',
+                '*.mobile' => 'required|numeric|regex:/^[0-9]{7,16}$/',
+                '*.gender' => 'required',
+                '*.dob' => 'required|date',
+                '*.category' => 'required',
+                '*.caste' => 'nullable',
+                '*.religion' => 'nullable',
+                '*.admission_date' => 'required|date',
+                '*.blood_group' => 'required',
+                '*.current_address' => 'required',
+                '*.permanent_address' => 'required',
+                '*.parents' => 'required_without:guardian',
+                '*.guardian' => 'required_without:parent',
+            ],
+            [
+                '*.mobile.regex' => 'The mobile number must be a length of 7 to 15 digits.'
+            ]
+        );
 
         // dd($rows);
         $validator->validate();
@@ -70,7 +67,7 @@ class StudentsImport implements ToCollection, WithHeadingRow
 
         foreach ($rows as $row) {
             if ($row['parents'] == "yes") {
-                if (isset($row['father_email']) && isset($row['mother_email'])){
+                if (isset($row['father_email']) && isset($row['mother_email'])) {
                     $validator = Validator::make($row->toArray(), [
                         'father_email' => 'required',
                         'mother_email' => 'required'
@@ -186,12 +183,12 @@ class StudentsImport implements ToCollection, WithHeadingRow
                         $mother_email = $row['mother_email'];
                     }
                 }
-            } else{
+            } else {
                 $father_parent_id = null;
                 $mother_parent_id = null;
             }
             if ($row['guardian'] == "yes") {
-                if(isset($row['guardian_email'])){
+                if (isset($row['guardian_email'])) {
                     Validator::make($row->toArray(), [
                         'guardian_email' => 'required',
                     ])->validate();
@@ -264,9 +261,7 @@ class StudentsImport implements ToCollection, WithHeadingRow
                 $admission_no = $session_year . ($get_student + 1);
             }
             $category_id = Category::where('name', $row['category'])->pluck('id')->first();
-            if($category_id){
-                $category_id = $category_id;
-            }else{
+            if (!$category_id) {
                 $category = new Category();
                 $category->name = $row['category'];
                 $category->save();
@@ -292,10 +287,10 @@ class StudentsImport implements ToCollection, WithHeadingRow
             $student->class_section_id = $this->class_section_id;
             $student->category_id = $category_id;
             $student->admission_no = $admission_no;
-            if(isset($row['caste']) && !empty($row['caste'])){
+            if (isset($row['caste']) && ! empty($row['caste'])) {
                 $student->caste = $row['caste'];
             }
-            if(isset($row['religion']) && !empty($row['religion'])){
+            if (isset($row['religion']) && ! empty($row['religion'])) {
                 $student->religion = $row['religion'];
             }
             $student->admission_date = date('Y-m-d', strtotime($row['admission_date']));
@@ -310,7 +305,7 @@ class StudentsImport implements ToCollection, WithHeadingRow
 
             //Send User Credentials via Email
             $school_name = getSettings('school_name');
-            if ($row['parents'] == "yes"){
+            if ($row['parents'] == "yes") {
                 $father_data = [
                     'subject' => 'Welcome to ' . $school_name['school_name'],
                     'email' => $father_email,
@@ -338,8 +333,7 @@ class StudentsImport implements ToCollection, WithHeadingRow
                 // Mail::send('students.email', $mother_data, function ($message) use ($mother_data) {
                 //     $message->to($mother_data['email'])->subject($mother_data['subject']);
                 // });
-            }
-            else{
+            } else {
                 $guardian_data = [
                     'subject' => 'Welcome to ' . $school_name['school_name'],
                     'email' => $guardian_email,
@@ -347,7 +341,7 @@ class StudentsImport implements ToCollection, WithHeadingRow
                     'username' => ' ' . $guardian_email,
                     'password' => ' ' . $guardian_plaintext_password,
                     'child_name' => ' ' . $row['first_name'],
-                    'child_grnumber' => ' ' .$admission_no,
+                    'child_grnumber' => ' ' . $admission_no,
                     'child_password' => ' ' . $child_plaintext_password,
                 ];
                 // Mail::send('students.email', $guardian_data, function ($message) use ($guardian_data) {

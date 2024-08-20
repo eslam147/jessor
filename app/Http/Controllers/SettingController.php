@@ -17,7 +17,7 @@ class SettingController extends Controller
 
     public function index()
     {
-        if (!Auth::user()->can('setting-create')) {
+        if (! Auth::user()->can('setting-create')) {
             $response = [
                 'message' => trans('no_permission_message')
             ];
@@ -36,11 +36,10 @@ class SettingController extends Controller
 
     public function update(Request $request)
     {
-        if (!Auth::user()->can('setting-create')) {
-            $response = array(
+        if (! Auth::user()->can('setting-create')) {
+            return to_route('home')->withErrors([
                 'message' => trans('no_permission_message')
-            );
-            return redirect(route('home'))->withErrors($response);
+            ]);
         }
         $request->validate([
             'school_name' => 'required|max:255',
@@ -74,9 +73,9 @@ class SettingController extends Controller
             'session_year',
             'school_tagline',
             'online_payment',
-            'secondary_color' ,
-            'facebook' ,
-            'instagram' ,
+            'secondary_color',
+            'facebook',
+            'instagram',
             'linkedin',
             'maplink',
             'custom_browser',
@@ -103,7 +102,7 @@ class SettingController extends Controller
                         $data = [
                             'message' => str_replace('"', '', $request->$row)
                         ];
-                    }else{
+                    } else {
                         $data = [
                             'message' => $request->$row
                         ];
@@ -217,11 +216,10 @@ class SettingController extends Controller
 
     public function fcm_index()
     {
-        if (!Auth::user()->can('fcm-setting-create')) {
-            $response = array(
+        if (! Auth::user()->can('fcm-setting-create')) {
+            return to_route('home')->withErrors([
                 'message' => trans('no_permission_message')
-            );
-            return redirect(route('home'))->withErrors($response);
+            ]);
         }
 
         $settings = getSettings();
@@ -230,11 +228,10 @@ class SettingController extends Controller
 
     public function email_index()
     {
-        if (!Auth::user()->can('email-setting-create')) {
-            $response = array(
+        if (! Auth::user()->can('email-setting-create')) {
+            return to_route('home')->withErrors([
                 'message' => trans('no_permission_message')
-            );
-            return redirect(route('home'))->withErrors($response);
+            ]);
         }
         $settings = getSettings();
         return view('settings.email_configuration', compact('settings'));
@@ -242,11 +239,10 @@ class SettingController extends Controller
 
     public function email_update(Request $request)
     {
-        if (!Auth::user()->can('email-setting-create')) {
-            $response = array(
+        if (! Auth::user()->can('email-setting-create')) {
+            return to_route('home')->withErrors([
                 'message' => trans('no_permission_message')
-            );
-            return redirect(route('home'))->withErrors($response);
+            ]);
         }
         $request->validate([
             'mail_mailer' => 'required',
@@ -304,11 +300,10 @@ class SettingController extends Controller
 
     public function verifyEmailConfigration(Request $request)
     {
-        if (!Auth::user()->can('email-setting-create')) {
-            $response = array(
+        if (! Auth::user()->can('email-setting-create')) {
+            return to_route('home')->withErrors([
                 'message' => trans('no_permission_message')
-            );
-            return redirect(route('home'))->withErrors($response);
+            ]);
         }
         $validator = Validator::make($request->all(), [
             'verify_email' => 'required|email',
@@ -325,13 +320,13 @@ class SettingController extends Controller
                 'email' => $request->verify_email,
             ];
             $admin_mail = settingByType('mail_send_from');
-            if(!filter_var($admin_mail, FILTER_VALIDATE_EMAIL)) {
+            if (! filter_var($admin_mail, FILTER_VALIDATE_EMAIL)) {
                 $response = [
                     'error' => true,
                     'message' => trans('invalid_admin_email'),
                 ];
             }
-            if (!filter_var($request->verify_email, FILTER_VALIDATE_EMAIL)) {
+            if (! filter_var($request->verify_email, FILTER_VALIDATE_EMAIL)) {
                 $response = array(
                     'error' => true,
                     'message' => trans('invalid_email'),
@@ -343,7 +338,7 @@ class SettingController extends Controller
                 $message->from($admin_mail, 'Eschool Admin');
             });
 
-            Settings::where('type','email_configration_verification')->update(['message'=>1]);
+            Settings::where('type', 'email_configration_verification')->update(['message' => 1]);
 
             $response = array(
                 'error' => false,
@@ -361,11 +356,10 @@ class SettingController extends Controller
 
     public function privacy_policy_index()
     {
-        if (!Auth::user()->can('privacy-policy')) {
-            $response = array(
+        if (! Auth::user()->can('privacy-policy')) {
+            return to_route('home')->withErrors([
                 'message' => trans('no_permission_message')
-            );
-            return redirect(route('home'))->withErrors($response);
+            ]);
         }
         $settings = Settings::where('type', 'privacy_policy')->first();
         $type = 'privacy_policy';
@@ -374,11 +368,10 @@ class SettingController extends Controller
 
     public function contact_us_index()
     {
-        if (!Auth::user()->can('contact-us')) {
-            $response = array(
+        if (! Auth::user()->can('contact-us')) {
+            return to_route('home')->withErrors([
                 'message' => trans('no_permission_message')
-            );
-            return redirect(route('home'))->withErrors($response);
+            ]);
         }
         $settings = Settings::where('type', 'contact_us')->first();
         $type = 'contact_us';
@@ -387,11 +380,10 @@ class SettingController extends Controller
 
     public function about_us_index()
     {
-        if (!Auth::user()->can('about-us')) {
-            $response = array(
+        if (! Auth::user()->can('about-us')) {
+            return to_route('home')->withErrors([
                 'message' => trans('no_permission_message')
-            );
-            return redirect(route('home'))->withErrors($response);
+            ]);
         }
         $settings = Settings::where('type', 'about_us')->first();
         $type = 'about_us';
@@ -400,11 +392,10 @@ class SettingController extends Controller
 
     public function terms_condition_index()
     {
-        if (!Auth::user()->can('terms-condition')) {
-            $response = array(
+        if (! Auth::user()->can('terms-condition')) {
+            return to_route('home')->withErrors([
                 'message' => trans('no_permission_message')
-            );
-            return redirect(route('home'))->withErrors($response);
+            ]);
         }
         $settings = Settings::where('type', 'terms_condition')->first();
         $type = 'terms_condition';
@@ -413,11 +404,10 @@ class SettingController extends Controller
 
     public function setting_page_update(Request $request)
     {
-        if (!Auth::user()->can('setting-create')) {
-            $response = array(
+        if (! Auth::user()->can('setting-create')) {
+            return to_route('home')->withErrors([
                 'message' => trans('no_permission_message')
-            );
-            return redirect(route('home'))->withErrors($response);
+            ]);
         }
         $validator = Validator::make($request->all(), [
             'type' => 'required',
@@ -433,7 +423,7 @@ class SettingController extends Controller
         $type = $request->type;
         $message = $request->message;
         $id = Settings::select('id')->where('type', $type)->pluck('id')->first();
-        if (isset($id) && !empty($id)) {
+        if (isset($id) && ! empty($id)) {
             $setting = Settings::find($id);
             $setting->message = $message;
             $setting->save();
@@ -457,11 +447,10 @@ class SettingController extends Controller
 
     public function app_index()
     {
-        if (!Auth::user()->can('setting-create')) {
-            $response = array(
+        if (! Auth::user()->can('setting-create')) {
+            return to_route('home')->withErrors([
                 'message' => trans('no_permission_message')
-            );
-            return redirect(route('home'))->withErrors($response);
+            ]);
         }
         $settings = getSettings();
         return view('settings.app_settings', compact('settings'));
@@ -469,11 +458,10 @@ class SettingController extends Controller
 
     public function app_update(Request $request)
     {
-        if (!Auth::user()->can('setting-create')) {
-            $response = array(
+        if (! Auth::user()->can('setting-create')) {
+            return to_route('home')->withErrors([
                 'message' => trans('no_permission_message')
-            );
-            return redirect(route('home'))->withErrors($response);
+            ]);
         }
         $request->validate([
             'app_link' => 'required',
@@ -538,16 +526,15 @@ class SettingController extends Controller
 
     public function notification_setting(Request $request)
     {
-        if (!Auth::user()->can('setting-create')) {
-            $response = array(
+        if (! Auth::user()->can('setting-create')) {
+            return to_route('home')->withErrors([
                 'message' => trans('no_permission_message')
-            );
-            return redirect(route('home'))->withErrors($response);
+            ]);
         }
         $request->validate([
-           'sender_id' => 'required',
-           'project_id' => 'required',
-           //'service_account_file' => 'required|mimes:json'
+            'sender_id' => 'required',
+            'project_id' => 'required',
+            //'service_account_file' => 'required|mimes:json'
         ]);
         $settings = ['sender_id', 'project_id'];
         try {

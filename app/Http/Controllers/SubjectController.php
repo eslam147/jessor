@@ -49,7 +49,6 @@ class SubjectController extends Controller
         ])->setAttributeNames(
                 ['bg_color' => 'Background Color'],
             );
-        ;
 
         if ($validator->fails()) {
             $response = array(
@@ -140,13 +139,12 @@ class SubjectController extends Controller
                 ['bg_color' => 'Background Color'],
             );
 
-        if ($validator->fails()) {
-            $response = array(
-                'error' => true,
-                'message' => $validator->errors()->first()
-            );
-            return response()->json($response);
-        }
+            if ($validator->fails()) {
+                return response()->json([
+                    'error' => true,
+                    'message' => $validator->errors()->first()
+                ]);
+            }
 
         try {
             $subject = Subject::where(['name' => $request->name, 'medium_id' => $request->medium_id, 'type' => $request->type])->count();

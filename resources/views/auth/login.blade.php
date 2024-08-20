@@ -53,10 +53,16 @@
                                             </div>
                                         </div>
                                     </div>
+                                    <div class="px-4">
+                                        <div class="form-group form-check">
+                                            <input type="checkbox" class="form-check-input" id="remember"
+                                                name="remember">
+                                            <label class="form-check-label" for="remember">Remember Me</label>
+                                        </div>
+                                    </div>
 
                                     @if (Route::has('password.request'))
                                         <div class="my-2 d-flex justify-content-end align-items-center">
-
                                             <a class="auth-link text-black" href="{{ route('password.request') }}">
                                                 {{ __('forgot_password') }}
                                             </a>
@@ -156,14 +162,13 @@
                 }
             });
         })();
-
     </script>
 </body>
 
 @if (Session::has('error'))
     <script type='text/javascript'>
         $.toast({
-            text: '{{ Session::get('error') }}',
+            text: "{{ Session::get('error') }}",
             showHideTransition: 'slide',
             icon: 'error',
             loaderBg: '#f2a654',

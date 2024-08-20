@@ -12,18 +12,18 @@ use Maatwebsite\Excel\Concerns\WithHeadingRow;
 
 class AttendanceImport implements ToCollection, WithHeadingRow
 {
-    public $class_section_id,$date;
+    public $class_section_id, $date;
     /**
-    * @param Collection $collection
-    */
-    public function  __construct($class_section_id)
+     * @param Collection $collection
+     */
+    public function __construct($class_section_id)
     {
         $this->class_section_id = $class_section_id;
     }
 
     public function collection(Collection $rows)
     {
-        $validator= Validator::make($rows->toArray(),[
+        $validator = Validator::make($rows->toArray(), [
             '*.student_id' => 'required|numeric',
             '*.date' => 'required',
             '*.type' => 'required|in:0,1',
@@ -32,15 +32,13 @@ class AttendanceImport implements ToCollection, WithHeadingRow
         ]);
         $validator->validate();
         if ($validator->fails()) {
-            $response = array(
+            return response()->json([
                 'error' => true,
                 'message' => $validator->errors()->first()
-            );
-            return response()->json($response);
+            ]);
         }
 
-        foreach($rows as $row)
-        {
+        foreach ($rows as $row) {
             $session_year = getSettings('session_year');
             $date = date('Y-m-d', strtotime($row['date']));
 

@@ -22,10 +22,9 @@ class WebSettingController extends Controller
     public function content_index()
     {
         if (! Auth::user()->can('content-create')) {
-            $response = array(
+            return to_route('home')->withErrors([
                 'message' => trans('no_permission_message')
-            );
-            return redirect(route('home'))->withErrors($response);
+            ]);
         }
         $settings = WebSetting::whereIn('name', [
             'about_us',
@@ -57,23 +56,20 @@ class WebSettingController extends Controller
     public function content_update(Request $request, $id)
     {
         if (! Auth::user()->can('content-edit')) {
-            $response = array(
+            return to_route('home')->withErrors([
                 'message' => trans('no_permission_message')
-            );
-            return redirect(route('home'))->withErrors($response);
+            ]);
         }
         $validator = Validator::make($request->all(), [
             'tag' => 'required',
             'heading' => 'required',
             //'content' => 'required'
         ]);
-
         if ($validator->fails()) {
-            $response = array(
+            return response()->json([
                 'error' => true,
                 'message' => $validator->errors()->first()
-            );
-            return response()->json($response);
+            ]);
         }
         try {
             $websetting = WebSetting::find($request->id);
@@ -131,10 +127,9 @@ class WebSettingController extends Controller
     public function educational_store(Request $request)
     {
         if (! Auth::user()->can('program-create')) {
-            $response = array(
+            return to_route('home')->withErrors([
                 'message' => trans('no_permission_message')
-            );
-            return redirect(route('home'))->withErrors($response);
+            ]);
         }
         $validator = Validator::make($request->all(), [
             'title' => 'required',
@@ -142,11 +137,10 @@ class WebSettingController extends Controller
         ]);
 
         if ($validator->fails()) {
-            $response = array(
+            return response()->json([
                 'error' => true,
                 'message' => $validator->errors()->first()
-            );
-            return response()->json($response);
+            ]);
         }
         try {
             $program = new EducationalProgram();
@@ -290,10 +284,9 @@ class WebSettingController extends Controller
     public function educational_delete($id)
     {
         if (! Auth::user()->can('program-delete')) {
-            $response = array(
+            return to_route('home')->withErrors([
                 'message' => trans('no_permission_message')
-            );
-            return redirect(route('home'))->withErrors($response);
+            ]);
         }
         try {
             $program = EducationalProgram::find($id);
@@ -317,10 +310,9 @@ class WebSettingController extends Controller
     public function faq_index()
     {
         if (! Auth::user()->can('faq-list')) {
-            $response = array(
+            return to_route('home')->withErrors([
                 'message' => trans('no_permission_message')
-            );
-            return redirect(route('home'))->withErrors($response);
+            ]);
         }
         return view('web_settings.faq');
     }
@@ -328,10 +320,9 @@ class WebSettingController extends Controller
     public function faq_store(Request $request)
     {
         if (! Auth::user()->can('faq-create')) {
-            $response = array(
+            return to_route('home')->withErrors([
                 'message' => trans('no_permission_message')
-            );
-            return redirect(route('home'))->withErrors($response);
+            ]);
         }
 
         $validator = Validator::make($request->all(), [
@@ -339,13 +330,11 @@ class WebSettingController extends Controller
             'answer' => 'required|string',
             'status' => 'integer|required'
         ]);
-
         if ($validator->fails()) {
-            $response = array(
+            return response()->json([
                 'error' => true,
                 'message' => $validator->errors()->first()
-            );
-            return response()->json($response);
+            ]);
         }
         try {
             $faq = new Faq();
@@ -429,10 +418,9 @@ class WebSettingController extends Controller
     public function faq_update(Request $request)
     {
         if (! Auth::user()->can('faq-edit')) {
-            $response = array(
+            return to_route('home')->withErrors([
                 'message' => trans('no_permission_message')
-            );
-            return redirect(route('home'))->withErrors($response);
+            ]);
         }
 
         $validator = Validator::make($request->all(), [
@@ -440,13 +428,11 @@ class WebSettingController extends Controller
             'answer' => 'required|string',
             'status' => 'integer|required'
         ]);
-
         if ($validator->fails()) {
-            $response = array(
+            return response()->json([
                 'error' => true,
                 'message' => $validator->errors()->first()
-            );
-            return response()->json($response);
+            ]);
         }
         try {
             $faq = Faq::find($request->edit_id);
@@ -472,10 +458,9 @@ class WebSettingController extends Controller
     public function faq_delete($id)
     {
         if (! Auth::user()->can('faq-delete')) {
-            $response = array(
+            return to_route('home')->withErrors([
                 'message' => trans('no_permission_message')
-            );
-            return redirect(route('home'))->withErrors($response);
+            ]);
         }
         try {
             $faq = Faq::find($id);
@@ -496,10 +481,9 @@ class WebSettingController extends Controller
     public function contact_us_index()
     {
         if (! Auth::user()->can('contact-us')) {
-            $response = array(
+            return to_route('home')->withErrors([
                 'message' => trans('no_permission_message')
-            );
-            return redirect(route('home'))->withErrors($response);
+            ]);
         }
         $school_email = getSettings('school_email');
         $email = $school_email['school_email'];
@@ -509,10 +493,9 @@ class WebSettingController extends Controller
     public function contact_us_show()
     {
         if (! Auth::user()->can('contact-us')) {
-            $response = array(
+            return to_route('home')->withErrors([
                 'message' => trans('no_permission_message')
-            );
-            return redirect(route('home'))->withErrors($response);
+            ]);
         }
         $offset = 0;
         $limit = 10;
@@ -571,10 +554,9 @@ class WebSettingController extends Controller
     public function reply(Request $request)
     {
         if (! Auth::user()->can('contact-us')) {
-            $response = array(
+            return to_route('home')->withErrors([
                 'message' => trans('no_permission_message')
-            );
-            return redirect(route('home'))->withErrors($response);
+            ]);
         }
         try {
             $admin_mail = settingByType('mail_send_from');
@@ -635,10 +617,9 @@ class WebSettingController extends Controller
     public function contact_us_delete($id)
     {
         if (! Auth::user()->can('contact-us')) {
-            $response = array(
+            return to_route('home')->withErrors([
                 'message' => trans('no_permission_message')
-            );
-            return redirect(route('home'))->withErrors($response);
+            ]);
         }
         try {
             $data = ContactUs::find($id);

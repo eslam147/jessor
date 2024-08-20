@@ -12,6 +12,7 @@ use App\Models\MultipleEvent;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Student\ClassSchoolResource;
 use App\Models\ClassSchool;
+use App\Models\ClassSection;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Facades\Validator;
@@ -61,20 +62,20 @@ class ApiController extends Controller
 
         try {
             $data = Holiday::get();
-            $response = array(
+            $response = [
                 'error' => false,
                 'message' => "Holidays Fetched Successfully",
                 'data' => $data,
                 'code' => 200,
-            );
+            ];
         } catch (\Exception $e) {
             report($e);
 
-            $response = array(
+            $response = [
                 'error' => true,
                 'message' => trans('error_occurred'),
                 'code' => 103,
-            );
+            ];
         }
         return response()->json($response);
     }
@@ -82,13 +83,13 @@ class ApiController extends Controller
     public function getSliders(Request $request)
     {
         try {
-            $data = Slider::where('type',1)->orWhere('type',3)->get();
-            $response = array(
+            $data = Slider::where('type', 1)->orWhere('type', 3)->get();
+            $response = [
                 'error' => false,
                 'message' => "Sliders Fetched Successfully",
                 'data' => $data,
                 'code' => 200,
-            );
+            ];
         } catch (\Exception $e) {
             report($e);
 
@@ -133,18 +134,17 @@ class ApiController extends Controller
         ]);
 
         if ($validator->fails()) {
-            $response = array(
+            return response()->json([
                 'error' => true,
                 'message' => $validator->errors()->first(),
                 'code' => 102,
-            );
-            return response()->json($response);
+            ]);
         }
         try {
             $settings = getSettings();
             if ($request->type == "app_settings") {
                 $session_year = $settings['session_year'] ?? "";
-                $calender = !empty($session_year) ? SessionYear::find($session_year) : null;
+                $calender = ! empty($session_year) ? SessionYear::find($session_year) : null;
 
                 $data['app_link'] = $settings['app_link'] ?? "";
                 $data['ios_app_link'] = $settings['ios_app_link'] ?? "";
@@ -164,7 +164,7 @@ class ApiController extends Controller
                 $data['online_payment'] = $settings['online_payment'] ?? "1";
                 $data['is_demo'] = env('DEMO_MODE');
 
-                $data['compulsory_fee_payment_mode'] =  $settings['compulsory_fee_payment_mode'] ?? "";
+                $data['compulsory_fee_payment_mode'] = $settings['compulsory_fee_payment_mode'] ?? "";
                 $data['is_student_can_pay_fees'] = $settings['is_student_can_pay_fees'] ?? "";
 
                 if (isset($settings['razorpay_status']) && $settings['razorpay_status']) {
@@ -176,9 +176,8 @@ class ApiController extends Controller
                         // 'razorpay_secret_key' => $settings['razorpay_secret_key'] ?? "",
                         'razorpay_api_key' => $settings['razorpay_api_key'] ?? "",
                         'razorpay_webhook_secret' => $settings['razorpay_webhook_secret'] ?? "",
-                        'razorpay_api_key' => $settings['razorpay_api_key'] ?? "",
                         'currency_code' => $settings['currency_code'] ?? "",
-                        'currency_symbol' =>  $settings['currency_symbol'] ?? "",
+                        'currency_symbol' => $settings['currency_symbol'] ?? "",
                     );
                 }
 
@@ -186,54 +185,54 @@ class ApiController extends Controller
                     if (isset($settings['fees_due_date'])) {
                         $date = date('Y-m-d', strtotime($settings['fees_due_date']));
                     }
-                    $data['fees_settings'] = array(
+                    $data['fees_settings'] = [
                         'stripe_status' => $settings['stripe_status'] ?? "",
                         'stripe_publishable_key' => $settings['stripe_publishable_key'] ?? "",
                         // 'stripe_secret_key' => $settings['stripe_secret_key'] ?? "",
                         // 'stripe_webhook_secret' => $settings['stripe_webhook_secret'] ?? "",
                         'currency_code' => $settings['currency_code'] ?? "",
-                        'currency_symbol' =>  $settings['currency_symbol'] ?? "",
+                        'currency_symbol' => $settings['currency_symbol'] ?? "",
                         'fees_due_date' => $date ?? "",
                         'fees_due_charges' => $settings['fees_due_charges'] ?? "",
-                    );
+                    ];
                 }
 
                 if (isset($settings['paystack_status']) && $settings['paystack_status']) {
                     if (isset($settings['fees_due_date'])) {
                         $date = date('Y-m-d', strtotime($settings['fees_due_date']));
                     }
-                    $data['fees_settings'] = array(
+                    $data['fees_settings'] = [
                         'paystack_status' => $settings['paystack_status'] ?? "",
                         'paystack_public_key' => $settings['paystack_public_key'] ?? "",
                         'currency_code' => $settings['currency_code'] ?? "",
-                        'currency_symbol' =>  $settings['currency_symbol'] ?? "",
+                        'currency_symbol' => $settings['currency_symbol'] ?? "",
                         'fees_due_date' => $date ?? "",
                         'fees_due_charges' => $settings['fees_due_charges'] ?? "",
-                    );
+                    ];
                 }
 
-                if(isset($settings['online_exam_terms_condition']) && !empty($settings['online_exam_terms_condition'])){
+                if (isset($settings['online_exam_terms_condition']) && ! empty($settings['online_exam_terms_condition'])) {
                     $data['online_exam_terms_condition'] = htmlspecialchars_decode($settings['online_exam_terms_condition']);
-                }else{
+                } else {
                     $data['online_exam_terms_condition'] = "";
                 }
             } else {
                 $data = $settings[$request->type] ?? "";
             }
-            $response = array(
+            $response = [
                 'error' => false,
                 'message' => "Data Fetched Successfully",
                 'data' => $data,
                 'code' => 200,
-            );
+            ];
         } catch (\Exception $e) {
             report($e);
 
-            $response = array(
+            $response = [
                 'error' => true,
                 'message' => trans('error_occurred'),
                 'code' => 103,
-            );
+            ];
         }
         return response()->json($response);
     }
@@ -279,14 +278,26 @@ class ApiController extends Controller
         }
         return response()->json($response);
     }
-    public function getClassSchools(){
-        $classSchools = ClassSchool::with('sections')->get();
+    public function getClassSchools()
+    {
+        $classSections = ClassSection::with(['class.medium', 'streams', 'section'])->withOutTrashedRelations('section', 'class')->get();
+        $classSectionsMapped = [];
+
+        foreach ($classSections as $classSection) {
+            $name = "{$classSection->class->name} - {$classSection->section->name} " .
+                    $classSection->class?->medium?->name . '' .
+                    optional($classSection->streams)->name ?? '';
+            $classSectionsMapped[] = [
+                'id' => $classSection->id,
+                'name' => trim($name),
+            ];
+        }
+
         return response()->json([
             'error' => false,
             'message' => "Data Fetched Successfully",
-            'data' => ClassSchoolResource::collection($classSchools),
+            'data' => $classSectionsMapped,
             'code' => 200,
-            
         ]);
     }
     protected function changePassword(Request $request)
@@ -338,11 +349,9 @@ class ApiController extends Controller
             $events = Event::all();
 
             foreach ($events as $event) {
-                if($event->type == 'multiple')
-                {
-                    $hasdaySchedule = MultipleEvent::where('event_id',$event->id)->first();
-                    if( $hasdaySchedule)
-                    {
+                if ($event->type == 'multiple') {
+                    $hasdaySchedule = MultipleEvent::where('event_id', $event->id)->first();
+                    if ($hasdaySchedule) {
                         $data[] = [
                             'id' => $event->id,
                             'has_day_schedule' => 1,
@@ -355,7 +364,7 @@ class ApiController extends Controller
                             'image' => $event->image,
                             'description' => $event->description,
                         ];
-                    }else{
+                    } else {
                         $data[] = [
                             'id' => $event->id,
                             'has_day_schedule' => 0,
@@ -370,7 +379,7 @@ class ApiController extends Controller
                         ];
                     }
 
-                }else{
+                } else {
                     $data[] = [
                         'id' => $event->id,
                         'has_day_schedule' => 0,
@@ -419,7 +428,7 @@ class ApiController extends Controller
         }
         try {
 
-            $data = MultipleEvent::where('event_id',$request->event_id)->get();
+            $data = MultipleEvent::where('event_id', $request->event_id)->get();
 
             $response = array(
                 'error' => false,
@@ -430,11 +439,11 @@ class ApiController extends Controller
         } catch (\Throwable $e) {
             report($e);
 
-            $response = array(
+            $response = [
                 'error' => true,
                 'message' => trans('error_occurred'),
                 'code' => 103,
-            );
+            ];
         }
         return response()->json($response);
     }

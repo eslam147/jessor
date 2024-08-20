@@ -10,19 +10,12 @@ use Illuminate\Support\Facades\Validator;
 
 class SectionController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
     public function index()
     {
-        if (!Auth::user()->can('section-list')) {
-            $response = array(
+        if (! Auth::user()->can('section-list')) {
+            return to_route('home')->withErrors([
                 'message' => trans('no_permission_message')
-            );
-            return redirect(route('home'))->withErrors($response);
-
+            ]);
         }
         $sections = Section::orderBy('id', 'DESC')->get();
         return response(view('section.index', compact('sections')));
@@ -36,7 +29,7 @@ class SectionController extends Controller
      */
     public function store(Request $request)
     {
-        if (!Auth::user()->can('section-create')) {
+        if (! Auth::user()->can('section-create')) {
             $response = array(
                 'error' => true,
                 'message' => trans('no_permission_message')
@@ -81,7 +74,7 @@ class SectionController extends Controller
      */
     public function update(Request $request, $id)
     {
-        if (!Auth::user()->can('section-edit')) {
+        if (! Auth::user()->can('section-edit')) {
             $response = array(
                 'error' => true,
                 'message' => trans('no_permission_message')
@@ -125,7 +118,7 @@ class SectionController extends Controller
      */
     public function destroy($id)
     {
-        if (!Auth::user()->can('section-delete')) {
+        if (! Auth::user()->can('section-delete')) {
             $response = array(
                 'error' => true,
                 'message' => trans('no_permission_message')
@@ -147,8 +140,9 @@ class SectionController extends Controller
         return response()->json($response);
     }
 
-    public function show() {
-        if (!Auth::user()->can('section-list')) {
+    public function show()
+    {
+        if (! Auth::user()->can('section-list')) {
             $response = array(
                 'error' => true,
                 'message' => trans('no_permission_message')
@@ -161,17 +155,17 @@ class SectionController extends Controller
         $order = 'DESC';
 
         if (isset($_GET['offset']))
-        $offset = $_GET['offset'];
+            $offset = $_GET['offset'];
         if (isset($_GET['limit']))
-        $limit = $_GET['limit'];
+            $limit = $_GET['limit'];
 
         if (isset($_GET['sort']))
-        $sort = $_GET['sort'];
+            $sort = $_GET['sort'];
         if (isset($_GET['order']))
-        $order = $_GET['order'];
+            $order = $_GET['order'];
 
-        $sql = Section::where('id','!=',0);
-        if (isset($_GET['search']) && !empty($_GET['search'])) {
+        $sql = Section::where('id', '!=', 0);
+        if (isset($_GET['search']) && ! empty($_GET['search'])) {
             $search = $_GET['search'];
             $sql->where('id', 'LIKE', "%$search%")->orwhere('name', 'LIKE', "%$search%");
         }
@@ -184,10 +178,10 @@ class SectionController extends Controller
         $bulkData['total'] = $total;
         $rows = array();
         $tempRow = array();
-        $no=1;
+        $no = 1;
         foreach ($res as $row) {
-            $operate = '<a href='.route('section.edit',$row->id).' class="btn btn-xs btn-gradient-primary btn-rounded btn-icon edit-data" data-id=' . $row->id . ' title="Edit" data-toggle="modal" data-target="#editModal"><i class="fa fa-edit"></i></a>&nbsp;&nbsp;';
-            $operate .= '<a href='.route('section.destroy',$row->id).' class="btn btn-xs btn-gradient-danger btn-rounded btn-icon delete-form" data-id=' . $row->id . '><i class="fa fa-trash"></i></a>';
+            $operate = '<a href=' . route('section.edit', $row->id) . ' class="btn btn-xs btn-gradient-primary btn-rounded btn-icon edit-data" data-id=' . $row->id . ' title="Edit" data-toggle="modal" data-target="#editModal"><i class="fa fa-edit"></i></a>&nbsp;&nbsp;';
+            $operate .= '<a href=' . route('section.destroy', $row->id) . ' class="btn btn-xs btn-gradient-danger btn-rounded btn-icon delete-form" data-id=' . $row->id . '><i class="fa fa-trash"></i></a>';
 
             $tempRow['id'] = $row->id;
             $tempRow['no'] = $no++;

@@ -20,18 +20,13 @@ use Illuminate\Support\Facades\Validator;
 
 class LeaveController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
+
     public function index()
     {
         if (! Auth::user()->can('leave-create')) {
-            $response = array(
+            return to_route('home')->withErrors([
                 'message' => trans('no_permission_message')
-            );
-            return redirect(route('home'))->withErrors($response);
+            ]);
         }
 
         $sessionYears = SessionYear::all();
@@ -84,20 +79,13 @@ class LeaveController extends Controller
         //
     }
 
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
+
     public function store(Request $request)
     {
-        // dd($request->all());
         if (! Auth::user()->can('leave-create')) {
-            $response = array(
+            return to_route('home')->withErrors([
                 'message' => trans('no_permission_message')
-            );
-            return redirect(route('home'))->withErrors($response);
+            ]);
         }
         $validator = Validator::make(
             $request->all(),
@@ -120,11 +108,10 @@ class LeaveController extends Controller
         );
 
         if ($validator->fails()) {
-            $response = array(
+            return response()->json([
                 'error' => true,
                 'message' => $validator->errors()->first()
-            );
-            return response()->json($response);
+            ]);
         }
         try {
 
@@ -191,20 +178,12 @@ class LeaveController extends Controller
         return response()->json($response);
     }
 
-    /**
-     * Display the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
     public function show(Request $request)
     {
-        // dd($request->all());
         if (! Auth::user()->can('leave-list')) {
-            $response = array(
+            return to_route('home')->withErrors([
                 'message' => trans('no_permission_message')
-            );
-            return redirect(route('home'))->withErrors($response);
+            ]);
         }
 
         $offset = 0;
@@ -342,20 +321,12 @@ class LeaveController extends Controller
         //
     }
 
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
     public function destroy($id)
     {
         if (! Auth::user()->can('leave-delete')) {
-            $response = array(
+            return to_route('home')->withErrors([
                 'message' => trans('no_permission_message')
-            );
-            return redirect(route('home'))->withErrors($response);
-
+            ]);
         }
 
         try {
@@ -389,10 +360,10 @@ class LeaveController extends Controller
     public function leaveReportIndex()
     {
         if (! Auth::user()->can('leave-list')) {
-            $response = array(
+            return to_route('home')->withErrors([
                 'message' => trans('no_permission_message')
-            );
-            return redirect(route('home'))->withErrors($response);
+            ]);
+
         }
 
         $users = null;
@@ -416,10 +387,9 @@ class LeaveController extends Controller
     public function leaveDetails(Request $request)
     {
         if (! Auth::user()->can('leave-list')) {
-            $response = array(
+            return to_route('home')->withErrors([
                 'message' => trans('no_permission_message')
-            );
-            return redirect(route('home'))->withErrors($response);
+            ]);
         }
 
         $offset = 0;
@@ -530,10 +500,9 @@ class LeaveController extends Controller
     public function leaveRequestIndex()
     {
         if (! Auth::user()->can('leave-approve')) {
-            $response = array(
+            return to_route('home')->withErrors([
                 'message' => trans('no_permission_message')
-            );
-            return redirect(route('home'))->withErrors($response);
+            ]);
         }
 
         $sessionYears = SessionYear::all();
@@ -579,10 +548,9 @@ class LeaveController extends Controller
     public function leaveRequestShow(Request $request)
     {
         if (! Auth::user()->can('leave-approve')) {
-            $response = array(
+            return to_route('home')->withErrors([
                 'message' => trans('no_permission_message')
-            );
-            return redirect(route('home'))->withErrors($response);
+            ]);
         }
 
         $offset = 0;
@@ -700,10 +668,9 @@ class LeaveController extends Controller
     public function leaveStatusUpdate(Request $request)
     {
         if (! Auth::user()->can('leave-approve')) {
-            $response = array(
+            return to_route('home')->withErrors([
                 'message' => trans('no_permission_message')
-            );
-            return redirect(route('home'))->withErrors($response);
+            ]);
         }
 
         try {

@@ -10,31 +10,25 @@ use Throwable;
 
 class HolidayController extends Controller
 {
-    /**
-    * Display a listing of the resource.
-    *
-    * @return \Illuminate\Http\Response
-    */
     public function index()
     {
-        if (!Auth::user()->can('holiday-list')) {
-            $response = array(
+        if (! Auth::user()->can('holiday-list')) {
+            return to_route('home')->withErrors([
                 'message' => trans('no_permission_message')
-            );
-            return redirect(route('home'))->withErrors($response);
+            ]);
         }
         return view('holiday.index');
     }
 
     /**
-    * Store a newly created resource in storage.
-    *
-    * @param  \Illuminate\Http\Request  $request
-    * @return \Illuminate\Http\Response
-    */
+     * Store a newly created resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
     public function store(Request $request)
     {
-        if (!Auth::user()->can('holiday-create')) {
+        if (! Auth::user()->can('holiday-create')) {
             $response = array(
                 'error' => true,
                 'message' => trans('no_permission_message')
@@ -47,11 +41,10 @@ class HolidayController extends Controller
         ]);
 
         if ($validator->fails()) {
-            $response = array(
+            return response()->json([
                 'error' => true,
                 'message' => $validator->errors()->first()
-            );
-            return response()->json($response);
+            ]);
         }
         try {
             $holiday = new Holiday();
@@ -74,7 +67,7 @@ class HolidayController extends Controller
 
     public function update(Request $request)
     {
-        if (!Auth::user()->can('holiday-edit')) {
+        if (! Auth::user()->can('holiday-edit')) {
             $response = array(
                 'error' => true,
                 'message' => trans('no_permission_message')
@@ -85,7 +78,6 @@ class HolidayController extends Controller
             'date' => 'required',
             'title' => 'required',
         ]);
-
         if ($validator->fails()) {
             $response = array(
                 'error' => true,
@@ -117,14 +109,14 @@ class HolidayController extends Controller
         return view('holiday.list');
     }
     /**
-    * Display the specified resource.
-    *
-    * @param  int  $id
-    * @return \Illuminate\Http\Response
-    */
+     * Display the specified resource.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
     public function show()
     {
-        if (!Auth::user()->can('holiday-list')) {
+        if (! Auth::user()->can('holiday-list')) {
             $response = array(
                 'message' => trans('no_permission_message')
             );
@@ -136,22 +128,22 @@ class HolidayController extends Controller
         $order = 'DESC';
 
         if (isset($_GET['offset']))
-        $offset = $_GET['offset'];
+            $offset = $_GET['offset'];
         if (isset($_GET['limit']))
-        $limit = $_GET['limit'];
+            $limit = $_GET['limit'];
 
         if (isset($_GET['sort']))
-        $sort = $_GET['sort'];
+            $sort = $_GET['sort'];
         if (isset($_GET['order']))
-        $order = $_GET['order'];
+            $order = $_GET['order'];
 
-        $sql = Holiday::where('id','!=',0);
-        if (isset($_GET['search']) && !empty($_GET['search'])) {
+        $sql = Holiday::where('id', '!=', 0);
+        if (isset($_GET['search']) && ! empty($_GET['search'])) {
             $search = $_GET['search'];
             $sql->where('id', 'LIKE', "%$search%")
-            ->orwhere('title', 'LIKE', "%$search%")
-            ->orwhere('description', 'LIKE', "%$search%")
-            ->orwhere('date', 'LIKE', "%$search%");
+                ->orwhere('title', 'LIKE', "%$search%")
+                ->orwhere('description', 'LIKE', "%$search%")
+                ->orwhere('date', 'LIKE', "%$search%");
         }
         $total = $sql->count();
 
@@ -188,14 +180,14 @@ class HolidayController extends Controller
     }
 
     /**
-    * Remove the specified resource from storage.
-    *
-    * @param  int  $id
-    * @return \Illuminate\Http\Response
-    */
+     * Remove the specified resource from storage.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
     public function destroy($id)
     {
-        if (!Auth::user()->can('holiday-delete')) {
+        if (! Auth::user()->can('holiday-delete')) {
             $response = array(
                 'error' => true,
                 'message' => trans('no_permission_message')

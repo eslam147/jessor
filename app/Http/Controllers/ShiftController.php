@@ -10,18 +10,12 @@ use Illuminate\Support\Facades\Validator;
 
 class ShiftController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
     public function index()
     {
-        if (!Auth::user()->can('shift-list')) {
-            $response = array(
+        if (! Auth::user()->can('shift-list')) {
+            return to_route('home')->withErrors([
                 'message' => trans('no_permission_message')
-            );
-            return redirect(route('home'))->withErrors($response);
+            ]);
         }
 
         return response(view('shifts.index'));
@@ -45,7 +39,7 @@ class ShiftController extends Controller
      */
     public function store(Request $request)
     {
-        if (!Auth::user()->can('shift-create')) {
+        if (! Auth::user()->can('shift-create')) {
             $response = array(
                 'error' => true,
                 'message' => trans('no_permission_message')
@@ -55,7 +49,7 @@ class ShiftController extends Controller
         $validator = Validator::make($request->all(), [
             'name' => 'required|regex:/^[A-Za-z0-9_]+$/',
             'start_time' => 'required',
-            'end_time'  => 'required|after:start_time',
+            'end_time' => 'required|after:start_time',
         ]);
 
         if ($validator->fails()) {
@@ -66,10 +60,10 @@ class ShiftController extends Controller
             return response()->json($response);
         }
         try {
-            $shift= new Shift();
-            $shift->title=$request->name;
-            $shift->start_time=$request->start_time;
-            $shift->end_time=$request->end_time;
+            $shift = new Shift();
+            $shift->title = $request->name;
+            $shift->start_time = $request->start_time;
+            $shift->end_time = $request->end_time;
             $shift->save();
             $response = array(
                 'error' => false,
@@ -94,7 +88,7 @@ class ShiftController extends Controller
      */
     public function show()
     {
-       if (!Auth::user()->can('shift-list')) {
+        if (! Auth::user()->can('shift-list')) {
             $response = array(
                 'error' => true,
                 'message' => trans('no_permission_message')
@@ -107,17 +101,17 @@ class ShiftController extends Controller
         $order = 'DESC';
 
         if (isset($_GET['offset']))
-        $offset = $_GET['offset'];
+            $offset = $_GET['offset'];
         if (isset($_GET['limit']))
-        $limit = $_GET['limit'];
+            $limit = $_GET['limit'];
 
         if (isset($_GET['sort']))
-        $sort = $_GET['sort'];
+            $sort = $_GET['sort'];
         if (isset($_GET['order']))
-        $order = $_GET['order'];
+            $order = $_GET['order'];
 
-        $sql = Shift::where('id','!=',0);
-        if (isset($_GET['search']) && !empty($_GET['search'])) {
+        $sql = Shift::where('id', '!=', 0);
+        if (isset($_GET['search']) && ! empty($_GET['search'])) {
             $search = $_GET['search'];
             $sql->where('id', 'LIKE', "%$search%")->orwhere('title', 'LIKE', "%$search%");
         }
@@ -130,16 +124,16 @@ class ShiftController extends Controller
         $bulkData['total'] = $total;
         $rows = array();
         $tempRow = array();
-        $no=1;
+        $no = 1;
         foreach ($res as $row) {
-            $operate = '<a href='.route('shifts.edit',$row->id).' class="btn btn-xs btn-gradient-primary btn-rounded btn-icon edit-data" data-id=' . $row->id . ' title="Edit" data-toggle="modal" data-target="#editModal"><i class="fa fa-edit"></i></a>&nbsp;&nbsp;';
-            $operate .= '<a href='.route('shifts.destroy',$row->id).' class="btn btn-xs btn-gradient-danger btn-rounded btn-icon delete-form" data-id=' . $row->id . '><i class="fa fa-trash"></i></a>';
+            $operate = '<a href=' . route('shifts.edit', $row->id) . ' class="btn btn-xs btn-gradient-primary btn-rounded btn-icon edit-data" data-id=' . $row->id . ' title="Edit" data-toggle="modal" data-target="#editModal"><i class="fa fa-edit"></i></a>&nbsp;&nbsp;';
+            $operate .= '<a href=' . route('shifts.destroy', $row->id) . ' class="btn btn-xs btn-gradient-danger btn-rounded btn-icon delete-form" data-id=' . $row->id . '><i class="fa fa-trash"></i></a>';
 
             $tempRow['id'] = $row->id;
             $tempRow['no'] = $no++;
             $tempRow['title'] = $row->title;
-            $tempRow['start_time']= $row->start_time;
-            $tempRow['end_time']= $row->end_time;
+            $tempRow['start_time'] = $row->start_time;
+            $tempRow['end_time'] = $row->end_time;
             $tempRow['status'] = $row->status;
             $tempRow['operate'] = $operate;
             $tempRow['created_at'] = convertDateFormat($row->created_at, 'd-m-Y H:i:s');
@@ -171,7 +165,7 @@ class ShiftController extends Controller
      */
     public function update(Request $request, $id)
     {
-        if (!Auth::user()->can('shift-edit')) {
+        if (! Auth::user()->can('shift-edit')) {
             $response = array(
                 'error' => true,
                 'message' => trans('no_permission_message')
@@ -181,7 +175,7 @@ class ShiftController extends Controller
         $validator = Validator::make($request->all(), [
             'edit_name' => 'required|regex:/^[A-Za-z0-9_]+$/',
             'edit_start_time' => 'required',
-            'edit_end_time'  => 'required|after:start_time',
+            'edit_end_time' => 'required|after:start_time',
         ]);
 
         if ($validator->fails()) {
@@ -192,11 +186,11 @@ class ShiftController extends Controller
             return response()->json($response);
         }
         try {
-            $shift=Shift::find($id);
-            $shift->title=$request->edit_name;
-            $shift->start_time=$request->edit_start_time;
-            $shift->end_time=$request->edit_end_time;
-            $shift->status=$request->status;
+            $shift = Shift::find($id);
+            $shift->title = $request->edit_name;
+            $shift->start_time = $request->edit_start_time;
+            $shift->end_time = $request->edit_end_time;
+            $shift->status = $request->status;
             $shift->save();
             $response = array(
                 'error' => false,
@@ -221,7 +215,7 @@ class ShiftController extends Controller
      */
     public function destroy($id)
     {
-        if (!Auth::user()->can('shift-delete')) {
+        if (! Auth::user()->can('shift-delete')) {
             $response = array(
                 'error' => true,
                 'message' => trans('no_permission_message')
@@ -229,7 +223,7 @@ class ShiftController extends Controller
             return response()->json($response);
         }
         try {
-            $shift=Shift::find($id);
+            $shift = Shift::find($id);
             $shift->delete();
             $response = array(
                 'error' => false,

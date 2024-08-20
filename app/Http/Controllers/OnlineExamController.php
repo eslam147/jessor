@@ -24,41 +24,35 @@ use Illuminate\Support\Facades\Validator;
 
 class OnlineExamController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
     public function index()
     {
-        if (!Auth::user()->can('manage-online-exam')) {
-            $response = array(
+        if (! Auth::user()->can('manage-online-exam')) {
+            return to_route('home')->withErrors([
                 'message' => trans('no_permission_message')
-            );
-            return redirect(route('home'))->withErrors($response);
+            ]);
         }
         $teacher_id = Auth::user()->teacher->id;
 
         //get the class and subject according to subject teacher
-        $subject_teacher = SubjectTeacher::where('teacher_id',$teacher_id);
+        $subject_teacher = SubjectTeacher::where('teacher_id', $teacher_id);
         $class_section_id = $subject_teacher->pluck('class_section_id');
         $subject_id = $subject_teacher->pluck('subject_id');
 
-        $all_subjects = Subject::whereIn('id',$subject_id)->get();
+        $all_subjects = Subject::whereIn('id', $subject_id)->get();
 
         //get class section all data
-        $class_sections_query = ClassSection::whereIn('id',$class_section_id)->withOutTrashedRelations('class','section');
+        $class_sections_query = ClassSection::whereIn('id', $class_section_id)->withOutTrashedRelations('class', 'section');
 
         //get the class section data
-        $class_sections = $class_sections_query->with('class.medium','section','class.streams')->get();
+        $class_sections = $class_sections_query->with('class.medium', 'section', 'class.streams')->get();
 
         //get class ids
         $class_ids = $class_sections_query->pluck('class_id');
 
         //get the class data
-        $classes = ClassSchool::whereIn('id',$class_ids)->with('medium','streams')->withOutTrashedRelations('medium','streams')->get();
+        $classes = ClassSchool::whereIn('id', $class_ids)->with('medium', 'streams')->withOutTrashedRelations('medium', 'streams')->get();
 
-        return response(view('online_exam.index', compact('class_sections', 'all_subjects','classes')));
+        return response(view('online_exam.index', compact('class_sections', 'all_subjects', 'classes')));
     }
 
     /**
@@ -71,19 +65,12 @@ class OnlineExamController extends Controller
         //
     }
 
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
     public function store(Request $request)
     {
-        if (!Auth::user()->can('manage-online-exam')) {
-            $response = array(
+        if (! Auth::user()->can('manage-online-exam')) {
+            return to_route('home')->withErrors([
                 'message' => trans('no_permission_message')
-            );
-            return redirect(route('home'))->withErrors($response);
+            ]);
         }
         $validator = Validator::make($request->all(), [
             'online_exam_based_on' => 'required|in:0,1',
@@ -102,7 +89,7 @@ class OnlineExamController extends Controller
             'duration_class_section' => 'required_if:online_exam_based_on,1|nullable|numeric|gte:1',
             'start_date_class_section' => 'required_if:online_exam_based_on,1|nullable',
             'end_date_class_section' => 'required_if:online_exam_based_on,1|after:start_date_class_section|nullable',
-        ],[
+        ], [
             'class_id.required_if' => trans('class_required_when_online_exam_is_class_based'),
             'subject_class_id.required_if' => trans('subject_required'),
             'title_class.required_if' => trans('title_required'),
@@ -126,6 +113,7 @@ class OnlineExamController extends Controller
             'end_date_class_section.after' => trans('end_date_should_be_date_after_start_date'),
         ]);
 
+
         if ($validator->fails()) {
             $response = array(
                 'error' => true,
@@ -138,7 +126,7 @@ class OnlineExamController extends Controller
             $session_year_id = $data['session_year'];
 
             $online_exam_create = new OnlineExam();
-            if($request->online_exam_based_on){
+            if ($request->online_exam_based_on) {
                 // store class section based online exam
                 $online_exam_create->model_type = 'App\Models\ClassSection';
                 $online_exam_create->model_id = $request->class_section_id;
@@ -150,7 +138,7 @@ class OnlineExamController extends Controller
                 $online_exam_create->end_date = $request->end_date_class_section;
                 $online_exam_create->session_year_id = $session_year_id;
                 $online_exam_create->save();
-            }else{
+            } else {
                 // store class based online exam
                 $online_exam_create->model_type = 'App\Models\ClassSchool';
                 $online_exam_create->model_id = $request->class_id;
@@ -178,19 +166,13 @@ class OnlineExamController extends Controller
         return response()->json($response);
     }
 
-    /**
-     * Display the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
     public function show($id)
     {
-        if (!Auth::user()->can('manage-online-exam')) {
-            $response = array(
+        if (! Auth::user()->can('manage-online-exam')) {
+            return to_route('home')->withErrors([
                 'message' => trans('no_permission_message')
-            );
-            return redirect(route('home'))->withErrors($response);
+            ]);
+
         }
 
         $offset = request('offset', 0);
@@ -237,10 +219,10 @@ class OnlineExamController extends Controller
 
         $total = $sql->count();
         $res = $sql->get();
-        $bulkData = array();
+        $bulkData = [];
         $bulkData['total'] = $total;
-        $rows = array();
-        $tempRow = array();
+        $rows = [];
+        $tempRow = [];
         $no = 1;
         foreach ($res as $row) {
             $operate = '';
@@ -252,18 +234,18 @@ class OnlineExamController extends Controller
             $tempRow['online_exam_id'] = $row->id;
             $tempRow['no'] = $no++;
 
-            if($row->model_type == 'App\Models\ClassSection'){
+            if ($row->model_type == 'App\Models\ClassSection') {
                 // if online exam based on is Class Section
                 $tempRow['online_exam_belongs_to'] = 1;
                 $tempRow['class_section_id'] = $row->model_id;
-                $class_section_data = ClassSection::where('id',$row->model_id)->with('class.medium','section','class.streams')->withOutTrashedRelations('class','section')->first();
-                $tempRow['class_name'] = $class_section_data->class->name . ' - ' . $class_section_data->section->name.' '. $class_section_data->class->medium->name .' '. ($class_section_data->class->streams->name ?? '');
-            }else{
+                $class_section_data = ClassSection::where('id', $row->model_id)->with('class.medium', 'section', 'class.streams')->withOutTrashedRelations('class', 'section')->first();
+                $tempRow['class_name'] = $class_section_data->class->name . ' - ' . $class_section_data->section->name . ' ' . $class_section_data->class->medium->name . ' ' . ($class_section_data->class->streams->name ?? '');
+            } else {
                 // if online exam based on is Class
                 $tempRow['online_exam_belongs_to'] = 0;
                 $tempRow['class_id'] = $row->model_id;
-                $class_data = ClassSchool::where('id',$row->model_id)->with(['medium','streams'])->first();
-                $tempRow['class_name'] = $class_data->name.' '. $class_data->medium->name .' '.($class_data->streams->name ?? ' ');
+                $class_data = ClassSchool::where('id', $row->model_id)->with(['medium', 'streams'])->first();
+                $tempRow['class_name'] = $class_data->name . ' ' . $class_data->medium->name . ' ' . ($class_data->streams->name ?? ' ');
             }
             $tempRow['subject_id'] = $row->subject_id;
             $tempRow['subject_name'] = $row->subject->name . ' - ' . $row->subject->type;
@@ -302,11 +284,11 @@ class OnlineExamController extends Controller
      */
     public function update(Request $request, $id)
     {
-        if (!Auth::user()->can('manage-online-exam')) {
-            $response = array(
+        if (! Auth::user()->can('manage-online-exam')) {
+            return to_route('home')->withErrors([
                 'message' => trans('no_permission_message')
-            );
-            return redirect(route('home'))->withErrors($response);
+            ]);
+
         }
         $validator = Validator::make($request->all(), [
             'edit_title' => 'required',
@@ -355,25 +337,25 @@ class OnlineExamController extends Controller
      */
     public function destroy($id)
     {
-        if (!Auth::user()->can('manage-online-exam')) {
-            $response = array(
+        if (! Auth::user()->can('manage-online-exam')) {
+            return to_route('home')->withErrors([
                 'message' => trans('no_permission_message')
-            );
-            return redirect(route('home'))->withErrors($response);
+            ]);
+
         }
         try {
 
             // check wheather online exam is associated with other table...
-            $online_exam_question_choices = OnlineExamQuestionChoice::where('online_exam_id',$id)->count();
-            $online_exam_student_answers = OnlineExamStudentAnswer::where('online_exam_id',$id)->count();
-            $student_online_exam_status = StudentOnlineExamStatus::where('online_exam_id',$id)->count();
+            $online_exam_question_choices = OnlineExamQuestionChoice::where('online_exam_id', $id)->count();
+            $online_exam_student_answers = OnlineExamStudentAnswer::where('online_exam_id', $id)->count();
+            $student_online_exam_status = StudentOnlineExamStatus::where('online_exam_id', $id)->count();
 
-            if($online_exam_question_choices || $online_exam_student_answers || $student_online_exam_status){
+            if ($online_exam_question_choices || $online_exam_student_answers || $student_online_exam_status) {
                 $response = array(
                     'error' => true,
                     'message' => trans('cannot_delete_beacuse_data_is_associated_with_other_data')
                 );
-            }else{
+            } else {
                 OnlineExam::where('id', $id)->delete();
                 $response = array(
                     'error' => false,
@@ -395,16 +377,16 @@ class OnlineExamController extends Controller
     {
         try {
             $teacher_id = Auth::user()->teacher->id;
-            $subjects = array();
-            if($request->based_on){
+            $subjects = [];
+            if ($request->based_on) {
                 // return the subjects based on class setion
-                $subject_id = SubjectTeacher::where(['class_section_id' => $request->class_section_id , 'teacher_id' => $teacher_id])->pluck('subject_id');
-                $subjects = Subject::whereIn('id',$subject_id)->get();
-            }else{
+                $subject_id = SubjectTeacher::where(['class_section_id' => $request->class_section_id, 'teacher_id' => $teacher_id])->pluck('subject_id');
+                $subjects = Subject::whereIn('id', $subject_id)->get();
+            } else {
                 // return the subjects based on class
-                $class_section_id = ClassSection::where('class_id',$request->class_id)->pluck('id');
-                $subject_id = SubjectTeacher::whereIn('class_section_id' , $class_section_id)->where('teacher_id' , $teacher_id)->pluck('subject_id');
-                $subjects = Subject::whereIn('id',$subject_id)->get();
+                $class_section_id = ClassSection::where('class_id', $request->class_id)->pluck('id');
+                $subject_id = SubjectTeacher::whereIn('class_section_id', $class_section_id)->where('teacher_id', $teacher_id)->pluck('subject_id');
+                $subjects = Subject::whereIn('id', $subject_id)->get();
             }
             $response = array(
                 'error' => false,
@@ -422,62 +404,65 @@ class OnlineExamController extends Controller
     }
     public function examQuestionsIndex()
     {
-        if (!Auth::user()->can('manage-online-exam')) {
-            $response = array(
+        if (! Auth::user()->can('manage-online-exam')) {
+            return to_route('home')->withErrors([
                 'message' => trans('no_permission_message')
-            );
-            return redirect(route('home'))->withErrors($response);
+            ]);
+
         }
         $online_exam_id = $_GET['id'];
         $online_exam_db = OnlineExam::where('id', $online_exam_id)->with('subject')->first();
 
         // checks wheather exam belongs to class section or class
-        if($online_exam_db->model_type == 'App\Models\ClassSection'){
+        if ($online_exam_db->model_type == 'App\Models\ClassSection') {
             // get the class section data
-            $class_section_data = ClassSection::where('id',$online_exam_db->model_id)->with('class.medium','section')->withOutTrashedRelations('class','section')->first();
+            $class_section_data = ClassSection::where('id', $online_exam_db->model_id)->with('class.medium', 'section')->withOutTrashedRelations('class', 'section')->first();
             // make array of class section's data
             $class_data = array(
                 'id' => $online_exam_db->model_id,
-                'class_name' => $class_section_data->class->name.' '.$class_section_data->section->name.' - '.$class_section_data->class->medium->name,
+                'class_name' => $class_section_data->class->name . ' ' . $class_section_data->section->name . ' - ' . $class_section_data->class->medium->name,
             );
-        }else{
+        } else {
             // get the class data
-            $class_db_data = ClassSchool::where('id',$online_exam_db->model_id)->with('medium')->first();
+            $class_db_data = ClassSchool::where('id', $online_exam_db->model_id)->with('medium')->first();
             // make array of class's data
             $class_data = array(
                 'id' => $online_exam_db->model_id,
-                'class_name' => $class_db_data->name.' '.$class_db_data->medium->name,
+                'class_name' => $class_db_data->name . ' ' . $class_db_data->medium->name,
             );
         }
 
-        $exam_questions = OnlineExamQuestionChoice::where('online_exam_id',$online_exam_id)->with('online_exam','questions')->get();
-        return response(view('online_exam.exam_questions', compact('online_exam_db','exam_questions','class_data')));
+        $exam_questions = OnlineExamQuestionChoice::where('online_exam_id', $online_exam_id)->with('online_exam', 'questions')->get();
+        return response(view('online_exam.exam_questions', compact('online_exam_db', 'exam_questions', 'class_data')));
     }
 
     public function storeExamQuestionChoices(Request $request)
     {
-        if (!Auth::user()->can('manage-online-exam')) {
-            $response = array(
+        if (! Auth::user()->can('manage-online-exam')) {
+            return to_route('home')->withErrors([
                 'message' => trans('no_permission_message')
-            );
-            return redirect(route('home'))->withErrors($response);
+            ]);
+
         }
-        $validator = Validator::make($request->all(), [
-            'online_exam_id' => 'required',
-            'question_type' => 'required|in:0,1',
-            'question' => 'required_if:question_type,0',
-            'option.*' => 'required_if:question_type,0',
-            'equestion' => 'required_if:question_type,1',
-            'eoption.*' => 'required_if:question_type,1',
-            'answer.*' => 'required_if:question_type,0',
-            'image' => 'nullable|mimes:jpeg,png,jpg|image|max:3048',
-        ],
-        [
-            'question.required_if' => __('question_is_required'),
-            'option.*.required_if' => __('all_options_are_required'),
-            'equestion.required_if' => __('question_is_required'),
-            'eoption.*.required_if' => __('all_options_are_required'),
-        ]);
+        $validator = Validator::make(
+            $request->all(),
+            [
+                'online_exam_id' => 'required',
+                'question_type' => 'required|in:0,1',
+                'question' => 'required_if:question_type,0',
+                'option.*' => 'required_if:question_type,0',
+                'equestion' => 'required_if:question_type,1',
+                'eoption.*' => 'required_if:question_type,1',
+                'answer.*' => 'required_if:question_type,0',
+                'image' => 'nullable|mimes:jpeg,png,jpg|image|max:3048',
+            ],
+            [
+                'question.required_if' => __('question_is_required'),
+                'option.*.required_if' => __('all_options_are_required'),
+                'equestion.required_if' => __('question_is_required'),
+                'eoption.*.required_if' => __('all_options_are_required'),
+            ]
+        );
 
         if ($validator->fails()) {
             $response = array(
@@ -487,13 +472,13 @@ class OnlineExamController extends Controller
             return response()->json($response);
         }
         try {
-            $online_exam_data = OnlineExam::where('id',$request->online_exam_id)->first();
-            if($online_exam_data->model_type == 'App\Models\ClassSection'){
-                $class_id = ClassSection::where('id',$online_exam_data->model_id)->pluck('class_id')->first();
-            }else{
+            $online_exam_data = OnlineExam::where('id', $request->online_exam_id)->first();
+            if ($online_exam_data->model_type == 'App\Models\ClassSection') {
+                $class_id = ClassSection::where('id', $online_exam_data->model_id)->pluck('class_id')->first();
+            } else {
                 $class_id = $online_exam_data->model_id;
             }
-            $class_subject_id = ClassSubject::where(['class_id' => $class_id ,'subject_id' => $online_exam_data->subject_id])->pluck('id')->first();
+            $class_subject_id = ClassSubject::where(['class_id' => $class_id, 'subject_id' => $online_exam_data->subject_id])->pluck('id')->first();
             if ($request->question_type == 1) {
                 $question_store = new OnlineExamQuestion();
                 $question_store->class_subject_id = $class_subject_id;
@@ -522,7 +507,7 @@ class OnlineExamController extends Controller
                 $question_store->save();
 
                 // store options
-                $options_id = array();
+                $options_id = [];
                 foreach ($request->eoption as $key => $option) {
                     $question_option_store = new OnlineExamQuestionOption();
                     $question_option_store->question_id = $question_store->id;
@@ -568,7 +553,7 @@ class OnlineExamController extends Controller
                 $question_store->save();
 
                 // store options
-                $options_id = array();
+                $options_id = [];
                 foreach ($request->option as $key => $option) {
                     $question_option_store = new OnlineExamQuestionOption();
                     $question_option_store->question_id = $question_store->id;
@@ -587,7 +572,7 @@ class OnlineExamController extends Controller
                     }
                 }
             }
-            if($request->question_type){
+            if ($request->question_type) {
                 $response = array(
                     'error' => false,
                     'message' => trans('data_store_successfully'),
@@ -599,7 +584,7 @@ class OnlineExamController extends Controller
                     )
                 );
 
-            }else{
+            } else {
                 $response = array(
                     'error' => false,
                     'message' => trans('data_store_successfully'),
@@ -621,13 +606,13 @@ class OnlineExamController extends Controller
         }
         return response()->json($response);
     }
+
     public function getClassSubjectQuestions($online_exam_id)
     {
-        if (!Auth::user()->can('manage-online-exam')) {
-            $response = array(
+        if (! Auth::user()->can('manage-online-exam')) {
+            return to_route('home')->withErrors([
                 'message' => trans('no_permission_message')
-            );
-            return redirect(route('home'))->withErrors($response);
+            ]);
         }
         $offset = 0;
         $limit = 10;
@@ -644,17 +629,17 @@ class OnlineExamController extends Controller
         if (isset($_GET['order']))
             $order = $_GET['order'];
 
-        $online_exam_data  = OnlineExam::where('id',$online_exam_id)->first();
-        if($online_exam_data->model_type == 'App\Models\ClassSection'){
-            $class_id = ClassSection::where('id',$online_exam_data->model_id)->pluck('class_id')->first();
-        }else{
+        $online_exam_data = OnlineExam::where('id', $online_exam_id)->first();
+        if ($online_exam_data->model_type == 'App\Models\ClassSection') {
+            $class_id = ClassSection::where('id', $online_exam_data->model_id)->pluck('class_id')->first();
+        } else {
             $class_id = $online_exam_data->model_id;
         }
-        $class_subject_id = ClassSubject::where(['class_id' => $class_id ,'subject_id' => $online_exam_data->subject_id])->pluck('id')->first();
-        $exclude_question_id = OnlineExamQuestionChoice::where('online_exam_id',$online_exam_id)->pluck('question_id');
-        $sql = OnlineExamQuestion::with('class_subject', 'options', 'answers')->where('class_subject_id', $class_subject_id)->whereNotIn('id',$exclude_question_id);
+        $class_subject_id = ClassSubject::where(['class_id' => $class_id, 'subject_id' => $online_exam_data->subject_id])->pluck('id')->first();
+        $exclude_question_id = OnlineExamQuestionChoice::where('online_exam_id', $online_exam_id)->pluck('question_id');
+        $sql = OnlineExamQuestion::with('class_subject', 'options', 'answers')->where('class_subject_id', $class_subject_id)->whereNotIn('id', $exclude_question_id);
 
-        if (isset($_GET['search']) && !empty($_GET['search'])) {
+        if (isset($_GET['search']) && ! empty($_GET['search'])) {
             $search = $_GET['search'];
             $sql = $sql->where('id', 'LIKE', "%$search%")
                 ->orWhere('question', 'LIKE', "%$search%")
@@ -663,13 +648,13 @@ class OnlineExamController extends Controller
                 ->orWhereHas('class_subject', function ($q) use ($search) {
                     $q->whereHas('class', function ($c) use ($search) {
                         $c->where('name', 'LIKE', "%$search%")
-                            ->orWhereHas('medium',function($m) use($search){
+                            ->orWhereHas('medium', function ($m) use ($search) {
                                 $m->where('name', 'LIKE', "%$search%");
                             });
                     })->orWhereHas('subject', function ($s) use ($search) {
-                            $s->where('name', 'LIKE', "%$search%")
-                                ->orWhere('type','LIKE',"%$search%");
-                        });
+                        $s->where('name', 'LIKE', "%$search%")
+                            ->orWhere('type', 'LIKE', "%$search%");
+                    });
                 })
                 ->orWhereHas('options', function ($p) use ($search) {
                     $p->where('option', 'LIKE', "%$search%");
@@ -680,10 +665,10 @@ class OnlineExamController extends Controller
 
         $sql->orderBy($sort, $order)->skip($offset)->take($limit);
         $res = $sql->get();
-        $bulkData = array();
+        $bulkData = [];
         $bulkData['total'] = $total;
-        $rows = array();
-        $tempRow = array();
+        $rows = [];
+        $tempRow = [];
         $no = 1;
         foreach ($res as $row) {
             $operate = '';
@@ -693,38 +678,38 @@ class OnlineExamController extends Controller
             $tempRow['question_id'] = $row->id;
             $tempRow['no'] = $no++;
             $tempRow['class_id'] = $row->class_subject->class_id;
-            $tempRow['class_name'] = $row->class_subject->class->name.' '. $row->class_subject->class->medium->name;
+            $tempRow['class_name'] = $row->class_subject->class->name . ' ' . $row->class_subject->class->medium->name;
             $tempRow['class_subject_id'] = $row->class_subject_id;
             $tempRow['subject_id'] = $row->class_subject->subject_id;
             $tempRow['subject_name'] = $row->class_subject->subject->name . ' - ' . $row->class_subject->subject->type;
             $tempRow['question_type'] = $row->question_type;
             $tempRow['question'] = '';
-            $tempRow['options'] = array();
-            $tempRow['answers'] = array();
+            $tempRow['options'] = [];
+            $tempRow['answers'] = [];
             if ($row->question_type) {
-                $tempRow['question'] = "<div class='equation-editor-inline' contenteditable=false name='qc" . $row->id . "'>".htmlspecialchars_decode($row->question)."</div>";
+                $tempRow['question'] = "<div class='equation-editor-inline' contenteditable=false name='qc" . $row->id . "'>" . htmlspecialchars_decode($row->question) . "</div>";
                 $tempRow['question_row'] = htmlspecialchars_decode($row->question);
-                $option_data = array();
+                $option_data = [];
                 foreach ($row->options as $key => $options) {
                     $option_data = array(
                         'id' => $options->id,
-                        'option' => "<div class='equation-editor-inline' contenteditable=false>".htmlspecialchars_decode($options->option)."</div>",
+                        'option' => "<div class='equation-editor-inline' contenteditable=false>" . htmlspecialchars_decode($options->option) . "</div>",
                         'option_row' => htmlspecialchars_decode($options->option)
                     );
                     $tempRow['options'][] = $option_data;
                 }
-                $answer_data = array();
+                $answer_data = [];
                 foreach ($row->answers as $answers) {
                     $answer_data = array(
                         'id' => $answers->id,
-                        'answer' => "<div class='equation-editor-inline' contenteditable=false>".htmlspecialchars_decode($answers->options->option)."</div>",
+                        'answer' => "<div class='equation-editor-inline' contenteditable=false>" . htmlspecialchars_decode($answers->options->option) . "</div>",
                     );
                     $tempRow['answers'][] = $answer_data;
                 }
             } else {
                 $tempRow['question'] = htmlspecialchars_decode($row->question);
                 $tempRow['question_textarea'] = null;
-                $option_data = array();
+                $option_data = [];
                 foreach ($row->options as $key => $options) {
                     $option_data = array(
                         'id' => $options->id,
@@ -737,7 +722,7 @@ class OnlineExamController extends Controller
                         'id' => $answers->id,
                         'answer' => htmlspecialchars_decode($answers->options->option),
                     );
-                    $tempRow['answers'][] =  $answer_data;
+                    $tempRow['answers'][] = $answer_data;
                 }
             }
             $tempRow['image'] = $row->image_url;
@@ -748,21 +733,25 @@ class OnlineExamController extends Controller
         $bulkData['rows'] = $rows;
         return response()->json($bulkData);
     }
-    public function storeQuestionsChoices(Request $request){
-        if (!Auth::user()->can('manage-online-exam')) {
-            $response = array(
+    public function storeQuestionsChoices(Request $request)
+    {
+        if (! Auth::user()->can('manage-online-exam')) {
+            return to_route('home')->withErrors([
                 'message' => trans('no_permission_message')
-            );
-            return redirect(route('home'))->withErrors($response);
+            ]);
+
         }
-        $validator = Validator::make($request->all(), [
-            'exam_id' => 'required',
-            'assign_questions.*.question_id' => 'required',
-            'assign_questions.*.marks' => 'required|numeric'
-        ],
-        [
-            'assign_questions.*.marks.required' => trans('marks_are_required')
-        ]);
+        $validator = Validator::make(
+            $request->all(),
+            [
+                'exam_id' => 'required',
+                'assign_questions.*.question_id' => 'required',
+                'assign_questions.*.marks' => 'required|numeric'
+            ],
+            [
+                'assign_questions.*.marks.required' => trans('marks_are_required')
+            ]
+        );
 
         if ($validator->fails()) {
             $response = array(
@@ -772,13 +761,13 @@ class OnlineExamController extends Controller
             return response()->json($response);
         }
         try {
-            $data_store = array();
+            $data_store = [];
             foreach ($request->assign_questions as $question) {
-                if(isset($question['edit_id']) && !empty($question['edit_id'])){
+                if (isset($question['edit_id']) && ! empty($question['edit_id'])) {
                     $edit_question_choice = OnlineExamQuestionChoice::find($question['edit_id']);
                     $edit_question_choice->marks = $question['marks'];
                     $edit_question_choice->save();
-                }else{
+                } else {
                     $data_store[] = array(
                         'online_exam_id' => $request->exam_id,
                         'question_id' => $question['question_id'],
@@ -786,7 +775,7 @@ class OnlineExamController extends Controller
                     );
                 }
             }
-            if(isset($data_store) && !empty($data_store)){
+            if (isset($data_store) && ! empty($data_store)) {
                 OnlineExamQuestionChoice::insert($data_store);
             }
             $response = array(
@@ -803,23 +792,24 @@ class OnlineExamController extends Controller
         }
         return response()->json($response);
     }
-    public function removeQuestionsChoices($id){
-        if (!Auth::user()->can('manage-online-exam')) {
-            $response = array(
+    public function removeQuestionsChoices($id)
+    {
+        if (! Auth::user()->can('manage-online-exam')) {
+            return to_route('home')->withErrors([
                 'message' => trans('no_permission_message')
-            );
-            return redirect(route('home'))->withErrors($response);
+            ]);
+
         }
         try {
 
-            $student_submitted_answers = OnlineExamStudentAnswer::where('question_id',$id)->count();
-            if($student_submitted_answers){
+            $student_submitted_answers = OnlineExamStudentAnswer::where('question_id', $id)->count();
+            if ($student_submitted_answers) {
                 $response = array(
                     'error' => true,
                     'message' => trans('cannot_delete_beacuse_data_is_associated_with_other_data')
                 );
-            }else{
-                OnlineExamQuestionChoice::where('id',$id)->delete();
+            } else {
+                OnlineExamQuestionChoice::where('id', $id)->delete();
                 $response = array(
                     'error' => false,
                     'message' => trans('data_delete_successfully'),
@@ -837,28 +827,28 @@ class OnlineExamController extends Controller
     }
     public function onlineExamTermsConditionIndex()
     {
-        if (!Auth::user()->can('manage-online-exam')) {
-            $response = array(
+        if (! Auth::user()->can('manage-online-exam')) {
+            return to_route('home')->withErrors([
                 'message' => trans('no_permission_message')
-            );
-            return redirect(route('home'))->withErrors($response);
+            ]);
+
         }
         $settings = Settings::where('type', 'online_exam_terms_condition')->first();
         $type = 'online_exam_terms_condition';
         return response(view('online_exam.terms_conditions', compact('settings', 'type')));
     }
-    public function storeOnlineExamTermsCondition(Request $request){
-        if (!Auth::user()->can('manage-online-exam')) {
-            $response = array(
+    public function storeOnlineExamTermsCondition(Request $request)
+    {
+        if (! Auth::user()->can('manage-online-exam')) {
+            return to_route('home')->withErrors([
                 'message' => trans('no_permission_message')
-            );
-            return redirect(route('home'))->withErrors($response);
+            ]);
         }
         try {
             $type = $request->type;
             $message = $request->message;
             $id = Settings::select('id')->where('type', $type)->pluck('id')->first();
-            if (isset($id) && !empty($id)) {
+            if (isset($id) && ! empty($id)) {
                 $setting = Settings::find($id);
                 $setting->message = htmlspecialchars($message);
                 $setting->save();
@@ -886,27 +876,28 @@ class OnlineExamController extends Controller
         }
         return response()->json($response);
     }
-    public function onlineExamResultIndex($id){
-        if (!Auth::user()->can('manage-online-exam')) {
-            $response = array(
+    public function onlineExamResultIndex($id)
+    {
+        if (! Auth::user()->can('manage-online-exam')) {
+            return to_route('home')->withErrors([
                 'message' => trans('no_permission_message')
-            );
-            return redirect(route('home'))->withErrors($response);
+            ]);
         }
-        $online_exam = OnlineExam::where('id',$id)->with('model','subject')->first();
-        if($online_exam->model_type == 'App\Models\ClassSection'){
-            $class_data = ClassSection::whereId($online_exam->model_id)->with('class.medium','section')->withOutTrashedRelations('class','section')->first();
-        }else{
+        $online_exam = OnlineExam::where('id', $id)->with('model', 'subject')->first();
+        if ($online_exam->model_type == 'App\Models\ClassSection') {
+            $class_data = ClassSection::whereId($online_exam->model_id)->with('class.medium', 'section')->withOutTrashedRelations('class', 'section')->first();
+        } else {
             $class_data = ClassSchool::whereId($online_exam->model_id)->with('medium')->first();
         }
-        return response(view('online_exam.online_exam_result',compact('online_exam','class_data')));
+        return response(view('online_exam.online_exam_result', compact('online_exam', 'class_data')));
     }
-    public function showOnlineExamResult($id){
-        if (!Auth::user()->can('manage-online-exam')) {
-            $response = array(
+    public function showOnlineExamResult($id)
+    {
+        if (! Auth::user()->can('manage-online-exam')) {
+            return to_route('home')->withErrors([
                 'message' => trans('no_permission_message')
-            );
-            return redirect(route('home'))->withErrors($response);
+            ]);
+
         }
         $offset = 0;
         $limit = 10;
@@ -924,57 +915,57 @@ class OnlineExamController extends Controller
             $order = $_GET['order'];
 
         $teacher_id = Auth::user()->teacher->id;
-        $class_section_id = SubjectTeacher::where('teacher_id',$teacher_id)->pluck('class_section_id');
+        $class_section_id = SubjectTeacher::where('teacher_id', $teacher_id)->pluck('class_section_id');
 
-        $student_id = Students::whereIn('class_section_id',$class_section_id)->pluck('id');
+        $student_id = Students::whereIn('class_section_id', $class_section_id)->pluck('id');
 
-        $sql = StudentOnlineExamStatus::with('student_data','online_exam.question_choice')->whereIn('student_id',$student_id)->where('status',2)->where('online_exam_id',$id);
+        $sql = StudentOnlineExamStatus::with('student_data', 'online_exam.question_choice')->whereIn('student_id', $student_id)->where('status', 2)->where('online_exam_id', $id);
 
         $total = $sql->count();
 
         $sql->orderBy($sort, $order)->skip($offset)->take($limit);
         $res = $sql->get();
-        $bulkData = array();
+        $bulkData = [];
         $bulkData['total'] = $total;
-        $rows = array();
-        $tempRow = array();
+        $rows = [];
+        $tempRow = [];
         $no = 1;
         foreach ($res as $student_attempt) {
-        //get the total marks and obtained marks
+            //get the total marks and obtained marks
             $total_obtained_marks = 0;
             $total_marks = 0;
 
-            $exam_submitted_question_ids = OnlineExamStudentAnswer::where(['student_id' => $student_attempt->student_id , 'online_exam_id' => $student_attempt->online_exam_id])->pluck('question_id');
+            $exam_submitted_question_ids = OnlineExamStudentAnswer::where(['student_id' => $student_attempt->student_id, 'online_exam_id' => $student_attempt->online_exam_id])->pluck('question_id');
 
-            $question_ids = OnlineExamQuestionChoice::whereIn('id',$exam_submitted_question_ids)->pluck('question_id');
+            $question_ids = OnlineExamQuestionChoice::whereIn('id', $exam_submitted_question_ids)->pluck('question_id');
 
 
             $exam_attempted_answers = OnlineExamStudentAnswer::where(['student_id' => $student_attempt->student_id, 'online_exam_id' => $student_attempt->online_exam_id])->pluck('option_id');
 
             //removes the question id of the question if one of the answer of particular question is wrong
             foreach ($question_ids as $question_id) {
-                $check_questions_answers_exists = OnlineExamQuestionAnswer::where('question_id',$question_id)->whereNotIn('answer',$exam_attempted_answers)->count();
-                if($check_questions_answers_exists){
-                    unset($question_ids[array_search($question_id, $question_ids->toArray())]);
+                $check_questions_answers_exists = OnlineExamQuestionAnswer::where('question_id', $question_id)->whereNotIn('answer', $exam_attempted_answers)->count();
+                if ($check_questions_answers_exists) {
+                    unset($question_ids[array_search($question_id, $question_ids->to[])]);
                 }
             }
 
-            $exam_correct_answers_question_id = OnlineExamQuestionAnswer::whereIn('question_id',$question_ids)->whereIn('answer',$exam_attempted_answers)->pluck('question_id');
+            $exam_correct_answers_question_id = OnlineExamQuestionAnswer::whereIn('question_id', $question_ids)->whereIn('answer', $exam_attempted_answers)->pluck('question_id');
 
             // get the data of only attempted data
-            $total_obtained_marks = OnlineExamQuestionChoice::select(DB::raw("sum(marks)"))->where('online_exam_id',$student_attempt->online_exam_id)->whereIn('question_id',$exam_correct_answers_question_id)->first();
+            $total_obtained_marks = OnlineExamQuestionChoice::select(DB::raw("sum(marks)"))->where('online_exam_id', $student_attempt->online_exam_id)->whereIn('question_id', $exam_correct_answers_question_id)->first();
             $total_obtained_marks = $total_obtained_marks['sum(marks)'];
-            $total_marks = OnlineExamQuestionChoice::select(DB::raw("sum(marks)"))->where('online_exam_id',$student_attempt->online_exam_id)->first();
+            $total_marks = OnlineExamQuestionChoice::select(DB::raw("sum(marks)"))->where('online_exam_id', $student_attempt->online_exam_id)->first();
             $total_marks = $total_marks['sum(marks)'];
 
             $tempRow['student_id'] = $student_attempt->student_id;
             $tempRow['no'] = $no++;
-            $tempRow['student_name'] = $student_attempt->student_data->user->first_name.' '.$student_attempt->student_data->user->last_name;
-            if($total_obtained_marks){
-                $tempRow['marks'] = $total_obtained_marks.' / '.$total_marks;
-            }else{
+            $tempRow['student_name'] = $student_attempt->student_data->user->first_name . ' ' . $student_attempt->student_data->user->last_name;
+            if ($total_obtained_marks) {
+                $tempRow['marks'] = $total_obtained_marks . ' / ' . $total_marks;
+            } else {
                 $total_obtained_marks = 0;
-                $tempRow['marks'] = $total_obtained_marks.' / '.$total_marks;
+                $tempRow['marks'] = $total_obtained_marks . ' / ' . $total_marks;
             }
             $rows[] = $tempRow;
         }

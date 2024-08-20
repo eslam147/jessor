@@ -4,31 +4,29 @@ namespace App\Http\Controllers;
 
 use App\Models\Language;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\File;
-use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Session;
 use Throwable;
 
 class LanguageController extends Controller
 {
-    public function index() {
-        if (!Auth::user()->can('language-create')) {
-            $response = array(
+    public function index()
+    {
+        if (! Auth::user()->can('language-create')) {
+            return to_route('home')->withErrors([
                 'message' => trans('no_permission_message')
-            );
-            return redirect(route('home'))->withErrors($response);
+            ]);
         }
         return view('settings.language_setting');
     }
 
-    public function language_sample() {
-        if (!Auth::user()->can('language-create')) {
-            $response = array(
+    public function language_sample()
+    {
+        if (! Auth::user()->can('language-create')) {
+            return to_route('home')->withErrors([
                 'message' => trans('no_permission_message')
-            );
-            return redirect(route('home'))->withErrors($response);
+            ]);
         }
         $filePath = base_path("resources/lang/en.json");
         $headers = ['Content-Type: application/json'];
@@ -36,16 +34,16 @@ class LanguageController extends Controller
         if (File::exists(base_path("resources/lang/en.json"))) {
             return response()->download($filePath, $fileName, $headers);
         } else {
-            $response = array(
+            return response()->json([
                 'error' => true,
                 'message' => trans('error_occurred')
-            );
-            return response()->json($response);
+            ]);
         }
     }
 
-    public function store(Request $request) {
-        if (!Auth::user()->can('language-create')) {
+    public function store(Request $request)
+    {
+        if (! Auth::user()->can('language-create')) {
             $response = array(
                 'error' => true,
                 'message' => trans('no_permission_message')
@@ -64,9 +62,9 @@ class LanguageController extends Controller
             $language->name = $request->name;
             $language->code = $request->code;
             $language->status = 0;
-            if(isset($request->rtl)){
+            if (isset($request->rtl)) {
                 $language->is_rtl = $request->rtl;
-            }else{
+            } else {
                 $language->is_rtl = 0;
             }
             if ($request->hasFile('file')) {
@@ -92,12 +90,12 @@ class LanguageController extends Controller
         return response()->json($response);
     }
 
-    public function show() {
-        if (!Auth::user()->can('language-list')) {
-            $response = array(
+    public function show()
+    {
+        if (! Auth::user()->can('language-list')) {
+            return to_route('home')->withErrors([
                 'message' => trans('no_permission_message')
-            );
-            return redirect(route('home'))->withErrors($response);
+            ]);
         }
         $offset = 0;
         $limit = 10;
@@ -115,7 +113,7 @@ class LanguageController extends Controller
             $order = $_GET['order'];
 
         $sql = Language::where('id', '!=', 0);
-        if (isset($_GET['search']) && !empty($_GET['search'])) {
+        if (isset($_GET['search']) && ! empty($_GET['search'])) {
             $search = $_GET['search'];
             $sql->where('id', 'LIKE', "%$search%")
                 ->orwhere('name', 'LIKE', "%$search%")
@@ -150,8 +148,9 @@ class LanguageController extends Controller
         return response()->json($bulkData);
     }
 
-    public function update(Request $request) {
-        if (!Auth::user()->can('language-edit')) {
+    public function update(Request $request)
+    {
+        if (! Auth::user()->can('language-edit')) {
             $response = array(
                 'error' => true,
                 'message' => trans('no_permission_message')
@@ -179,9 +178,9 @@ class LanguageController extends Controller
                 $file->move(base_path('resources/lang/'), $filename);
                 $language->file = $filename;
             }
-            if($request->rtl){
+            if ($request->rtl) {
                 $language->is_rtl = 1;
-            }else{
+            } else {
                 $language->is_rtl = 0;
             }
             $language->save();
@@ -199,12 +198,12 @@ class LanguageController extends Controller
         return response()->json($response);
     }
 
-    public function destroy($id) {
-        if (!Auth::user()->can('language-delete')) {
-            $response = array(
+    public function destroy($id)
+    {
+        if (! Auth::user()->can('language-delete')) {
+            return to_route('home')->withErrors([
                 'message' => trans('no_permission_message')
-            );
-            return redirect(route('home'))->withErrors($response);
+            ]);
         }
         try {
             Language::find($id)->delete();
@@ -221,9 +220,10 @@ class LanguageController extends Controller
         return response()->json($response);
     }
 
-    public function set_language(Request $request) {
+    public function set_language(Request $request)
+    {
         Session::put('locale', $request->lang);
-        $language = Language::where('code',$request->lang)->first();
+        $language = Language::where('code', $request->lang)->first();
         Session::save();
         Session::put('language', $language);
         app()->setLocale(Session::get('locale'));

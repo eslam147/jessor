@@ -21,10 +21,10 @@ class SystemUpdateController extends Controller
     public function index()
     {
         if (! Auth::user()->hasRole('Super Admin')) {
-            $response = array(
+            return to_route('home')->withErrors([
                 'message' => trans('no_permission_message')
-            );
-            return redirect(route('home'))->withErrors($response);
+            ]);
+
         }
         $system_version = Settings::where('type', 'system_version')->first();
         return view('system-update.index', compact('system_version'));
@@ -43,7 +43,6 @@ class SystemUpdateController extends Controller
             'purchase_code' => 'required|alpha_dash',
             'file' => 'required|file|mimes:zip',
         ]);
-
         if ($validator->fails()) {
             $response = array(
                 'error' => true,
@@ -56,14 +55,16 @@ class SystemUpdateController extends Controller
             $app_url = preg_replace('#^https?://#i', '', $app_url);
 
             $curl = curl_init();
-            curl_setopt_array($curl, array(
-                CURLOPT_URL => 'https://wrteam.in/validator/eschool_validator?purchase_code=' . $request->purchase_code . '&domain_url=' . $app_url . '',
-                CURLOPT_RETURNTRANSFER => true,
-                CURLOPT_MAXREDIRS => 10,
-                CURLOPT_FOLLOWLOCATION => true,
-                CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-                CURLOPT_CUSTOMREQUEST => 'GET',
-            )
+            curl_setopt_array(
+                $curl,
+                array(
+                    CURLOPT_URL => 'https://wrteam.in/validator/eschool_validator?purchase_code=' . $request->purchase_code . '&domain_url=' . $app_url . '',
+                    CURLOPT_RETURNTRANSFER => true,
+                    CURLOPT_MAXREDIRS => 10,
+                    CURLOPT_FOLLOWLOCATION => true,
+                    CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+                    CURLOPT_CUSTOMREQUEST => 'GET',
+                )
             );
             $response = curl_exec($curl);
             $info = curl_getinfo($curl);
@@ -103,7 +104,7 @@ class SystemUpdateController extends Controller
                         $ver_file1 = $target_path . 'version_info.php';
                         $source_path1 = $target_path . 'source_code.zip';
                         if (rename($ver_file, $ver_file1) && rename($source_path, $source_path1)) {
-                            $version_file = require_once ($ver_file1);
+                            $version_file = require_once($ver_file1);
                             $current_version = getSettings('system_version');
                             if ($current_version['system_version'] == $version_file['current_version']) {
                                 $zip1 = new ZipArchive();

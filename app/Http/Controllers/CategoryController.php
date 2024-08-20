@@ -10,18 +10,13 @@ use Illuminate\Support\Facades\Auth;
 
 class CategoryController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
+
     public function index()
     {
-        if (!Auth::user()->can('category-list')) {
-            $response = array(
+        if (! Auth::user()->can('category-list')) {
+            return to_route('home')->withErrors([
                 'message' => trans('no_permission_message')
-            );
-            return redirect(route('home'))->withErrors($response);
+            ]);
         }
         return view('category.index');
     }
@@ -35,7 +30,7 @@ class CategoryController extends Controller
      */
     public function store(Request $request)
     {
-        if (!Auth::user()->can('category-create')) {
+        if (! Auth::user()->can('category-create')) {
             $response = array(
                 'error' => true,
                 'message' => trans('no_permission_message')
@@ -72,7 +67,7 @@ class CategoryController extends Controller
      */
     public function show()
     {
-        if (!Auth::user()->can('category-list')) {
+        if (! Auth::user()->can('category-list')) {
             $response = array(
                 'message' => trans('no_permission_message')
             );
@@ -94,7 +89,7 @@ class CategoryController extends Controller
             $order = $_GET['order'];
 
         $sql = Category::where('id', '!=', 0);
-        if (isset($_GET['search']) && !empty($_GET['search'])) {
+        if (isset($_GET['search']) && ! empty($_GET['search'])) {
             $search = $_GET['search'];
             $sql->where('id', 'LIKE', "%$search%")->orwhere('name', 'LIKE', "%$search%")->orwhere('status', 'LIKE', "%$search%");
         }
@@ -138,12 +133,11 @@ class CategoryController extends Controller
 
     public function update(Request $request)
     {
-        if (!Auth::user()->can('category-edit')) {
-            $response = array(
+        if (! Auth::user()->can('category-edit')) {
+            return response()->json([
                 'error' => true,
                 'message' => trans('no_permission_message')
-            );
-            return response()->json($response);
+            ]);
         }
         $request->validate([
             'name' => 'required',
@@ -177,20 +171,20 @@ class CategoryController extends Controller
      */
     public function destroy($id)
     {
-        if (!Auth::user()->can('category-delete')) {
+        if (! Auth::user()->can('category-delete')) {
             $response = array(
                 'message' => trans('no_permission_message')
             );
             return response()->json($response);
         }
         try {
-            $category_data = Students::where('category_id',$id)->count();
-            if($category_data){
+            $category_data = Students::where('category_id', $id)->count();
+            if ($category_data) {
                 $response = array(
                     'error' => true,
                     'message' => trans('cannot_delete_beacuse_data_is_associated_with_other_data')
                 );
-            }else{
+            } else {
                 Category::find($id)->delete();
                 $response = [
                     'error' => false,

@@ -10,23 +10,18 @@ use Illuminate\Support\Facades\Validator;
 
 class LeaveMasterController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
+
     public function index()
     {
-        if (!Auth::user()->can('leave-setting-create')) {
-            $response = array(
+        if (! Auth::user()->can('leave-setting-create')) {
+            return to_route('home')->withErrors([
                 'message' => trans('no_permission_message')
-            );
-            return redirect(route('home'))->withErrors($response);
+            ]);
         }
         $settings = getSettings();
 
         $session_year = SessionYear::all();
-        return view('leave.leave_setting', compact('settings','session_year'));
+        return view('leave.leave_setting', compact('settings', 'session_year'));
     }
 
     /**
@@ -48,11 +43,11 @@ class LeaveMasterController extends Controller
     public function store(Request $request)
     {
         // dd($request->all());
-        if (!Auth::user()->can('leave-setting-create')) {
-            $response = array(
+        if (! Auth::user()->can('leave-setting-create')) {
+            return to_route('home')->withErrors([
                 'message' => trans('no_permission_message')
-            );
-            return redirect(route('home'))->withErrors($response);
+            ]);
+
         }
         $validator = Validator::make($request->all(), [
             'total_leave' => 'required|numeric',
@@ -70,7 +65,7 @@ class LeaveMasterController extends Controller
 
         try {
             // dd($request->all());
-            $holiday = implode(',',$request->holiday_days);
+            $holiday = implode(',', $request->holiday_days);
 
             $leaveSetting = new LeaveMaster();
             $leaveSetting->total_leave = $request->total_leave;
@@ -102,7 +97,7 @@ class LeaveMasterController extends Controller
      */
     public function show()
     {
-        if (!Auth::user()->can('leave-setting-create')) {
+        if (! Auth::user()->can('leave-setting-create')) {
             $response = array(
                 'error' => true,
                 'message' => trans('no_permission_message')
@@ -115,17 +110,17 @@ class LeaveMasterController extends Controller
         $order = 'DESC';
 
         if (isset($_GET['offset']))
-        $offset = $_GET['offset'];
+            $offset = $_GET['offset'];
         if (isset($_GET['limit']))
-        $limit = $_GET['limit'];
+            $limit = $_GET['limit'];
 
         if (isset($_GET['sort']))
-        $sort = $_GET['sort'];
+            $sort = $_GET['sort'];
         if (isset($_GET['order']))
-        $order = $_GET['order'];
+            $order = $_GET['order'];
 
-        $sql = LeaveMaster::with('session_year')->where('id','!=',0);
-        if (isset($_GET['search']) && !empty($_GET['search'])) {
+        $sql = LeaveMaster::with('session_year')->where('id', '!=', 0);
+        if (isset($_GET['search']) && ! empty($_GET['search'])) {
             $search = $_GET['search'];
             $sql->where('id', 'LIKE', "%$search%")->orwhere('title', 'LIKE', "%$search%");
         }
@@ -138,17 +133,17 @@ class LeaveMasterController extends Controller
         $bulkData['total'] = $total;
         $rows = array();
         $tempRow = array();
-        $no=1;
+        $no = 1;
         foreach ($res as $row) {
-            $operate = '<a href='.route('leave-master.update',$row->id).' class="btn btn-xs btn-gradient-primary btn-rounded btn-icon edit-data" data-id=' . $row->id . ' title="Edit" data-toggle="modal" data-target="#editModal"><i class="fa fa-edit"></i></a>&nbsp;&nbsp;';
-            $operate .= '<a href='.route('leave-master.destroy',$row->id).' class="btn btn-xs btn-gradient-danger btn-rounded btn-icon delete-form" data-id=' . $row->id . '><i class="fa fa-trash"></i></a>';
+            $operate = '<a href=' . route('leave-master.update', $row->id) . ' class="btn btn-xs btn-gradient-primary btn-rounded btn-icon edit-data" data-id=' . $row->id . ' title="Edit" data-toggle="modal" data-target="#editModal"><i class="fa fa-edit"></i></a>&nbsp;&nbsp;';
+            $operate .= '<a href=' . route('leave-master.destroy', $row->id) . ' class="btn btn-xs btn-gradient-danger btn-rounded btn-icon delete-form" data-id=' . $row->id . '><i class="fa fa-trash"></i></a>';
 
             $tempRow['id'] = $row->id;
             $tempRow['no'] = $no++;
             $tempRow['total_leave'] = $row->total_leave;
-            $tempRow['holiday_days']= $row->holiday_days;
-            $tempRow['session_year_id']= $row->session_year_id;
-            $tempRow['session_year']= $row->session_year->name;
+            $tempRow['holiday_days'] = $row->holiday_days;
+            $tempRow['session_year_id'] = $row->session_year_id;
+            $tempRow['session_year'] = $row->session_year->name;
             $tempRow['status'] = $row->status;
             $tempRow['operate'] = $operate;
             $tempRow['created_at'] = convertDateFormat($row->created_at, 'd-m-Y H:i:s');
@@ -171,20 +166,12 @@ class LeaveMasterController extends Controller
         //
     }
 
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
     public function update(Request $request)
     {
-        if (!Auth::user()->can('leave-setting-create')) {
-            $response = array(
+        if (! Auth::user()->can('leave-setting-create')) {
+            return to_route('home')->withErrors([
                 'message' => trans('no_permission_message')
-            );
-            return redirect(route('home'))->withErrors($response);
+            ]);
         }
 
         $validator = Validator::make($request->all(), [
@@ -202,7 +189,7 @@ class LeaveMasterController extends Controller
         }
 
         try {
-            $holiday = implode(',',$request->holiday_days);
+            $holiday = implode(',', $request->holiday_days);
 
             $leaveSetting = LeaveMaster::find($request->edit_id);
             $leaveSetting->total_leave = $request->total_leave;
@@ -226,19 +213,13 @@ class LeaveMasterController extends Controller
         return response()->json($response);
     }
 
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
+
     public function destroy($id)
     {
-        if (!Auth::user()->can('leave-setting-create')) {
-            $response = array(
+        if (! Auth::user()->can('leave-setting-create')) {
+            return to_route('home')->withErrors([
                 'message' => trans('no_permission_message')
-            );
-            return redirect(route('home'))->withErrors($response);
+            ]);
         }
         try {
             $leaveSetting = LeaveMaster::find($id);

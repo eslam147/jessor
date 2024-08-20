@@ -31,38 +31,25 @@ use Illuminate\Support\Facades\Validator;
 
 class ExamController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return Response
-     */
     public function index()
     {
-        if (!Auth::user()->can('exam-create')) {
-            $response = array(
+        if (! Auth::user()->can('exam-create')) {
+            return to_route('home')->withErrors([
                 'message' => trans('no_permission_message')
-            );
-            return redirect(route('home'))->withErrors($response);
+            ]);
         }
-        $classes = ClassSchool::with('medium','streams')->get();
+        $classes = ClassSchool::with('medium', 'streams')->get();
         $subjects = Subject::orderBy('id', 'DESC')->get();
         $session_year_all = SessionYear::select('id', 'name', 'default')->get();
         return response(view('exams.index', compact('classes', 'subjects', 'session_year_all')));
     }
 
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param \Illuminate\Http\Request $request
-     * @return JsonResponse
-     */
     public function store(Request $request)
     {
-        if (!Auth::user()->can('exam-create')) {
-            $response = array(
+        if (! Auth::user()->can('exam-create')) {
+            return to_route('home')->withErrors([
                 'message' => trans('no_permission_message')
-            );
-            return redirect(route('home'))->withErrors($response);
+            ]);
         }
         $validator = Validator::make($request->all(), [
             'class_id' => 'required',
@@ -112,19 +99,13 @@ class ExamController extends Controller
         return response()->json($response);
     }
 
-    /**
-     * Display the specified resource.
-     *
-     * @param int $id
-     * @return JsonResponse
-     */
     public function show()
     {
-        if (!Auth::user()->can('exam-create')) {
-            $response = array(
+        if (! Auth::user()->can('exam-create')) {
+            return to_route('home')->withErrors([
                 'message' => trans('no_permission_message')
-            );
-            return redirect(route('home'))->withErrors($response);
+            ]);
+
         }
         $offset = 0;
         $limit = 10;
@@ -141,8 +122,8 @@ class ExamController extends Controller
         if (isset($_GET['order']))
             $order = $_GET['order'];
 
-        $sql = Exam::with('exam_classes.class.medium','exam_classes.class.streams', 'session_year', 'timetable');
-        if (isset($_GET['search']) && !empty($_GET['search'])) {
+        $sql = Exam::with('exam_classes.class.medium', 'exam_classes.class.streams', 'session_year', 'timetable');
+        if (isset($_GET['search']) && ! empty($_GET['search'])) {
             $search = $_GET['search'];
             $sql->where('id', 'LIKE', "%$search%")
                 ->orwhere('name', 'LIKE', "%$search%")
@@ -157,10 +138,10 @@ class ExamController extends Controller
 
         $sql->orderBy($sort, $order)->skip($offset)->take($limit);
         $res = $sql->get();
-        $bulkData = array();
+        $bulkData = [];
         $bulkData['total'] = $total;
-        $rows = array();
-        $tempRow = array();
+        $rows = [];
+        $tempRow = [];
         $no = 1;
         foreach ($res as $row) {
             $operate = '';
@@ -186,11 +167,11 @@ class ExamController extends Controller
                     }
                 }
             }
-            if(isset($exam_status)){
+            if (isset($exam_status)) {
                 if ($exam_status == 0) {
                     $operate .= '<a href="#" class="btn btn-xs btn-gradient-primary btn-rounded btn-icon edit-data" data-id=' . $row->id . ' title="Edit" data-toggle="modal" data-target="#editModal"><i class="fa fa-edit"></i></a>&nbsp;&nbsp;';
                 }
-            }else {
+            } else {
                 $operate .= '<a href="#" class="btn btn-xs btn-gradient-primary btn-rounded btn-icon edit-data" data-id=' . $row->id . ' title="Edit" data-toggle="modal" data-target="#editModal"><i class="fa fa-edit"></i></a>&nbsp;&nbsp;';
             }
             $operate .= '<a href="' . route('exams.destroy', $row->id) . '" class="btn btn-xs btn-gradient-danger btn-rounded btn-icon delete-form" data-id=' . $row->id . '><i class="fa fa-trash"></i></a>';
@@ -218,20 +199,12 @@ class ExamController extends Controller
         return response()->json($bulkData);
     }
 
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param \Illuminate\Http\Request $request
-     * @param int $id
-     * @return JsonResponse
-     */
     public function update(Request $request, $id)
     {
-        if (!Auth::user()->can('exam-create')) {
-            $response = array(
+        if (! Auth::user()->can('exam-create')) {
+            return to_route('home')->withErrors([
                 'message' => trans('no_permission_message')
-            );
-            return redirect(route('home'))->withErrors($response);
+            ]);
         }
         $validator = Validator::make($request->all(), [
             'name' => 'required',
@@ -255,7 +228,7 @@ class ExamController extends Controller
             $exam_classes = array();
 
             foreach ($request->class_id as $class_id) {
-                if (!in_array($class_id, $all_exam_classes_id)) {
+                if (! in_array($class_id, $all_exam_classes_id)) {
                     $exam_classes[] = array(
                         'exam_id' => $exam->id,
                         'class_id' => $class_id
@@ -284,30 +257,23 @@ class ExamController extends Controller
         return response()->json($response);
     }
 
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param int $id
-     * @return JsonResponse
-     */
     public function destroy($id)
     {
-        if (!Auth::user()->can('exam-create')) {
-            $response = array(
+        if (! Auth::user()->can('exam-create')) {
+            return to_route('home')->withErrors([
                 'message' => trans('no_permission_message')
-            );
-            return redirect(route('home'))->withErrors($response);
+            ]);
         }
         try {
             //check wheather exam id is associate with other tables ..
-            $exam_timetables = ExamTimetable::where('exam_id',$id)->count();
-            $exam_results = ExamResult::where('exam_id',$id)->count();
-            if($exam_timetables || $exam_results){
-                $response = array(
+            $exam_timetables = ExamTimetable::where('exam_id', $id)->count();
+            $exam_results = ExamResult::where('exam_id', $id)->count();
+            if ($exam_timetables || $exam_results) {
+                $response = [
                     'error' => true,
                     'message' => trans('cannot_delete_beacuse_data_is_associated_with_other_data')
-                );
-            }else{
+                ];
+            } else {
                 $exam = Exam::find($id);
                 $exam->delete();
                 $exam_timetable_id = ExamTimetable::where('exam_id', $id)->pluck('id');
@@ -345,11 +311,14 @@ class ExamController extends Controller
                 }
             }
 
-            $exam = Exam::with(['marks' => function ($query) {
-                $query->with('student:id,class_section_id')->selectRaw('SUM(total_marks) as total_marks')->selectRaw('SUM(obtained_marks) as total_obtained_marks,student_id')->groupBy('student_id');
-            }, 'timetable' => function ($query) {
-                $query->selectRaw('exam_id')->groupby('class_id');
-            }])->with('exam_classes')->where('id', $id)->first();
+            $exam = Exam::with([
+                'marks' => function ($query) {
+                    $query->with('student:id,class_section_id')->selectRaw('SUM(total_marks) as total_marks')->selectRaw('SUM(obtained_marks) as total_obtained_marks,student_id')->groupBy('student_id');
+                },
+                'timetable' => function ($query) {
+                    $query->selectRaw('exam_id')->groupby('class_id');
+                }
+            ])->with('exam_classes')->where('id', $id)->first();
 
 
 
@@ -430,17 +399,16 @@ class ExamController extends Controller
 
     public function uploadMarks()
     {
-        if (!Auth::user()->can('class-teacher')) {
-            $response = array(
+        if (! Auth::user()->can('class-teacher')) {
+            return to_route('home')->withErrors([
                 'message' => trans('no_permission_message')
-            );
-            return redirect(route('home'))->withErrors($response);
+            ]);
         }
 
         $teacher_id = Auth::user()->teacher->id;
         $class_section_id = ClassTeacher::where('class_teacher_id', $teacher_id)->pluck('class_section_id');
-        $class_ids = ClassSection::whereIn('id',$class_section_id)->pluck('class_id');
-        $classes = ClassSection::with('class','section','class.medium')->withOutTrashedRelations('class','section')->whereIn('id',$class_section_id)->whereIn('class_id',$class_ids)->get();
+        $class_ids = ClassSection::whereIn('id', $class_section_id)->pluck('class_id');
+        $classes = ClassSection::with('class', 'section', 'class.medium')->withOutTrashedRelations('class', 'section')->whereIn('id', $class_section_id)->whereIn('class_id', $class_ids)->get();
 
         return response(view('exams.upload-marks', compact('classes')));
 
@@ -450,9 +418,9 @@ class ExamController extends Controller
     {
         try {
             $teacher_id = Auth::user()->teacher->id;
-            $class_section_id = ClassTeacher::where('class_teacher_id',$teacher_id)->pluck('class_section_id');
+            $class_section_id = ClassTeacher::where('class_teacher_id', $teacher_id)->pluck('class_section_id');
             $class_id = ClassSection::whereIn('id', $class_section_id)->pluck('class_id');
-            $subjects = ExamTimetable::with('subject')->where('exam_id',$exam_id)->whereIn('class_id', $class_id)->get();
+            $subjects = ExamTimetable::with('subject')->where('exam_id', $exam_id)->whereIn('class_id', $class_id)->get();
             $response = array(
                 'error' => false,
                 'message' => trans('data_fetch_successfully'),
@@ -471,13 +439,12 @@ class ExamController extends Controller
 
     public function marksList(Request $request)
     {
-        if (!Auth::user()->can('class-teacher')) {
-            $response = array(
+        if (! Auth::user()->can('class-teacher')) {
+            return to_route('home')->withErrors([
                 'message' => trans('no_permission_message')
-            );
-            return redirect(route('home'))->withErrors($response);
+            ]);
         }
-        if (!$request->exam_id || !$request->subject_id || !$request->class_id || !$request->class_section_id) {
+        if (! $request->exam_id || ! $request->subject_id || ! $request->class_id || ! $request->class_section_id) {
             return false;
         }
         $sort = 'id';
@@ -521,20 +488,24 @@ class ExamController extends Controller
         }
 
         //Fetching Students Data on Basis of Class Section ID with Realtion Exam Marks
-        $sql = Students::with(['user:id,first_name,last_name'])->with(['class_section.class.allSubjects' => function ($q) use ($request) {
-            $q->where('subject_id', $request->subject_id)->with('subject');
-        }])->with(['exam_marks' => function ($q) use ($exam_timetable_id) {
-            $q->where('exam_timetable_id', $exam_timetable_id);
-        }])->where('class_section_id', $class_section_id);
+        $sql = Students::with(['user:id,first_name,last_name'])->with([
+            'class_section.class.allSubjects' => function ($q) use ($request) {
+                $q->where('subject_id', $request->subject_id)->with('subject');
+            }
+        ])->with([
+                    'exam_marks' => function ($q) use ($exam_timetable_id) {
+                        $q->where('exam_timetable_id', $exam_timetable_id);
+                    }
+                ])->where('class_section_id', $class_section_id);
 
         $subject_total_marks = ExamTimetable::where(['exam_id' => $request->exam_id, 'class_id' => $request->class_id, 'subject_id' => $request->subject_id])->pluck('total_marks');
 
-        if (isset($_GET['search']) && !empty($_GET['search'])) {
+        if (isset($_GET['search']) && ! empty($_GET['search'])) {
             $search = $_GET['search'];
             $sql->where(function ($query) use ($search) {
                 $query->where('id', 'LIKE', "%$search%")
-                      ->orWhere('name', 'LIKE', "%$search%")
-                      ->orWhere('mobile', 'LIKE', "%$search%");
+                    ->orWhere('name', 'LIKE', "%$search%")
+                    ->orWhere('mobile', 'LIKE', "%$search%");
             });
 
         }
@@ -550,7 +521,7 @@ class ExamController extends Controller
         $tempRow = array();
         $no = 1;
         $session_year = getSettings('session_year');
-        $class_subject = ClassSubject::where('subject_id',$request->subject_id)->where('class_id',$request->class_id)->first();
+        $class_subject = ClassSubject::where('subject_id', $request->subject_id)->where('class_id', $request->class_id)->first();
 
         foreach ($res as $row) {
 
@@ -618,7 +589,6 @@ class ExamController extends Controller
             );
             return response()->json($response);
         }
-
         try {
             $teacher_id = Auth::user()->teacher->id;
             $exam_timetable = ExamTimetable::where(['exam_id' => $request->exam_id, 'class_id' => $request->class_id])->where('subject_id', $request->subject_id)->firstOrFail();
@@ -665,7 +635,7 @@ class ExamController extends Controller
     public function getSubjectByExam($class_id, $exam_id)
     {
         try {
-            $exam_timetable = ExamTimetable::with('subject')->where('class_id',$class_id)->where('exam_id', $exam_id)->get();
+            $exam_timetable = ExamTimetable::with('subject')->where('class_id', $class_id)->where('exam_id', $exam_id)->get();
             $response = array(
                 'error' => false,
                 'message' => trans('data_fetch_successfully'),
@@ -704,11 +674,10 @@ class ExamController extends Controller
 
     public function indexGrades()
     {
-        if (!Auth::user()->can('grade-create')) {
-            $response = array(
+        if (! Auth::user()->can('grade-create')) {
+            return to_route('home')->withErrors([
                 'message' => trans('no_permission_message')
-            );
-            return redirect(route('home'))->withErrors($response);
+            ]);
         }
         $grades = Grade::get();
         return response(view('exams.exam-grade', compact('grades')));
@@ -716,11 +685,10 @@ class ExamController extends Controller
 
     public function createGrades(Request $request)
     {
-        if (!Auth::user()->can('grade-create')) {
-            $response = array(
+        if (! Auth::user()->can('grade-create')) {
+            return to_route('home')->withErrors([
                 'message' => trans('no_permission_message')
-            );
-            return redirect(route('home'))->withErrors($response);
+            ]);
         }
         $validator = Validator::make($request->all(), [
             'grade.*.starting_range' => 'required|numeric|between:0,100',
@@ -758,11 +726,11 @@ class ExamController extends Controller
 
     public function destroyGrades($id)
     {
-        if (!Auth::user()->can('grade-create')) {
-            $response = array(
+        if (! Auth::user()->can('grade-create')) {
+            return to_route('home')->withErrors([
                 'message' => trans('no_permission_message')
-            );
-            return redirect(route('home'))->withErrors($response);
+            ]);
+
         }
         try {
             $grade = Grade::find($id);
@@ -784,16 +752,16 @@ class ExamController extends Controller
 
     public function getExamResultIndex()
     {
-        if (!Auth::user()->can('class-teacher')) {
-            $response = array(
+        if (! Auth::user()->can('class-teacher')) {
+            return to_route('home')->withErrors([
                 'message' => trans('no_permission_message')
-            );
-            return redirect(route('home'))->withErrors($response);
+            ]);
+
         }
         $teacher_id = Auth::user()->teacher->id;
         $class_section_id = ClassTeacher::where('class_teacher_id', $teacher_id)->pluck('class_section_id');
-        $class_ids = ClassSection::whereIn('id',$class_section_id)->pluck('class_id');
-        $classes = ClassSection::with('class','section','class.medium','streams')->whereIn('id',$class_section_id)->whereIn('class_id',$class_ids)->get();
+        $class_ids = ClassSection::whereIn('id', $class_section_id)->pluck('class_id');
+        $classes = ClassSection::with('class', 'section', 'class.medium', 'streams')->whereIn('id', $class_section_id)->whereIn('class_id', $class_ids)->get();
 
         // $exams = Exam::where('publish', 1)->get();
         return view('exams.show_exam_result', compact('classes'));
@@ -801,11 +769,10 @@ class ExamController extends Controller
 
     public function showExamResult(Request $request)
     {
-        if (!Auth::user()->can('class-teacher')) {
-            $response = array(
+        if (! Auth::user()->can('class-teacher')) {
+            return to_route('home')->withErrors([
                 'message' => trans('no_permission_message')
-            );
-            return redirect(route('home'))->withErrors($response);
+            ]);
         }
         if ($request->exam_id) {
             $offset = 0;
@@ -828,12 +795,14 @@ class ExamController extends Controller
             // $class_section_ids = ClassSection::where('class_id', $request->class_id)->pluck('id');
             // $class_section_id = ClassTeacher::whereIn('class_section_id',$class_section_ids)->where('class_teacher_id',$teacher_id)->pluck('class_section_id');
             $exam_timetable_id = ExamTimetable::where('exam_id', $request->exam_id)->pluck('id');
-            $sql = ExamResult::with('student.user:id,first_name,last_name', 'session_year:id,name')->with(['student.exam_marks' => function ($q) use ($exam_timetable_id) {
-                $q->whereIn('exam_timetable_id', $exam_timetable_id)->with('timetable', 'subject:id,name');
-            }])->where(['exam_id' => $request->exam_id, 'class_section_id' => $request->class_section_id]);
+            $sql = ExamResult::with('student.user:id,first_name,last_name', 'session_year:id,name')->with([
+                'student.exam_marks' => function ($q) use ($exam_timetable_id) {
+                    $q->whereIn('exam_timetable_id', $exam_timetable_id)->with('timetable', 'subject:id,name');
+                }
+            ])->where(['exam_id' => $request->exam_id, 'class_section_id' => $request->class_section_id]);
 
 
-            if (isset($_GET['search']) && !empty($_GET['search'])) {
+            if (isset($_GET['search']) && ! empty($_GET['search'])) {
                 $search = $_GET['search'];
                 $sql = $sql->where('id', 'LIKE', "%$search%")
                     ->orwhere('total_marks', 'LIKE', "%$search%")
@@ -885,28 +854,27 @@ class ExamController extends Controller
     }
     public function updateExamResultMarks(Request $request)
     {
-        if (!Auth::user()->can('class-teacher')) {
-            $response = array(
+        if (! Auth::user()->can('class-teacher')) {
+            return to_route('home')->withErrors([
                 'message' => trans('no_permission_message')
-            );
-            return redirect(route('home'))->withErrors($response);
+            ]);
+
         }
         $validator = Validator::make($request->all(), [
             'edit.*.marks_id' => 'required|numeric',
             'edit.*.obtained_marks' => 'required|numeric|lte:edit.*.total_marks',
         ]);
         if ($validator->fails()) {
-            $response = array(
+            return response()->json([
                 'error' => true,
                 'message' => $validator->errors()->first()
-            );
-            return response()->json($response);
+            ]);
         }
         try {
             $teacher_id = Auth::user()->teacher->id;
 
             foreach ($request->edit as $data) {
-                $class_id = ExamClass::where('exam_id',$data['exam_id'])->pluck('class_id')->first();
+                $class_id = ExamClass::where('exam_id', $data['exam_id'])->pluck('class_id')->first();
                 $marks_db = ExamMarks::find($data['marks_id']);
                 $marks_db->obtained_marks = $data['obtained_marks'];
 
@@ -933,11 +901,14 @@ class ExamController extends Controller
 
                 $exam_result_id = ExamResult::where(['exam_id' => $data['exam_id'], 'student_id' => $data['student_id']])->pluck('id');
 
-                $exam = Exam::with(['marks' => function ($query) use ($data) {
-                    $query->with('student:id,class_section_id')->selectRaw('SUM(obtained_marks) as total_obtained_marks,student_id')->where('student_id', $data['student_id'])->groupBy('student_id');
-                }, 'timetable' => function ($query) use ($data, $class_id) {
-                    $query->selectRaw('exam_id,SUM(total_marks) as total_marks')->where(['exam_id' => $data['exam_id'], 'class_id' => $class_id]);
-                }])->where('id', $data['exam_id'])->first();
+                $exam = Exam::with([
+                    'marks' => function ($query) use ($data) {
+                        $query->with('student:id,class_section_id')->selectRaw('SUM(obtained_marks) as total_obtained_marks,student_id')->where('student_id', $data['student_id'])->groupBy('student_id');
+                    },
+                    'timetable' => function ($query) use ($data, $class_id) {
+                        $query->selectRaw('exam_id,SUM(total_marks) as total_marks')->where(['exam_id' => $data['exam_id'], 'class_id' => $class_id]);
+                    }
+                ])->where('id', $data['exam_id'])->first();
 
                 foreach ($exam->marks as $exam_marks) {
                     $percentage = ($exam_marks['total_obtained_marks'] * 100) / $exam->timetable[0]['total_marks'];
@@ -982,38 +953,42 @@ class ExamController extends Controller
             $session_year = getSettings('session_year');
             $session_year_id = $session_year['session_year'];
 
-            $exam_data = Exam::with(['exam_classes' => function ($q) use ($class_id) {
-                $q->where('class_id', $class_id);
-            }])
-            ->with(['timetable' => function ($q) use ($class_id) {
-                $q->where('class_id', $class_id);
-            }])
-            ->where('publish', 0)->where('session_year_id', $session_year_id )
-            ->get();
-
-                foreach ($exam_data as $data) {
-                    if (sizeof($data->timetable)) {
-                        $starting_date_db = ExamTimetable::select(DB::raw("min(date)"))->where('exam_id',$data->id)->where('class_id',$class_id)->where('session_year_id', $session_year_id )->first();
-                        $starting_date = $starting_date_db['min(date)'];
-                        $ending_date_db = ExamTimetable::select(DB::raw("max(date)"))->where('exam_id', $data->id)->where('class_id', $class_id)->where('session_year_id', $session_year_id )->first();
-                        $ending_date = $ending_date_db['max(date)'];
-                        $currentTime = Carbon::now();
-                        $current_date = date($currentTime->toDateString());
-
-                        if ($current_date >= $starting_date && $current_date <= $ending_date) {
-                            $exam_status = "1"; // Upcoming = 0 , On Going = 1 , Completed = 2
-                        } elseif ($current_date < $starting_date) {
-                            $exam_status = "0"; // Upcoming = 0 , On Going = 1 , Completed = 2
-                        } else {
-                            $exam_status = "2"; // Upcoming = 0 , On Going = 1 , Completed = 2
-                        }
-                        if ($exam_status == 2) {
-                            $exams[] = $data;
-
-                        }
-                    }
-
+            $exam_data = Exam::with([
+                'exam_classes' => function ($q) use ($class_id) {
+                    $q->where('class_id', $class_id);
                 }
+            ])
+                ->with([
+                    'timetable' => function ($q) use ($class_id) {
+                        $q->where('class_id', $class_id);
+                    }
+                ])
+                ->where('publish', 0)->where('session_year_id', $session_year_id)
+                ->get();
+
+            foreach ($exam_data as $data) {
+                if (sizeof($data->timetable)) {
+                    $starting_date_db = ExamTimetable::select(DB::raw("min(date)"))->where('exam_id', $data->id)->where('class_id', $class_id)->where('session_year_id', $session_year_id)->first();
+                    $starting_date = $starting_date_db['min(date)'];
+                    $ending_date_db = ExamTimetable::select(DB::raw("max(date)"))->where('exam_id', $data->id)->where('class_id', $class_id)->where('session_year_id', $session_year_id)->first();
+                    $ending_date = $ending_date_db['max(date)'];
+                    $currentTime = Carbon::now();
+                    $current_date = date($currentTime->toDateString());
+
+                    if ($current_date >= $starting_date && $current_date <= $ending_date) {
+                        $exam_status = "1"; // Upcoming = 0 , On Going = 1 , Completed = 2
+                    } elseif ($current_date < $starting_date) {
+                        $exam_status = "0"; // Upcoming = 0 , On Going = 1 , Completed = 2
+                    } else {
+                        $exam_status = "2"; // Upcoming = 0 , On Going = 1 , Completed = 2
+                    }
+                    if ($exam_status == 2) {
+                        $exams[] = $data;
+
+                    }
+                }
+
+            }
 
             $response = array(
                 'error' => false,
@@ -1035,8 +1010,8 @@ class ExamController extends Controller
     {
         try {
 
-            $exam_data = ExamClass::with('exam')->where('class_id',$class_id)->whereHas('exam', function ($query){
-                $query->where('publish',1);
+            $exam_data = ExamClass::with('exam')->where('class_id', $class_id)->whereHas('exam', function ($query) {
+                $query->where('publish', 1);
             })->get();
 
             $response = array(
@@ -1054,7 +1029,7 @@ class ExamController extends Controller
         }
         return response()->json($response);
     }
-    public function deleteExamClass($exam_id,$class_id)
+    public function deleteExamClass($exam_id, $class_id)
     {
         $exam_class = ExamClass::where('exam_id', $exam_id)->where('class_id', $class_id)->first();
 

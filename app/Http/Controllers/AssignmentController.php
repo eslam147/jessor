@@ -32,7 +32,7 @@ class AssignmentController extends Controller
             ]);
         }
 
-        $class_section = ClassSection::SubjectTeacher()->with('class.medium', 'section', 'class.streams')->withOutTrashedRelations('class','section')->get();
+        $class_section = ClassSection::SubjectTeacher()->with('class.medium', 'section', 'class.streams')->withOutTrashedRelations('class', 'section')->get();
 
         $subjects = Subject::SubjectTeacher()->orderBy('id')->get();
         return response(view('assignment.index', compact('class_section', 'subjects')));
@@ -433,12 +433,11 @@ class AssignmentController extends Controller
     public function viewAssignmentSubmission()
     {
         if (! Auth::user()->can('assignment-submission')) {
-            $response = array(
+            return to_route('home')->withErrors([
                 'message' => trans('no_permission_message')
-            );
-            return redirect(route('home'))->withErrors($response);
+            ]);
         }
-        $class_section = ClassSection::with('class', 'section')->withOutTrashedRelations('class','section')->get();
+        $class_section = ClassSection::with('class', 'section')->withOutTrashedRelations('class', 'section')->get();
         $subjects = Subject::orderBy('id', 'ASC')->get();
         return response(view('assignment.submission', compact('class_section', 'subjects')));
     }
@@ -543,13 +542,11 @@ class AssignmentController extends Controller
             'status' => 'required|numeric',
             'feedback' => 'nullable',
         ]);
-
         if ($validator->fails()) {
-            $response = array(
+            return response()->json([
                 'error' => true,
                 'message' => $validator->errors()->first()
-            );
-            return response()->json($response);
+            ]);
         }
 
         try {

@@ -19,23 +19,20 @@ use Throwable;
 
 class AnnouncementController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function index() {
-        if (!Auth::user()->can('announcement-list')) {
-            $response = array(
+    public function index()
+    {
+        if (! Auth::user()->can('announcement-list')) {
+            return to_route('home')->withErrors([
                 'message' => trans('no_permission_message')
-            );
-            return redirect(route('home'))->withErrors($response);
+            ]);
+
         }
-        $class_section = ClassSection::SubjectTeacher()->with('class.medium', 'section')->withOutTrashedRelations('class','section')->get();
+        $class_section = ClassSection::SubjectTeacher()->with('class.medium', 'section')->withOutTrashedRelations('class', 'section')->get();
         return view('announcement.index', compact('class_section'));
     }
 
-    public function getAssignData(Request $request) {
+    public function getAssignData(Request $request)
+    {
         $data = $request->data;
         $class_id = $request->class_id;
         if ($data == 'class_section' && $class_id != '') {
@@ -54,31 +51,30 @@ class AnnouncementController extends Controller
      * @param \Illuminate\Http\Request $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request) {
-        if (!Auth::user()->can('announcement-create')) {
-            $response = array(
+    public function store(Request $request)
+    {
+        if (! Auth::user()->can('announcement-create')) {
+            return response()->json([
                 'error' => true,
                 'message' => trans('no_permission_message')
-            );
-            return response()->json($response);
+            ]);
         }
         $validator = Validator::make($request->all(), [
             'title' => 'required',
             'set_data' => 'required'
-        ],[
+        ], [
             'set_data.required' => 'The Assign To Field is Required'
         ]);
         if ($validator->fails()) {
-            $response = array(
+            return response()->json([
                 'error' => true,
                 'message' => $validator->errors()->first()
-            );
-            return response()->json($response);
+            ]);
         }
         try {
-            $user = array();
+            $user = [];
             $data = getSettings('session_year');
-            if (!empty($request->get_data)) {
+            if (! empty($request->get_data)) {
                 $getdata = count($request->get_data);
             } else {
                 $getdata = 1;
@@ -88,12 +84,12 @@ class AnnouncementController extends Controller
                 $announcement->title = $request->title;
                 $announcement->description = $request->description;
                 $announcement->session_year_id = $data['session_year'];
-                if (!empty($request->set_data)) {
+                if (! empty($request->set_data)) {
                     if ($request->set_data == 'class_section') {
                         $teacher_id = Auth::user()->teacher->id;
-                        $subject_teacher_id = SubjectTeacher::select('id')->where(['class_section_id' => $request->class_section_id,'teacher_id' => $teacher_id ,'subject_id' => $request->get_data[$i]])->get()->pluck('id');
-                        $subject_name = SubjectTeacher::where(['teacher_id' => $teacher_id,'class_section_id' => $request->class_section_id,'subject_id' => $request->get_data[$i]])->with('subject')->get();
-                        if(count($subject_name)){
+                        $subject_teacher_id = SubjectTeacher::select('id')->where(['class_section_id' => $request->class_section_id, 'teacher_id' => $teacher_id, 'subject_id' => $request->get_data[$i]])->get()->pluck('id');
+                        $subject_name = SubjectTeacher::where(['teacher_id' => $teacher_id, 'class_section_id' => $request->class_section_id, 'subject_id' => $request->get_data[$i]])->with('subject')->get();
+                        if (count($subject_name)) {
                             if (count($subject_teacher_id) != 0) {
                                 for ($j = 0; $j < count($subject_teacher_id); $j++) {
                                     $subject_teacher = SubjectTeacher::find($subject_teacher_id[$j]);
@@ -103,8 +99,7 @@ class AnnouncementController extends Controller
                             }
                             $title = 'New announcement in ' . $subject_name[0]->subject->name;
                             $body = $request->title;
-                        }
-                        else{
+                        } else {
                             $response = array(
                                 'error' => true,
                                 'message' => trans('no_data_found')
@@ -158,35 +153,35 @@ class AnnouncementController extends Controller
         return response()->json($response);
     }
 
-    public function update(Request $request) {
-        if (!Auth::user()->can('announcement-edit')) {
-            $response = array(
+    public function update(Request $request)
+    {
+        if (! Auth::user()->can('announcement-edit')) {
+            return response()->json([
                 'error' => true,
                 'message' => trans('no_permission_message')
-            );
-            return response()->json($response);
+            ]);
         }
         $request->validate([
             'title' => 'required',
             'set_data' => 'required'
-        ],  [
+        ], [
             'set_data.required' => 'The Assign To Field is required.'
         ]);
         try {
 
             $user = array();
             $data = getSettings('session_year');
-            if(Auth::user()->teacher){
+            if (Auth::user()->teacher) {
                 $teacher_id = Auth::user()->teacher->id;
             }
             $announcement = Announcement::find($request->id);
             $announcement->title = $request->title;
             $announcement->description = $request->description;
             $announcement->session_year_id = $data['session_year'];
-            if (!empty($request->set_data)) {
+            if (! empty($request->set_data)) {
                 if ($request->set_data == 'class_section') {
-                    $subject_teacher_id = SubjectTeacher::select('id')->where(['class_section_id' => $request->class_section_id, 'subject_id' => $request->get_data,'teacher_id'=>$teacher_id])->get()->pluck('id');
-                    $subject_name = SubjectTeacher::where(['class_section_id' => $request->class_section_id, 'subject_id' => $request->get_data,'teacher_id'=>$teacher_id])->with('subject')->get();
+                    $subject_teacher_id = SubjectTeacher::select('id')->where(['class_section_id' => $request->class_section_id, 'subject_id' => $request->get_data, 'teacher_id' => $teacher_id])->get()->pluck('id');
+                    $subject_name = SubjectTeacher::where(['class_section_id' => $request->class_section_id, 'subject_id' => $request->get_data, 'teacher_id' => $teacher_id])->with('subject')->get();
                     if (count($subject_teacher_id) != 0) {
                         for ($j = 0; $j < count($subject_teacher_id); $j++) {
                             $subject_teacher = SubjectTeacher::find($subject_teacher_id[$j]);
@@ -248,15 +243,13 @@ class AnnouncementController extends Controller
      * @param int $id
      * @return \Illuminate\Http\Response
      */
-    public function show() {
-        if (!Auth::user()->can('announcement-list')) {
-            $response = array(
+    public function show()
+    {
+        if (! Auth::user()->can('announcement-list')) {
+            return response()->json([
                 'message' => trans('no_permission_message')
-            );
-            return response()->json($response);
+            ]);
         }
-        // $announcement=Announcement::get();
-        // return view('announcement.list',compact('announcement'));
         $offset = 0;
         $limit = 10;
         $sort = 'id';
@@ -270,7 +263,7 @@ class AnnouncementController extends Controller
         if (isset($_GET['order']))
             $order = $_GET['order'];
         $sql = Announcement::with('table', 'file');
-        if (isset($_GET['search']) && !empty($_GET['search'])) {
+        if (isset($_GET['search']) && ! empty($_GET['search'])) {
             $search = $_GET['search'];
             $sql->where('id', 'LIKE', "%$search%")
                 ->orwhere('title', 'LIKE', "%$search%")
@@ -338,13 +331,13 @@ class AnnouncementController extends Controller
      * @param int $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id) {
-        if (!Auth::user()->can('announcement-delete')) {
-            $response = array(
+    public function destroy($id)
+    {
+        if (! Auth::user()->can('announcement-delete')) {
+            return response()->json([
                 'error' => true,
                 'message' => trans('no_permission_message')
-            );
-            return response()->json($response);
+            ]);
         }
         try {
             Announcement::find($id)->delete();

@@ -29,14 +29,13 @@ class LoginController extends Controller
     protected function authenticated(Request $request, $user)
     {
         // Set your maximum device limit here
-        $maxDevices = getSettings('device_limit')['device_limit'];
+        $maxDevices = settingByType('device_limit');
 
         // Count the active devices for the user
         $agent = md5($_SERVER['HTTP_USER_AGENT']);
         $deviceExists  = $user->devices()->where('device_agent', $agent)->get();
-
         if($user->hasRole('Student')){
-            if ($deviceExists->count() >= $maxDevices) {
+            if (!empty($maxDevices) && $deviceExists->count() >= $maxDevices) {
                 // Optionally log out the user or prevent new device logins
                 Auth::logout();
 

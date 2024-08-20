@@ -665,9 +665,17 @@
     "select_medium" : "Select Medium",
     "enter_tags": "Enter Tags",
     "select_status": "Select Status",
+    "select_student": "Select Student",
+    "add_balance": "Add Balance",
+    "balance": "Balance",
+    "to_student_wallet": "To Student Wallet",
     "enter_price": "Enter Price",
     "all_classes": "All Classes",
     "all_subjects": "All Subjects",
+    "balance_will_be": "Balance will be",
+    "add_money": "Add Money",
+    "withdraw_money": "Withdraw Money",
+    "withdraw_balance": "Withdraw Balance",
     "yes_ban": "Yes Block User",
     "yes_unban": "Yes Un Block User"
 }

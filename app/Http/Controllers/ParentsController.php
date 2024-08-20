@@ -15,22 +15,17 @@ use Illuminate\Support\Facades\Validator;
 
 class ParentsController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
     public function index()
     {
-        if (!Auth::user()->can('parents-list')) {
-            $response = array(
+        if (! Auth::user()->can('parents-list')) {
+            return to_route('home')->withErrors([
                 'message' => trans('no_permission_message')
-            );
-            return redirect(route('home'))->withErrors($response);
+            ]);
+
         }
         $parentFields = FormField::where('for', 2)->orderBy('rank', 'ASC')->get();
 
-        return view('parents.index',compact('parentFields'));
+        return view('parents.index', compact('parentFields'));
     }
 
 
@@ -115,7 +110,7 @@ class ParentsController extends Controller
      */
     public function show()
     {
-        if (!Auth::user()->can('parents-list')) {
+        if (! Auth::user()->can('parents-list')) {
             $response = array(
                 'message' => trans('no_permission_message')
             );
@@ -137,7 +132,7 @@ class ParentsController extends Controller
             $order = $_GET['order'];
 
         $sql = Parents::with('user:id,current_address,permanent_address');
-        if (isset($_GET['search']) && !empty($_GET['search'])) {
+        if (isset($_GET['search']) && ! empty($_GET['search'])) {
             $search = $_GET['search'];
             $sql->where('id', 'LIKE', "%$search%")
                 ->orwhere('first_name', 'LIKE', "%$search%")
@@ -183,8 +178,8 @@ class ParentsController extends Controller
                 $tempRow['permanent_address'] = $row->user->permanent_address;
             }
             $tempRow['image'] = '<img src="' . $row->image . '" onerror="onErrorImage(event)">';
-            $tempRow['image'] =  $row->image;
-            $tempRow['dynamic_field'] = !empty($row->dynamic_fields) ? json_decode($row->dynamic_fields) : '';
+            $tempRow['image'] = $row->image;
+            $tempRow['dynamic_field'] = ! empty($row->dynamic_fields) ? json_decode($row->dynamic_fields) : '';
             $tempRow['operate'] = $operate;
             $rows[] = $tempRow;
         }
@@ -195,7 +190,7 @@ class ParentsController extends Controller
 
     public function update(Request $request, $id)
     {
-        if (!Auth::user()->can('parents-create') || !Auth::user()->can('parents-edit')) {
+        if (! Auth::user()->can('parents-create') || ! Auth::user()->can('parents-edit')) {
             $response = array(
                 'error' => true,
                 'message' => trans('no_permission_message')
@@ -212,7 +207,6 @@ class ParentsController extends Controller
             'dob' => 'required',
         ]);
         try {
-           // dd($request->all());
             $parents = Parents::findOrFail($id);
 
             //checks the unique email in user tabel
@@ -235,20 +229,20 @@ class ParentsController extends Controller
                 // INPUT TYPE CHECKBOX
                 if ($form_field->type == 'checkbox') {
                     if ($status == 0) {
-                        $data[] = $request->input('checkbox',[]);
+                        $data[] = $request->input('checkbox', []);
                         $status = 1;
                     }
-                }else if ($form_field->type == 'file') {
+                } else if ($form_field->type == 'file') {
                     // INPUT TYPE FILE
                     $get_file = '';
                     $field = str_replace(" ", "_", $form_field->name);
-                    if (!is_null($dynamic_data)) {
-                    foreach ($dynamic_data as $field_data) {
-                        if (isset($field_data[$field])) { // GET OLD FILE IF EXISTS
-                            $get_file = $field_data[$field];
+                    if (! is_null($dynamic_data)) {
+                        foreach ($dynamic_data as $field_data) {
+                            if (isset($field_data[$field])) { // GET OLD FILE IF EXISTS
+                                $get_file = $field_data[$field];
+                            }
                         }
                     }
-                }
                     $hidden_file_name = $field;
 
                     if ($request->hasFile($field)) {
@@ -259,11 +253,11 @@ class ParentsController extends Controller
                             str_replace(" ", "_", $form_field->name) => $request->file($field)->store('students', 'public')
                         ];
                     } else {
-                    if ($request->$hidden_file_name) {
-                        $data[] = [
-                            str_replace(" ", "_", $form_field->name) => $request->$hidden_file_name
-                        ];
-                    }
+                        if ($request->$hidden_file_name) {
+                            $data[] = [
+                                str_replace(" ", "_", $form_field->name) => $request->$hidden_file_name
+                            ];
+                        }
                     }
                 } else {
                     $field = str_replace(" ", "_", $form_field->name);
@@ -355,7 +349,7 @@ class ParentsController extends Controller
                 ->orWhere('last_name', 'like', '%' . $request->email . '%')->get();
         }
 
-        if (!empty($parent)) {
+        if (! empty($parent)) {
             $response = [
                 'error' => false,
                 'data' => $parent

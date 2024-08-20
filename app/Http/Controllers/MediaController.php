@@ -14,33 +14,32 @@ class MediaController extends Controller
 {
     public function photo_index()
     {
-        if (!Auth::user()->can('media-create')) {
-            $response = array(
+        if (! Auth::user()->can('media-create')) {
+            return to_route('home')->withErrors([
                 'message' => trans('no_permission_message')
-            );
-            return redirect(route('home'))->withErrors($response);
+            ]);
         }
         return view('web_settings.photos');
     }
 
     public function video_index()
     {
-        if (!Auth::user()->can('media-create')) {
-            $response = array(
+        if (! Auth::user()->can('media-create')) {
+            return to_route('home')->withErrors([
                 'message' => trans('no_permission_message')
-            );
-            return redirect(route('home'))->withErrors($response);
+            ]);
+
         }
         return view('web_settings.videos');
     }
 
     public function photo_store(Request $request)
     {
-        if (!Auth::user()->can('media-create')) {
-            $response = array(
+        if (! Auth::user()->can('media-create')) {
+            return to_route('home')->withErrors([
                 'message' => trans('no_permission_message')
-            );
-            return redirect(route('home'))->withErrors($response);
+            ]);
+
         }
         $validator = Validator::make($request->all(), [
             'name' => 'required',
@@ -63,7 +62,7 @@ class MediaController extends Controller
             if ($request->hasFile('thumbnail')) {
                 $image = $request->file('thumbnail');
                 $file_name = $image->getClientOriginalName();
-                $file_path = 'gallery/'. $file_name;
+                $file_path = 'gallery/' . $file_name;
                 resizeImage($image);
                 $destinationPath = storage_path('app/public/gallery');
                 $image->move($destinationPath, $file_name);
@@ -74,12 +73,12 @@ class MediaController extends Controller
             if ($request->hasFile('image')) {
                 $images = $request->file('image');
 
-                foreach($images as $image) {
+                foreach ($images as $image) {
 
                     $file = new MediaFile();
                     $file->media_id = $media->id;
                     $file_name = $image->getClientOriginalName();
-                    $file_path = 'gallery/'. $file_name;
+                    $file_path = 'gallery/' . $file_name;
                     resizeImage($image);
                     $destinationPath = storage_path("app/public/gallery/");
                     $image->move($destinationPath, $file_name);
@@ -104,11 +103,11 @@ class MediaController extends Controller
 
     public function photo_show()
     {
-        if (!Auth::user()->can('media-list')) {
-            $response = array(
+        if (! Auth::user()->can('media-list')) {
+            return to_route('home')->withErrors([
                 'message' => trans('no_permission_message')
-            );
-            return redirect(route('home'))->withErrors($response);
+            ]);
+
         }
         $offset = 0;
         $limit = 10;
@@ -127,7 +126,7 @@ class MediaController extends Controller
 
         $sql = Media::with('files')->where('type', 1);
 
-        if (isset($_GET['search']) && !empty($_GET['search'])) {
+        if (isset($_GET['search']) && ! empty($_GET['search'])) {
             $search = $_GET['search'];
             $sql->where('id', 'LIKE', "%$search%")->orwhere('title', 'LIKE', "%$search%");
         }
@@ -143,7 +142,7 @@ class MediaController extends Controller
         $tempRow = array();
         $no = 1;
         foreach ($res as $row) {
-            $operate = '<a href=' . route('edit.index', $row->id) . ' class="btn btn-xs btn-gradient-primary btn-rounded btn-icon edit-data" data-id=' . $row->id .'><i class="fa fa-edit"></i></a>&nbsp;&nbsp;';
+            $operate = '<a href=' . route('edit.index', $row->id) . ' class="btn btn-xs btn-gradient-primary btn-rounded btn-icon edit-data" data-id=' . $row->id . '><i class="fa fa-edit"></i></a>&nbsp;&nbsp;';
             $operate .= '<a href=' . route('photo.delete', $row->id) . ' class="btn btn-xs btn-gradient-danger btn-rounded btn-icon delete-form" data-id=' . $row->id . '><i class="fa fa-trash"></i></a>';
 
             $tempRow['id'] = $row->id;
@@ -161,24 +160,24 @@ class MediaController extends Controller
 
     public function edit_index($id)
     {
-        if (!Auth::user()->can('media-create')) {
-            $response = array(
+        if (! Auth::user()->can('media-create')) {
+            return to_route('home')->withErrors([
                 'message' => trans('no_permission_message')
-            );
-            return redirect(route('home'))->withErrors($response);
+            ]);
+
         }
 
-        $media = Media::with('files')->where('id',$id)->first();
-        return view('web_settings.edit_photos',compact('media'));
+        $media = Media::with('files')->where('id', $id)->first();
+        return view('web_settings.edit_photos', compact('media'));
     }
 
     public function photo_update(Request $request)
     {
-        if (!Auth::user()->can('media-edit')) {
-            $response = array(
+        if (! Auth::user()->can('media-edit')) {
+            return to_route('home')->withErrors([
                 'message' => trans('no_permission_message')
-            );
-            return redirect(route('home'))->withErrors($response);
+            ]);
+
         }
 
         $validator = Validator::make($request->all(), [
@@ -205,7 +204,7 @@ class MediaController extends Controller
 
                 $image = $request->file('thumbnail');
                 $file_name = $image->getClientOriginalName();
-                $file_path = 'gallery/'. $file_name;
+                $file_path = 'gallery/' . $file_name;
                 resizeImage($image);
                 $destinationPath = storage_path('app/public/gallery');
                 $image->move($destinationPath, $file_name);
@@ -228,15 +227,15 @@ class MediaController extends Controller
 
     public function photo_delete($id)
     {
-        if (!Auth::user()->can( 'media-delete')) {
-            $response = array(
+        if (! Auth::user()->can('media-delete')) {
+            return to_route('home')->withErrors([
                 'message' => trans('no_permission_message')
-            );
-            return redirect(route('home'))->withErrors($response);
+            ]);
+
         }
         try {
             $media = Media::find($id);
-            $files  = MediaFile::where('media_id',$id)->get();
+            $files = MediaFile::where('media_id', $id)->get();
             foreach ($files as $file) {
                 if (Storage::disk('public')->exists($file->getRawOriginal('file_url'))) {
                     Storage::disk('public')->delete($file->getRawOriginal('file_url'));
@@ -263,11 +262,11 @@ class MediaController extends Controller
 
     public function image_update(Request $request)
     {
-        if (!Auth::user()->can('media-edit')) {
-            $response = array(
+        if (! Auth::user()->can('media-edit')) {
+            return to_route('home')->withErrors([
                 'message' => trans('no_permission_message')
-            );
-            return redirect(route('home'))->withErrors($response);
+            ]);
+
         }
 
         $validator = Validator::make($request->all(), [
@@ -284,16 +283,15 @@ class MediaController extends Controller
         try {
             $media = new MediaFile();
 
-            if ($request->hasFile('image'))
-            {
+            if ($request->hasFile('image')) {
                 $images = $request->file('image');
 
-                foreach($images as $image) {
+                foreach ($images as $image) {
 
                     $file = new MediaFile();
                     $file->media_id = $request->edit_id;
                     $file_name = $image->getClientOriginalName();
-                    $file_path = 'gallery/'. $file_name;
+                    $file_path = 'gallery/' . $file_name;
                     resizeImage($image);
                     $destinationPath = storage_path("app/public/gallery/");
                     $image->move($destinationPath, $file_name);
@@ -318,11 +316,11 @@ class MediaController extends Controller
 
     public function image_delete($id)
     {
-        if (!Auth::user()->can('media-delete')) {
-            $response = array(
+        if (! Auth::user()->can('media-delete')) {
+            return to_route('home')->withErrors([
                 'message' => trans('no_permission_message')
-            );
-            return redirect(route('home'))->withErrors($response);
+            ]);
+
         }
         try {
             $file = MediaFile::find($id);
@@ -345,14 +343,14 @@ class MediaController extends Controller
 
     public function video_store(Request $request)
     {
-        if (!Auth::user()->can('media-create')) {
-            $response = array(
+        if (! Auth::user()->can('media-create')) {
+            return to_route('home')->withErrors([
                 'message' => trans('no_permission_message')
-            );
-            return redirect(route('home'))->withErrors($response);
+            ]);
+
         }
         $validator = Validator::make($request->all(), [
-            'youtube_url' => ['required',new YouTubeUrl],
+            'youtube_url' => ['required', new YouTubeUrl],
         ]);
 
         if ($validator->fails()) {
@@ -383,11 +381,11 @@ class MediaController extends Controller
 
     public function video_show()
     {
-        if (!Auth::user()->can('media-list')) {
-            $response = array(
+        if (! Auth::user()->can('media-list')) {
+            return to_route('home')->withErrors([
                 'message' => trans('no_permission_message')
-            );
-            return redirect(route('home'))->withErrors($response);
+            ]);
+
         }
         $offset = 0;
         $limit = 10;
@@ -404,9 +402,9 @@ class MediaController extends Controller
         if (isset($_GET['order']))
             $order = $_GET['order'];
 
-        $sql = Media::where('type',2);
+        $sql = Media::where('type', 2);
 
-        if (isset($_GET['search']) && !empty($_GET['search'])) {
+        if (isset($_GET['search']) && ! empty($_GET['search'])) {
             $search = $_GET['search'];
             $sql->where('id', 'LIKE', "%$search%")->orwhere('title', 'LIKE', "%$search%");
         }
@@ -427,7 +425,7 @@ class MediaController extends Controller
 
             $tempRow['id'] = $row->id;
             $tempRow['no'] = $no++;
-            $tempRow['url'] = "<a data-toggle='lightbox' href='". $row->embeded_url['embedUrl'] ."'>$row->youtube_url</a>";
+            $tempRow['url'] = "<a data-toggle='lightbox' href='" . $row->embeded_url['embedUrl'] . "'>$row->youtube_url</a>";
             $tempRow['original_url'] = $row->youtube_url;
             $tempRow['created_at'] = convertDateFormat($row->created_at, 'd-m-Y H:i:s');
             $tempRow['updated_at'] = convertDateFormat($row->updated_at, 'd-m-Y H:i:s');
@@ -442,16 +440,15 @@ class MediaController extends Controller
 
     public function video_update(Request $request)
     {
-        if (!Auth::user()->can('media-edit')) {
-            $response = array(
+        if (! Auth::user()->can('media-edit')) {
+            return to_route('home')->withErrors([
                 'message' => trans('no_permission_message')
-            );
-            return redirect(route('home'))->withErrors($response);
+            ]);
+
         }
         $validator = Validator::make($request->all(), [
-            'youtube_url' => ['required',new YouTubeUrl],
+            'youtube_url' => ['required', new YouTubeUrl],
         ]);
-
         if ($validator->fails()) {
             $response = array(
                 'error' => true,
@@ -480,11 +477,11 @@ class MediaController extends Controller
 
     public function video_delete($id)
     {
-        if (!Auth::user()->can('media-delete')) {
-            $response = array(
+        if (! Auth::user()->can('media-delete')) {
+            return to_route('home')->withErrors([
                 'message' => trans('no_permission_message')
-            );
-            return redirect(route('home'))->withErrors($response);
+            ]);
+
         }
         try {
             $media = Media::find($id);
