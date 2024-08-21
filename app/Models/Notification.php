@@ -10,9 +10,8 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Notification extends Model
 {
-    use HasFactory;
-    use SoftDeletes;
-
+    use HasFactory,SoftDeletes;
+    protected $guarded = [];
     protected $hidden = ["deleted_at", "created_at", "updated_at"];
     public function users()
     {

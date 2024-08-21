@@ -69,6 +69,8 @@ class LessonController extends Controller
             //Regex for Youtube Link
             'file.*.link' => ['required_if:file.*.type,youtube_link', new YouTubeUrl, 'nullable'],
             'file.*.video_corner_url' => ['required_if:file.*.type,video_corner_url', 'nullable'],
+            'has_expire_days' => 'nullable|in:0,1',
+            'expiry_days' => 'nullable|numeric|required_if:has_expire_days,1|gt:0',
             //Regex for Other Link
             // 'file.*.link'=>'required_if:file.*.type,other_link|url'
         ], [
@@ -92,19 +94,18 @@ class LessonController extends Controller
                 $fileThumbnail->move($destinationPath, $file_name);
             }
 
-            $lesson = Lesson::create([
+            Lesson::create([
                 'name' => $request->name,
                 'description' => $request->description,
                 'class_section_id' => $request->class_section_id,
                 'subject_id' => $request->subject_id,
                 'teacher_id' => $teacher->id,
                 'status' => $request->status,
+                'expiry_days' => $request->has_expire_days ? $request->expiry_days : null,
                 'is_paid' => ($request->payment_status == 1),
                 'price' => $request->payment_status == 1 ? $request->price : null,
                 'thumbnail' => $lessonThumbnailPath
             ]);
-
-
 
             $response = [
                 'error' => false,
@@ -202,14 +203,16 @@ class LessonController extends Controller
             $tempRow['id'] = $row->id;
             $tempRow['no'] = $no++;
             $tempRow['name'] = $row->name;
-            $tempRow['description'] = $row->description;
+            $tempRow['description'] = str($row->description)->limit(10);
             $tempRow['purchased_count'] = $row->enrollments_count;
             $tempRow['class_section_id'] = $row->class_section_id;
-            $tempRow['class_section_name'] = $row->class_section->class->name . ' ' . $row->class_section->section->name . ' - ' . $row->class_section->class->medium->name;
+            $classSection = $row->class_section;
+            $tempRow['class_section_name'] = $classSection?->class->name . ' ' . $classSection?->section?->name . ' - ' . $classSection?->class->medium->name;
             $tempRow['subject_id'] = $row->subject_id;
             $tempRow['subject_name'] = $row->subject->name . ' - ' . $row->subject->type;
             $tempRow['topic'] = $row->topic;
-            $tempRow['price'] = $row->price;
+            $tempRow['expiry_days'] = $row->expiry_days ? $row->expiry_days : "N/A";
+            $tempRow['price'] = $row->price ? $row->price : "N/A";
             $tempRow['lesson_thumbnail'] = $row->thumbnail;
             $tempRow['file'] = $row->file;
             $tempRow['created_at'] = convertDateFormat($row->created_at, 'd-m-Y H:i:s');
