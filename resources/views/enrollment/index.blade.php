@@ -17,9 +17,32 @@
                 <div class="card">
                     <div class="card-body">
                         <h4 class="card-title">
-                        {{ __('list_enrollments') }}
+                            {{ __('list_enrollments') }}
                         </h4>
-
+                        <div id="toolbar">
+                            <div class="row">
+                                <div class="col">
+                                    <select name="lesson_id" id="filter_lesson" class="form-control">
+                                        <option value="">{{ __('select_lesson') }}</option>
+                                        @foreach ($lessons as $lesson)
+                                            <option value="{{ $lesson->id }}">
+                                                {{ $lesson->name }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                                <div class="col">
+                                    <select name="teacher_id" id="filter_teacher" class="form-control">
+                                        <option value="">{{ __('select_teacher') }}</option>
+                                        @foreach ($lessons->pluck('teacher.user.full_name', 'teacher_id') as $id => $name)
+                                            <option value="{{ $id }}">
+                                                {{ $name }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
                         <div class="row">
                             <div class="col-12">
                                 <table aria-describedby="mydesc" class='table' id='table_list' data-toggle="table"
@@ -44,6 +67,9 @@
                                             <th scope="col" data-field="student" data-sortable="false">
                                                 {{ __('student_name') }}
                                             </th>
+                                            <th scope="col" data-field="teacher" data-sortable="false">
+                                                {{ __('teacher_name') }}
+                                            </th>
 
                                             <th scope="col" data-field="lesson" data-sortable="true">
                                                 {{ __('lesson_title') }}
@@ -51,6 +77,10 @@
 
                                             <th scope="col" data-field="purchase_date" data-sortable="true">
                                                 {{ __('purchase_date') }}
+                                            </th>
+
+                                            <th scope="col" data-field="expiration_at" data-sortable="true">
+                                                {{ __('expires_at') }}
                                             </th>
 
                                             <th data-events="actionEvents" scope="col" data-field="operate"
@@ -64,14 +94,52 @@
                     </div>
                 </div>
             </div>
-
+            <div class="modal fade" id="editModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+                aria-hidden="true">
+                <div class="modal-dialog m" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header border-bottom border-secondary">
+                            <h5 class="modal-title" id="exampleModalLabel">
+                                {{ __('edit') . ' ' . __('enrollment') }}
+                            </h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <form class="pt-3 edit-enrollment-form" id="edit-form" method="POST" action="{{ route('enrollment.update', '')}}"
+                            novalidate="novalidate">
+                            <div class="modal-body">
+                                <input type="hidden" name="edit_id" id="edit_id">
+                                @method('PUT')
+                                <div class="row justify-content-center">
+                                    <div class="form-group col-sm-12">
+                                        <label>{{ __('expiry_date') }} <span class="text-danger">*</span></label>
+                                        <input type="datetime-local" class="expiry_date form-control" name="expiration_at"
+                                            id="edit_expiry_date">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="modal-footer border-light border-top">
+                                <button type="button" class="btn btn-secondary"
+                                    data-dismiss="modal">{{ __('close') }}</button>
+                                <input class="btn btn-theme" type="submit" value={{ __('edit') }} />
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 @endsection
 
 @section('script')
     <script>
-        window.actionEvents = {};
+        window.actionEvents = {
+            "click .edit-data": function(e, value, row, index) {
+                $("#edit_id").val(row.id);
+                $('#edit_expiry_date').val(row.expiration_local_format)
+            }
+        };
     </script>
 
     <script type="text/javascript">
@@ -82,6 +150,8 @@
                 order: p.order,
                 offset: p.offset,
                 search: p.search,
+                lesson_id: $('#filter_lesson').val(),
+                teacher_id: $('#filter_teacher').val(),
             };
         }
     </script>

@@ -31,26 +31,20 @@ class OnlineExamController extends Controller
                 'message' => trans('no_permission_message')
             ]);
         }
-        $teacher_id = Auth::user()->teacher->id;
 
         //get the class and subject according to subject teacher
-        $subject_teacher = SubjectTeacher::where('teacher_id', $teacher_id);
-        $class_section_id = $subject_teacher->pluck('class_section_id');
-        $subject_id = $subject_teacher->pluck('subject_id');
+        $subject_teacher = SubjectTeacher::subjectTeacher()->with([
+            'subject',
+            'class_section' => fn($q) => $q->with('class.medium', 'class.streams', 'section')
+        ])->get();
 
-        $all_subjects = Subject::whereIn('id', $subject_id)->get();
+        $all_subjects = $subject_teacher->pluck('subject');
 
         //get class section all data
-        $class_sections_query = ClassSection::whereIn('id', $class_section_id)->withOutTrashedRelations('class', 'section');
-
-        //get the class section data
-        $class_sections = $class_sections_query->with('class.medium', 'section', 'class.streams')->get();
-
-        //get class ids
-        $class_ids = $class_sections_query->pluck('class_id');
+        $class_sections = $subject_teacher->pluck('class_section');
 
         //get the class data
-        $classes = ClassSchool::whereIn('id', $class_ids)->with('medium', 'streams')->withOutTrashedRelations('medium', 'streams')->get();
+        $classes = $subject_teacher->pluck('class_section.class')->unique('id');
 
         return response(view('online_exam.index', compact('class_sections', 'all_subjects', 'classes')));
     }
@@ -329,12 +323,6 @@ class OnlineExamController extends Controller
         return response()->json($response);
     }
 
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
     public function destroy($id)
     {
         if (! Auth::user()->can('manage-online-exam')) {
@@ -357,10 +345,10 @@ class OnlineExamController extends Controller
                 );
             } else {
                 OnlineExam::where('id', $id)->delete();
-                $response = array(
+                $response = [
                     'error' => false,
                     'message' => trans('data_delete_successfully')
-                );
+                ];
             }
         } catch (Throwable $e) {
             report($e);
@@ -376,16 +364,15 @@ class OnlineExamController extends Controller
     public function getSubjects(Request $request)
     {
         try {
-            $teacher_id = Auth::user()->teacher->id;
             $subjects = [];
             if ($request->based_on) {
                 // return the subjects based on class setion
-                $subject_id = SubjectTeacher::where(['class_section_id' => $request->class_section_id, 'teacher_id' => $teacher_id])->pluck('subject_id');
+                $subject_id = SubjectTeacher::where(['class_section_id' => $request->class_section_id])->subjectTeacher()->pluck('subject_id');
                 $subjects = Subject::whereIn('id', $subject_id)->get();
             } else {
                 // return the subjects based on class
                 $class_section_id = ClassSection::where('class_id', $request->class_id)->pluck('id');
-                $subject_id = SubjectTeacher::whereIn('class_section_id', $class_section_id)->where('teacher_id', $teacher_id)->pluck('subject_id');
+                $subject_id = SubjectTeacher::whereIn('class_section_id', $class_section_id)->subjectTeacher()->pluck('subject_id');
                 $subjects = Subject::whereIn('id', $subject_id)->get();
             }
             $response = array(
@@ -637,7 +624,7 @@ class OnlineExamController extends Controller
         }
         $class_subject_id = ClassSubject::where(['class_id' => $class_id, 'subject_id' => $online_exam_data->subject_id])->pluck('id')->first();
         $exclude_question_id = OnlineExamQuestionChoice::where('online_exam_id', $online_exam_id)->pluck('question_id');
-        $sql = OnlineExamQuestion::with('class_subject', 'options', 'answers')->where('class_subject_id', $class_subject_id)->whereNotIn('id', $exclude_question_id);
+        $sql = OnlineExamQuestion::with('class_subject', 'options', 'answers')->relatedToTeacher()->where('class_subject_id', $class_subject_id)->whereNotIn('id', $exclude_question_id);
 
         if (isset($_GET['search']) && ! empty($_GET['search'])) {
             $search = $_GET['search'];
@@ -914,8 +901,7 @@ class OnlineExamController extends Controller
         if (isset($_GET['order']))
             $order = $_GET['order'];
 
-        $teacher_id = Auth::user()->teacher->id;
-        $class_section_id = SubjectTeacher::where('teacher_id', $teacher_id)->pluck('class_section_id');
+        $class_section_id = SubjectTeacher::subjectTeacher()->pluck('class_section_id');
 
         $student_id = Students::whereIn('class_section_id', $class_section_id)->pluck('id');
 

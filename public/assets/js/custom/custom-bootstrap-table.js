@@ -130,12 +130,12 @@ window.topicEvents = {
         $("#edit_name").val(row.name);
         $("#edit_description").val(row.description);
         // $('#editModal .edit-extra-files').empty()
-        
+
         if (row.file.length > 0) {
             $.each(row.file, function (key, data) {
-                let lastNumber = $(
-                    "#editModal .edit-extra-files #edit_file_id"
-                ).last().attr("name");
+                let lastNumber = $("#editModal .edit-extra-files #edit_file_id")
+                    .last()
+                    .attr("name");
                 let html = $(".edit_clone_file_type_div")
                     .clone()
                     .show()
@@ -148,9 +148,9 @@ window.topicEvents = {
                 html.find(".has-danger").removeClass("has-danger");
                 // This function will replace the last index value and increment in the multidimensional name attribute
                 html.find(":input").each(function (key, element) {
-                        const number = lastNumber ? Number(
-                            lastNumber.replace(/.*\[(\d+)\].*/, "$1") ?? 1
-                        ) : 1;
+                    const number = lastNumber
+                        ? Number(lastNumber.replace(/.*\[(\d+)\].*/, "$1") ?? 1)
+                        : 1;
                     this.name = this.name.replace(
                         /\[(\d+)\]/,
                         (str, p1) => `[${number + 1}]`
@@ -1882,24 +1882,27 @@ window.onlineExamQuestionsEvents = {
             let html_option = "";
             $.each(row.options, function (index, value) {
                 if (index >= 2) {
-                    html_option +=
-                        '<div class="form-group col-md-6"><input type="hidden" class="edit_eoption_id" name="edit_eoption[' +
-                        (index + 1) +
-                        '][id]" value=' +
-                        value.id +
-                        "><label>" +
-                        lang_option +
-                        ' <span class="edit-eoption-number">' +
-                        (index + 1) +
-                        '</span> <span class="text-danger">*</span></label><textarea class="editor_options" name="edit_eoption[' +
-                        (index + 1) +
-                        '][option]" placeholder="' +
-                        lang_enter_option +
-                        '">' +
-                        value.option_row +
-                        '</textarea><div class="remove-edit-option-content"><button type="button" class="btn btn-inverse-danger remove-edit-option btn-sm mt-1" data-id="' +
-                        value.id +
-                        '"><i class="fa fa-times"></i></button></div></div>';
+                    html_option += `<div class="form-group col-md-6">
+        <input type="hidden" class="edit_eoption_id" name="edit_eoption[${index + 1}][id]" value="${value.id}">
+        <label>
+            ${lang_option} 
+            <span class="edit-eoption-number">${index + 1}</span> 
+            <span class="text-danger">*</span>
+        </label>
+        <textarea class="editor_options" name="edit_eoption[${
+            index + 1
+        }][option]" placeholder="${lang_enter_option}">
+            ${value.option_row}
+        </textarea>
+        <div class="remove-edit-option-content">
+            <button type="button" class="btn btn-inverse-danger remove-edit-option btn-sm mt-1" data-id="${
+                value.id
+            }">
+                <i class="fa fa-times"></i>
+            </button>
+        </div>
+    </div>`;
+
                     $(".edit_eoption_container").html(html_option);
                 } else {
                     html_option +=

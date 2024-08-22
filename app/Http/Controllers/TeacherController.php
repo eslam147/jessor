@@ -200,7 +200,7 @@ class TeacherController extends Controller
                 if ($request->hasFile('image')) {
                     $image = $request->file('image');
                     // made file name with combination of current time
-                    $file_name = time() . '-' . $image->getClientOriginalName();
+                    $file_name = time() . '-' . $image->hashName();
                     //made file path to store in database
                     $file_path = 'teachers/' . $file_name;
                     //resized image
@@ -474,7 +474,7 @@ class TeacherController extends Controller
                 }
                 $image = $request->file('image');
                 // made file name with combination of current time
-                $file_name = time() . '-' . $image->getClientOriginalName();
+                $file_name = time() . '-' . $image->hashName();
                 //made file path to store in database
                 $file_path = 'teachers/' . $file_name;
                 //resized image

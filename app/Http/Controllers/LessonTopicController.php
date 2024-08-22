@@ -54,7 +54,6 @@ class LessonTopicController extends Controller
                 'lesson_id' => ['required', 'numeric', Rule::exists('lessons', 'id')->where('teacher_id', $teacher->id)],
                 'name' => ['required', new uniqueTopicInLesson($request->lesson_id)],
                 'description' => 'required',
-
                 'edit_file' => 'nullable|array',
                 'edit_file.*.type' => ['nullable', Rule::in(File::$types)],
                 'edit_file.*.name' => 'required_with:edit_file.*.type',
@@ -76,6 +75,8 @@ class LessonTopicController extends Controller
                 'file.*.link' => ['nullable', 'required_if:file.*.type,youtube_link', new YouTubeUrl],
                 // -----------------------------------------------
                 'file.*.external_link' => ['nullable', 'required_if:file.*.type,external_link', 'url'],
+                // -----------------------------------------------
+                'thumbnail' => 'required|image|mimes:jpg,jpeg,png',
             ],
         );
 
@@ -91,6 +92,18 @@ class LessonTopicController extends Controller
                 'description' => $request->description,
                 'lesson_id' => $request->lesson_id,
             ]);
+            if ($request->hasFile('thumbnail')) {
+                $image = $request->file('thumbnail');
+                $file_name = time() . '-' . $image->hashName();
+                $file_path = "topics/{$file_name}";
+
+                resizeImage($image);
+
+                $destinationPath = storage_path('app/public/topics');
+                $image->move($destinationPath, $file_name);
+
+                $topic->thumbnail = $file_path;
+            }
             foreach ($request->file as $data) {
                 if ($data['type']) {
                     $file = new File();
@@ -208,6 +221,7 @@ class LessonTopicController extends Controller
             $tempRow['id'] = $row->id;
             $tempRow['no'] = $no++;
             $tempRow['name'] = $row->name;
+            $tempRow['thumbnail'] = view('lessons.datatable.thumbnail', compact('row'))->render();
             $tempRow['description'] = $row->description;
             $tempRow['lesson_id'] = $row->lesson_id;
             $tempRow['lesson_name'] = $row->lesson->name;
@@ -280,8 +294,8 @@ class LessonTopicController extends Controller
             ]);
             // Update the Old Files
             foreach ($request->edit_file as $key => $file) {
-                $file['type'] = $file['type'] ?? null;
-                if ($file['type']) {
+                // $file['type'] = $file['type'] ?? null;
+                if (! empty($file['type'])) {
                     $topic_file = File::find($file['id']);
                     $topic_file->file_name = $file['name'];
                     switch ($file['type']) {
@@ -321,8 +335,6 @@ class LessonTopicController extends Controller
                             $topic_file->file_url = $file['link'];
                             break;
                     }
-
-
                     $topic_file->save();
                 }
             }

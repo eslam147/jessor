@@ -204,7 +204,8 @@ class LessonController extends Controller
             $tempRow['no'] = $no++;
             $tempRow['name'] = $row->name;
             $tempRow['description'] = str($row->description)->limit(10);
-            $tempRow['purchased_count'] = $row->enrollments_count;
+            $tempRow['purchased_count'] = view('lessons.datatable.enrollment_count', ['row' => $row])->render();
+            // $
             $tempRow['class_section_id'] = $row->class_section_id;
             $classSection = $row->class_section;
             $tempRow['class_section_name'] = $classSection?->class->name . ' ' . $classSection?->section?->name . ' - ' . $classSection?->class->medium->name;

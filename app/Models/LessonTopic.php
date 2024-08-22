@@ -66,7 +66,7 @@ class LessonTopic extends Model
 
             $teacher_id = $user->teacher()->select('id')->pluck('id')->first();
             $subject_teacher = SubjectTeacher::select('class_section_id', 'subject_id')->where('teacher_id', $teacher_id)->get();
-            
+
             if ($subject_teacher) {
                 $subject_teacher = $subject_teacher->toArray();
 
@@ -80,5 +80,12 @@ class LessonTopic extends Model
             return $query;
         }
         return $query;
+    }
+    public function getThumbnailAttribute($value)
+    {
+        if ($value) {
+            return tenant_asset($value);
+        }
+        return null;
     }
 }

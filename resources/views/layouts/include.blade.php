@@ -27,7 +27,7 @@
     $loginImageSetting = getSettings('login_image');
 
     if (!empty($loginImageSetting['login_image'])) {
-        $login_image = url(Storage::url($loginImageSetting['login_image']));
+        $login_image = tenant_asset($loginImageSetting['login_image']);
     }
 
 @endphp

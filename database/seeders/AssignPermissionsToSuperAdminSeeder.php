@@ -18,8 +18,14 @@ class AssignPermissionsToSuperAdminSeeder extends Seeder
             'coupons-delete',
             /// -------------------------------
             'enrollments-list',
+            'enrollments-edit',
             'enrollments-create',
             'enrollments-delete',
+            /// -------------------------------
+            'manage-online-exam',
+            'wallet-show',
+            /// -------------------------------
+            
         ];
 
         foreach ($permissions as $permission) {

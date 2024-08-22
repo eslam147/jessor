@@ -2,14 +2,19 @@
 @php
     $lang = Session::get('language');
 @endphp
-<html lang="en" dir="{{ isset($lang) &&  $lang->is_rtl ? 'rtl' : 'ltr' }}">
+<html lang="en" dir="{{ isset($lang) && $lang->is_rtl ? 'rtl' : 'ltr' }}">
 @php
-    $about = DB::table('web_settings')->where('name', 'about_us')->where('status', 1)->first();
-    $whoweare = DB::table('web_settings')->where('name', 'who_we_are')->where('status', 1)->first();
-    $teacher = DB::table('web_settings')->where('name', 'teacher')->where('status', 1)->first();
-    $photo = DB::table('web_settings')->where('name', 'photos')->where('status', 1)->first();
-    $video = DB::table('web_settings')->where('name', 'videos')->where('status', 1)->first();
-    $question = DB::table('web_settings')->where('name', 'question')->where('status', 1)->first();
+    $staticSettings = DB::table('web_settings')
+        ->whereIn('name', ['about_us', 'who_we_are', 'teacher', 'photos', 'videos', 'question'])
+        ->where('status', 1)
+        ->get();
+
+    $about = $staticSettings->firstWhere('name', 'about_us');
+    $whoweare = $staticSettings->firstWhere('name', 'who_we_are');
+    $teacher = $staticSettings->firstWhere('name', 'teacher');
+    $photo = $staticSettings->firstWhere('name', 'photos');
+    $video = $staticSettings->firstWhere('name', 'videos');
+    $question = $staticSettings->firstWhere('name', 'question');
 @endphp
 <head>
     <!-- Required meta tags -->
@@ -19,36 +24,23 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <link rel="shortcut icon" href="{{ url(Storage::url(settingByType('favicon'))) }}" />
     @yield('css')
-
 </head>
 
 <body class="sidebar-fixed">
     <div class="container-scroller">
-
         {{-- header --}}
         @include('web.header')
-
         <div class="page-body-wrapper">
-
             <div class="main-panel">
-
                 @yield('content')
-
-
-
             </div>
-
         </div>
-
     </div>
-
     {{-- footer --}}
     @include('web.footer')
-
     @yield('js')
 
     @yield('script')
-
 </body>
 
 </html>

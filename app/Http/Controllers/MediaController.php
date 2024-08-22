@@ -498,4 +498,30 @@ class MediaController extends Controller
         }
         return response()->json($response);
     }
+    public function uploadImage(Request $request)
+    {
+
+        $validator = Validator::make($request->all(), [
+            'upload' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'error' => true,
+                'message' => $validator->errors()->first()
+            ]);
+        }
+        if ($request->hasFile('upload')) {
+            $image = $request->file('upload');
+            $fileName = time() . '_' . $image->hashName();
+            $destinationPath = storage_path('app/public/temp');
+            resizeImage($image);
+            $image->move($destinationPath, $fileName);
+            return response()->json([
+                "uploaded" => 1,
+                "fileName" => $fileName,
+                "url" => tenant_asset("temp/" . $fileName)
+            ]);
+        }
+    }
 }

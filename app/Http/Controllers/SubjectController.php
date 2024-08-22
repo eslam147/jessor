@@ -5,15 +5,12 @@ namespace App\Http\Controllers;
 use App\Models\Assignment;
 use App\Models\Mediums;
 use App\Models\Subject;
-use App\Models\ClassSchool;
 use App\Models\ClassSubject;
 use App\Models\ExamMarks;
 use App\Models\ExamTimetable;
 use App\Models\StudentSubject;
 use App\Models\SubjectTeacher;
 use Illuminate\Http\Request;
-use Illuminate\Validation\Rule;
-use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 
@@ -26,8 +23,8 @@ class SubjectController extends Controller
      */
     public function index()
     {
-        $subjects = Subject::orderBy('id', 'DESC')->get();
-        $mediums = Mediums::orderBy('id', 'DESC')->get();
+        $subjects = Subject::orderByDesc('id')->get();
+        $mediums = Mediums::orderByDesc('id')->get();
         return response(view('subject.index', compact('subjects', 'mediums')));
     }
 
@@ -45,7 +42,7 @@ class SubjectController extends Controller
             'name' => 'required',
             'type' => 'required|in:Practical,Theory',
             'bg_color' => 'required|not_in:transparent',
-            'image' => 'max:2048',
+            'image' => 'max:2048|image|mimes:jpeg,png,jpg,gif,svg',
         ])->setAttributeNames(
                 ['bg_color' => 'Background Color'],
             );
@@ -61,21 +58,19 @@ class SubjectController extends Controller
         try {
             $subject = Subject::where(['name' => $request->name, 'medium_id' => $request->medium_id, 'type' => $request->type])->whereNot('id', $id)->count();
             if ($subject) {
-                $response = array(
+                return response()->json([
                     'error' => true,
                     'message' => trans('subject_already_exists')
-                );
-                return response()->json($response);
+                ]);
             } else {
                 $validator = Validator::make($request->all(), [
                     'code' => 'nullable|unique:subjects,code,' . $id . ',id,deleted_at,NULL'
                 ]);
                 if ($validator->fails()) {
-                    $response = array(
+                    return response()->json([
                         'error' => true,
                         'message' => $validator->errors()->first()
-                    );
-                    return response()->json($response);
+                    ]);
                 }
                 $subject = Subject::find($id);
                 $subject->medium_id = $request->medium_id;

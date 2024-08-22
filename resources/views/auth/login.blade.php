@@ -119,7 +119,9 @@
                 $(element).addClass('form-control-danger')
             }
         });
-
+        $('#frmLogin').submit(function (e){
+            $('#login_btn').attr('disabled', 'disabled');
+        })
         const togglePassword = document.querySelector("#togglePassword");
         const password = document.querySelector("#password");
 
@@ -137,31 +139,31 @@
         });
 
 
-        import FingerprintJS from '@fingerprintjs/fingerprintjs';
-        import axios from 'axios';
+        // import FingerprintJS from '@fingerprintjs/fingerprintjs';
+        // import axios from 'axios';
 
-        // تحميل FingerprintJS
-        (async () => {
-            const fp = await FingerprintJS.load();
+        // // تحميل FingerprintJS
+        // (async () => {
+        //     const fp = await FingerprintJS.load();
 
-            // توليد بصمة الجهاز
-            const result = await fp.get();
+        //     // توليد بصمة الجهاز
+        //     const result = await fp.get();
 
-            // بصمة الجهاز الفريدة
-            const deviceFingerprint = result.visitorId;
+        //     // بصمة الجهاز الفريدة
+        //     const deviceFingerprint = result.visitorId;
 
-            // إرسال البصمة إلى السيرفر
-            axios.post('/api/store-device', {
-                device_fingerprint: deviceFingerprint
-            }).then(response => {
-                console.log(response.data.message);
-            }).catch(error => {
-                if (error.response && error.response.status === 403) {
-                    alert(error.response.data.error);
-                    // ربما تقوم بتسجيل الخروج من الحساب هنا
-                }
-            });
-        })();
+        //     // إرسال البصمة إلى السيرفر
+        //     axios.post('/api/store-device', {
+        //         device_fingerprint: deviceFingerprint
+        //     }).then(response => {
+        //         console.log(response.data.message);
+        //     }).catch(error => {
+        //         if (error.response && error.response.status === 403) {
+        //             alert(error.response.data.error);
+        //             // ربما تقوم بتسجيل الخروج من الحساب هنا
+        //         }
+        //     });
+        // })();
     </script>
 </body>
 

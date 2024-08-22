@@ -10,32 +10,31 @@ use App\Models\ClassSubject;
 use Illuminate\Http\Request;
 use App\Models\SubjectTeacher;
 use App\Models\OnlineExamQuestion;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use App\Models\OnlineExamQuestionAnswer;
 use App\Models\OnlineExamQuestionChoice;
 use App\Models\OnlineExamQuestionOption;
 use Illuminate\Support\Facades\Validator;
+use App\Services\Admin\QuestionBank\QuestionBankService;
 
 class OnlineExamQuestionController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
+    // public QuestionBankService $questionBankService;
+    public function __construct(public QuestionBankService $questionBankService)
+    {}
+
     public function index()
     {
         if (! Auth::user()->can('manage-online-exam')) {
             return to_route('home')->withErrors([
                 'message' => trans('no_permission_message')
             ]);
-
         }
-        $teacher_id = Auth::user()->teacher->id;
 
         //get the class and subject according to subject teacher
-        $subject_teacher = SubjectTeacher::where('teacher_id', $teacher_id);
+        $subject_teacher = SubjectTeacher::subjectTeacher();
         $class_section_id = $subject_teacher->pluck('class_section_id');
         $class_id = ClassSection::whereIn('id', $class_section_id)->pluck('class_id');
         $subject_id = $subject_teacher->pluck('subject_id');
@@ -55,12 +54,6 @@ class OnlineExamQuestionController extends Controller
         //
     }
 
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
     public function store(Request $request)
     {
         if (! Auth::user()->can('manage-online-exam')) {
@@ -74,7 +67,7 @@ class OnlineExamQuestionController extends Controller
             [
                 'class_id' => 'required',
                 'subject_id' => 'required',
-                'question_type' => 'required|in:0,1',
+                'question_type' => 'required|in:0,1,2',
                 'question' => 'required_if:question_type,0',
                 'option.*' => 'required_if:question_type,0',
                 'equestion' => 'required_if:question_type,1',
@@ -97,107 +90,43 @@ class OnlineExamQuestionController extends Controller
             ]);
         }
         try {
-            if ($request->question_type == 1) {
-                $class_subject_id = ClassSubject::where(['class_id' => $request->class_id, 'subject_id' => $request->subject_id])->pluck('id')->first();
-                $question_store = new OnlineExamQuestion();
-                $question_store->class_subject_id = $class_subject_id;
-                $question_store->question_type = $request->question_type;
-                $question_store->question = htmlspecialchars($request->equestion);
-                $question_store->note = htmlspecialchars($request->note);
-                if ($request->hasFile('image')) {
-                    $image = $request->file('image');
-
-                    // made file name with combination of current time
-                    $file_name = time() . '-' . $image->getClientOriginalName();
-
-                    //made file path to store in database
-                    $file_path = 'online-exam-questions/' . $file_name;
-
-                    //resized image
-                    resizeImage($image);
-
-                    //stored image to storage/public/online-exam-questions folder
-                    $destinationPath = storage_path('app/public/online-exam-questions');
-                    $image->move($destinationPath, $file_name);
-
-                    //saved file path to database
-                    $question_store->image_url = $file_path;
-                }
-                $question_store->save();
-
-                // store options
-                $options_id = [];
-                foreach ($request->eoption as $key => $option) {
-                    $question_option_store = new OnlineExamQuestionOption();
-                    $question_option_store->question_id = $question_store->id;
-                    $question_option_store->option = htmlspecialchars($option);
-                    $question_option_store->save();
-                    $options_id[$key] = $question_option_store->id;
-                }
-                foreach ($request->answer as $answer) {
-                    foreach ($options_id as $key => $option) {
-                        if ($key == $answer) {
-                            $question_answer_store = new OnlineExamQuestionAnswer();
-                            $question_answer_store->question_id = $question_store->id;
-                            $question_answer_store->answer = $options_id[$key];
-                            $question_answer_store->save();
-                        }
-                    }
-                }
-            } else {
-                $class_subject_id = ClassSubject::where(['class_id' => $request->class_id, 'subject_id' => $request->subject_id])->pluck('id')->first();
-                $question_store = new OnlineExamQuestion();
-                $question_store->class_subject_id = $class_subject_id;
-                $question_store->question_type = $request->question_type;
-                $question_store->question = htmlspecialchars($request->question);
-                $question_store->note = htmlspecialchars($request->note);
-                if ($request->hasFile('image')) {
-                    $image = $request->file('image');
-
-                    // made file name with combination of current time
-                    $file_name = time() . '-' . $image->getClientOriginalName();
-
-                    //made file path to store in database
-                    $file_path = 'online-exam-questions/' . $file_name;
-
-                    //resized image
-                    resizeImage($image);
-
-                    //stored image to storage/public/online-exam-questions folder
-                    $destinationPath = storage_path('app/public/online-exam-questions');
-                    $image->move($destinationPath, $file_name);
-
-                    //saved file path to database
-                    $question_store->image_url = $file_path;
-                }
-                $question_store->save();
-
-                // store options
-                $options_id = array();
-                foreach ($request->option as $key => $option) {
-                    $question_option_store = new OnlineExamQuestionOption();
-                    $question_option_store->question_id = $question_store->id;
-                    $question_option_store->option = htmlspecialchars($option);
-                    $question_option_store->save();
-                    $options_id[$key] = $question_option_store->id;
-                }
-                foreach ($request->answer as $answer) {
-                    foreach ($options_id as $key => $option) {
-                        if ($key == $answer) {
-                            $question_answer_store = new OnlineExamQuestionAnswer();
-                            $question_answer_store->question_id = $question_store->id;
-                            $question_answer_store->answer = $options_id[$key];
-                            $question_answer_store->save();
-                        }
-                    }
-                }
+            $class_subject_id = ClassSubject::where([
+                'class_id' => $request->class_id,
+                'subject_id' => $request->subject_id
+            ])->value('id');
+            DB::beginTransaction();
+            $question_store = new OnlineExamQuestion();
+            $question_store->class_subject_id = $class_subject_id;
+            $question_store->teacher_id = auth()->user()->teacher->id;
+            $question_store->note = htmlspecialchars($request->note);
+            $question_store->image_url = $this->questionBankService->storeImageFromRequest('image');
+            // Types = 0 - Simple Question It Will Be Default, 1 - Equation Based Question, 2 - Image Based Question
+            switch ((int) $request->question_type) {
+                case 1: // Equation Based Question
+                    $question_store->question_type = $request->question_type;
+                    $question_store->question = htmlspecialchars($request->equestion);
+                    break;
+                case OnlineExamQuestion::IMAGE_BASED_TYPE: // Image Based Question
+                    $question_store->question_type = OnlineExamQuestion::IMAGE_BASED_TYPE;
+                    $question_store->question = htmlspecialchars($request->image_question);
+                    break;
+                default: // Simple Question
+                    $question_store->question_type = $request->question_type;
+                    $question_store->question = htmlspecialchars($request->question);
+                    break;
             }
-            $response = array(
+
+            $question_store->save();
+            $this->questionBankService->saveOptionsWithAnswer($question_store, $request);
+            DB::commit();
+
+            $response = [
                 'error' => false,
                 'message' => trans('data_store_successfully')
-            );
+            ];
         } catch (Throwable $e) {
             report($e);
+            DB::rollBack();
             $response = array(
                 'error' => true,
                 'message' => trans('error_occurred')
@@ -236,7 +165,7 @@ class OnlineExamQuestionController extends Controller
             ])->pluck('id');
         }
 
-        $sql = OnlineExamQuestion::with('class_subject', 'options', 'answers')
+        $sql = OnlineExamQuestion::relatedToTeacher()->with('class_subject', 'options', 'answers')
             //search queries
             ->when($search, function ($query) use ($search) {
                 $query->where(function ($query) use ($search) {
@@ -423,7 +352,7 @@ class OnlineExamQuestionController extends Controller
         }
         try {
             if ($request->edit_question_type) {
-                $edit_equestion = OnlineExamQuestion::find($request->edit_id);
+                $edit_equestion = OnlineExamQuestion::relatedToTeacher()->find($request->edit_id);
                 $class_subject_id = ClassSubject::where(['class_id' => $request->edit_class_id, 'subject_id' => $request->edit_subject_id])->pluck('id')->first();
                 $edit_equestion->class_subject_id = $class_subject_id;
                 $edit_equestion->question = htmlspecialchars($request->edit_equestion);
@@ -502,7 +431,7 @@ class OnlineExamQuestionController extends Controller
                     }
                 }
             } else {
-                $edit_question = OnlineExamQuestion::find($request->edit_id);
+                $edit_question = OnlineExamQuestion::relatedToTeacher()->find($request->edit_id);
                 $class_subject_id = ClassSubject::where(['class_id' => $request->edit_class_id, 'subject_id' => $request->edit_subject_id])->pluck('id')->first();
                 $edit_question->class_subject_id = $class_subject_id;
                 $edit_question->question = htmlspecialchars($request->edit_question);
@@ -609,24 +538,24 @@ class OnlineExamQuestionController extends Controller
             // check wheather question is associated with other table..
             $online_exam_choice_questions = OnlineExamQuestionChoice::where('question_id', $id)->count();
             if ($online_exam_choice_questions) {
-                $response = array(
+                $response = [
                     'error' => true,
                     'message' => trans('cannot_delete_beacuse_data_is_associated_with_other_data')
-                );
+                ];
             } else {
-                OnlineExamQuestion::where('id', $id)->delete();
-                $response = array(
+                OnlineExamQuestion::whereId($id)->relatedToTeacher()->delete();
+                $response = [
                     'error' => false,
                     'message' => trans('data_delete_successfully')
-                );
+                ];
             }
         } catch (Throwable $e) {
             report($e);
 
-            $response = array(
+            $response = [
                 'error' => true,
                 'message' => trans('error_occurred')
-            );
+            ];
         }
         return response()->json($response);
     }

@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -10,8 +11,10 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 class OnlineExamQuestion extends Model
 {
     use HasFactory;
+    const EQUATION_BASED_TYPE = 1;
+    const IMAGE_BASED_TYPE = 2;
     protected $hidden = ["deleted_at", "created_at", "updated_at"];
-
+    protected $guarded = [];
     public function class_subject() {
         return $this->belongsTo(ClassSubject::class,'class_subject_id');
     }
@@ -21,12 +24,16 @@ class OnlineExamQuestion extends Model
     public function answers(){
         return $this->hasMany(OnlineExamQuestionAnswer::class,'question_id')->with('options');
     }
-
+    public function scopeRelatedToTeacher($query) {
+        $user = Auth::user();
+        if ($user->hasRole('Teacher')) {
+            return $query->where('teacher_id', auth()->user()->id);
+        }
+    }
     public function getImageUrlAttribute($value) {
         if($value){
             return tenant_asset($value);
-        }else{
-            return null;
         }
+        return null;
     }
 }

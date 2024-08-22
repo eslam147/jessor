@@ -32,8 +32,7 @@ class SubjectTeacher extends Model
     {
         $user = Auth::user();
         if ($user->hasRole('Teacher')) {
-            $teacher_id = $user->teacher()->pluck('id');
-            return $query->whereIn('teacher_id', $teacher_id);
+            return $query->where('teacher_id', $user->teacher()->value('id'));
         }
         return $query;
     }

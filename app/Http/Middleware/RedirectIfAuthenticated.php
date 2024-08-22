@@ -16,10 +16,10 @@ class RedirectIfAuthenticated
         foreach ($guards as $guard) {
             if (Auth::guard($guard)->check()) {
                 $user = Auth::user();
-                if ($user->hasRole(['Super Admin', 'Teacher'])) {
-                    return to_route('home');
-                } elseif ($user->hasRole('Student')) {
+                if ($user->hasRole('Student')) {
                     return to_route('home.index');
+                } else {
+                    return to_route('home');
                 }
             }
         }

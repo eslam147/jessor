@@ -1,3 +1,6 @@
+<script>
+    const uploadImageCkEditor = `{{ route('media.uploadImage', ['_token' => csrf_token()]) }}`;
+</script>
 <script src="{{ url('assets/js/vendor.bundle.base.js') }}"></script>
 <script src="{{ url('assets/js/Chart.min.js') }}"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.21.0/jquery.validate.min.js"></script>

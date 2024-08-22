@@ -10,6 +10,7 @@ class OnlineExamQuestionAnswer extends Model
 {
     use HasFactory;
     protected $hidden = ["deleted_at", "created_at", "updated_at"];
+    protected $guarded = [];
 
     public function question_option() {
         return $this->belongsTo(OnlineExamQuestionOption::class,'answer');

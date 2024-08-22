@@ -178,7 +178,7 @@
                                         </span>
                                         <div class="col-md-12 mt-2">
                                             <img height="50px"
-                                                src='{{ isset($settings['login_image']) ? url(Storage::url($settings['login_image'])) : url(Storage::url('eschool.jpg')) }}'>
+                                                src='{{ isset($settings['login_image']) ? tenant_asset($settings['login_image']) : global_asset('eschool.jpg') }}'>
                                         </div>
                                     </div>
                                 </div>

@@ -2700,8 +2700,8 @@ $(document).on("click", ".remove-option", function (e) {
 });
 $("#create-online-exam-questions-form").on("submit", function (e) {
     e.preventDefault();
-    for (var equation_editor in CKEDITOR.instances) {
-        CKEDITOR.instances[equation_editor].updateElement();
+    for (var editor in CKEDITOR.instances) {
+        CKEDITOR.instances[editor].updateElement();
     }
     let formElement = $(this);
     let submitButtonElement = $(this).find(":submit");
@@ -2727,11 +2727,14 @@ $(".question_type").on("change", function (e) {
     $(".quation-option-extra").remove();
     $("#answer_select").val(null).trigger("change");
     if ($(this).val() == 1) {
-        $("#simple-question").hide();
+        $("#image-question,#simple-question").hide();
         $("#equation-question").show(500);
+    } else if ($(this).val() == 2) {
+        $("#equation-question,#simple-question").hide();
+        $("#image-question").show(500);
     } else {
         $("#simple-question").show(500);
-        $("#equation-question").hide();
+        $("#equation-question,#image-question").hide();
     }
 });
 $("#add-new-eqation-option").on("click", function (e) {
@@ -2761,29 +2764,24 @@ $("#add-new-eqation-option").on("click", function (e) {
         });
     });
 
-    let option_html =
-        '<div class="form-group col-md-6 equation-editor-options-extra quation-option-template"><label>' +
-        lang_option +
-        ' <span class="equation-option-number">' +
-        inner_html +
-        '</span> <span class="text-danger">*</span></label><textarea class="editor_options" name="eoption' +
-        name +
-        '" placeholder="' +
-        lang_select_option +
-        '"></textarea><div class="remove-equation-option-content"><button class="btn btn-inverse-danger remove-equation-option btn-sm mt-1" type="button"><i class="fa fa-times"></i></button></div></div>';
+    let option_html = `<div class="form-group col-md-6 equation-editor-options-extra quation-option-template">
+        <label>${lang_option} <span class="equation-option-number">${inner_html}</span> <span class="text-danger">*</span></label>
+        <textarea class="editor_options" name="eoption${name}" placeholder="${lang_select_option}"></textarea>
+        <div class="remove-equation-option-content">
+            <button class="btn btn-inverse-danger remove-equation-option btn-sm mt-1" type="button">
+                <i class="fa fa-times"></i>
+            </button>
+        </div>
+    </div>`;
     $(".equation-option-container")
         .append(option_html)
         .ready(function () {
             createCkeditor();
         });
-    let select_answer_option =
-        "<option value=" +
-        inner_html +
-        ' class="answer_option extra_answers_options">' +
-        lang_option +
-        " " +
-        inner_html +
-        "</option>";
+        let select_answer_option = `
+        <option value="${inner_html}" class="answer_option extra_answers_options">
+            ${lang_option} ${inner_html}
+        </option>`;
     $("#answer_select").append(select_answer_option);
 });
 $(document).on("click", ".remove-equation-option", function (e) {
@@ -2995,7 +2993,7 @@ $("#add-new-question-online-exam").on("submit", function (e) {
             });
         formElement[0].reset();
         $("#simple-question").show();
-        $("#equation-question").hide();
+        $("#equation-question,#image-question").hide();
 
         $("#answer_select").val(null).trigger("change");
         $(".quation-option-extra").remove();

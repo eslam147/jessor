@@ -567,6 +567,12 @@
 
         @canany(['manage-online-exam'])
             <li class="nav-item">
+                <a class="nav-link" href="{{ route('online-exam-question.index') }}">
+                    <i class="fa fa-question menu-icon"></i>
+                    <span class="menu-title">{{ __('question_bank') }}</span>
+                </a>
+            </li>
+            <li class="nav-item">
                 <a class="nav-link" data-toggle="collapse" href="#online-exam-menu" aria-expanded="false"
                     aria-controls="online-exam-menu"> <i class="fa fa-laptop menu-icon"></i>
                     <span class="menu-title">{{ __('online') }} {{ __('exam') }}</span>
@@ -578,11 +584,6 @@
                             <li class="nav-item">
                                 <a class="nav-link" href="{{ route('online-exam.index') }}"> {{ __('manage') }}
                                     {{ __('online') }} {{ __('exam') }}
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" href="{{ route('online-exam-question.index') }}"> {{ __('manage') }}
-                                    {{ __('questions') }}
                                 </a>
                             </li>
                             <li class="nav-item">
@@ -625,7 +626,13 @@
                     <span class="menu-title">{{ __('sliders') }}</span></a>
             </li>
         @endcan
-
+        {{-- Wallet --}}
+        @can('wallet-show')
+            <li class="nav-item">
+                <a href="{{ route('wallet.index') }}" class="nav-link"> <i class="fa fa-money menu-icon"></i>
+                    <span class="menu-title">{{ __('wallets') }}</span></a>
+            </li>
+        @endcan
 
         {{-- Holiday --}}
         @canany(['holiday-create', 'holiday-list'])
