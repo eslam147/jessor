@@ -22,7 +22,7 @@
             <section class="content">
                 <div class="row">
                     @foreach ($subjectTeachers as $row)
-                        <div class="col-4">
+                        <div class="col-lg-4 col-xs-12">
                             <div class="box">
                                 <div class="box-body text-center">
                                     <div class="mb-20 mt-20">
@@ -34,7 +34,7 @@
                                 </div>
                                 <div class="p-25 mt-15 bt-1">
                                     <div class="row text-center">
-                                        <div class="col-12  ">
+                                        <div class="col-lg-4 col-xs-12">
                                             <div class="bg-primary mt-5 rounded">
                                                 <a href="{{ route('teacher.lessons', ['teacher_id' => $row->id, 'subject_id' => $subject->id]) }}">
                                                     <h5 class="text-white text-center p-10"> show lessons </h5>

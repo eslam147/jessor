@@ -34,23 +34,24 @@ class LoginController extends Controller
         // Count the active devices for the user
         $agent = md5($_SERVER['HTTP_USER_AGENT']);
         $deviceExists  = $user->devices()->where('device_agent', $agent)->get();
-        if($user->hasRole('Student')){
-            if (!empty($maxDevices) && $deviceExists->count() >= $maxDevices) {
-                // Optionally log out the user or prevent new device logins
-                Auth::logout();
 
-                return redirect()->route('login')->withErrors([
-                    'error' => 'لقد تجاوزت الحد الأقصي من الأجهزه المسموحه'
-                ]);
-            }else{
-                // Store the current device information
-                $user->devices()->create([
-                    'device_name' => $_SERVER['HTTP_USER_AGENT'],
-                    'device_ip' => $request->ip(),
-                    'device_agent' => $agent
-                ]);
-            }
-        }
+        // if($user->hasRole('Student')){
+        //     if ($deviceExists->count() >= $maxDevices) {
+        //         // Optionally log out the user or prevent new device logins
+        //         Auth::logout();
+
+        //         return redirect()->route('login')->withErrors([
+        //             'error' => 'لقد تجاوزت الحد الأقصي من الأجهزه المسموحه'
+        //         ]);
+        //     }else{
+        //         // Store the current device information
+        //         $user->devices()->create([
+        //             'device_name' => $_SERVER['HTTP_USER_AGENT'],
+        //             'device_ip' => $request->ip(),
+        //             'device_agent' => $agent
+        //         ]);
+        //     }
+        // }
 
 
         // Redirect based on role

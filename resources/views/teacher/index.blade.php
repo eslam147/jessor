@@ -55,6 +55,10 @@
                                     <label>{{ __('email') }} <span class="text-danger">*</span></label>
                                     {!! Form::text('email', null, ['required', 'placeholder' => __('email'), 'class' => 'form-control']) !!}
                                 </div>
+                                <div class="form-group col-sm-12 col-md-6">
+                                    <label>{{ __('password') }} <span class="text-danger">*</span></label>
+                                    <input type="password" class="form-control" name="password"  >
+                                </div>
                             </div>
                             <div class="row">
                                 <div class="form-group col-sm-12 col-md-6">
@@ -76,26 +80,20 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="row">
+                            <div class="row"> 
                                 <div class="form-group col-sm-12 col-md-6">
-                                    <label>{{ __('dob') }} <span class="text-danger">*</span></label>
-                                    {!! Form::text('dob', null, ['required', 'placeholder' => __('dob'), 'class' => 'datepicker-popup-no-future form-control']) !!}
-                                    <span class="input-group-addon input-group-append">
-                                    </span>
-                                </div>
-                                <div class="form-group col-sm-12 col-md-6">
-                                    <label>{{ __('qualification') }} <span class="text-danger">*</span></label>
-                                    {!! Form::textarea('qualification', null, ['required', 'placeholder' => __('qualification'), 'class' => 'form-control', 'rows' => 3]) !!}
+                                    <label>{{ __('qualification') }} </label>
+                                    {!! Form::textarea('qualification', null, [ 'placeholder' => __('qualification'), 'class' => 'form-control', 'rows' => 3]) !!}
                                 </div>
                             </div>
                             <div class="row">
                                 <div class="form-group col-sm-12 col-md-6">
-                                    <label>{{ __('current_address') }} <span class="text-danger">*</span></label>
-                                    {!! Form::textarea('current_address', null, ['required', 'placeholder' => __('current_address'), 'class' => 'form-control', 'rows' => 3]) !!}
+                                    <label>{{ __('current_address') }}  </label>
+                                    {!! Form::textarea('current_address', null, [  'placeholder' => __('current_address'), 'class' => 'form-control', 'rows' => 3]) !!}
                                 </div>
                                 <div class="form-group col-sm-12 col-md-6">
-                                    <label>{{ __('permanent_address') }} <span class="text-danger">*</span></label>
-                                    {!! Form::textarea('permanent_address', null, ['required', 'placeholder' => __('permanent_address'), 'class' => 'form-control', 'rows' => 3]) !!}
+                                    <label>{{ __('permanent_address') }}  </label>
+                                    {!! Form::textarea('permanent_address', null, [  'placeholder' => __('permanent_address'), 'class' => 'form-control', 'rows' => 3]) !!}
                                 </div>
                             </div>
                             <div class="row">

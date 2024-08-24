@@ -1,5 +1,5 @@
 <header class="main-header">
-    <div class="d-flex align-items-center logo-box justify-content-start">
+    <div class="d-flex d-none d-sm-block align-items-center logo-box justify-content-start">
         <a href="#" class="waves-effect waves-light nav-link d-none d-md-inline-block mx-10 push-btn bg-transparent"
             data-toggle="push-menu" role="button">
             <span class="icon-Align-left"><span class="path1"></span><span class="path2"></span><span
@@ -9,9 +9,9 @@
         <a href="index.html" class="logo">
             <!-- logo-->
             <div class="logo-lg">
-                <span class="light-logo">
+                <span class="light-logo" style="width: calc(260px - 120px);max-width: 100%;height: 40px;margin: auto;vertical-align: middle;" >
                     <img src="{{ settingByType('logo1') ? tenant_asset(settingByType('logo1')) : global_asset('assets/logo.svg') }}"  alt="logo">
-                </span> 
+                </span>
             </div>
         </a>
     </div>
@@ -84,9 +84,9 @@
                         <li class="user-body">
                             <a class="dropdown-item" href="#"><i class="ti-user text-muted me-2"></i>
                                 Profile</a>
-                            <a class="dropdown-item" href="{{ route('student_dashboard.wallet.index') }}"><i class="ti-wallet text-muted me-2"></i> My
-                                Wallet</a>
-                            <a class="dropdown-item" href="{{ route('student-settings.index') }}"><i class="ti-settings text-muted me-2"></i>
+                                <a class="dropdown-item" href="{{ route('student_dashboard.wallet.index') }}"><i class="ti-wallet text-muted me-2"></i> My
+                                    Wallet</a>
+                                <a class="dropdown-item" href="{{ route('student-settings.index') }}"><i class="ti-settings text-muted me-2"></i>
                                 Settings</a>
                             <div class="dropdown-divider"></div>
                             <a class="dropdown-item" href="#"

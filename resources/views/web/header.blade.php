@@ -33,11 +33,11 @@
                         <span class="commonSpan">
                             <i class="fa-solid fa-envelope-circle-check"></i>
                             <a
-                                href="mailto:{{ $settings['school_email'] ?? '' }}">{{ isset($settings['school_email']) ? $settings['school_email'] : 'Schoolinfous@jessor.com' }}</a>
+                                href="mailto:{{ $settings['school_email'] ?? '' }}">{{ isset($settings['school_email']) ? $settings['school_email'] : 'Schoolinfous@jessor' }}</a>
                         </span>
                         <span class="commonSpan"><i class="fa-solid fa-phone-volume"></i>
                             <a
-                                href="tel:{{ $settings['school_phone'] }}">{{ isset($settings['school_phone']) ? $settings['school_phone'] : '( +91 ) 12345 67890' }}</a>
+                                href="tel:{{ $settings['school_phone'] ?? '' }}">{{ isset($settings['school_phone']) ? $settings['school_phone'] : '( +91 ) 12345 67890' }}</a>
                         </span>
                     </div>
                 </div>

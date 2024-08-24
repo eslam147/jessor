@@ -120,14 +120,17 @@
                             </div>
                             <div class="form-group col-sm-12 col-md-6">
                                 <label>{{ __('email') }} <span class="text-danger">*</span></label>
-                                {!! Form::text('email', null, ['required', 'placeholder' => __('email'), 'class' => 'form-control', 'id' => 'email' ,'readonly' => true]) !!}
+                                {!! Form::text('email', null, ['required', 'placeholder' => __('email'), 'class' => 'form-control', 'id' => 'email' ]) !!}
+                            </div>
+                            <div class="form-group col-sm-12 col-md-6">
+                                <label>{{ __('password') }} <span class="text-danger">*</span></label>
+                                <input type="password" class="form-control" name="password" >
                             </div>
                         </div>
                         <div class="row form-group">
                             <div class="form-group col-sm-12 col-md-6">
                                 <label>{{ __('mobile') }} <span class="text-danger">*</span></label>
                                 {!! Form::number('mobile', null, ['required', 'min' => 1 , 'placeholder' => __('mobile'), 'class' => 'form-control', 'id' => 'mobile']) !!}
-
                             </div>
                             <div class="form-group col-sm-12 col-md-6">
                                 <label>{{ __('image') }}</label><br>

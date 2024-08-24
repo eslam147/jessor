@@ -57,11 +57,8 @@ class TeacherController extends Controller
                 'last_name' => 'required',
                 'gender' => 'required',
                 'email' => 'required|email|unique:users,email,NULL,id,deleted_at,NULL',
+                'password' => 'required',
                 'mobile' => 'required|numeric|regex:/^[0-9]{7,16}$/',
-                'dob' => 'required|date',
-                'qualification' => 'required',
-                'current_address' => 'required',
-                'permanent_address' => 'required',
             ],
             [
                 'mobile.regex' => 'The mobile number must be a length of 7 to 15 digits.'
@@ -97,9 +94,6 @@ class TeacherController extends Controller
                 } else {
                     $user->image = "";
                 }
-                $teacher_plain_text_password = str_replace('-', '', date('d-m-Y', strtotime($request->dob)));
-                $user->password = Hash::make($teacher_plain_text_password);
-
                 $user->first_name = $request->first_name;
                 $user->last_name = $request->last_name;
                 $user->gender = $request->gender;
@@ -188,7 +182,7 @@ class TeacherController extends Controller
                     'subject' => 'Welcome to ' . $school_name['school_name'],
                     'name' => $request->first_name,
                     'email' => $request->email,
-                    'password' => $teacher_plain_text_password,
+                    'password' => Hash::make($request->password),
                     'school_name' => $school_name['school_name']
                 ];
 
@@ -213,8 +207,8 @@ class TeacherController extends Controller
                 } else {
                     $user->image = "";
                 }
-                $teacher_plain_text_password = str_replace('-', '', date('d-m-Y', strtotime($request->dob)));
-                $user->password = Hash::make($teacher_plain_text_password);
+                //$teacher_plain_text_password = str_replace('-', '', date('d-m-Y', strtotime($request->dob)));
+                $user->password = Hash::make($request->password);
 
                 $user->first_name = $request->first_name;
                 $user->last_name = $request->last_name;
@@ -299,7 +293,7 @@ class TeacherController extends Controller
                     'subject' => 'Welcome to ' . $school_name['school_name'],
                     'name' => $request->first_name,
                     'email' => $request->email,
-                    'password' => $teacher_plain_text_password,
+                    'password' => Hash::make($request->password),
                     'school_name' => $school_name['school_name']
                 ];
 
@@ -383,7 +377,6 @@ class TeacherController extends Controller
         foreach ($res as $row) {
             $operate = '<a class="btn btn-xs btn-gradient-primary btn-rounded btn-icon editdata" data-id=' . $row->id . ' data-url=' . url('teachers') . ' title="Edit" data-toggle="modal" data-target="#editModal"><i class="fa fa-edit"></i></a>&nbsp;&nbsp;';
             $operate .= '<a class="btn btn-xs btn-gradient-danger btn-rounded btn-icon deletedata" data-id=' . $row->id . ' data-user_id=' . $row->user_id . ' data-url=' . url('teachers', $row->user_id) . ' title="Delete"><i class="fa fa-trash"></i></a>';
-
             if (Auth::user()->can('teacher-delete')) {
                 if ($row->user->isNotBanned()) {
                     $operate .= "<a data-url=" . route('users.ban', $row->user->id) . " class='btn btn-xs btn-danger btn-rounded user_ban' data-id='{$row->user->id}' title='Ban {$row->user->full_name}'><i class='fa fa-lock'></i>Block</a>&nbsp;&nbsp;";
@@ -436,7 +429,7 @@ class TeacherController extends Controller
 
 
     public function update(Request $request)
-    {
+    { 
         if (! Auth::user()->can('teacher-edit')) {
             $response = [
                 'message' => trans('no_permission_message')
@@ -450,6 +443,7 @@ class TeacherController extends Controller
                 'last_name' => 'required',
                 'gender' => 'required',
                 'email' => 'required|email|unique:users,email,' . $request->user_id,
+                'password' => 'required',
                 'mobile' => 'required|numeric|regex:/^[0-9]{7,16}$/',
                 'dob' => 'required|date',
                 'qualification' => 'required',
@@ -492,6 +486,7 @@ class TeacherController extends Controller
             $user->permanent_address = $request->permanent_address;
             $user->email = $request->email;
             $user->mobile = $request->mobile;
+            $user->password = Hash::make($request->password);
             $user->dob = date('Y-m-d', strtotime($request->dob));
             $user->save();
 

@@ -62,20 +62,20 @@ class ApiController extends Controller
 
         try {
             $data = Holiday::get();
-            $response = [
+            $response = array(
                 'error' => false,
                 'message' => "Holidays Fetched Successfully",
                 'data' => $data,
                 'code' => 200,
-            ];
+            );
         } catch (\Exception $e) {
             report($e);
 
-            $response = [
+            $response = array(
                 'error' => true,
                 'message' => trans('error_occurred'),
                 'code' => 103,
-            ];
+            );
         }
         return response()->json($response);
     }
@@ -84,12 +84,12 @@ class ApiController extends Controller
     {
         try {
             $data = Slider::where('type', 1)->orWhere('type', 3)->get();
-            $response = [
+            $response = array(
                 'error' => false,
                 'message' => "Sliders Fetched Successfully",
                 'data' => $data,
                 'code' => 200,
-            ];
+            );
         } catch (\Exception $e) {
             report($e);
 

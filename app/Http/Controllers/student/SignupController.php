@@ -9,7 +9,6 @@ use App\Models\ClassSection;
 use Illuminate\Http\Request;
 use Spatie\Permission\Models\Role;
 use App\Http\Controllers\Controller;
-use App\Models\Mediums;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use RealRashid\SweetAlert\Facades\Alert;
@@ -21,14 +20,12 @@ class SignupController extends Controller
     {
         $category = Category::where('status', 1)->get();
 
-        // $mediums = Mediums::get();
         $class_section = ClassSection::with(['class', 'section'])->withOutTrashedRelations('class', 'section')->get();
-        return view('auth.register', compact('mediums', 'category'));
+        return view('auth.register', compact('class_section', 'category'));
     }
 
     public function create()
-    {
-    }
+    {}
 
     public function store(Request $request)
     {
