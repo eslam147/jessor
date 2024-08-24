@@ -110,11 +110,11 @@
             </div>
 
 
-            <div class="row coupon_purchase_type  d-none">
+            <div class="col-12 coupon_purchase_type row">
                 <div class="form-group col-sm-12 ">
                     <label>{{ __('medium') }}</label>
 
-                    <select name="medium_id" required id="medium_id" class="form-control">
+                    <select name="medium_id" id="medium_id" class="form-control">
                         <option selected disabled readonly>{{ __('select_medium') }}</option>
                         @foreach ($mediums as $medium)
                             <option value="{{ $medium->id }}" @selected(old('medium_id', isset($coupon) ? $coupon->classModel->medium_id : '') == $medium->id)>
@@ -126,10 +126,10 @@
                         <p class="text-danger" role="alert">{{ $message }}</p>
                     @enderror
                 </div>
-                <div class=" col-12 mb-2  ">
+                <div class="col-12 mb-2 row">
                     <div class="col-sm-6">
                         <label>{{ __('class') }}</label>
-                        <select name="class_id" required id="class_m_id" readonly class="form-control"></select>
+                        <select name="class_id"  id="class_m_id" readonly class="form-control"></select>
                         @error('class_id')
                             <p class="text-danger" role="alert">{{ $message }}</p>
                         @enderror
