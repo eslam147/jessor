@@ -208,7 +208,7 @@ class CouponService
             return $this->responseContent($couponCheck['message'] ?? __('coupon_errors_is_not_available'), false);
         }
 
-        $this->usageStore($coupon, $user, $action, $action->price);
+        $this->usageStore($coupon, $user, $action, $action->price ?? 0);
 
         return $this->responseContent(__('coupon_applied_successfully'), true);
     }
