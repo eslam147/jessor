@@ -34,12 +34,12 @@ class PurchaseService
 
     public function enrollLesson(Lesson $lesson, $userId)
     {
-
         return Enrollment::firstOrCreate([
             'lesson_id' => $lesson->id,
             'user_id' => $userId
         ], [
 
+            'expires_at' => now()->addDays($lesson->expiry_days),
         ]);
 
     }

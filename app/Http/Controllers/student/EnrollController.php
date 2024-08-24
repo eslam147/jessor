@@ -11,15 +11,18 @@ use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use App\Services\Coupon\CouponService;
+use App\Services\Purchase\PurchaseService;
 use RealRashid\SweetAlert\Facades\Alert;
 use Illuminate\Support\Facades\Validator;
 
 class EnrollController extends Controller
 {
     public CouponService $couponService;
-    public function __construct(CouponService $couponService)
+    public PurchaseService $purchaseService;
+    public function __construct(CouponService $couponService, PurchaseService $purchaseService)
     {
         $this->couponService = $couponService;
+        $this->purchaseService = $purchaseService;
     }
 
     public function store(Request $request, string $payment_method)
@@ -45,10 +48,8 @@ class EnrollController extends Controller
 
                     $applyCouponCode = $this->couponService->redeemCoupon($user, $purchaseCode, $lesson);
                     if ($applyCouponCode['status'] == true) {
-                        $enrollment = Enrollment::create([
-                            'user_id' => $user->id,
-                            'lesson_id' => $lesson->id
-                        ]);
+                        // ----------------------------------------------- #
+                        $this->purchaseService->enrollLesson($lesson, $user->id);
                         // ----------------------------------------------- #
                         DB::commit();
                         Alert::success('Success', 'Lesson has been unlocked successfully.');
@@ -83,12 +84,9 @@ class EnrollController extends Controller
                         $user->withdraw($lesson->price, [
                             'description' => "Enroll Lesson {$lesson->name}",
                         ]);
-
-                        $enrollment = Enrollment::create([
-                            'user_id' => $user->id,
-                            'lesson_id' => $lesson->id,
-                            // 'payed_using' => 'wallet'
-                        ]);
+                        // ----------------------------------------------- #
+                        $this->purchaseService->enrollLesson($lesson, $user->id);
+                        // ----------------------------------------------- #
                         DB::commit();
 
                         Alert::success('Success', 'Lesson has been unlocked successfully.');
