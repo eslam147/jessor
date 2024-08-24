@@ -24,13 +24,13 @@ class CouponRequest extends FormRequest
             // ------------------------------------------------ \\
             'price' => 'nullable|min:0.01|numeric',
             // ------------------------------------------------ \\
-            'class_id' => 'required_if:coupon_type,purchase|exists:classes,id',
+            'class_id' => 'nullable|required_if:coupon_type,purchase|exists:classes,id',
             'subject_id' => 'nullable|exists:subjects,id',
             // ------------------------------------------------ \\
             'teacher_id' => 'nullable|exists:teachers,id',
             'lesson_id' => 'nullable|exists:lessons,id',
             // ------------------------------------------------ \\
-            'tags' => ['string','nullable' , new TagCommaSperated],
+            'tags' => ['string', 'nullable', new TagCommaSperated],
             // ------------------------------------------------ \\
         ];
     }
@@ -42,7 +42,7 @@ class CouponRequest extends FormRequest
             'lesson_id' => 'nullable|exists:lessons,id',
             // ------------------------------------------------ \\
             'subject_id' => 'nullable|exists:subjects,id',
-            'tags' => ['string','nullable' , new TagCommaSperated],
+            'tags' => ['string', 'nullable', new TagCommaSperated],
             // ------------------------------------------------ \\
             'usage_limit' => 'required|integer|min:1|max:100',
             'expiry_date' => 'nullable|date|after:today',
