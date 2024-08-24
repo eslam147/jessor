@@ -75,24 +75,26 @@ class EnrollController extends Controller
                     // ----------------------------------------------- #
                     DB::beginTransaction();
                     // $user 
-                    if ($user->balance < $lesson->price) {
-                        Alert::warning('error', "You don't have enough balance.");
+                    if (! empty($lesson->price)) {
+                        if ($user->balance < $lesson->price) {
+                            Alert::warning('error', "You don't have enough balance.");
+                            return redirect()->back();
+                        }
+                        $user->withdraw($lesson->price, [
+                            'description' => "Enroll Lesson {$lesson->name}",
+                        ]);
+
+                        $enrollment = Enrollment::create([
+                            'user_id' => $user->id,
+                            'lesson_id' => $lesson->id,
+                            // 'payed_using' => 'wallet'
+                        ]);
+                        DB::commit();
+
+                        Alert::success('Success', 'Lesson has been unlocked successfully.');
                         return redirect()->back();
                     }
-                    $user->withdraw($lesson->price, [
-                        'description' => "Enroll Lesson {$lesson->name}",
-                    ]);
-
-                    $enrollment = Enrollment::create([
-                        'user_id' => $user->id,
-                        'lesson_id' => $lesson->id,
-                        // 'payed_using' => 'wallet'
-                    ]);
                     // ----------------------------------------------- #
-                    DB::commit();
-
-                    Alert::success('Success', 'Lesson has been unlocked successfully.');
-                    return redirect()->back();
                 }
 
             }

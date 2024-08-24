@@ -59,12 +59,12 @@ use App\Http\Controllers\OnlineExamQuestionController;
 use Stancl\Tenancy\Middleware\InitializeTenancyByDomain;
 use App\Http\Controllers\student\StudentDashboardController;
 use Stancl\Tenancy\Middleware\PreventAccessFromCentralDomains;
-use App\Http\Controllers\Student\WalletController as StudentWallet;
+use App\Http\Controllers\student\WalletController as StudentWallet;
 use App\Http\Controllers\student\AssignmentController as StudentAssignmentController;
 use App\Http\Controllers\student\SubjectController as StudentSubjectController;
 use App\Http\Controllers\student\SettingController as StudentSettingsController;
-use App\Http\Controllers\Student\OfflineExamController as StudentOfflineExamController;
-use App\Http\Controllers\Student\ExamController as StudentOnlineExamController;
+use App\Http\Controllers\student\OfflineExamController as StudentOfflineExamController;
+use App\Http\Controllers\student\ExamController as StudentOnlineExamController;
 
 Route::middleware([
     'web',

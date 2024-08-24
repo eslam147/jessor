@@ -110,8 +110,8 @@
             </div>
 
 
-            <div class="row coupon_purchase_type">
-                <div class="form-group col-sm-12  d-none">
+            <div class="row coupon_purchase_type  d-none">
+                <div class="form-group col-sm-12 ">
                     <label>{{ __('medium') }}</label>
 
                     <select name="medium_id" required id="medium_id" class="form-control">
