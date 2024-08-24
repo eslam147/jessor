@@ -347,7 +347,7 @@ class StudentApiController extends Controller
     {
         try {
             $student = $request->user()->student;
-            $date = Carbon::now();
+            $date = now();
             $day = $date->format('l');
             $session_year = getSettings('session_year');
             $session_year_id = $session_year['session_year'];
@@ -2710,7 +2710,7 @@ class StudentApiController extends Controller
 
             $user = Auth::user();
 
-            $class_section_id = $user->student->class_section->id;
+            $class_section_id = $user->student->class_section?->id;
 
             $student_subject = $user->student->subjects();
 

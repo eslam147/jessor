@@ -126,7 +126,7 @@
                         <p class="text-danger" role="alert">{{ $message }}</p>
                     @enderror
                 </div>
-                <div class="row col-12 mb-2  d-none">
+                <div class=" col-12 mb-2  ">
                     <div class="col-sm-6">
                         <label>{{ __('class') }}</label>
                         <select name="class_id" required id="class_m_id" readonly class="form-control"></select>
