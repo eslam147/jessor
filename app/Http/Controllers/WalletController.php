@@ -35,14 +35,26 @@ class WalletController extends Controller
             $sort = request('sort');
         if (filled(request('order')))
             $order = request('order');
+        $search = request('search');
 
         $sql = User::with('wallet')->has('student');
-
+        $sql->when($search, function ($query) use ($search) {
+            $query->where(function ($query) use ($search) {
+                $query->where('user_id', 'LIKE', "%$search%")
+                    ->orWhere('is_new_admission', 'LIKE', "%$search%")
+                    ->orWhereHas('user', function ($q) use ($search) {
+                        $q->where('first_name', 'LIKE', "%$search%")
+                            ->orWhere('last_name', 'LIKE', "%$search%")
+                            ->orWhere('email', 'LIKE', "%$search%")
+                            ->orWhere('dob', 'LIKE', "%$search%");
+                    });
+            });
+            //class filter data
+        });
         $total = $sql->count();
 
         $sql->orderBy($sort, $order)->skip($offset)->take($limit);
-        // $sql->orderBy($sort, $order)->take($limit);
-        // dd($sql->toSql());
+
         $res = $sql->get();
 
         $bulkData = [];
