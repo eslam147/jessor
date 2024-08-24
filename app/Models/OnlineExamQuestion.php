@@ -24,10 +24,14 @@ class OnlineExamQuestion extends Model
     public function answers(){
         return $this->hasMany(OnlineExamQuestionAnswer::class,'question_id')->with('options');
     }
+    public function teacher(){
+        return $this->belongsTo(Teacher::class,'teacher_id');
+    }
     public function scopeRelatedToTeacher($query) {
         $user = Auth::user();
+        $user->load('teacher');
         if ($user->hasRole('Teacher')) {
-            return $query->where('teacher_id', auth()->user()->id);
+            return $query->where('teacher_id', $user->teacher->id);
         }
     }
     public function getImageUrlAttribute($value) {

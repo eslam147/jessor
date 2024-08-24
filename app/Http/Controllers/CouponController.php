@@ -97,6 +97,7 @@ class CouponController extends Controller
             $tempRow['code'] = $row->code;
             $tempRow['used_count'] = $row->usages_count;
             $tempRow['tags_imploded'] = $row->tags->pluck('name')->implode(', ');
+            $tempRow['type'] = $row->type->translatedName();
             $tempRow['class_name'] = optional($row->classModel)?->name ?? 'N/A';
             $tempRow['subject_name'] = optional($row->subject)?->name ?? 'N/A';
             $tempRow['expiry_date'] = $row->expiry_date->toDateString();
@@ -144,7 +145,11 @@ class CouponController extends Controller
 
     public function store(CouponRequest $request)
     {
-        $couponIds = $this->couponService->savePurchaseCoupons($request);
+        if($request->post('coupon_type') == 'wallet'){
+            $couponIds = $this->couponService->saveWalletCoupons($request);
+        }else{
+            $couponIds = $this->couponService->savePurchaseCoupons($request);
+        }
 
         if ($request->post('action') == 'save_and_print') {
             $exportCoupons = $this->couponService->exportCouponCode($couponIds);

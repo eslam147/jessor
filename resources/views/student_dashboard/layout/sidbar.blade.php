@@ -19,15 +19,27 @@
                         </a>
                     </li>
                     <li>
-                        <a href="#">
+                        <a href="{{ route('student_dashboard.assignments.index') }}">
                             <i class="si-note si"></i>
                             <span>Home Work</span>
                         </a>
                     </li>
                     <li>
-                        <a href="#">
+                        <a href="{{ route('student_dashboard.exams.online.index') }}">
                             <i class="si-clock si"></i>
-                            <span>Exams</span>
+                            <span>Online Exams</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{{ route('student_dashboard.exams.offline.index') }}">
+                            <i class="si-clock si"></i>
+                            <span>Offline Exams</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{{ route('student_dashboard.assignments.index') }}">
+                            <i class="si-clock si"></i>
+                            <span>Assignments</span>
                         </a>
                     </li>
                     <li>

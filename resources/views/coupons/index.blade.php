@@ -60,6 +60,9 @@
                                             <th scope="col" data-field="tags_imploded" data-sortable="true">
                                                 {{ __('tags') }}
                                             </th>
+                                            <th scope="col" data-field="type" data-sortable="true">
+                                                {{ __('type') }}
+                                            </th>
                                             <th scope="col" data-field="price" data-sortable="true">
                                                 {{ __('price') }}
                                             </th>

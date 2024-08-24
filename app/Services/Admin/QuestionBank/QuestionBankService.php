@@ -60,10 +60,10 @@ class QuestionBankService
             }
         }
     }
-    public function saveOptionsWithAnswer(OnlineExamQuestion $question, $request)
+    public function saveOptionsWithAnswer(OnlineExamQuestion $question, $options, $answers)
     {
-        $optionIds = $this->saveOptions($question, $request->eoption);
-        $this->saveAnswers($question, $optionIds,$request->answer);
+        $optionIds = $this->saveOptions($question, $options);
+        $this->saveAnswers($question, $optionIds, $answers);
         return true;
     }
 }

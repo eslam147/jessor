@@ -17,14 +17,14 @@ class StudentDashboardController extends Controller
     {
         $subjects = [];
         //get the subjects of the student
-        $studentClassSection = Auth::user()->student->class_section_id;
-        $class_section = ClassSection::find($studentClassSection);
-        if ($class_section) {
-            $class_id = $class_section->class_id;
-            $subjects = Subject::whereHas('class', function ($q) use ($class_id) {
-                $q->where('class_id', $class_id);
-            })->latest()->take(3)->get();
-        }
+        // $studentClassSection = Auth::user()->student->class_section_id;
+        // $class_section = ClassSection::find($studentClassSection);
+        // if ($class_section) {
+        //     $class_id = $class_section->class_id;
+        //     $subjects = Subject::whereHas('class', function ($q) use ($class_id) {
+        //         $q->where('class_id', $class_id);
+        //     })->latest()->take(3)->get();
+        // }
 
         //get the time table of the student
         return view('student_dashboard.dashboard');

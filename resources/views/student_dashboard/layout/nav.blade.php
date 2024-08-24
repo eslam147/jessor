@@ -27,7 +27,7 @@
                                 class="path3"></span></span>
                     </a>
                 </li>
-                <li class="btn-group nav-item d-none d-xl-inline-block">
+                {{-- <li class="btn-group nav-item d-none d-xl-inline-block">
                     <a href="contact_app_chat.html" class="waves-effect waves-light nav-link svg-bt-icon"
                         title="Chat">
                         <i class="icon-Chat"><span class="path1"></span><span class="path2"></span></i>
@@ -44,7 +44,7 @@
                         <i class="icon-Clipboard-check"><span class="path1"></span><span class="path2"></span><span
                                 class="path3"></span></i>
                     </a>
-                </li>
+                </li> --}}
             </ul>
         </div>
 
@@ -56,7 +56,7 @@
                         <i class="icon-Expand-arrows"><span class="path1"></span><span class="path2"></span></i>
                     </a>
                 </li>
-                <li class="btn-group d-lg-inline-flex d-none">
+                {{-- <li class="btn-group d-lg-inline-flex d-none">
                     <div class="app-menu">
                         <div class="search-bx mx-5">
                             <form>
@@ -71,7 +71,7 @@
                             </form>
                         </div>
                     </div>
-                </li>
+                </li> --}}
                 <!-- Notifications -->
                 <x-student-dashboard.notification.notification-component />
                 <!-- User Account-->
@@ -101,12 +101,12 @@
                 </li>
 
                 <!-- Control Sidebar Toggle Button -->
-                <li>
+                {{-- <li>
                     <a href="#" data-toggle="control-sidebar" title="Setting"
                         class="waves-effect waves-light">
                         <i class="icon-Settings"><span class="path1"></span><span class="path2"></span></i>
                     </a>
-                </li>
+                </li> --}}
 
             </ul>
         </div>

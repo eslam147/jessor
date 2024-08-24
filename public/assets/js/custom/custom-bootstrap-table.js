@@ -3128,13 +3128,7 @@ function onlineExamQueryParams(p) {
     };
 }
 
-$("#filter-question-class-section-id").on("change", function () {
-    $("#table_list_questions").bootstrapTable("refresh");
-});
-$("#filter-question-subject-id").on("change", function () {
-    $("#table_list_questions").bootstrapTable("refresh");
-});
-$("#filter-view-question-class-id").on("change", function () {
+$("#filter-view-question-class-id,#filter-question-class-section-id,#filter-question-subject-id,#filter-question-teacher-id").on("change", function () {
     $("#table_list_questions").bootstrapTable("refresh");
 });
 function onlineExamQuestionsQueryParams(p) {
@@ -3146,6 +3140,8 @@ function onlineExamQuestionsQueryParams(p) {
         search: p.search,
         class_id: $("#filter-view-question-class-id").val(),
         subject_id: $("#filter-question-subject-id").val(),
+        teacher_id: $("#filter-question-teacher-id").val(),
+
     };
 }
 function teacherQueryParams(p) {

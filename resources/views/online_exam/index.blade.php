@@ -117,7 +117,7 @@
                                                 </option>
                                                 @foreach ($class_sections as $class_section)
                                                     <option value="{{ $class_section->id }}">
-                                                        {{ $class_section->class->name }} {{ $class_section->section->name }}
+                                                        {{ $class_section->class?->name }} {{ $class_section->section?->name }}
                                                         - {{ $class_section->class->medium->name }}
                                                         {{ $class_section->class->streams->name ?? '' }}
                                                     </option>

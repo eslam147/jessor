@@ -205,13 +205,15 @@ class LessonController extends Controller
             $tempRow['name'] = $row->name;
             $tempRow['description'] = str($row->description)->limit(10);
             $tempRow['purchased_count'] = view('lessons.datatable.enrollment_count', ['row' => $row])->render();
-            // $
+
             $tempRow['class_section_id'] = $row->class_section_id;
             $classSection = $row->class_section;
             $tempRow['class_section_name'] = $classSection?->class->name . ' ' . $classSection?->section?->name . ' - ' . $classSection?->class->medium->name;
             $tempRow['subject_id'] = $row->subject_id;
             $tempRow['subject_name'] = $row->subject->name . ' - ' . $row->subject->type;
+
             $tempRow['topic'] = $row->topic;
+
             $tempRow['expiry_days'] = $row->expiry_days ? $row->expiry_days : "N/A";
             $tempRow['price'] = $row->price ? $row->price : "N/A";
             $tempRow['lesson_thumbnail'] = $row->thumbnail;
@@ -287,15 +289,15 @@ class LessonController extends Controller
             ]
         );
         if ($validator->fails()) {
-            $response = array(
+            return response()->json([
                 'error' => true,
                 'message' => $validator->errors()->first(),
-            );
-            return response()->json($response);
+            ]);
         }
         try {
             if ($request->hasFile('lesson_thumbnail')) {
-                if (Storage::disk('public')->exists($lesson->getRawOriginal('thumbnail'))) {
+
+                if (! empty($lesson->getRawOriginal('thumbnail')) && Storage::disk('public')->exists($lesson->getRawOriginal('thumbnail'))) {
                     Storage::disk('public')->delete($lesson->getRawOriginal('thumbnail'));
                 }
                 $fileThumbnail = $request->file('lesson_thumbnail');
@@ -509,7 +511,8 @@ class LessonController extends Controller
                 'error' => false,
                 'message' => trans('data_store_successfully')
             ];
-        } catch (Throwable $e) {
+        } catch (Exception $e) {
+            report($e);
             $response = [
                 'error' => true,
                 'message' => trans('error_occurred'),
@@ -524,11 +527,10 @@ class LessonController extends Controller
         $lesson = Lesson::relatedToTeacher()->find($id);
 
         if (! Auth::user()->can('lesson-delete')) {
-            $response = array(
+            return response()->json([
                 'error' => true,
                 'message' => trans('no_permission_message')
-            );
-            return response()->json($response);
+            ]);
         }
         try {
 
@@ -557,7 +559,8 @@ class LessonController extends Controller
 
                 ];
             }
-        } catch (Throwable $e) {
+        } catch (Exception $e) {
+            report($e);
             $response = [
                 'error' => true,
                 'message' => trans('error_occurred')
@@ -578,12 +581,12 @@ class LessonController extends Controller
             $lesson = $lesson->where('class_section_id', $request->class_section_id);
         }
         $lesson = $lesson->relatedToTeacher()->get();
-        $response = array(
+
+        return response()->json([
             'error' => false,
             'data' => $lesson,
             'message' => 'Lesson fetched successfully'
-        );
-        return response()->json($response);
+        ]);
     }
 
     public function deleteFile($id)
@@ -594,15 +597,16 @@ class LessonController extends Controller
                 Storage::disk('public')->delete($file->file_url);
             }
             $file->delete();
-            $response = array(
+            $response = [
                 'error' => false,
                 'message' => trans('data_delete_successfully')
-            );
-        } catch (Throwable $e) {
-            $response = array(
+            ];
+        } catch (Exception $e) {
+            report($e);
+            $response = [
                 'error' => true,
                 'message' => trans('error_occurred')
-            );
+            ];
         }
         return response()->json($response);
     }

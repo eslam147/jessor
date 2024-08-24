@@ -22,50 +22,86 @@ class EnrollController extends Controller
         $this->couponService = $couponService;
     }
 
-    public function store(Request $request)
+    public function store(Request $request, string $payment_method)
     {
-        $validator = Validator::make($request->all(), [
-            'purchase_code' => 'required|string',
-            'lesson_id' => 'required|exists:lessons,id'
-        ]);
-        $msg = "";
-        if ($validator->fails()) {
-            Alert::warning('warning', $validator->messages()->all()[0]);
-            return redirect()->back();
-        } else {
-            // ----------------------------------------------- #
-            $purchaseCode = $request->input('purchase_code');
-            $lesson = Lesson::find($request->lesson_id);
+        try {
             $user = Auth::user();
-            // ----------------------------------------------- #
-            try {
-                DB::beginTransaction();
-                $applyCouponCode = $this->couponService->redeemCoupon($user, $purchaseCode, $lesson);
-                if ($applyCouponCode['status'] == false) {
+
+            if ($payment_method == 'coupon_code') {
+                $validator = Validator::make($request->all(), [
+                    'purchase_code' => 'required|string',
+                    'lesson_id' => 'required|exists:lessons,id'
+                ]);
+                $msg = "";
+                if ($validator->fails()) {
+                    Alert::warning('warning', $validator->messages()->all()[0]);
+                    return redirect()->back();
+                } else {
+                    // ----------------------------------------------- #
+                    $purchaseCode = $request->input('purchase_code');
+                    $lesson = Lesson::find($request->lesson_id);
+                    // ----------------------------------------------- #
+                    DB::beginTransaction();
+
+                    $applyCouponCode = $this->couponService->redeemCoupon($user, $purchaseCode, $lesson);
+                    if ($applyCouponCode['status'] == true) {
+                        $enrollment = Enrollment::create([
+                            'user_id' => $user->id,
+                            'lesson_id' => $lesson->id
+                        ]);
+                        // ----------------------------------------------- #
+                        DB::commit();
+                        Alert::success('Success', 'Lesson has been unlocked successfully.');
+                        return redirect()->back();
+                    }
                     Alert::error('error', $applyCouponCode['message']);
+                    return redirect()->back();
+
+
+
+                }
+            } elseif ($payment_method == 'wallet') {
+                $validator = Validator::make($request->all(), [
+                    'lesson_id' => 'required|exists:lessons,id'
+                ]);
+                $msg = "";
+                if ($validator->fails()) {
+                    Alert::warning('warning', $validator->messages()->all()[0]);
+                    return redirect()->back();
+                } else {
+                    // ----------------------------------------------- #
+                    $lesson = Lesson::find($request->lesson_id);
+                    $user = Auth::user();
+                    // ----------------------------------------------- #
+                    DB::beginTransaction();
+                    // $user 
+                    if ($user->balance < $lesson->price) {
+                        Alert::warning('error', "You don't have enough balance.");
+                        return redirect()->back();
+                    }
+                    $user->withdraw($lesson->price, [
+                        'description' => "Enroll Lesson {$lesson->name}",
+                    ]);
+
+                    $enrollment = Enrollment::create([
+                        'user_id' => $user->id,
+                        'lesson_id' => $lesson->id,
+                        // 'payed_using' => 'wallet'
+                    ]);
+                    // ----------------------------------------------- #
+                    DB::commit();
+
+                    Alert::success('Success', 'Lesson has been unlocked successfully.');
                     return redirect()->back();
                 }
 
-                $enrollment = Enrollment::create([
-                    'user_id' => $user->id,
-                    'lesson_id' => $lesson->id
-                ]);
-                // ----------------------------------------------- #
-                DB::commit();
-
-                Alert::success('Success', 'Lesson has been unlocked successfully.');
-                return redirect()->back();
-            } catch (\Exception $e) {
-                DB::rollBack();
-                report($e);
-                // if ($applyCouponCode['status'] == false) {
-                // }
-                Alert::error('error', "Error When Unlocking Lesson.");
-                return redirect()->back();
             }
 
+        } catch (\Exception $e) {
+            DB::rollBack();
+            report($e);
+            Alert::error('error', "Error When Unlocking Lesson.");
+            return redirect()->back();
         }
     }
-
-
 }

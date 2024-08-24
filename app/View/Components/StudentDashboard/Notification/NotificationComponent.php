@@ -13,7 +13,7 @@ class NotificationComponent extends Component
     public function __construct($count = 10)
     {
         $user = auth()->user();
-        $notificationQuery = NotificationModel::query()->whereHas('users', fn($q) => $q->where('user_id', $user));
+        $notificationQuery = NotificationModel::query()->whereHas('users', fn($q) => $q->where('user_id', $user->id));
         $this->notifications = $notificationQuery->latest()->paginate($count);
         $this->unreadNotificationCount = $notificationQuery->count();
     }

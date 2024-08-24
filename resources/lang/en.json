@@ -680,10 +680,13 @@
     "yes_unban": "Yes Un Block User",
     "expiry_days": "Expiry Days",
     "expire_days_lesson": "Expire days after student purchase the lesson",
-    "question_bank" : "Question Bank",
-    "enrollments_count" : "Enrollments Count (:count)",
-    "teacher_name" : "Teacher Name",
-    "expires_at" : "Expires At",
-    "enrollment" : "Enrollment",
-    "image_based" : "Image Based"
+    "question_bank": "Question Bank",
+    "enrollments_count": "Enrollments Count (:count)",
+    "teacher_name": "Teacher Name",
+    "expires_at": "Expires At",
+    "enrollment": "Enrollment",
+    "image_based": "Image Based",
+    "explain_answer": "Explain Answer",
+    "coupon_charge_amount": "Charge Amount",
+    "coupon_purchase": "Purchase"
 }

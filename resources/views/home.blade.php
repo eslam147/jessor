@@ -174,7 +174,7 @@
                                             $colorIndex = ($colorIndex + 1) % count($colors);
                                         @endphp
 
-                                        <div class="col-sm-6 col-md-3 stretch-card grid-margin">
+                                        <div class="col-12 col-md-6 col-lg-4 grid-margin overflow-hidden stretch-card">
                                             <div class="card {{ $currentColor }} card-img-holder text-white">
                                                 <div class="card-body">
                                                     <img src="{{ url(config('global.CIRCLE_SVG')) }}"

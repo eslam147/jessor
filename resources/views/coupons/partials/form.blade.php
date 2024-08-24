@@ -8,153 +8,203 @@
         }
     </style>
 @endsection
-<div class="row">
-    @unless (isset($coupon))
-        <div class="form-group col-sm-12">
-            <label>{{ __('coupons_count') }}<span class="text-danger">*</span></label>
-            {!! Form::number('coupons_count', null, [
-                'required',
-                'min' => 1,
-                'max' => 1000,
-                'step' => '1',
-                'placeholder' => __('coupons_count'),
-                'class' => 'form-control',
-            ]) !!}
-            @error('coupons_count')
-                <p class="text-danger" role="alert">{{ $message }}</p>
-            @enderror
-        </div>
-    @endunless
-
+<div class="row justify-content-center align-items-center">
     <div class="form-group col-sm-12">
-        <label>{{ __('usage_limit') }}<span class="text-danger">*</span></label>
-        {!! Form::number('usage_limit', isset($coupon) ? $coupon->maximum_usage : '', [
-            'required',
-            'min' => 1,
-            'step' => '1',
-            'placeholder' => __('usage_limit'),
-            'class' => 'form-control',
-        ]) !!}
-        @error('usage_limit')
+        <label>{{ __('coupon_type') }}<span class="text-danger">*</span></label>
+        {!! Form::select(
+            'coupon_type',
+            [
+                'purchase' => __('purchase'),
+                'wallet' => __('wallet'),
+            ],
+            isset($coupon) ? $coupon['coupon_type'] : '',
+            ['required', 'placeholder' => __('coupon_type'), 'class' => 'form-control coupon_type'],
+        ) !!}
+        @error('coupon_type')
             <p class="text-danger" role="alert">{{ $message }}</p>
         @enderror
     </div>
 
-    <div class="form-group col-sm-12">
+    <div class="details d-none col-12">
+        <div class="row">
+            @unless (isset($coupon))
+                <div class="form-group col-sm-12">
+                    <label>{{ __('coupons_count') }}<span class="text-danger">*</span></label>
+                    {!! Form::number('coupons_count', null, [
+                        'required',
+                        'min' => 1,
+                        'max' => 1000,
+                        'step' => '1',
+                        'placeholder' => __('coupons_count'),
+                        'class' => 'form-control',
+                    ]) !!}
+                    @error('coupons_count')
+                        <p class="text-danger" role="alert">{{ $message }}</p>
+                    @enderror
+                </div>
+            @endunless
 
-        <div class="form-check form-check-inline">
-            <label class="form-check-label">
-                <input type="checkbox" value="true" {{ !empty($coupon->price) ? 'checked' : ''}} class="form-check-input coupon_has_price"
-                    id="coupon_has_price">With Price
-                <i class="input-helper"></i><i class="input-helper"></i></label>
-        </div>
-    </div>
+            <div class="form-group col-sm-12 coupon_purchase_type">
+                <label>{{ __('usage_limit') }}<span class="text-danger">*</span></label>
+                {!! Form::number('usage_limit', isset($coupon) ? $coupon->maximum_usage : '', [
+                    'required',
+                    'min' => 1,
+                    'step' => '1',
+                    'placeholder' => __('usage_limit'),
+                    'class' => 'form-control',
+                ]) !!}
+                @error('usage_limit')
+                    <p class="text-danger" role="alert">{{ $message }}</p>
+                @enderror
+            </div>
 
-    <div class="form-group col-sm-12 coupon_price {{ !empty($coupon->price) ? '' : 'd-none' }}">
-        <label>{{ __('price') }}<span class="text-danger">*</span></label>
+            <div class="form-group col-sm-12 coupon_purchase_type with_price">
 
-        {!! Form::number('price', isset($coupon) ? $coupon->price : '', [
-            'required',
-            'min' => 0,
-            'step' => '0.01',
-            'placeholder' => __('price'),
-            'disabled',
-            'class' => 'form-control  ',
-        ]) !!}
-        @error('price')
-            <p class="text-danger" role="alert">{{ $message }}</p>
-        @enderror
-    </div>
+                <div class="form-check form-check-inline">
+                    <label class="form-check-label">
+                        <input type="checkbox" value="true" {{ !empty($coupon->price) ? 'checked' : '' }}
+                            class="form-check-input coupon_has_price" id="coupon_has_price">With Price
+                        <i class="input-helper"></i><i class="input-helper"></i></label>
+                </div>
+            </div>
 
-    <div class="form-group col-sm-12">
-        <label>{{ __('expiry_date') }}<span class="text-danger">*</span></label>
-        {!! Form::date('expiry_date', isset($coupon) ? $coupon->expiry_date : '', [
-            'required',
-            'placeholder' => __('expiry_date'),
-            'class' => 'form-control',
-        ]) !!}
-        @error('expiry_date')
-            <p class="text-danger" role="alert">{{ $message }}</p>
-        @enderror
-    </div>
+            <div
+                class="form-group col-sm-12 coupon_wallet_type coupon_purchase_type coupon_price {{ !empty($coupon->price) ? '' : 'd-none' }}">
+                <label>{{ __('price') }}<span class="text-danger">*</span></label>
 
-    <div class="form-group col-sm-12">
-        <label>{{ __('tags') }} <small class="text-info"> (Maximum : 5)</small></label>
-        {!! Form::text('tags', old('tags', isset($coupon) ? $coupon->tags->pluck('name')->implode(',') : ''), [
-            'placeholder' => __('tags'),
-            'class' => 'form-control',
-            'id' => 'coupon_tags',
-        ]) !!}
-        @error('tags')
-            <p class="text-danger" role="alert">{{ $message }}</p>
-        @enderror
-    </div>
+                {!! Form::number('price', isset($coupon) ? $coupon->price : '', [
+                    'required',
+                    'min' => 0,
+                    'step' => '0.01',
+                    'placeholder' => __('price'),
+                    'disabled',
+                    'class' => 'form-control  ',
+                ]) !!}
+                @error('price')
+                    <p class="text-danger" role="alert">{{ $message }}</p>
+                @enderror
+            </div>
 
-    <div class="form-group col-sm-12">
-        <label>{{ __('medium') }}<span class="text-danger">*</span></label>
+            <div class="form-group col-sm-12 ">
+                <label>{{ __('expiry_date') }}<span class="text-danger">*</span></label>
+                {!! Form::date('expiry_date', isset($coupon) ? $coupon->expiry_date : '', [
+                    'required',
+                    'placeholder' => __('expiry_date'),
+                    'class' => 'form-control',
+                ]) !!}
+                @error('expiry_date')
+                    <p class="text-danger" role="alert">{{ $message }}</p>
+                @enderror
+            </div>
 
-        <select name="medium_id" required id="medium_id" class="form-control">
-            <option selected disabled readonly>{{ __('select_medium') }}</option>
-            @foreach ($mediums as $medium)
-                <option value="{{ $medium->id }}" @selected(old('medium_id', isset($coupon) ? $coupon->classModel->medium_id : '') == $medium->id)>
-                    {{ $medium->name }}
-                </option>
-            @endforeach
-        </select>
-        @error('medium_id')
-            <p class="text-danger" role="alert">{{ $message }}</p>
-        @enderror
-    </div>
-    <div class="row col-12 mb-2">
-        <div class="col-sm-6">
-            <label>{{ __('class') }}<span class="text-danger">*</span></label>
-            <select name="class_id" required id="class_m_id" readonly class="form-control"></select>
-            @error('class_id')
-                <p class="text-danger" role="alert">{{ $message }}</p>
-            @enderror
-        </div>
-        <div class="col-sm-6">
-            <label>{{ __('subject') }}</label>
-            {!! Form::select('subject_id', [], old('subject_id'), [
-                'readonly',
-                'placeholder' => __('all_subjects'),
-                'class' => 'form-control',
-                'id' => 'subject_id',
-            ]) !!}
-            @error('subject_id')
-                <p class="text-danger" role="alert">{{ $message }}</p>
-            @enderror
-        </div>
-    </div>
-    <div class="row col-12 mb-2">
-        <div class="col-sm-6">
-            <label>{{ __('teacher') }}</label>
-            {!! Form::select('teacher_id', [], old('teacher_id'), [
-                'readonly',
-            
-                'placeholder' => __('all_teachers'),
-                'class' => 'form-control',
-                'id' => 'teacher_id',
-            ]) !!}
-            @error('teacher_id')
-                <p class="text-danger" role="alert">{{ $message }}</p>
-            @enderror
-        </div>
+            <div class="form-group col-sm-12">
+                <label>{{ __('tags') }} <small class="text-info"> (Maximum : 5)</small></label>
+                {!! Form::text('tags', old('tags', isset($coupon) ? $coupon->tags->pluck('name')->implode(',') : ''), [
+                    'placeholder' => __('tags'),
+                    'class' => 'form-control',
+                    'id' => 'coupon_tags',
+                ]) !!}
+                @error('tags')
+                    <p class="text-danger" role="alert">{{ $message }}</p>
+                @enderror
+            </div>
 
-        <div class="col-sm-6">
-            <label>{{ __('lesson') }}</label>
-            <select name="lesson_id" id="lesson_id" class="form-control" readonly>
-                <option selected disabled readonly>{{ __('all_lessons') }}</option>
-            </select>
-            @error('lesson_id')
-                <p class="text-danger" role="alert">{{ $message }}</p>
-            @enderror
+
+            <div class="row coupon_purchase_type">
+                <div class="form-group col-sm-12  d-none">
+                    <label>{{ __('medium') }}</label>
+
+                    <select name="medium_id" required id="medium_id" class="form-control">
+                        <option selected disabled readonly>{{ __('select_medium') }}</option>
+                        @foreach ($mediums as $medium)
+                            <option value="{{ $medium->id }}" @selected(old('medium_id', isset($coupon) ? $coupon->classModel->medium_id : '') == $medium->id)>
+                                {{ $medium->name }}
+                            </option>
+                        @endforeach
+                    </select>
+                    @error('medium_id')
+                        <p class="text-danger" role="alert">{{ $message }}</p>
+                    @enderror
+                </div>
+                <div class="row col-12 mb-2  d-none">
+                    <div class="col-sm-6">
+                        <label>{{ __('class') }}</label>
+                        <select name="class_id" required id="class_m_id" readonly class="form-control"></select>
+                        @error('class_id')
+                            <p class="text-danger" role="alert">{{ $message }}</p>
+                        @enderror
+                    </div>
+                    <div class="col-sm-6">
+                        <label>{{ __('subject') }}</label>
+                        {!! Form::select('subject_id', $subjects->pluck('subject.name', 'id'), old('subject_id'), [
+                            'placeholder' => __('all_subjects'),
+                            'class' => 'form-control',
+                            'id' => 'subject_id',
+                        ]) !!}
+                        @error('subject_id')
+                            <p class="text-danger" role="alert">{{ $message }}</p>
+                        @enderror
+                    </div>
+                </div>
+            </div>
+            <div class="row col-12 mb-2 coupon_purchase_type d-none">
+                <div class="col-sm-6">
+                    <label>{{ __('teacher') }}</label>
+                    {!! Form::select('teacher_id', $teachers->pluck('user.full_name', 'id'), old('teacher_id'), [
+                        'placeholder' => __('all_teachers'),
+                        'class' => 'form-control',
+                        'id' => 'teacher_id',
+                    ]) !!}
+                    @error('teacher_id')
+                        <p class="text-danger" role="alert">{{ $message }}</p>
+                    @enderror
+                </div>
+
+                <div class="col-sm-6">
+                    <label>{{ __('lesson') }}</label>
+                    <select name="lesson_id" readonly id="lesson_id" class="form-control">
+                        <option selected disabled readonly>{{ __('all_lessons') }}</option>
+                        @foreach ($lessons as $lesson)
+                            <option value="{{ $lesson->id }}">{{ $lesson->name }}</option>
+                        @endforeach
+                    </select>
+                    @error('lesson_id')
+                        <p class="text-danger" role="alert">{{ $message }}</p>
+                    @enderror
+                </div>
+            </div>
         </div>
     </div>
 </div>
 @section('script')
     <script src="https://cdn.jsdelivr.net/npm/@yaireo/tagify"></script>
     <script>
+        $('.coupon_type').change(function() {
+            $('.details').removeClass('d-none');
+            if ($(this).val().length > 0) {
+                $('.action_btn').removeAttr('disabled');
+                if ($(this).val() == 'wallet') {
+
+                    $('.coupon_purchase_type').addClass('d-none');
+                    $('.coupon_wallet_type').removeClass('d-none');
+
+                    $('.coupon_price').removeClass('d-none');
+                    $('.coupon_price input').removeAttr('disabled');
+
+                } else if ($(this).val() == 'purchase') {
+                    $('.coupon_price,.coupon_wallet_type').addClass('d-none');
+                    $('.coupon_purchase_type').removeClass('d-none');
+                    // $('.coupon_price').removeClass('d-none');
+                    $('.coupon_price input').attr('disabled');
+
+                } else {
+                    $('.coupon_purchase_type').addClass('d-none');
+                    $('.coupon_wallet_type').addClass('d-none');
+                    $('.coupon_price input').attr('disabled');
+
+                }
+            }
+        })
         const couponTagsInput = document.querySelector('#coupon_tags');
         var tagify = new Tagify(couponTagsInput, {
             originalInputValueFormat: valuesArr => valuesArr.map(item => item.value).join(','),
@@ -202,6 +252,10 @@
                     a.remove();
                 }
                 formElement[0].reset();
+                $('.coupon_purchase_type').addClass('d-none');
+                $('.coupon_wallet_type').addClass('d-none');
+                $('.coupon_price input').attr('disabled');
+
             }
             // To Remove Red Border from the Validation tag.
             formElement.find('.has-danger').removeClass("has-danger");

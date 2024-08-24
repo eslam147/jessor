@@ -1,190 +1,206 @@
 @extends('layouts.master')
 
-@section('title')
-    {{ __('manage') . ' ' . __('online') . ' ' . __('exam') . ' ' . __('questions') }}
-@endsection
+@section('title', __('list') . ' ' . __('question_bank'))
 
 @section('content')
     <div class="content-wrapper">
         @hasrole('Teacher')
-        <div class="page-header">
-            <h3 class="page-title">
-                {{ __('add_online_exam_questions') }}
-            </h3>
-        </div>
-        <div class="row grid-margin">
-            <div class="col-lg-12">
-                <div class="card">
-                    <div class="card-body">
-                        <form class="pt-3 mt-6" id="create-online-exam-questions-form" method="POST"
-                            action="{{ route('online-exam-question.store') }}">
-                            <div class="row">
-                                <div class="form-group col-md-6">
-                                    <label>{{ __('class') }} <span class="text-danger">*</span></label>
-                                    <select required name="class_id" class="form-control select2 online-exam-class-id"
-                                        style="width:100%;" tabindex="-1" aria-hidden="true">
-                                        <option value="">--- {{ __('select') . ' ' . __('class') }} ---</option>
-                                        @foreach ($classes as $class)
-                                            <option value="{{ $class->id }}">
-                                                {{ $class->name }} {{ $class->medium->name }}
-                                                {{ $class->streams->name ?? '' }}
-                                            </option>
-                                        @endforeach
-                                    </select>
-                                </div>
-                                <div class="form-group col-md-6">
-                                    <label>{{ __('subject') }} <span class="text-danger">*</span></label>
-                                    <select required name="subject_id" class="form-control select2 online-exam-subject-id"
-                                        style="width:100%;" tabindex="-1" aria-hidden="true">
-                                        <option value="">--- {{ __('select') . ' ' . __('subject') }} ---</option>
-                                    </select>
-                                </div>
-                            </div>
-                            <div class="bg-light p-4">
-                                <div class="form-group">
-                                    <label>{{ __('question_type') }} <span class="text-danger">*</span></label><br>
-                                    <div class="d-flex">
-                                        <div class="form-check form-check-inline">
-                                            <label class="form-check-label">
-                                                <input type="radio" name="question_type" class="question_type"
-                                                    value="0" checked>
-                                                {{ __('simple_question') }}
-                                            </label>
-                                        </div>
-                                        <div class="form-check form-check-inline">
-                                            <label class="form-check-label">
-                                                <input type="radio" name="question_type" class="question_type"
-                                                    value="1">
-                                                {{ __('equation_based') }}
-                                            </label>
-                                        </div>
-                                        <div class="form-check form-check-inline">
-                                            <label class="form-check-label">
-                                                <input type="radio" name="question_type" class="question_type"
-                                                    value="2">
-                                                {{ __('image_based') }}
-                                            </label>
-                                        </div>
+            <div class="page-header">
+                <h3 class="page-title">
+                    {{ __('add_online_exam_questions') }}
+                </h3>
+            </div>
+            <div class="row grid-margin">
+                <div class="col-lg-12">
+                    <div class="card">
+                        <div class="card-body">
+                            <form class="pt-3 mt-6" id="create-online-exam-questions-form" method="POST"
+                                action="{{ route('online-exam-question.store') }}">
+                                <div class="row">
+                                    <div class="form-group col-md-6">
+                                        <label>{{ __('class') }} <span class="text-danger">*</span></label>
+                                        <select required name="class_id" class="form-control select2 online-exam-class-id"
+                                            style="width:100%;" tabindex="-1" aria-hidden="true">
+                                            <option value="">--- {{ __('select') . ' ' . __('class') }} ---</option>
+                                            @foreach ($classes as $class)
+                                                <option value="{{ $class->id }}">
+                                                    {{ $class->name }} {{ $class->medium->name }}
+                                                    {{ $class->streams->name ?? '' }}
+                                                </option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                    <div class="form-group col-md-6">
+                                        <label>{{ __('subject') }} <span class="text-danger">*</span></label>
+                                        <select required name="subject_id" class="form-control select2 online-exam-subject-id"
+                                            style="width:100%;" tabindex="-1" aria-hidden="true">
+                                            <option value="">--- {{ __('select') . ' ' . __('subject') }} ---</option>
+                                        </select>
                                     </div>
                                 </div>
-                                <div id="simple-question">
+                                <div class="bg-light p-4">
                                     <div class="form-group">
-                                        <label>{{ __('question') }} <span class="text-danger">*</span></label>
-                                        {!! Form::textarea('question', null, [
-                                            'placeholder' => __('enter') . ' ' . __('question'),
-                                            'class' => 'form-control',
-                                            'rows' => 4,
-                                        ]) !!}
-                                    </div>
-                                    <div class="row option-container">
-                                        <div class="form-group col-md-6">
-                                            <label>{{ __('option') }} <span class="option-number">1</span> <span
-                                                    class="text-danger">*</span></label>
-                                            <input type="text" name="option[1]"
-                                                placeholder="{{ __('enter') . ' ' . __('option') }}"
-                                                class="form-control add-question-option" />
-                                        </div>
-                                        <div class="form-group col-md-6 option-template">
-                                            <label>{{ __('option') }} <span class="option-number">2</span> <span
-                                                    class="text-danger">*</span></label>
-                                            <input type="text" name="option[2]"
-                                                placeholder="{{ __('enter') . ' ' . __('option') }}"
-                                                class="form-control add-question-option" />
-                                            <div class="remove-option-content"></div>
-                                        </div>
-                                    </div>
-                                    <div class="add_button">
-                                        <button class="btn btn-dark btn-sm" type="button" id="add-new-option"><i
-                                                class="fa fa-plus-circle fa-3x mr-2"
-                                                aria-hidden="true"></i>{{ __('add_option') }}</button>
-                                    </div>
-                                </div>
-                                <div id="equation-question" style="display: none">
-                                    <div class="form-group col-md-12 col-sm-12">
-                                        <label>{{ __('question') }} <span class="text-danger">*</span></label>
-                                        <textarea class="editor_question" name="equestion" required placeholder="{{ __('enter') . ' ' . __('question') }}"></textarea>
-                                    </div>
-                                    <div class="row equation-option-container p-4">
-                                        <div class="form-group col-md-6">
-                                            <label>{{ __('option') }} <span class="option-number">1</span> <span
-                                                    class="text-danger">*</span></label>
-                                            <textarea class="editor_options" name="eoption[1]" required placeholder="{{ __('enter') . ' ' . __('option') }}"></textarea>
-                                        </div>
-                                        <div class="form-group col-md-6 quation-option-template">
-                                            <label>{{ __('option') }} <span class="equation-option-number">2</span> <span
-                                                    class="text-danger">*</span></label>
-                                            <textarea class="editor_options" name="eoption[2]" required placeholder="{{ __('enter') . ' ' . __('option') }}"></textarea>
-                                            <div class="remove-equation-option-content"></div>
+                                        <label>{{ __('question_type') }} <span class="text-danger">*</span></label><br>
+                                        <div class="d-flex">
+                                            <div class="form-check form-check-inline">
+                                                <label class="form-check-label">
+                                                    <input type="radio" name="question_type" class="question_type"
+                                                        value="0" checked>
+                                                    {{ __('simple_question') }}
+                                                </label>
+                                            </div>
+                                            <div class="form-check form-check-inline">
+                                                <label class="form-check-label">
+                                                    <input type="radio" name="question_type" class="question_type"
+                                                        value="1">
+                                                    {{ __('equation_based') }}
+                                                </label>
+                                            </div>
+                                            {{-- <div class="form-check form-check-inline">
+                                                <label class="form-check-label">
+                                                    <input type="radio" name="question_type" class="question_type"
+                                                        value="2">
+                                                    {{ __('image_based') }}
+                                                </label>
+                                            </div> --}}
                                         </div>
                                     </div>
-                                    <div class="add_button_equations">
-                                        <button class="btn btn-dark btn-sm" type="button" id="add-new-eqation-option"><i
-                                                class="fa fa-plus-circle fa-3x mr-2"
-                                                aria-hidden="true"></i>{{ __('add_option') }}</button>
-                                    </div>
-                                </div>
-                                <div id="image-question" style="display: none">
-                                    <div class="form-group col-md-12 col-sm-12">
-                                        <label>{{ __('question') }} <span class="text-danger">*</span></label>
-                                        <textarea class="image_editor" id="image_editor" name="image_question" required
-                                            placeholder="{{ __('enter') . ' ' . __('question') }}"></textarea>
-                                    </div>
-                                    <div class="row equation-option-container p-4">
-                                        <div class="form-group col-md-6">
-                                            <label>{{ __('option') }} <span class="option-number">1</span> <span
-                                                    class="text-danger">*</span></label>
-                                            <textarea class="editor_options" name="eoption[1]" required placeholder="{{ __('enter') . ' ' . __('option') }}"></textarea>
-                                        </div>
-                                        <div class="form-group col-md-6 quation-option-template">
-                                            <label>{{ __('option') }} <span class="equation-option-number">2</span> <span
-                                                    class="text-danger">*</span></label>
-                                            <textarea class="editor_options" name="eoption[2]" required placeholder="{{ __('enter') . ' ' . __('option') }}"></textarea>
-                                            <div class="remove-equation-option-content"></div>
-                                        </div>
-                                    </div>
-                                    <div class="add_button_equations">
-                                        <button class="btn btn-dark btn-sm" type="button" id="add-new-eqation-option"><i
-                                                class="fa fa-plus-circle fa-3x mr-2"
-                                                aria-hidden="true"></i>{{ __('add_option') }}</button>
-                                    </div>
-                                </div>
-                                <div class="row mt-4">
-                                    <div class="form-group col-md-6 mt-2">
+                                    <div id="simple-question">
                                         <div class="form-group">
-                                            <label>{{ __('answer') }} <span class="text-danger">*</span></label>
-                                            <select multiple required name="answer[]" id="answer_select"
-                                                class="form-control js-example-basic-single select2-hidden-accessible"
-                                                style="width:100%;" tabindex="-1" aria-hidden="true">
-                                                <option value="1">{{ __('option') }} 1</option>
-                                                <option value="2">{{ __('option') }} 2</option>
-                                            </select>
+                                            <label>{{ __('question') }} <span class="text-danger">*</span></label>
+                                            {!! Form::textarea('question', null, [
+                                                'placeholder' => __('enter') . ' ' . __('question'),
+                                                'class' => 'form-control',
+                                                'rows' => 4,
+                                            ]) !!}
+                                        </div>
+
+
+                                        <div class="row option-container">
+                                            <div class="form-group col-md-6">
+                                                <label>{{ __('option') }} <span class="option-number">1</span> <span
+                                                        class="text-danger">*</span></label>
+                                                <input type="text" name="option[1]"
+                                                    placeholder="{{ __('enter') . ' ' . __('option') }}"
+                                                    class="form-control add-question-option" />
+                                            </div>
+                                            <div class="form-group col-md-6 option-template">
+                                                <label>{{ __('option') }} <span class="option-number">2</span> <span
+                                                        class="text-danger">*</span></label>
+                                                <input type="text" name="option[2]"
+                                                    placeholder="{{ __('enter') . ' ' . __('option') }}"
+                                                    class="form-control add-question-option" />
+                                                <div class="remove-option-content"></div>
+                                            </div>
+                                        </div>
+                                        <div class="add_button">
+                                            <button class="btn btn-dark btn-sm" type="button" id="add-new-option"><i
+                                                    class="fa fa-plus-circle fa-3x mr-2"
+                                                    aria-hidden="true"></i>{{ __('add_option') }}</button>
                                         </div>
                                     </div>
-                                    <div class="form-group col-md-6 mt-2">
-                                        <label>{{ __('image') }}</label>
-                                        <input type="file" name="image" class="file-upload-default" />
-                                        <div class="input-group col-xs-12">
-                                            <input type="text" class="form-control file-upload-info" disabled=""
-                                                placeholder="{{ __('image') }}" />
-                                            <span class="input-group-append">
-                                                <button class="file-upload-browse btn btn-theme"
-                                                    type="button">{{ __('upload') }}</button>
-                                            </span>
+
+                                    <div id="equation-question" style="display: none">
+                                        <div class="form-group col-md-12 col-sm-12">
+                                            <label>{{ __('question') }} <span class="text-danger">*</span></label>
+                                            <textarea class="editor_question" name="equestion" required placeholder="{{ __('enter') . ' ' . __('question') }}"></textarea>
+                                        </div>
+                                        <div class="row equation-option-container p-4">
+                                            <div class="form-group col-md-6">
+                                                <label>{{ __('option') }} <span class="option-number">1</span> <span
+                                                        class="text-danger">*</span></label>
+                                                <textarea class="editor_options" name="eoption[1]" required placeholder="{{ __('enter') . ' ' . __('option') }}"></textarea>
+                                            </div>
+                                            <div class="form-group col-md-6 quation-option-template">
+                                                <label>{{ __('option') }} <span class="equation-option-number">2</span> <span
+                                                        class="text-danger">*</span></label>
+                                                <textarea class="editor_options" name="eoption[2]" required placeholder="{{ __('enter') . ' ' . __('option') }}"></textarea>
+                                                <div class="remove-equation-option-content"></div>
+                                            </div>
+                                        </div>
+                                        <div class="add_button_equations">
+                                            <button class="btn btn-dark btn-sm" type="button" id="add-new-eqation-option"><i
+                                                    class="fa fa-plus-circle fa-3x mr-2"
+                                                    aria-hidden="true"></i>{{ __('add_option') }}</button>
                                         </div>
                                     </div>
+                                    <hr>
+
+                                    <div class="row">
+                                        <div class="form-group col-6">
+                                            <label>{{ __('image') }} <small
+                                                    class="text-info">({{ __('preferred_size', ['w' => '300', 'h' => '300']) }})</small>
+                                            </label>
+                                            <input type="file" name="image" class="file-upload-default" />
+                                            <div class="input-group col-xs-12">
+                                                <input type="text" class="form-control file-upload-info" disabled=""
+                                                    placeholder="{{ __('image') }}" />
+                                                <span class="input-group-append">
+                                                    <button class="file-upload-browse btn btn-theme"
+                                                        type="button">{{ __('upload') }}</button>
+                                                </span>
+                                            </div>
+                                        </div>
+                                        <div class="form-group col-6 p-1">
+                                            <label>{{ __('note') }}</label>
+                                            <input type="text" name="note" class="form-control">
+                                        </div>
+                                    </div>
+                                    <hr>
+                                    {{-- <div id="image-question" style="display: none">
+                                        <div class="form-group col-md-12 col-sm-12">
+                                            <label>{{ __('question') }} <span class="text-danger">*</span></label>
+                                            <textarea class="image_editor" id="image_editor" name="image_question" required
+                                                placeholder="{{ __('enter') . ' ' . __('question') }}"></textarea>
+                                        </div>
+                                        <div class="row equation-option-container p-4">
+                                            <div class="form-group col-md-6">
+                                                <label>{{ __('option') }} <span class="option-number">1</span> <span
+                                                        class="text-danger">*</span></label>
+                                                <textarea class="editor_options" name="eoption[1]" required placeholder="{{ __('enter') . ' ' . __('option') }}"></textarea>
+                                            </div>
+                                            <div class="form-group col-md-6 quation-option-template">
+                                                <label>{{ __('option') }} <span class="equation-option-number">2</span> <span
+                                                        class="text-danger">*</span></label>
+                                                <textarea class="editor_options" name="eoption[2]" required placeholder="{{ __('enter') . ' ' . __('option') }}"></textarea>
+                                                <div class="remove-equation-option-content"></div>
+                                            </div>
+                                        </div>
+                                        <div class="add_button_equations">
+                                            <button class="btn btn-dark btn-sm" type="button" id="add-new-eqation-option"><i
+                                                    class="fa fa-plus-circle fa-3x mr-2"
+                                                    aria-hidden="true"></i>{{ __('add_option') }}</button>
+                                        </div>
+                                    </div> --}}
+                                    <div class="row mt-4">
+                                        <div class="form-group col-md-6 mt-2">
+                                            <div class="form-group">
+                                                <label>{{ __('answer') }} <span class="text-danger">*</span></label>
+                                                <select multiple required name="answer[]" id="answer_select"
+                                                    class="form-control js-example-basic-single select2-hidden-accessible"
+                                                    style="width:100%;" tabindex="-1" aria-hidden="true">
+                                                    <option value="1">{{ __('option') }} 1</option>
+                                                    <option value="2">{{ __('option') }} 2</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="form-group col-md-6 mt-2">
+                                            <div class="form-group">
+                                                <label>{{ __('explain_answer') }}</label>
+                                                <textarea class="form-control" name="explain_answer" id="explain_answer" rows="3"></textarea>
+                                            </div>
+                                        </div>
+
+                                    </div>
+
                                 </div>
-                                <div class="form-group p-1">
-                                    <label>{{ __('note') }}</label>
-                                    <input type="text" name="note" class="form-control">
-                                </div>
-                            </div>
-                            <input class="btn btn-theme mt-4" id="new-question-add" type="submit"
-                                value={{ __('submit') }}>
-                        </form>
+                                <input class="btn btn-theme mt-4" id="new-question-add" type="submit"
+                                    value={{ __('submit') }}>
+                            </form>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
         @endhasrole
 
         <div class="row">
@@ -192,7 +208,7 @@
                 <div class="card">
                     <div class="card-body">
                         <h4 class="card-title mb-4">
-                            {{ __('list') . ' ' . __('online') . ' ' . __('exam') . ' ' . __('question') }}
+                            {{ __('list') . ' ' . __('question_bank') }}
                         </h4>
                         <div id="toolbar" class="row">
                             <div class="form-group ml-4">
@@ -220,6 +236,20 @@
                                     @endforeach
                                 </select>
                             </div>
+                            @role('Super Admin')
+                                <div class="form-group ml-4">
+                                    <label>{{ __('teacher') }}</label>
+                                    <select name="teacher_id" id="filter-question-teacher-id" class="form-control"
+                                        style="width:100%;" tabindex="-1" aria-hidden="true">
+                                        <option value="">{{ __('all') }}</option>
+                                        @foreach ($teachers as $id => $name)
+                                            <option value="{{ $id }}">
+                                                {{ $name }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                            @endrole
                         </div>
                         <table aria-describedby="mydesc" class='table' id='table_list_questions' data-toggle="table"
                             data-url="{{ route('online-exam-question.show', 1) }}" data-click-to-select="true"
@@ -229,9 +259,8 @@
                             data-fixed-number="2" data-fixed-right-number="1" data-trim-on-search="false"
                             data-mobile-responsive="true" data-sort-name="id" data-sort-order="desc"
                             data-maintain-selected="true" data-export-types='["txt","excel"]'
-                            data-export-options='{ "fileName": "{{ __('online') . ' ' . __('exam') . ' ' . __('questions') }}-<?= date('
-                            d-m-y') ?>" ,"ignoreColumn":["operate"]}' data-show-export="true"
-                            data-query-params="onlineExamQuestionsQueryParams">
+                            data-export-options='{ "fileName": "{{ __('list') . ' ' . __('question_bank') }}-{{ date('d-m-y') }}" ,"ignoreColumn":["operate"]}'
+                            data-show-export="true" data-query-params="onlineExamQuestionsQueryParams">
                             <thead>
                                 <tr>
                                     <th scope="col" data-field="online_exam_question_id" data-sortable="true"
@@ -247,13 +276,18 @@
                                         data-formatter="optionsFormatter">{{ __('option') }}</th>
                                     <th scope="col" data-field="answers" data-sortable="false"
                                         data-formatter="answersFormatter">{{ __('answer') }}</th>
+                                    @role('Super Admin')
+                                        <th scope="col" data-field="teacher_name" data-sortable="false">
+                                            {{ __('teacher') }}</th>
+                                    @endrole
                                     <th scope="col" data-field="image" data-formatter="imageFormatter"
                                         data-sortable="false">{{ __('image') }}</th>
                                     <th scope="col" data-field="created_at" data-sortable="true"
                                         data-visible="false">{{ __('created_at') }}</th>
                                     <th scope="col" data-field="updated_at" data-sortable="true"
                                         data-visible="false">{{ __('updated_at') }}</th>
-                                    <th scope="col" data-field="operate" data-sortable="false"
+                                    <th scope="col" data-visible="{{ auth()->user()->hasRole('Teacher') }}"
+                                        data-field="operate" data-sortable="false"
                                         data-events="onlineExamQuestionsEvents">{{ __('action') }}</th>
                                 </tr>
                             </thead>
@@ -322,7 +356,8 @@
                         <div id="edit-equation-question" class="bg-light p-3" style="display: none">
                             <div class="form-group col-md-12 col-sm-12">
                                 <label>{{ __('question') }} <span class="text-danger">*</span></label>
-                                <textarea class="editor_question" name="edit_equestion" required placeholder="{{ __('enter') . ' ' . __('question') }}"></textarea>
+                                <textarea class="editor_question" name="edit_equestion" required
+                                    placeholder="{{ __('enter') . ' ' . __('question') }}"></textarea>
                             </div>
                             <div class="row edit_eoption_container p-4">
                             </div>

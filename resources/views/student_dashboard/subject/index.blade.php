@@ -13,6 +13,32 @@
             background-color: transparent;
             border-radius: 15px;
         }
+        
+        .no_image_available::before {
+            content: "";
+            position: absolute;
+            background: url("{{ settingByType('logo1') ? tenant_asset(settingByType('logo1')) : global_asset('assets/logo.svg') }}");
+            z-index: 99;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            height: 65%;
+            width: 100%;
+            background-size: cover;
+            background-position: center;
+            backdrop-filter: grayscale(4);
+        }
+
+        .no_image_available::after {
+            content: "";
+            position: absolute;
+            width: 100%;
+            background: #efefef;
+            z-index: 9;
+            top: 0;
+            left: 0;
+            height: 100%;
+        }
     </style>
 @endsection
 @section('content')
@@ -29,14 +55,15 @@
                                         <svg class="circle-chart" viewBox="0 0 33.83098862 33.83098862" width="80"
                                             height="80">
                                             <defs>
-                                                <pattern id="img" patternUnits="userSpaceOnUse" height="80"
+                                                {{-- {{ empty($row->thumbnail) ? 'no_image_available' : '' }} --}}
+                                                <pattern id="img{{ $row->id }}" patternUnits="userSpaceOnUse" height="80"
                                                     width="80">
                                                     <image x="5" y="5" height="70%" width="70%"
-                                                        xlink:href="{{ global_asset('student/images/pro-1.png') }}"></image>
+                                                        xlink:href="{{ empty($row->getRawOriginal('image')) ? $row->image : global_asset('images/no_image_available.jpg') }}"></image>
                                                 </pattern>
                                             </defs>
                                             <circle class="circle-chart__background" stroke="#efefef" stroke-width="2"
-                                                cx="16.91549431" cy="16.91549431" r="15.91549431" fill="url(#img)"></circle>
+                                                cx="16.91549431" cy="16.91549431" r="15.91549431" fill="url(#img{{ $row->id }})"></circle>
                                             <circle class="circle-chart__circle" stroke="#68CA77" stroke-width="2"
                                                 stroke-dasharray="79" stroke-linecap="round" fill="none" cx="16.91549431"
                                                 cy="16.91549431" r="15.91549431"></circle>

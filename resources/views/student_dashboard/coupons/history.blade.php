@@ -16,7 +16,7 @@
                                     <th>Coupon Max Price</th>
                                     <th>Left Usage Amount</th>
                                     <th>Usage Left Count</th>
-                                    <th>Count Of Lessons Enrolled</th>
+                                    <th>Count Of Usages</th>
                                     <th>Status</th>
                                 </tr>
                             </thead>

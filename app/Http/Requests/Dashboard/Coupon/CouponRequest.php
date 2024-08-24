@@ -17,13 +17,14 @@ class CouponRequest extends FormRequest
         return [
             // ------------------------------------------------ \\
             'coupons_count' => 'required|integer|min:1|max:1000',
+            'coupon_type' => 'required||in:purchase,wallet',
             // ------------------------------------------------ \\
-            'usage_limit' => 'required|integer|min:1|max:100',
+            'usage_limit' => 'required_if:coupon_type,purchase|nullable|integer|min:1|max:100',
             'expiry_date' => 'nullable|date|after:today',
             // ------------------------------------------------ \\
             'price' => 'nullable|min:0.01|numeric',
             // ------------------------------------------------ \\
-            'class_id' => 'required|exists:classes,id',
+            'class_id' => 'required_if:coupon_type,purchase|exists:classes,id',
             'subject_id' => 'nullable|exists:subjects,id',
             // ------------------------------------------------ \\
             'teacher_id' => 'nullable|exists:teachers,id',

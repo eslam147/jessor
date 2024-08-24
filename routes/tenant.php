@@ -44,6 +44,8 @@ use App\Http\Controllers\SessionYearController;
 use App\Http\Controllers\AnnouncementController;
 use App\Http\Controllers\ClassTeacherController;
 use App\Http\Controllers\NotificationController;
+use App\Http\Controllers\WalletController;
+use App\Http\Controllers\student\DeviceController;
 use App\Http\Controllers\SystemUpdateController;
 use App\Http\Controllers\ExamTimetableController;
 use App\Http\Controllers\student\EnrollController;
@@ -57,20 +59,12 @@ use App\Http\Controllers\OnlineExamQuestionController;
 use Stancl\Tenancy\Middleware\InitializeTenancyByDomain;
 use App\Http\Controllers\student\StudentDashboardController;
 use Stancl\Tenancy\Middleware\PreventAccessFromCentralDomains;
+use App\Http\Controllers\Student\WalletController as StudentWallet;
+use App\Http\Controllers\student\AssignmentController as StudentAssignmentController;
 use App\Http\Controllers\student\SubjectController as StudentSubjectController;
 use App\Http\Controllers\student\SettingController as StudentSettingsController;
-
-/*
-|--------------------------------------------------------------------------
-| Tenant Routes
-|--------------------------------------------------------------------------
-|
-| Here you can register the tenant routes for your application.
-| These routes are loaded by the TenantRouteServiceProvider.
-|
-| Feel free to customize them however you want. Good luck!
-|
-*/
+use App\Http\Controllers\Student\OfflineExamController as StudentOfflineExamController;
+use App\Http\Controllers\Student\ExamController as StudentOnlineExamController;
 
 Route::middleware([
     'web',
@@ -78,19 +72,20 @@ Route::middleware([
     PreventAccessFromCentralDomains::class,
     InitializeSchool::class,
 ])->group(function () {
-        LaravelAuth::routes();
-        //Route::post('/store-fingerprint', [DeviceController::class, 'store']);
-        Route::get('/', [WebController::class,'index']);
-        Route::get('about',[WebController::class,'about'])->name('about.us');
-        Route::get('contact',[WebController::class, 'contact_us'])->name('contact.us');
-        Route::get('photo',[WebController::class, 'photo'])->name('photo');
-        Route::get('photo-gallery/{id}',[WebController::class, 'photo_details'])->name('photo.gallery');
-        Route::get('video',[WebController::class, 'video'])->name('video');
-        Route::get('video-gallery',[WebController::class, 'video_details'])->name('video.gallery');
-        Route::post('contact-us/store',[WebController::class,'contact_us_store'])->name('contact_us.store');
+    LaravelAuth::routes();
+
+    Route::get('/', [WebController::class, 'index']);
+
+    Route::get('about', [WebController::class, 'about'])->name('about.us');
+    Route::get('contact', [WebController::class, 'contact_us'])->name('contact.us');
+    Route::get('photo', [WebController::class, 'photo'])->name('photo');
+    Route::get('photo-gallery/{id}', [WebController::class, 'photo_details'])->name('photo.gallery');
+    Route::get('video', [WebController::class, 'video'])->name('video');
+    Route::get('video-gallery', [WebController::class, 'video_details'])->name('video.gallery');
+    Route::post('contact-us/store', [WebController::class, 'contact_us_store'])->name('contact_us.store');
 
 
-    Route::view('login', 'auth.login')->name('login');
+    Route::view('login', 'auth.login')->middleware('guest')->name('login');
     Route::resource('signup', SignupController::class);
 
     // webhooks
@@ -128,9 +123,42 @@ Route::middleware([
                 Route::get('get-video/{id}', 'get_video')->name('getvideo');
             });
 
+            Route::controller(StudentAssignmentController::class)->prefix('assignments')->as('student_dashboard.assignments.')->group(function () {
+                Route::get('/', 'index')->name('index');
+                Route::get('/{assignment}', 'show')->name('show');
+                Route::post('submit/{assignment}', 'submit')->name('submit');
+            });
+
+            Route::controller(StudentWallet::class)->prefix('wallet')->as('student_dashboard.wallet.')->group(function () {
+                Route::get('/', 'index')->name('index');
+                Route::post('/apply_coupon', 'applyCouponToWallet')->name('applyCoupon');
+            });
+
+            Route::prefix('exams')->as('student_dashboard.exams.')->group(function () {
+                Route::prefix('offline')->as('offline.')->controller(StudentOfflineExamController::class)->group(function () {
+                    Route::get('/', 'index')->name('index');
+                    // index
+                    Route::get('show/{exam}', 'show')->name('show');
+                });
+                Route::prefix('online')->as('online.')->controller(StudentOnlineExamController::class)->group(function () {
+                    Route::get('/', 'index')->name('index');
+                    Route::post('start', 'start')->name('start');
+                    Route::post('submit/{exam}', 'submit')->name('submit');
+                    Route::get('result/{exam}', 'result')->name('result');
+                    Route::get('show/{exam}', 'show')->name('show')->middleware('signed');
+
+                });
+            });
+
+
             Route::get('/teacher_lessons/{teacher_id}/subject/{subject_id}', [TeachersController::class, 'teacher_lessons'])->name('teacher.lessons');
-            Route::resource('/enroll', EnrollController::class);
+            Route::controller(EnrollController::class)->prefix('enroll')->as('enroll.')->group(function () {
+                Route::get('/', 'index')->name('index');
+                Route::post('store/{payment_method}', 'store')->name('store');
+            });
             Route::resource('/student-settings', StudentSettingsController::class);
+            // Route::resource('/enroll', EnrollController::class);
+            // Route::post('/enroll/by_wallet', [EnrollController::class,'enrollWithWallet'])->name('enroll.using_wallet');
         });
     });
 
@@ -140,6 +168,7 @@ Route::middleware([
 
     Route::group(['middleware' => ['Role', 'auth', 'logs-out-banned-user']], function () {
         Route::group(['middleware' => 'language'], function () {
+        Route::post('uploadImage', [MediaController::class, 'uploadImage'])->name('media.uploadImage');
             // Route::get('/home', [HomeController::class, 'index']);
             Route::get('home', [HomeController::class, 'index'])->name('home');
             Route::get('/logout', [HomeController::class, 'logout'])->name('logout');
@@ -257,7 +286,11 @@ Route::middleware([
             Route::get('assignment-submission-list', [AssignmentController::class, 'assignmentSubmissionList'])->name('assignment.submission.list');
 
             Route::resource('sliders', SliderController::class);
-
+            Route::controller(WalletController::class)->prefix('wallet')->as('wallet.')->group(function () {
+                Route::get('/', 'index')->name('index');
+                Route::get('/list', 'list')->name('list');
+                Route::post('balance/update/{type}', 'updateBalance')->name('updateBalance');
+            });
             Route::get('exams/exam-result', [ExamController::class, 'getExamResultIndex'])->name('exams.get-result');
             Route::get('exams/show-result', [ExamController::class, 'showExamResult'])->name('exams.show-result');
             Route::post('exams/update-result-marks', [ExamController::class, 'updateExamResultMarks'])->name('exams.update-result-marks');
@@ -509,7 +542,8 @@ Route::middleware([
             Route::controller(EnrollmentController::class)->prefix('enrollment')->as('enrollment.')->group(function () {
                 Route::get('/', 'index')->name('index');
                 Route::get('/list', 'list')->name('list');
-                Route::delete('/{enrollment}/delete', 'destroy')->name('destroy');
+                Route::delete('delete/{enrollment}', 'destroy')->name('destroy');
+                Route::put('update/{enrollment}', 'update')->name('update');
             });
             //return 'This is your multi-tenant application. The id of the current tenant is ' . tenant('id');
         });

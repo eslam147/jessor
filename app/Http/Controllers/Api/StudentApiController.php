@@ -217,7 +217,7 @@ class StudentApiController extends Controller
 
             // Set Class Section name
             $streamName = $user->student->class_section->class->streams->name ?? null;
-            if (!is_null($streamName)) {
+            if (! is_null($streamName)) {
                 $user->class_section_name = $classSectionName . " " . $streamName;
             } else {
                 $user->class_section_name = $classSectionName;
@@ -958,7 +958,6 @@ class StudentApiController extends Controller
 
         try {
             $student = $request->user()->student;
-            
             //----------------------------------------- \\
             $data = Teacher::whereHas('subjects', function ($q) use ($request, $student) {
                 return $q->where('subject_id', $request->subject_id)->where('class_section_id', $student->class_section_id);
@@ -1993,7 +1992,7 @@ class StudentApiController extends Controller
                         $check_option_exists = OnlineExamQuestionOption::where(['id' => $answer_data['option_id'], 'question_id' => $question_id])->count();
 
                         //get the current date
-                        $currentTime = Carbon::now();
+                        $currentTime = now();
                         $current_date = date($currentTime->toDateString());
 
                         if ($check_option_exists) {
@@ -2008,7 +2007,10 @@ class StudentApiController extends Controller
                                 $store_answers->save();
                             }
 
-                            $student_exam_status_id = StudentOnlineExamStatus::where(['student_id' => $student->id, 'online_exam_id' => $request->online_exam_id])->pluck('id')->first();
+                            $student_exam_status_id = StudentOnlineExamStatus::where([
+                                'student_id' => $student->id,
+                                'online_exam_id' => $request->online_exam_id
+                            ])->pluck('id')->first();
                             if (isset($student_exam_status_id) && ! empty($student_exam_status_id)) {
                                 $update_status = StudentOnlineExamStatus::find($student_exam_status_id);
                                 $update_status->status = 2;
@@ -2198,11 +2200,11 @@ class StudentApiController extends Controller
                     )
                 );
             }
-            $response = array(
+            $response = [
                 'error' => false,
                 'data' => $online_exam_report_data ?? [],
                 'code' => 200,
-            );
+            ];
         } catch (Exception $e) {
             report($e);
 
@@ -2411,12 +2413,11 @@ class StudentApiController extends Controller
         ]);
 
         if ($validator->fails()) {
-            $response = array(
+            return response()->json([
                 'error' => true,
                 'message' => $validator->errors()->first(),
                 'code' => 102,
-            );
-            return response()->json($response);
+            ]);
         }
         try {
             $student = $request->user()->student;
@@ -2431,7 +2432,9 @@ class StudentApiController extends Controller
             $question_ids = OnlineExamQuestionChoice::whereIn('id', $exam_choiced_question_ids)->pluck('question_id');
 
             //get the options submitted by student
-            $exam_attempted_answers = OnlineExamStudentAnswer::where(['student_id' => $student->id, 'online_exam_id' => $request->online_exam_id])->pluck('option_id');
+            $exam_attempts = OnlineExamStudentAnswer::where(['student_id' => $student->id, 'online_exam_id' => $request->online_exam_id])->with('question')->get();
+            $exam_attempted_answers = $exam_attempts->pluck('option_id');
+
 
             //removes the question id of the question if one of the answer of particular question is wrong
             foreach ($question_ids as $question_id) {
@@ -2451,12 +2454,18 @@ class StudentApiController extends Controller
             $exam_correct_answers_data = OnlineExamQuestionAnswer::whereIn('question_id', $question_ids)->whereIn('answer', $exam_attempted_answers)->groupby('question_id')->get();
 
             // array of correct answer with choiced exam id and marks
-            $correct_answers_data = array();
+            $correct_answers_data = [];
             foreach ($exam_correct_answers_data as $correct_data) {
                 $choice_questions = OnlineExamQuestionChoice::where(['online_exam_id' => $request->online_exam_id, 'question_id' => $correct_data->question_id])->first();
-                $correct_answers_data[] = array(
-                    'question_id' => $choice_questions->id,
-                    'marks' => $choice_questions->marks
+
+                $questionChoiceAnswers = $choice_questions->questions->answers->pluck('options.id')->toArray();
+
+                $correct_answers_data[] = $this->answerFormat(
+                    isCorrect: true,
+                    choiceQuestions: $choice_questions,
+                    exam_attempts: $exam_attempts,
+                    correct_data: $correct_data,
+                    questionChoiceAnswers: $questionChoiceAnswers
                 );
 
             }
@@ -2475,10 +2484,17 @@ class StudentApiController extends Controller
             foreach ($exam_in_correct_answers_data as $in_correct_data) {
                 $choice_questions = OnlineExamQuestionChoice::where(['online_exam_id' => $request->online_exam_id, 'question_id' => $in_correct_data->question_id])->first();
                 if (isset($choice_questions) && ! empty($choice_questions)) {
-                    $in_correct_answers_data[] = array(
-                        'question_id' => $choice_questions->id,
-                        'marks' => $choice_questions->marks
+                    $choice_questions = OnlineExamQuestionChoice::where(['online_exam_id' => $request->online_exam_id, 'question_id' => $correct_data->question_id])->first();
+
+                    // $questionChoiceAnswers = $;
+                    $in_correct_answers_data[] = $this->answerFormat(
+                        isCorrect: false,
+                        choiceQuestions: $choice_questions,
+                        exam_attempts: $exam_attempts,
+                        correct_data: $choice_questions,
+                        questionChoiceAnswers: $choice_questions->questions->answers->pluck('options.id')->toArray()
                     );
+
                 }
             }
 
@@ -2489,7 +2505,7 @@ class StudentApiController extends Controller
             $total_marks = $total_marks['sum(marks)'];
 
             // final array data
-            $exam_result = array(
+            $exam_result = [
                 'total_questions' => $total_questions,
                 'correct_answers' => array(
                     'total_questions' => $exam_correct_answers,
@@ -2501,12 +2517,12 @@ class StudentApiController extends Controller
                 ),
                 'total_obtained_marks' => $total_obtained_marks ?? '0',
                 'total_marks' => $total_marks
-            );
-            $response = array(
+            ];
+            $response = [
                 'error' => false,
                 'data' => $exam_result ?? '',
                 'code' => 200,
-            );
+            ];
         } catch (Exception $e) {
             report($e);
 
@@ -3982,5 +3998,30 @@ class StudentApiController extends Controller
             ];
         }
         return response()->json($response);
+    }
+    private function answerFormat($choiceQuestions, $exam_attempts, $correct_data, $questionChoiceAnswers, $isCorrect = false)
+    {
+        return [
+            'is_correct' => $isCorrect,
+
+            'student_answer' => $exam_attempts->firstWhere('question.id', $correct_data->question_id)->only(
+                'option_id',
+                'question_id',
+                'id',
+                'submitted_date'
+            ),
+            'question' => $choiceQuestions->questions->only(
+                'question_type',
+                'question',
+                'image_url',
+                'note',
+                'explain_answer',
+                'options'
+            ),
+            'correct_answers' => $questionChoiceAnswers,
+            // ------------------------------------------------ \\
+            'question_id' => $choiceQuestions->id,
+            'marks' => $choiceQuestions->marks
+        ];
     }
 }

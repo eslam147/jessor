@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Throwable;
 use App\Models\Subject;
+use App\Models\Teacher;
 use App\Models\ClassSchool;
 use App\Models\ClassSection;
 use App\Models\ClassSubject;
@@ -23,7 +24,8 @@ class OnlineExamQuestionController extends Controller
 {
     // public QuestionBankService $questionBankService;
     public function __construct(public QuestionBankService $questionBankService)
-    {}
+    {
+    }
 
     public function index()
     {
@@ -32,16 +34,21 @@ class OnlineExamQuestionController extends Controller
                 'message' => trans('no_permission_message')
             ]);
         }
-
+        // $teachers = [];
+        $data = [];
+        if (Auth::user()->hasRole('Super Admin')) {
+            $data['teachers'] = Teacher::with('user:id,first_name,last_name')->select('id', 'user_id')->get()->pluck('user.full_name', 'id');
+        }
         //get the class and subject according to subject teacher
         $subject_teacher = SubjectTeacher::subjectTeacher();
         $class_section_id = $subject_teacher->pluck('class_section_id');
         $class_id = ClassSection::whereIn('id', $class_section_id)->pluck('class_id');
         $subject_id = $subject_teacher->pluck('subject_id');
 
-        $classes = ClassSchool::whereIn('id', $class_id)->with('medium', 'streams')->get();
-        $all_subjects = Subject::whereIn('id', $subject_id)->get();
-        return response(view('online_exam.class_questions', compact('classes', 'all_subjects')));
+        $data['classes'] = ClassSchool::whereIn('id', $class_id)->with('medium', 'streams')->get();
+        $data['all_subjects'] = Subject::whereIn('id', $subject_id)->get();
+
+        return response(view('online_exam.class_questions', $data));
     }
 
     /**
@@ -73,6 +80,7 @@ class OnlineExamQuestionController extends Controller
                 'equestion' => 'required_if:question_type,1',
                 'eoption.*' => 'required_if:question_type,1',
                 'answer.*' => 'required_if:question_type,0',
+                'explain_answer' => 'nullable|min:5|max:1000',
                 'image' => 'nullable|mimes:jpeg,png,jpg|image|max:3048',
             ],
             [
@@ -97,6 +105,7 @@ class OnlineExamQuestionController extends Controller
             DB::beginTransaction();
             $question_store = new OnlineExamQuestion();
             $question_store->class_subject_id = $class_subject_id;
+            $question_store->explain_answer = $request->explain_answer;
             $question_store->teacher_id = auth()->user()->teacher->id;
             $question_store->note = htmlspecialchars($request->note);
             $question_store->image_url = $this->questionBankService->storeImageFromRequest('image');
@@ -105,19 +114,21 @@ class OnlineExamQuestionController extends Controller
                 case 1: // Equation Based Question
                     $question_store->question_type = $request->question_type;
                     $question_store->question = htmlspecialchars($request->equestion);
+                    $this->questionBankService->saveOptionsWithAnswer($question_store, $request->eoption, $request->answer);
                     break;
                 case OnlineExamQuestion::IMAGE_BASED_TYPE: // Image Based Question
                     $question_store->question_type = OnlineExamQuestion::IMAGE_BASED_TYPE;
                     $question_store->question = htmlspecialchars($request->image_question);
+                    $this->questionBankService->saveOptionsWithAnswer($question_store, $request->option, $request->answer);
                     break;
                 default: // Simple Question
                     $question_store->question_type = $request->question_type;
                     $question_store->question = htmlspecialchars($request->question);
+                    $this->questionBankService->saveOptionsWithAnswer($question_store, $request->option, $request->answer);
                     break;
             }
 
             $question_store->save();
-            $this->questionBankService->saveOptionsWithAnswer($question_store, $request);
             DB::commit();
 
             $response = [
@@ -196,6 +207,11 @@ class OnlineExamQuestionController extends Controller
         }
         $total = $sql->count();
 
+        if (Auth::user()->hasRole('Super Admin')) {
+            $sql->with('teacher.user')->when(request()->filled('teacher_id'), function ($q) {
+                return $q->where('teacher_id', request('teacher_id'));
+            });
+        }
         $sql->orderBy($sort, $order)->skip($offset)->take($limit);
         $res = $sql->get();
         $bulkData = [];
@@ -222,27 +238,27 @@ class OnlineExamQuestionController extends Controller
             $tempRow['subject_id'] = $row->class_subject->subject_id;
             $tempRow['subject_name'] = $row->class_subject->subject->name . ' - ' . $row->class_subject->subject->type;
             $tempRow['question_type'] = $row->question_type;
+            $tempRow['teacher_name'] = $row->teacher->user->full_name ?? '';
             $tempRow['question'] = '';
-            $tempRow['options'] = array();
-            $tempRow['answers'] = array();
-            $tempRow['options_not_answers'] = array();
+            $tempRow['options'] = [];
+            $tempRow['answers'] = [];
+            $tempRow['options_not_answers'] = [];
             if ($row->question_type) {
                 $tempRow['question'] = "<div class='equation-editor-inline' contenteditable=false>" . htmlspecialchars_decode($row->question) . "</div>";
                 $tempRow['question_row'] = htmlspecialchars_decode($row->question);
 
                 //options data
-                $option_data = array();
+                $option_data = [];
                 foreach ($row->options as $key => $options) {
-                    $option_data = array(
+                    $tempRow['options'][] = [
                         'id' => $options->id,
                         'option' => "<div class='equation-editor-inline' contenteditable=false>" . htmlspecialchars_decode($options->option) . "</div>",
                         'option_row' => htmlspecialchars_decode($options->option)
-                    );
-                    $tempRow['options'][] = $option_data;
+                    ];
                 }
 
                 // answers data
-                $answer_data = array();
+                $answer_data = [];
                 foreach ($row->answers as $answers) {
                     $answer_data = array(
                         'id' => $answers->id,
@@ -254,7 +270,7 @@ class OnlineExamQuestionController extends Controller
 
 
                 // options which are not answers
-                $no_answers_array = array();
+                $no_answers_array = [];
                 foreach ($options_not_answers as $no_answers_data) {
                     $no_answers_array = array(
                         'id' => $no_answers_data->id,
@@ -265,7 +281,7 @@ class OnlineExamQuestionController extends Controller
                 $tempRow['question'] = htmlspecialchars_decode($row->question);
 
                 //options data
-                $option_data = array();
+                $option_data = [];
                 foreach ($row->options as $key => $options) {
                     $option_data = array(
                         'id' => $options->id,
@@ -275,7 +291,7 @@ class OnlineExamQuestionController extends Controller
                 }
 
                 //answers data
-                $answer_data = array();
+                $answer_data = [];
                 foreach ($row->answers as $key => $answers) {
                     $answer_data = array(
                         'id' => $answers->id,
@@ -286,7 +302,7 @@ class OnlineExamQuestionController extends Controller
                 }
 
                 // options which are not answers
-                $no_answers_array = array();
+                $no_answers_array = [];
                 foreach ($options_not_answers as $no_answers_data) {
                     $no_answers_array = array(
                         'id' => $no_answers_data->id,
@@ -383,7 +399,7 @@ class OnlineExamQuestionController extends Controller
                 $edit_equestion->note = htmlspecialchars($request->edit_note);
                 $edit_equestion->save();
 
-                $new_options_id = array();
+                $new_options_id = [];
                 foreach ($request->edit_eoption as $key => $edit_option_data) {
                     if ($edit_option_data['id']) {
                         $edit_option = OnlineExamQuestionOption::find($edit_option_data['id']);
@@ -462,7 +478,7 @@ class OnlineExamQuestionController extends Controller
                 $edit_question->note = htmlspecialchars($request->edit_note);
                 $edit_question->save();
 
-                $new_options_id = array();
+                $new_options_id = [];
                 foreach ($request->edit_options as $key => $edit_option_data) {
                     if ($edit_option_data['id']) {
                         $edit_option = OnlineExamQuestionOption::find($edit_option_data['id']);

@@ -24,9 +24,9 @@
                             <hr>
                             <input type="hidden" name="action" value="save">
                             <div class="d-flex justify-content-between">
-                                <input class="btn btn-theme action_btn" data-value="save" type="submit"
+                                <input class="btn btn-theme action_btn" disabled data-value="save" type="submit"
                                     value="{{ __('save') }}">
-                                <input class="btn btn-success action_btn" data-value="save_and_print" type="submit"
+                                <input class="btn btn-success action_btn" disabled data-value="save_and_print" type="submit"
                                     value="{{ __('save_and_export') }}">
 
                             </div>
