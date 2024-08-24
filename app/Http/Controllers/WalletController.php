@@ -40,14 +40,10 @@ class WalletController extends Controller
         $sql = User::with('wallet')->has('student');
         $sql->when($search, function ($query) use ($search) {
             $query->where(function ($query) use ($search) {
-                $query->where('user_id', 'LIKE', "%$search%")
-                    ->orWhere('is_new_admission', 'LIKE', "%$search%")
-                    ->orWhereHas('user', function ($q) use ($search) {
-                        $q->where('first_name', 'LIKE', "%$search%")
-                            ->orWhere('last_name', 'LIKE', "%$search%")
-                            ->orWhere('email', 'LIKE', "%$search%")
-                            ->orWhere('dob', 'LIKE', "%$search%");
-                    });
+                $query->where('first_name', 'LIKE', "%$search%")
+                    ->orWhere('last_name', 'LIKE', "%$search%")
+                    ->orWhere('email', 'LIKE', "%$search%")
+                    ->orWhere('dob', 'LIKE', "%$search%");
             });
             //class filter data
         });
