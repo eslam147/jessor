@@ -24,9 +24,9 @@ class AssignPermissionToAllTenants extends Command
             Tenancy::initialize($tenant);
             $roleModel = Role::where('name', $roleName)->first();
             if ($roleModel) {
-                if (! $roleModel->hasPermissionTo($permissionName)) {
-                    Permission::firstOrCreate(['name' => $permissionName]);
-                    $roleModel->givePermissionTo($permissionName);
+                $Permission = Permission::firstOrCreate(['name' => $permissionName]);
+                if (! $roleModel->hasPermissionTo($Permission)) {
+                    $roleModel->givePermissionTo($Permission);
                 }
                 $this->info("Permission assigned to `{$tenant->id}`.");
             } else {
