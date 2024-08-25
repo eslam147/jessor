@@ -8,7 +8,6 @@ use App\Models\OnlineExamQuestionOption;
 
 class QuestionBankService
 {
-
     public function __construct()
     {
 
@@ -22,17 +21,15 @@ class QuestionBankService
     }
     public function storeImage(UploadedFile $image)
     {
-        // made file name with combination of current time
-        $file_name = time() . '-' . $image->hashName();
+        $fileName = time() . '-' . $image->hashName();
 
-        //made file path to store in database
-        $file_path = 'online-exam-questions/' . $file_name;
+        $file_path = "online-exam-questions/{$fileName}";
 
         //resized image
         resizeImage($image);
 
         $destinationPath = storage_path('app/public/online-exam-questions');
-        $image->move($destinationPath, $file_name);
+        $image->move($destinationPath, $fileName);
 
         return $file_path;
     }
@@ -54,7 +51,7 @@ class QuestionBankService
                 if ($key == $answer) {
                     OnlineExamQuestionAnswer::create([
                         'question_id' => $question->id,
-                        'answer' => $key
+                        'answer' => $option
                     ]);
                 }
             }

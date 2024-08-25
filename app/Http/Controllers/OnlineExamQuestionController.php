@@ -102,6 +102,7 @@ class OnlineExamQuestionController extends Controller
                 'class_id' => $request->class_id,
                 'subject_id' => $request->subject_id
             ])->value('id');
+            $options = $request->option;
             DB::beginTransaction();
             $question_store = new OnlineExamQuestion();
             $question_store->class_subject_id = $class_subject_id;
@@ -114,21 +115,19 @@ class OnlineExamQuestionController extends Controller
                 case 1: // Equation Based Question
                     $question_store->question_type = $request->question_type;
                     $question_store->question = htmlspecialchars($request->equestion);
-                    $this->questionBankService->saveOptionsWithAnswer($question_store, $request->eoption, $request->answer);
+                    $options = $request->eoption;
                     break;
                 case OnlineExamQuestion::IMAGE_BASED_TYPE: // Image Based Question
                     $question_store->question_type = OnlineExamQuestion::IMAGE_BASED_TYPE;
                     $question_store->question = htmlspecialchars($request->image_question);
-                    $this->questionBankService->saveOptionsWithAnswer($question_store, $request->option, $request->answer);
                     break;
                 default: // Simple Question
                     $question_store->question_type = $request->question_type;
                     $question_store->question = htmlspecialchars($request->question);
-                    $this->questionBankService->saveOptionsWithAnswer($question_store, $request->option, $request->answer);
                     break;
             }
-
             $question_store->save();
+            $this->questionBankService->saveOptionsWithAnswer($question_store, $options, $request->answer);
             DB::commit();
 
             $response = [
@@ -138,10 +137,10 @@ class OnlineExamQuestionController extends Controller
         } catch (Throwable $e) {
             report($e);
             DB::rollBack();
-            $response = array(
+            $response = [
                 'error' => true,
                 'message' => trans('error_occurred')
-            );
+            ];
         }
         return response()->json($response);
     }
