@@ -58,7 +58,9 @@ class LessonController extends Controller
             'subject_id' => 'required|numeric',
             'status' => ['required', Rule::in(LessonStatus::values())],
             'payment_status' => 'required|in:0,1',
-            'price' => 'required_if:payment_status,1|numeric|gt:0|nullable',
+            
+            'price' => 'nullable|required_if:payment_status,1|numeric|gt:0',
+
             'lesson_thumbnail' => 'nullable|max:2048|image',
             'file' => 'nullable|array',
             'file.*.type' => ['nullable', Rule::in(['file_upload', 'youtube_link', 'video_upload', 'video_corner_link', 'video_corner_download_link', 'other_link'])],

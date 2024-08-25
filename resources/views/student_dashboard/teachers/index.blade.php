@@ -28,7 +28,8 @@
                                     <div class="mb-20 mt-20">
                                         <img src="{{ global_asset('student/images/avatar/avatar-12.png') }}" width="150"
                                             class="rounded-circle bg-info-light" alt="user" />
-                                        <h4 class="mt-20 mb-0"> {{ $row->user->first_name . ' ' . $row->user->last_name }}</h4>
+                                        <h4 class="mt-20 mb-0"> {{ $row->user->full_name }}
+                                        </h4>
                                     </div>
                                     <div class="badge badge-pill badge-info-light fs-16">{{ $subject->name }}</div>
                                 </div>
@@ -36,7 +37,8 @@
                                     <div class="row text-center">
                                         <div class="col-lg-4 col-xs-12">
                                             <div class="bg-primary mt-5 rounded">
-                                                <a href="{{ route('teacher.lessons', ['teacher_id' => $row->id, 'subject_id' => $subject->id]) }}">
+                                                <a
+                                                    href="{{ route('teacher.lessons', ['teacher_id' => $row->id, 'subject_id' => $subject->id]) }}">
                                                     <h5 class="text-white text-center p-10"> show lessons </h5>
                                                 </a>
                                             </div>

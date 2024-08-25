@@ -10,25 +10,28 @@ use Spatie\Permission\Models\Permission;
 
 class AssignPermissionToAllTenants extends Command
 {
-    protected $signature = 'tenants:assign-permission {permission} {role}';
+    protected $signature = 'tenants:assign-permission {--role=} {--permission=}';
     protected $description = 'Assign a specific permission to all tenants';
 
     public function handle()
     {
-        $permissionName = $this->argument('permission');
-        $roleName = $this->argument('role');
+        $permissionName = $this->option('permission');
+        $roleName = $this->option('role');
         // ----------------------------------------------- \\
         $tenants = Tenant::get();
         // ----------------------------------------------- \\
         foreach ($tenants as $tenant) {
             Tenancy::initialize($tenant);
             $roleModel = Role::where('name', $roleName)->first();
+
             if ($roleModel) {
-                $Permission = Permission::firstOrCreate(['name' => $permissionName]);
-                if (! $roleModel->hasPermissionTo($Permission)) {
-                    $roleModel->givePermissionTo($Permission);
+                $permissionModel = Permission::firstOrCreate(['name' => $permissionName]);
+                if (! $roleModel->hasPermissionTo($permissionModel)) {
+                    $roleModel->givePermissionTo($permissionModel);
+                    $this->info("Permission assigned to `{$tenant->id}`.");
+                }else{
+                    $this->warn("The Permission assigned Before to `{$tenant->id}`.");
                 }
-                $this->info("Permission assigned to `{$tenant->id}`.");
             } else {
                 $this->error("Role `{$roleName}` not found for `{$tenant->id}`.");
             }
