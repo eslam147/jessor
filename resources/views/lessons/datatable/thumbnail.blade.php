@@ -1,1 +1,1 @@
-<img src="{{ $lesson->thumbnail }}" alt="">
+<img src="{{ $row->thumbnail }}" alt="">
