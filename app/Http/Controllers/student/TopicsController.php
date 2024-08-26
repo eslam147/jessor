@@ -24,7 +24,9 @@ class TopicsController extends Controller
         $lesson = Lesson::with('file')->active()->findOrFail($id);
         if ($lesson->is_paid) {
             abort_unless(
-                Enrollment::where('user_id', Auth::user()->id)->where('lesson_id', $id)->exists(),
+                Enrollment::where('user_id', Auth::user()->id)->where('lesson_id', $lesson->id)->where(function ($q) {
+                    $q->where('expires_at', '>', now())->orWhere('expires_at', null);
+                })->exists(),
                 Response::HTTP_UNAUTHORIZED
             );
         }
@@ -37,7 +39,9 @@ class TopicsController extends Controller
     {
         $topic = LessonTopic::with('file')->active()->findOrFail($topic_id);
         abort_unless(
-            Enrollment::where('user_id', Auth::user()->id)->where('lesson_id', $topic->lesson_id)->exists(),
+            Enrollment::where('user_id', Auth::user()->id)->where('lesson_id', $topic->lesson_id)->where(function ($q) {
+                $q->where('expires_at', '>', now())->orWhere('expires_at', null);
+            })->exists(),
             Response::HTTP_UNAUTHORIZED
         );
 
@@ -49,20 +53,22 @@ class TopicsController extends Controller
         ]);
 
         $files = $topic->file->whereIn('type', [File::FILE_UPLOAD_TYPE, File::EXTERNAL_LINK]);
-        return view('student_dashboard.files.index', compact('files', 'videos','topic'));
+        return view('student_dashboard.files.index', compact('files', 'videos', 'topic'));
     }
 
     public function get_file($id)
     {
         $file = File::find($id);
-        if(!$file) return '';
+        if (! $file)
+            return '';
 
         return view('student_dashboard.files.file', compact('file'));
     }
     public function get_video($id)
     {
         $video = File::find($id);
-        if(!$video) return '';
+        if (! $video)
+            return '';
         return view('student_dashboard.files.video', compact('video'));
     }
 }

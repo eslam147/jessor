@@ -75,7 +75,7 @@ class EnrollController extends Controller
                     $user = Auth::user();
                     // ----------------------------------------------- #
                     DB::beginTransaction();
-                    // $user 
+                    // ----------------------------------------------- #
                     if (! empty($lesson->price)) {
                         if ($user->balance < $lesson->price) {
                             Alert::warning('error', "You don't have enough balance.");
