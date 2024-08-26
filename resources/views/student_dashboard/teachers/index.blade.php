@@ -28,16 +28,17 @@
                                     <div class="d-flex flex-row">
                                         <div>
                                             <img src="{{ !empty($row->user->getRawOriginal('image')) ? $row->user->image : global_asset('student/images/avatar/avatar-12.png') }}"
-                                                alt="user" class="bg-success-light h-150 object-fit-cover rounded-circle w-150" width="100">
+                                                alt="user"
+                                                class="bg-success-light h-150 object-fit-cover rounded-circle w-150"
+                                                width="100">
                                         </div>
                                         <div class="ps-20">
                                             <h3>{{ $row->user->full_name }}</h3>
                                             <h6>{{ $subject->name }}</h6>
-                                            <a
-                                            class="btn btn-primary-light text-center p-10"
-                                            href="{{ route('teacher.lessons', ['teacher_id' => $row->id, 'subject_id' => $subject->id]) }}">
-                                            Show Lessons
-                                        </a>
+                                            <a class="btn btn-primary-light text-center p-10"
+                                                href="{{ route('teacher.lessons', ['teacher_id' => $row->id, 'subject_id' => $subject->id]) }}">
+                                                Show Lessons
+                                            </a>
                                         </div>
                                     </div>
                                     {{-- @dd(
@@ -59,7 +60,7 @@
                                     </div>
                                 </div>
                                 <div class="box-body">
-                                    <p class="text-center aboutscroll">
+                                    <p dir="auto" class="aboutscroll">
                                         {{ $row->qualification }}
                                     </p>
                                     <ul class="list-inline text-center">

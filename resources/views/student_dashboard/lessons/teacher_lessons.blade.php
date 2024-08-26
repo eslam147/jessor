@@ -152,7 +152,7 @@
             <section class="content">
                 <div class="row fx-element-overlay">
                     @foreach ($lessons as $row)
-                        <div class="col-12 col-lg-4 col-xl-3">
+                        <div class="col-12 col-md-6 col-xl-4">
                             <div class="border border-info box overflow-hidden">
                                 <div class="fx-card-item">
                                     <div class="fx-card-avatar fx-overlay-1">

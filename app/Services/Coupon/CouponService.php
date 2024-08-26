@@ -132,7 +132,7 @@ class CouponService
                 return $this->responseContent(__('coupon_errors_price_limit'), false);
             }
 
-            if ($lesson->price >= $coupon->price) {
+            if ($lesson->price > $coupon->price) {
                 return $this->responseContent(__('coupon_errors_price_limit'), false);
             }
         }
