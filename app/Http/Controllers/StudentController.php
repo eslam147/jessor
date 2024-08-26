@@ -379,6 +379,10 @@ class StudentController extends Controller
             $student->guardian_id = $guardian_parent_id ?? 0;
             $student->dynamic_fields = json_encode($data);
             $student->update();
+            $studentRole = Role::where('name', 'Student')->first();
+            if(!$user->hasRole($studentRole)){
+                $user->assignRole($studentRole);
+            }
 
             $response = [
                 'error' => false,
