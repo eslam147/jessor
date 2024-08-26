@@ -30,6 +30,7 @@
             border-left: unset;
         }
     </style>
+    <link rel="stylesheet" href="{{ global_asset('assets/fonts/font-awesome.min.css') }}">
 @endsection
 
 @section('content')
@@ -40,68 +41,57 @@
                 <div class="row">
                     <div class="box">
                         <div class="box-header with-border">
-                            <h4 class="box-title">Lesson</h4>
+                            <h4 class="box-title">Topic - {{ $topic->name }}</h4>
                         </div>
                         <!-- /.box-header -->
+                        
                         <div class="box-body">
-                            <!-- Tab panes -->
-                            <div class="tab-content">
-                                <div id="home4" class="tab-pane active">
-                                    <div class="row">
-                                        <div class="col-lg-2 col-xs-12" >
-                                            <div class="accordion" id="accordionExample">
-                                                    {{-- videos --}}
-                                                    <h2 class="accordion-header" id="headingOne">
-                                                        <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseVideo" aria-expanded="true" aria-controls="collapseOne">
-                                                            <span> Videos </span>
-                                                            <i class="bi bi-chevron-right ms-auto rotate"></i>
-                                                        </button>
-                                                    </h2>
-                                                    <div id="collapseVideo" class="accordion-collapse collapse show" aria-labelledby="headingOne" data-bs-parent="#accordionExample">
-                                                        <ul class="accordion-body list-group">
-                                                            @if($videos->count() > 0)
-                                                                @foreach ($videos as $row)
-                                                                    <li class="list-group-item video-link" data-id="{{ $row->id }}" >
-                                                                        <a href="javascript:void(0)">
-                                                                            {{ $row->file_name }}
-                                                                        </a>
-                                                                    </li>
-
-                                                                @endforeach
-                                                            @else
-                                                                <li class="list-group-item"><a href="javascript:void(0)"> No Videos Found </a></li>
-                                                            @endif
-                                                        </ul>
+                            <div class="row">
+                                <div class="col-3">
+                                    <div class="bg-light h-550 media-list media-list-divided p-10 rounded-3">
+                                        @if($videos->count() > 0)
+                                            @foreach ($videos as $row)
+                                                <div class="media media-single px-0">
+                                                    <div class="ms-0 me-15 bg-success-light h-50 w-50 l-h-50 rounded text-center">
+                                                        <span class="fs-24 text-success"><i class="fa fa-file-video-o"></i></span>
                                                     </div>
-                                                    {{-- files --}}
-                                                    <h2 class="accordion-header" id="headingrow">
-                                                        <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseFiles" aria-expanded="true" aria-controls="collapseOne">
-                                                            <span> Files </span>
-                                                            <i class="bi bi-chevron-right ms-auto rotate"></i>
-                                                        </button>
-                                                    </h2>
-                                                    <div id="collapseFiles" class="accordion-collapse collapse" aria-labelledby="headingOne" data-bs-parent="#accordionExample">
-                                                        <ul class="accordion-body list-group">
-                                                            @if($files->count() > 0)
-                                                                @foreach ($files as $row)
-                                                                    <li class="list-group-item file-link" data-id="{{ $row->id }}">
-                                                                        <a href="javascript:void(0)" >
-                                                                            {{ $row->file_name }}
-                                                                        </a>
-                                                                    </li>
-                                                                @endforeach
-                                                            @else
-                                                                <li class="list-group-item"><a href="javascript:void(0)"> No Files Found </a></li>
-                                                            @endif
-
-                                                        </ul>
-                                                    </div>
+                                                    <span class="title fw-500 fs-16">{{ $row->file_name }}</span>
+                                                    <a class="btn btn-icon btn-success-light btn-sm fs-18 hover-info m-0 rounded-5 text-gray video-link preview_btn" href="javascript:void(0)" data-id="{{ $row->id }}"><i class="fa fa-play"></i></a>
+                                                </div>
+                                            @endforeach
+                                        @else
+                                            <div class="media media-single px-0">
+                                                <div class="ms-0 me-15 bg-success-light h-50 w-50 l-h-50 rounded text-center">
+                                                    <span class="fs-24 text-success"><i class="fa fa-notice"></i></span>
+                                                </div>
+                                                <span class="title fw-500 fs-16">No Videos Found</span>
                                             </div>
+                                        @endif
+                                        @if($files->count() > 0)
+                                            @foreach ($files as $row)
+                                                <div class="media media-single px-0">
+                                                    <div class="ms-0 me-15 bg-primary-light h-50 w-50 l-h-50 rounded text-center">
+                                                        <span class="fs-24 text-primary"><i class="fa fa-file-text-o"></i></span>
+                                                    </div>
+                                                    <span class="title fw-500 fs-16">{{ $row->file_name }}</span>
+                                                    <a class="btn btn-icon btn-success-light btn-sm fs-18 hover-info m-0 rounded-5 text-gray file-link preview_btn" href="#" data-id="{{ $row->id }}">
+                                                        <i class="fa fa-eye"></i></a>
+                                                </div>
+                                            @endforeach
+                                        @else
+                                        <div class="media media-single px-0">
+                                            <div class="ms-0 me-15 bg-success-light h-50 w-50 l-h-50 rounded text-center">
+                                                <span class="fs-24 text-success"><i class="fa fa-notice"></i></span>
+                                            </div>
+                                            <span class="title fw-500 fs-16">No Files Found</span>
                                         </div>
-                                        <div class="col-lg-10 col-xs-12 d-flex justify-content-center align-items-center" id="content" >
-                                            <input type="hidden" id="download_for_browser" value="">
+                                        @endif
+                                    </div>
+                                </div>
+                                <div class="col-lg-9 col-12 d-flex justify-content-center align-items-center "  >
+                                    <div class=" h-p100 w-p100" id="content">
 
-                                        </div>
+                                        <input type="hidden" id="download_for_browser" value="">
                                     </div>
                                 </div>
                             </div>
@@ -119,6 +109,10 @@
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             const player = new Plyr('#player');
+        });
+        $(document).on('click', '.preview_btn', function(event) {
+            $('.preview_btn').removeClass('active');
+            $(this).addClass('active')
         });
         $(document).on('click', '.file-link', function(event) {
             event.preventDefault();

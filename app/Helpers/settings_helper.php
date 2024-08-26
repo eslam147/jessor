@@ -3,6 +3,7 @@
 use App\Models\Grade;
 use App\Models\Language;
 use App\Models\Settings;
+use Illuminate\Support\Facades\Cache;
 use Intervention\Image\Facades\Image;
 
 
@@ -40,6 +41,22 @@ if (! function_exists('settingByType')) {
     function settingByType($type)
     {
         return Settings::where('type', $type)->value("message");
+    }
+}
+
+if (! function_exists('loadTenantMainAsset')) {
+    function loadTenantMainAsset($key, $defaultValue = null)
+    {
+
+        $setting = Cache::remember("tenant_app_settings", now()->addDay(), function () {
+            return Settings::whereIn('type', ['logo1', 'logo2', 'favicon'])->pluck("message", 'type')->toArray();
+        });
+
+        if (isset($setting[$key]) && !empty($setting[$key])) {
+            return $setting[$key];
+        }
+
+        return $defaultValue;
     }
 }
 if (! function_exists('getSettings')) {
@@ -156,62 +173,6 @@ if (! function_exists('flattenMyModel')) {
         return $data;
     }
 }
-// if (! function_exists('changeEnv')) {
-//     function changeEnv($data = array())
-//     {
-//         if (count($data) > 0) {
-
-//             // Read .env-file
-//             $env = file_get_contents(base_path() . '/.env');
-//             // Split string on every " " and write into array
-//             $env = explode(PHP_EOL, $env);
-//             // $env = preg_split('/\s+/', $env);
-//             foreach ($env as $env_key => $env_value) {
-//                 $entry = explode("=", $env_value);
-//                 $temp_env_keys[] = $entry[0];
-
-//             }
-//             // Loop through given data
-//             foreach ((array) $data as $key => $value) {
-//                 $key_value = $key . "=" . $value;
-
-//                 if (in_array($key, $temp_env_keys)) {
-//                     // Loop through .env-data
-//                     foreach ($env as $env_key => $env_value) {
-//                         // Turn the value into an array and stop after the first split
-//                         // So it's not possible to split e.g. the App-Key by accident
-//                         $entry = explode("=", $env_value);
-//                         // // Check, if new key fits the actual .env-key
-//                         if ($entry[0] == $key) {
-
-//                             // If yes, overwrite it with the new one
-
-//                             if ($key != 'APP_NAME') {
-//                                 $env[$env_key] = $key . "=" . str_replace('"', '', $value);
-//                             } else {
-//                                 $env[$env_key] = $key . "=" . $value;
-//                             }
-
-//                         } else {
-//                             // If not, keep the old one
-//                             $env[$env_key] = $env_value;
-//                         }
-//                     }
-//                 } else {
-//                     $env[] = $key_value;
-//                 }
-//             }
-//             // Turn the array back to an String
-//             $env = implode("\n", $env);
-
-//             // And overwrite the .env with the new data
-//             file_put_contents(base_path() . '/.env', $env);
-
-//             return true;
-//         }
-//         return false;
-//     }
-// }
 
 if (! function_exists('findExamGrade')) {
     function findExamGrade($percentage)
@@ -247,7 +208,7 @@ if (! function_exists('convertDateFormat')) {
         }
     }
 }
-if(! function_exists('isRouteActive')) {
+if (! function_exists('isRouteActive')) {
     function isRouteActive($routeName, $activeClassName = 'active')
     {
         return request()->routeIs($routeName) ? $activeClassName : '';

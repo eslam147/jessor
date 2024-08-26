@@ -233,7 +233,7 @@ class OnlineExamController extends Controller
                 $tempRow['online_exam_belongs_to'] = 1;
                 $tempRow['class_section_id'] = $row->model_id;
                 $class_section_data = ClassSection::where('id', $row->model_id)->with('class.medium', 'section', 'class.streams')->withOutTrashedRelations('class', 'section')->first();
-                $tempRow['class_name'] = $class_section_data->class->name . ' - ' . $class_section_data->section->name . ' ' . $class_section_data->class->medium->name . ' ' . ($class_section_data->class->streams->name ?? '');
+                $tempRow['class_name'] = $class_section_data?->class->name . ' - ' . $class_section_data?->section->name . ' ' . $class_section_data->class->medium->name . ' ' . ($class_section_data->class->streams->name ?? '');
             } else {
                 // if online exam based on is Class
                 $tempRow['online_exam_belongs_to'] = 0;

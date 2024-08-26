@@ -22,7 +22,7 @@ class TopicsController extends Controller
     public function show($id)
     {
         $lesson = Lesson::with('file')->active()->findOrFail($id);
-        if ($lesson->is_paid == 1) {
+        if ($lesson->is_paid) {
             abort_unless(
                 Enrollment::where('user_id', Auth::user()->id)->where('lesson_id', $id)->exists(),
                 Response::HTTP_UNAUTHORIZED
@@ -49,7 +49,7 @@ class TopicsController extends Controller
         ]);
 
         $files = $topic->file->whereIn('type', [File::FILE_UPLOAD_TYPE, File::EXTERNAL_LINK]);
-        return view('student_dashboard.files.index', compact('files', 'videos'));
+        return view('student_dashboard.files.index', compact('files', 'videos','topic'));
     }
 
     public function get_file($id)

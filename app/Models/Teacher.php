@@ -6,10 +6,12 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
+use Staudenmeir\EloquentHasManyDeep\HasRelationships;
+use Znck\Eloquent\Traits\BelongsToThrough;
 
 class Teacher extends Model
 {
-    use SoftDeletes;
+    use SoftDeletes, HasRelationships;
     protected $guarded = [];
 
     protected $hidden = ["deleted_at", "created_at", "updated_at"];
@@ -60,11 +62,29 @@ class Teacher extends Model
     {
         return $this->hasManyThrough(LessonTopic::class, Lesson::class);
     }
-
+    public function questions()
+    {
+        return $this->hasMany(OnlineExamQuestion::class, 'teacher_id');
+    }
+    public function students()
+    {
+        return $this->hasManyDeep(Students::class, [ Lesson::class,Enrollment::class],[
+            'teacher_id',
+             'lesson_id',
+             'user_id',
+        ],[
+            'id',
+            'id',
+            'user_id',
+        ]);
+    }
     //Getter Attributes
     public function getImageAttribute($value)
     {
-        return tenant_asset($value);
+        if (! empty($value)) {
+            return tenant_asset($value);
+        }
+        return null;
     }
 
     public function scopeTeachers($query)

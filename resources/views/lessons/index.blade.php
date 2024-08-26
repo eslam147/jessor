@@ -214,8 +214,8 @@
                                         {{ __('class_section') }}</th>
                                     <th scope="col" data-field="subject_name" data-sortable="true">
                                         {{ __('subject') }}</th>
-                                    <th scope="col" data-field="file" data-formatter="fileFormatter"
-                                        data-sortable="true">{{ __('file') }}</th>
+                                    {{-- <th scope="col" data-field="file" data-formatter="fileFormatter"
+                                        data-sortable="true">{{ __('file') }}</th> --}}
                                     <th scope="col" data-field="purchased_count" data-sortable="true">
                                         {{ __('purchased_count') }}</th>
                                     <th scope="col" data-field="payment_status" data-sortable="false">

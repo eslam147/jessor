@@ -22,28 +22,48 @@
             <section class="content">
                 <div class="row">
                     @foreach ($subjectTeachers as $row)
-                        <div class="col-lg-4 col-xs-12">
-                            <div class="box">
-                                <div class="box-body text-center">
-                                    <div class="mb-20 mt-20">
-                                        <img src="{{ global_asset('student/images/avatar/avatar-12.png') }}" width="150"
-                                            class="rounded-circle bg-info-light" alt="user" />
-                                        <h4 class="mt-20 mb-0"> {{ $row->user->full_name }}
-                                        </h4>
-                                    </div>
-                                    <div class="badge badge-pill badge-info-light fs-16">{{ $subject->name }}</div>
-                                </div>
-                                <div class="p-25 mt-15 bt-1">
-                                    <div class="row text-center">
-                                        <div class="col-lg-4 col-xs-12">
-                                            <div class="bg-primary mt-5 rounded">
-                                                <a
-                                                    href="{{ route('teacher.lessons', ['teacher_id' => $row->id, 'subject_id' => $subject->id]) }}">
-                                                    <h5 class="text-white text-center p-10"> show lessons </h5>
-                                                </a>
-                                            </div>
+                        <div class="col-lg-4 col-12">
+                            <div class="box bg-body-secondary">
+                                <div class="box-body">
+                                    <div class="d-flex flex-row">
+                                        <div>
+                                            <img src="{{ !empty($row->user->getRawOriginal('image')) ? $row->user->image : global_asset('student/images/avatar/avatar-12.png') }}"
+                                                alt="user" class="bg-success-light h-150 object-fit-cover rounded-circle w-150" width="100">
+                                        </div>
+                                        <div class="ps-20">
+                                            <h3>{{ $row->user->full_name }}</h3>
+                                            <h6>{{ $subject->name }}</h6>
+                                            <a
+                                            class="btn btn-primary-light text-center p-10"
+                                            href="{{ route('teacher.lessons', ['teacher_id' => $row->id, 'subject_id' => $subject->id]) }}">
+                                            Show Lessons
+                                        </a>
                                         </div>
                                     </div>
+                                    {{-- @dd(
+                                        $row
+                                    ) --}}
+                                    <div class="row mt-40">
+                                        <div class="col b-r text-center">
+                                            <h2 class="font-light">{{ $row->lessons_count }}</h2>
+                                            <h6>Lessons Count</h6>
+                                        </div>
+                                        <div class="col b-r text-center">
+                                            <h2 class="font-light">{{ $row->questions_count }}</h2>
+                                            <h6>Questions Count</h6>
+                                        </div>
+                                        <div class="col text-center">
+                                            <h2 class="font-light">{{ $row->students_count ?? 0 }}</h2>
+                                            <h6>Students Count</h6>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="box-body">
+                                    <p class="text-center aboutscroll">
+                                        {{ $row->qualification }}
+                                    </p>
+                                    <ul class="list-inline text-center">
+                                    </ul>
                                 </div>
                             </div>
                         </div>

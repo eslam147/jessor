@@ -448,6 +448,7 @@
     "enter": "Enter",
     "amount": "Amount",
     "paid": "Paid",
+    "free": "Free",
     "classes": "Classes",
     "mode": "Mode",
     "transaction_id": "Transaction ID",
@@ -688,5 +689,7 @@
     "image_based": "Image Based",
     "explain_answer": "Explain Answer",
     "coupon_charge_amount": "Charge Amount",
-    "coupon_purchase": "Purchase"
+    "coupon_purchase": "Purchase",
+    "unauthorized_access" : "Unauthorized access",
+    "invalid_online_exam_attempt_not_found" : "Invalid Online Exam Attempt Not Found"
 }

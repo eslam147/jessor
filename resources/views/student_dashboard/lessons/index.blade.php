@@ -37,7 +37,7 @@
                                         <div>
                                             <p class="mb-0 text-fade">Description</p>
                                             <p class="mb-0">{{ $row->description }}</p>
-                                        </div>
+                                    </div>
                                         <div>
                                             @if ($row->is_lesson_free)
                                                 <span class="text-success">Lesson Is Free</span>

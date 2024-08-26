@@ -207,7 +207,7 @@
 <script src="{{ global_asset('/assets/js/ekko-lightbox.min.js') }}"></script>
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/owl.carousel.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@fingerprintjs/fingerprintjs@3/dist/fp.min.js"></script>
+{{-- <script src="https://cdn.jsdelivr.net/npm/@fingerprintjs/fingerprintjs@3/dist/fp.min.js"></script> --}}
 <script>
     $(document).ready(function() {
         // Initialize each carousel separately
@@ -261,7 +261,7 @@
         });
     });
 </script>
-<script>
+{{-- <script>
     // Load FingerprintJS
     const fpPromise = FingerprintJS.load();
 
@@ -285,15 +285,11 @@
               console.log(data.message);
           });
       });
-</script>
+</script> --}}
 
 @php
-    $theme_color = getSettings('theme_color');
-    $secondary_color = getSettings('secondary_color');
-
-    // echo json_encode($theme_color);
-    $theme_color = $theme_color['theme_color'];
-    $secondary_color = $secondary_color['secondary_color'];
+    $theme_color = settingByType('theme_color');
+    $secondary_color = settingByType('secondary_color');
 @endphp
 <style>
     :root {

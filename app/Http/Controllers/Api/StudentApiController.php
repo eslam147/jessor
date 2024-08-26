@@ -1870,20 +1870,20 @@ class StudentApiController extends Controller
             $current_date_time = $time_data['formatted'];
             $check_start_date = OnlineExam::where('id', $request->exam_id)->where('start_date', '>', $current_date_time)->count();
             if ($check_start_date != 0) {
-                $response = array(
+                return response()->json([
                     'error' => true,
                     'message' => trans('exam_not_started_yet'),
                     'code' => 106,
-                );
-                return response()->json($response);
+                ]);
             }
 
             // add the exam status
-            $student_exam_status = new StudentOnlineExamStatus();
-            $student_exam_status->online_exam_id = $request->exam_id;
-            $student_exam_status->student_id = $student->id;
-            $student_exam_status->status = 1;
-            $student_exam_status->save();
+            StudentOnlineExamStatus::create([
+                'online_exam_id' => $request->exam_id,
+                'student_id' => $student->id,
+                'status' => 1,
+            ]);
+            
 
             // get total questions
             $total_questions = OnlineExamQuestionChoice::where('online_exam_id', $request->exam_id)->count();
@@ -1955,28 +1955,26 @@ class StudentApiController extends Controller
         ]);
 
         if ($validator->fails()) {
-            $response = array(
+            return response()->json([
                 'error' => true,
                 'message' => $validator->errors()->first(),
                 'code' => 102,
-            );
-            return response()->json($response);
+            ]);
         }
         try {
             $student = $request->user()->student;
-
+            DB::beginTransaction();
             // checks the online exam exists
             $check_online_exam_id = OnlineExam::where('id', $request->online_exam_id)->count();
             if ($check_online_exam_id) {
 
                 $answers_exists = OnlineExamStudentAnswer::where(['student_id' => $student->id, 'online_exam_id' => $request->online_exam_id])->count();
                 if ($answers_exists) {
-                    $response = array(
+                    return response()->json([
                         'error' => true,
                         'message' => 'Answers already submitted',
                         'code' => 103,
-                    );
-                    return response()->json($response);
+                    ]);
                 }
 
                 foreach ($request->answers_data as $answer_data) {
@@ -1993,55 +1991,64 @@ class StudentApiController extends Controller
 
                         //get the current date
                         $currentTime = now();
-                        $current_date = date($currentTime->toDateString());
+                        $current_date = $currentTime->toDateString();
 
                         if ($check_option_exists) {
                             foreach ($answer_data['option_id'] as $options) {
                                 // add the data of answers
-                                $store_answers = new OnlineExamStudentAnswer();
-                                $store_answers->student_id = $student->id;
-                                $store_answers->online_exam_id = $request->online_exam_id;
-                                $store_answers->question_id = $answer_data['question_id'];
-                                $store_answers->option_id = $options;
-                                $store_answers->submitted_date = $current_date;
-                                $store_answers->save();
+                                OnlineExamStudentAnswer::create([
+                                    'student_id' => $student->id,
+                                    'online_exam_id' => $request->online_exam_id,
+                                    'question_id' => $answer_data['question_id'],
+                                    'option_id' => $options,
+                                    'submitted_date' => $current_date,
+                                ]);
                             }
 
-                            $student_exam_status_id = StudentOnlineExamStatus::where([
+                            $studentExamStatus = StudentOnlineExamStatus::where([
                                 'student_id' => $student->id,
                                 'online_exam_id' => $request->online_exam_id
-                            ])->pluck('id')->first();
-                            if (isset($student_exam_status_id) && ! empty($student_exam_status_id)) {
-                                $update_status = StudentOnlineExamStatus::find($student_exam_status_id);
-                                $update_status->status = 2;
-                                $update_status->save();
+                            ])->first();
+                            
+                            if (! empty($studentExamStatus) && $studentExamStatus) {
+                                $studentExamStatus->update([
+                                    'status' => 2
+                                ]);
+                            }else{
+                                return response()->json([
+                                    'error' => true,
+                                    'message' => trans('invalid_online_exam_attempt_not_found'),
+                                    'code' => 103
+                                ]);
                             }
                         }
                     } else {
-                        $response = array(
+                        return response()->json([
                             'error' => true,
                             'message' => trans('invalid_question_id'),
                             'code' => 103
-                        );
-                        return response()->json($response);
+                        ]);
                     }
                 }
-                $response = array(
+                DB::commit();
+
+                return response()->json([
                     'error' => false,
                     'message' => trans('data_store_successfully'),
                     'code' => 200,
-                );
-                return response()->json($response);
+                ]);
             } else {
-                $response = array(
+                info("{GetLine No. }", [trans('invalid_online_exam_id')]);
+
+                return response()->json([
                     'error' => true,
                     'message' => trans('invalid_online_exam_id'),
                     'code' => 103
-                );
-                return response()->json($response);
+                ]);
             }
         } catch (Exception $e) {
             report($e);
+            DB::rollBack();
 
             $response = array(
                 'error' => true,
@@ -3635,8 +3642,8 @@ class StudentApiController extends Controller
         try {
             $student = $request->user()->student;
 
-            $logo = settingByType('logo2');
-            $logo = public_path("/storage/{$logo}");
+            $logo = loadTenantMainAsset('logo2');
+            // $logo = public_path("/storage/{$logo}");
             $school_name = settingByType('school_name');
             $school_address = getSettings('school_address');
             $school_address = $school_address['school_address'];

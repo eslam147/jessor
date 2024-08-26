@@ -227,11 +227,11 @@ class ExamService
             'note' => $question->note,
         ];
     }
-    public function getOnlineExamStatus($student, $request)
+    public function getOnlineExamStatus($studentId, $examId)
     {
         return StudentOnlineExamStatus::where([
-            'online_exam_id' => $request->exam,
-            'student_id' => $student->id
+            'online_exam_id' => $examId,
+            'student_id' => $studentId
         ])->first();
     }
     public function createOnlineExamStatus($studentId, $examId)

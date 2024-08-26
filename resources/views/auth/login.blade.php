@@ -26,8 +26,7 @@
                             <div class="auth-form-light text-left p-5">
 
                                 <div class="brand-logo text-center">
-                                    <img src="{{ settingByType('logo2') ? tenant_asset(settingByType('logo2')) : url('assets/logo.svg') }}"
-                                        alt="logo">
+                                    <img src="{{ loadTenantMainAsset('logo2', url('assets/logo.svg')) }}" alt="logo">
                                 </div>
                                 <form action="{{ route('login') }}" id="frmLogin" method="POST" class="pt-3">
                                     @csrf
@@ -119,7 +118,7 @@
                 $(element).addClass('form-control-danger')
             }
         });
-        $('#frmLogin').submit(function (e){
+        $('#frmLogin').submit(function(e) {
             $('#login_btn').attr('disabled', 'disabled');
         })
         const togglePassword = document.querySelector("#togglePassword");

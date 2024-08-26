@@ -61,6 +61,7 @@ use App\Http\Controllers\student\StudentDashboardController;
 use Stancl\Tenancy\Middleware\PreventAccessFromCentralDomains;
 use App\Http\Controllers\student\WalletController as StudentWallet;
 use App\Http\Controllers\student\AssignmentController as StudentAssignmentController;
+use App\Http\Controllers\student\LessonController as StudentLessonController;
 use App\Http\Controllers\student\SubjectController as StudentSubjectController;
 use App\Http\Controllers\student\SettingController as StudentSettingsController;
 use App\Http\Controllers\student\OfflineExamController as StudentOfflineExamController;
@@ -129,6 +130,9 @@ Route::middleware([
                 Route::post('submit/{assignment}', 'submit')->name('submit');
             });
 
+            Route::controller(StudentLessonController::class)->prefix('lesson')->as('student_dashboard.lesson.')->group(function () {
+                Route::get('/{lesson}', 'show')->name('show');
+            });
             Route::controller(StudentWallet::class)->prefix('wallet')->as('student_dashboard.wallet.')->group(function () {
                 Route::get('/', 'index')->name('index');
                 Route::post('/apply_coupon', 'applyCouponToWallet')->name('applyCoupon');

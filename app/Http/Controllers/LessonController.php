@@ -199,7 +199,7 @@ class LessonController extends Controller
             $operate = '<a href=' . route('lesson.edit', $row->id) . ' class="btn btn-xs btn-gradient-primary btn-rounded btn-icon edit-data" data-id=' . $row->id . ' title="Edit" data-toggle="modal" data-target="#editModal"><i class="fa fa-edit"></i></a>&nbsp;&nbsp;';
             $operate .= '<a href=' . route('lesson.destroy', $row->id) . ' class="btn btn-xs btn-gradient-danger btn-rounded btn-icon delete-form" data-id=' . $row->id . '><i class="fa fa-trash"></i></a>';
             $tempRow['payment_status'] = view('lessons.datatable.is_paid', ['row' => $row])->render();
-            $tempRow['is_paid'] = $row->is_paid;
+            $tempRow['is_paid'] = $row->is_paid ;
 
             $tempRow['status_name'] = view('lessons.datatable.status', ['status' => $row->status])->render();
             $tempRow['status'] = $row->status;
@@ -219,7 +219,6 @@ class LessonController extends Controller
             $tempRow['expiry_days'] = $row->expiry_days ? $row->expiry_days : "N/A";
             $tempRow['price'] = $row->price;
             $tempRow['lesson_thumbnail'] = $row->thumbnail;
-            $tempRow['file'] = $row->file;
             $tempRow['created_at'] = convertDateFormat($row->created_at, 'd-m-Y H:i:s');
             $tempRow['updated_at'] = convertDateFormat($row->updated_at, 'd-m-Y H:i:s');
             $tempRow['operate'] = $operate;

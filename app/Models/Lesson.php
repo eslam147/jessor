@@ -18,7 +18,7 @@ class Lesson extends Model
         'status' => LessonStatus::class,
     ];
     protected $hidden = ["deleted_at", "created_at", "updated_at"];
-
+    protected $appends = ['is_lesson_free'];
     protected static function boot()
     {
         parent::boot();
@@ -60,7 +60,8 @@ class Lesson extends Model
     {
         return $this->hasMany(Enrollment::class);
     }
-    public function getIsLessonFree()
+
+    public function getIsLessonFreeAttribute()
     {
         return (isset($this->is_paid) && $this->is_paid == 0);
     }

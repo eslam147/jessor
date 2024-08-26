@@ -59,14 +59,14 @@ class DummyDataSeeder extends Seeder
         ClassSection::upsert($class_sections, ['id'], ['class_id', 'section_id']);
 
         $subjects = [
-            ['id' => 1, 'name' => 'Maths', 'code' => 'MA', 'bg_color' => '#5031f7', 'image' => 'subject.png', 'medium_id' => 2, 'type' => 'Practical'],
-            ['id' => 2, 'name' => 'Science', 'code' => 'SC', 'bg_color' => '#5031f7', 'image' => 'subject.png', 'medium_id' => 2, 'type' => 'Practical'],
-            ['id' => 3, 'name' => 'English', 'code' => 'EN', 'bg_color' => '#5031f7', 'image' => 'subject.png', 'medium_id' => 2, 'type' => 'Theory'],
-            ['id' => 4, 'name' => 'Physics', 'code' => 'GJ', 'bg_color' => '#5031f7', 'image' => 'subject.png', 'medium_id' => 2, 'type' => 'Theory'],
-            ['id' => 5, 'name' => 'Chimstry', 'code' => 'SN', 'bg_color' => '#5031f7', 'image' => 'subject.png', 'medium_id' => 2, 'type' => 'Theory'],
-            ['id' => 6, 'name' => 'French', 'code' => 'HN', 'bg_color' => '#5031f7', 'image' => 'subject.png', 'medium_id' => 2, 'type' => 'Theory'],
-            ['id' => 7, 'name' => 'Computer', 'code' => 'CMP', 'bg_color' => '#5031f7', 'image' => 'subject.png', 'medium_id' => 2, 'type' => 'Practical'],
-            ['id' => 8, 'name' => 'PT', 'code' => 'PT', 'bg_color' => '#5031f7', 'image' => 'subject.png', 'medium_id' => 2, 'type' => 'Practical'],
+            ['id' => 1, 'name' => 'Maths', 'code' => 'MA', 'bg_color' => '#5031f7', 'medium_id' => 2, 'type' => 'Practical'],
+            ['id' => 2, 'name' => 'Science', 'code' => 'SC', 'bg_color' => '#5031f7', 'medium_id' => 2, 'type' => 'Practical'],
+            ['id' => 3, 'name' => 'English', 'code' => 'EN', 'bg_color' => '#5031f7', 'medium_id' => 2, 'type' => 'Theory'],
+            ['id' => 4, 'name' => 'Physics', 'code' => 'GJ', 'bg_color' => '#5031f7', 'medium_id' => 2, 'type' => 'Theory'],
+            ['id' => 5, 'name' => 'Chimstry', 'code' => 'SN', 'bg_color' => '#5031f7', 'medium_id' => 2, 'type' => 'Theory'],
+            ['id' => 6, 'name' => 'French', 'code' => 'HN', 'bg_color' => '#5031f7', 'medium_id' => 2, 'type' => 'Theory'],
+            ['id' => 7, 'name' => 'Computer', 'code' => 'CMP', 'bg_color' => '#5031f7', 'medium_id' => 2, 'type' => 'Practical'],
+            ['id' => 8, 'name' => 'PT', 'code' => 'PT', 'bg_color' => '#5031f7', 'medium_id' => 2, 'type' => 'Practical'],
 
         ];
         Subject::upsert($subjects, ['id'], ['name', 'code', 'bg_color', 'image', 'medium_id', 'type']);

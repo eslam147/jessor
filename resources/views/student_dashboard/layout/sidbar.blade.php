@@ -70,12 +70,12 @@
             </div>
         </div>
     </section>
-    <div class="sidebar-footer">
+    {{-- <div class="sidebar-footer">
         <a href="javascript:void(0)" class="link" data-bs-toggle="tooltip" title="Settings"><span
                 class="icon-Settings-2"></span></a>
         <a href="mailbox.html" class="link" data-bs-toggle="tooltip" title="Email"><span
                 class="icon-Mail"></span></a>
         <a href="javascript:void(0)" class="link" data-bs-toggle="tooltip" title="Logout"><span
                 class="icon-Lock-overturning"><span class="path1"></span><span class="path2"></span></span></a>
-    </div>
+    </div> --}}
 </aside>

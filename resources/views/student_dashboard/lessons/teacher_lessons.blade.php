@@ -114,7 +114,7 @@
 
         .lesson_image {
             width: 100%;
-            height: 18rem;
+            height: 18rem !important;
             position: relative;
         }
 
@@ -150,57 +150,58 @@
         <div class="container-full">
             <!-- Main content -->
             <section class="content">
-                <div class="row">
+                <div class="row fx-element-overlay">
                     @foreach ($lessons as $row)
-                        <div class="col-xs-12 col-md-6 col-lg-3">
-                            <div class="box pull-up">
-                                <div
-                                    class="box-img-top position-relative {{ empty($row->thumbnail) ? 'no_image_available' : '' }}">
-                                    <img class="lesson_image object-fit-cover"
-                                        src="{{ $row->thumbnail ? $row->thumbnail : global_asset('images/no_image_available.jpg') }}"
-                                        alt="{{ $row->name }}">
-                                </div>
-                                <div class="box-body">
-                                    <p class="mb-0 fs-18 text-bold"> {{ $row->name }} </p>
-                                    <div class="d-flex justify-content-between mt-30">
-                                        <div>
-                                            <p class="mb-0 text-fade">Lesson Description</p>
-                                            <p class="mb-0">{{ $row->description }}</p>
-                                        </div>
-                                        <div>
-                                            @if ($row->is_lesson_free)
-                                                <span class="text-success">Lesson Is Free</span>
-                                            @else
-                                                <h6>Price :
-                                                    <span class="text-primary">{{ $row->price }}</span>
-                                                </h6>
-                                            @endif
+                        <div class="col-12 col-lg-4 col-xl-3">
+                            <div class="border border-info box overflow-hidden">
+                                <div class="fx-card-item">
+                                    <div class="fx-card-avatar fx-overlay-1">
+                                        <img src="{{ $row->thumbnail ? $row->thumbnail : global_asset('images/no_image_available.jpg') }}"
+                                            alt="{{ $row->name }}" class="bbsr-0 bber-0 lesson_image object-fit-cover">
+                                        <div class="fx-overlay scrl-up">
+                                            <ul>
+                                                <li>
+                                                    <a href="{{ route('student_dashboard.lesson.show', $row->id) }}">
+                                                        <i class="fa fa-eye" aria-hidden="true"></i>
+                                                    </a>
+                                                </li>
+                                                <li>
+                                                    @if ($row->enrollments_count > 0)
+                                                            <a href="{{ route('topics.show', $row->id) }}">
+                                                            <i class="fa fa-open"></i>
+
+                                                            </a>
+                                                    @else
+                                                        <a  href="javascript:void(0)"
+                                                            class="locked-btn" data-id="{{ $row->id }}"
+                                                            data-price="{{ $row->price }}" data-bs-toggle="modal"
+                                                            data-bs-target="#payment-methods" data-animation="shake">
+                                                            <i class="fa fa-shopping-cart"></i>
+                                                        </a>
+                                                    @endif
+                                                </li>
+                                                {{-- <li>
+                                                    <a class="btn btn-outline" href="javascript:void(0);">
+                                                        <i class="mdi mdi-settings"></i>
+                                                    </a>
+                                                </li> --}}
+                                            </ul>
                                         </div>
                                     </div>
-                                    @if ($row->is_lesson_free)
-                                        <div class="bg-primary mt-5 rounded">
-                                            <a href="javascript:void(0)">
-                                                <h5 class="text-white text-center p-10"> Enroll Now For Free </h5>
-                                            </a>
+                                    <div class="fx-card-content text-start">
+                                        <div class="product-text">
+                                            <h3 class="pro-price text-blue">
+                                                {{ $row->is_lesson_free ? 'Free' : number_format($row->price, 2) }}
+                                            </h3>
+                                            <h4 class="box-title mb-0">
+                                                <a
+                                                    href="{{ route('student_dashboard.lesson.show', $row->id) }}">{{ $row->name }}</a>
+                                            </h4>
+                                            <small class="text-muted db">{{ str($row->description)->limit(30) }}</small>
                                         </div>
-                                    @else
-                                        @if ($row->enrollments_count > 0)
-                                            <div class="bg-success mt-5 rounded">
-                                                <a href="{{ route('topics.show', $row->id) }}">
-                                                    <h5 class="text-white text-center p-10"> View Lesson </h5>
-                                                </a>
-                                            </div>
-                                        @else
-                                            <div class="bg-primary mt-5 rounded">
-                                                <a href="javascript:void(0)" class="locked-btn"
-                                                    data-id="{{ $row->id }}" data-price="{{ $row->price }}"
-                                                    data-bs-toggle="modal" data-bs-target="#payment-methods"
-                                                    data-animation="shake">
-                                                    <h5 class="text-white text-center  p-10"> Locked Lesson </h5>
-                                                </a>
-                                            </div>
-                                        @endif
-                                    @endif
+
+                                        <!-- Enrollment and Actions -->
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -210,157 +211,6 @@
         </div>
     </div>
     <!-- Modal -->
-    <div class="modal center-modal fade" id="payment-methods" tabindex="-1">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Payment Methods <i class="si-lock si"></i></h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <div class="payment_methods">
-                        <div class="row">
-                            <div class="col-md-12">
-                                <div class="form-group validate">
-                                    <div class="controls">
-                                        <fieldset>
-                                            <input name="payment_method" type="radio" id="coupon_code" value="coupon_code"
-                                                required="" aria-invalid="false">
-                                            <label for="coupon_code">Coupon Code</label>
-                                        </fieldset>
-                                        <fieldset>
-                                            <input name="payment_method" type="radio" id="wallet" value="wallet"
-                                                aria-invalid="false">
-                                            <label for="wallet">My Wallet</label>
-                                        </fieldset>
-                                        <div class="help-block"></div>
-                                    </div>
-                                </div>
-                                <hr>
-                                <button class="btn btn-primary" id="payment-btn" type="submit">Complete</button>
-                            </div>
-
-                        </div>
-                        {{-- <div class="radio-input">
-                            <label class="label">
-                                <input type="radio" id="value-1" checked="" name="value-radio" value="value-1" />
-                                <p class="text">Designer</p>
-                            </label>
-                            <label class="label">
-                                <input type="radio" id="value-2" name="value-radio" value="value-2" />
-                                <p class="text">Student</p>
-                            </label>
-                            <label class="label">
-                                <input type="radio" id="value-3" name="value-radio" value="value-3" />
-                                <p class="text">Teacher</p>
-                            </label>
-                        </div> --}}
-                    </div>
-
-                    {{-- <div class="form-group">
-                        <label>Purchase Code</label>
-                        <input type="text" name="purchase_code" class="form-control mt-5">
-                    </div> --}}
-                    {{-- <form id="purchaseForm" method="POST" action="{{ route('enroll.store') }}">
-                        @csrf
-                     
-                        <input type="hidden" id="LessonId" name="lesson_id" value="">
-                    </form> --}}
-                </div>
-
-            </div>
-        </div>
-    </div>
-    <div class="modal center-modal fade" id="modal-center" tabindex="-1">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Lesson Is Locked <i class="si-lock si"></i></h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <form id="purchaseForm" method="POST" action="{{ route('enroll.store','coupon_code') }}">
-                        @csrf
-                        <div class="form-group">
-                            <label>Purchase Code</label>
-                            <input type="text" name="purchase_code" class="form-control mt-5">
-                        </div>
-                        <input type="hidden" id="LessonId" name="lesson_id" value="">
-                        <input type="hidden" id="price_amount" name="price_amount" value="">
-                    </form>
-                </div>
-                <div class="modal-footer modal-footer-uniform">
-                    <button type="submit" form="purchaseForm" class="btn btn-success"
-                        style="width: 100%;">Unlock</button>
-                </div>
-            </div>
-        </div>
-    </div>
+    @include('student_dashboard.lessons.partials.purchase_lessons_modal')
     <!-- /.modal -->
-@endsection
-@section('script')
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script>
-        $(document).ready(function() {
-            // Attach click event listener to buttons with class 'locked-btn'
-            $('#payment-btn').on('click', function(e) {
-                e.preventDefault();
-                let paymentSelect = $('input[name="payment_method"]:checked').val();
-                let lessonPrice = $('#price_amount').val();
-                // if()
-                switch (paymentSelect) {
-                    case 'coupon_code':
-                        $('#payment-methods').modal('hide');
-                        $('#modal-center').modal('show');
-                        // $('#LessonId').val(id);
-                        break;
-                    case 'wallet':
-                        $('#payment-methods').modal('hide');
-                        Swal.fire({
-                            title: "Are you sure?",
-                            text: `The amount will be Decrase ${lessonPrice} from your wallet.`,
-                            icon: "warning",
-                            showCancelButton: true,
-                            confirmButtonColor: "#3085d6",
-                            cancelButtonColor: "#d33",
-                            confirmButtonText: "Yes, Pay it!",
-                        }).then((result) => {
-                            if (result.isConfirmed) {
-                                $('#payment-methods').modal('hide');
-                                const form = document.createElement('form');
-                                form.method = 'POST';
-                                form.action = `{{ route('enroll.store','wallet') }}`;
-                                const lessonId = document.createElement('input');
-                                lessonId.type = 'hidden';
-                                lessonId.name = 'lesson_id';
-                                // lessonId.name = 'lesson_id';
-                                lessonId.value = $('#LessonId').val();
-
-                                const token = document.createElement('input');
-                                token.type = 'hidden';
-                                token.name = '_token';
-                                token.value = "{{ csrf_token() }}";
-                                
-                                form.appendChild(token);
-                                form.appendChild(lessonId);
-                                // form.appendChild(submitButton);
-                                document.body.appendChild(form);
-                                form.submit();
-                            }
-                        })
-                        break;
-
-                }
-
-            })
-            $('.locked-btn').on('click', function() {
-                // Get the data-id attribute from the clicked button
-                var id = $(this).data('id');
-
-                // Pass the id to the hidden input field with the specified ID
-                $('#LessonId').val(id);
-                $('#price_amount').val($(this).data('price'));
-            });
-        });
-    </script>
 @endsection

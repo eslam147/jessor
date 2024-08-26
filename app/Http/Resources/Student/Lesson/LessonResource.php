@@ -25,7 +25,7 @@ class LessonResource extends JsonResource
             }, null),
 
             'is_enrolled' => ($this->is_enrolled ? true : false),
-            'is_paid' => (!$this->is_lesson_free ? true : false),
+            'is_paid' => (!$this->is_paid ? true : false),
 
             'topics' => LessonTopicResource::collection($this->topic)
         ];

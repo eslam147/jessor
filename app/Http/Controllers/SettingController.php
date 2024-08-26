@@ -198,7 +198,7 @@ class SettingController extends Controller
                     $setting->save();
                 }
             }
-
+            cache()->delete('tenant_app_settings');
             $response = [
                 'error' => false,
                 'message' => trans('data_update_successfully'),

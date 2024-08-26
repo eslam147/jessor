@@ -32,9 +32,12 @@ class ExamController extends Controller
     }
     public function result(Request $request, OnlineExam $exam)
     {
-        try {
             $studentId = $request->user()->student->id;
+            $examStatus = $this->examService->getOnlineExamStatus($studentId, $exam->id);
 
+            if(!$examStatus) {
+                abort(404);
+            }
             // Get total questions count
             $examQuestions = OnlineExamQuestionChoice::where('online_exam_id', $exam->id)->with('questions')->get();
             $totalQuestions = $examQuestions->count();
@@ -99,20 +102,17 @@ class ExamController extends Controller
             ];
 
             return view('student_dashboard.exams.result', compact('examResult'));
-        } catch (Exception $e) {
-            report($e);
-            Alert::error('Error', trans('error_occurred'));
-            return redirect()->back();
-        }
+        
+            
     }
     public function submit(Request $request, OnlineExam $exam)
     {
         // Validate the request data
         $validator = Validator::make($request->all(), [
             'answers_data' => 'required|array',
-            'answers_data.*.question_id' => 'required|numeric',
-            'answers_data.*.option_id' => 'required|array',
-            'answers_data.*.option_id.*' => 'required|numeric',
+            'answers_data.*.question_id' => 'numeric',
+            'answers_data.*.option_id' => 'array',
+            'answers_data.*.option_id.*' => 'numeric',
         ]);
 
         if ($validator->fails()) {
@@ -137,9 +137,7 @@ class ExamController extends Controller
                 DB::rollBack();
                 return redirect()->back();
             }
-            // if($exam->duration == 0){
 
-            // }
             $answers_exists = OnlineExamStudentAnswer::where([
                 'student_id' => $student->id,
                 'online_exam_id' => $exam->id
@@ -147,74 +145,58 @@ class ExamController extends Controller
 
             if ($answers_exists) {
                 Alert::error('Error', 'Answers already submitted');
-                DB::rollBack();
                 return redirect()->back();
             }
 
             foreach ($request->answers_data as $key => $answer_data) {
                 $check_question_exists = OnlineExamQuestionChoice::where([
                     'question_id' => $answer_data['question_id'],
-
                 ])->exists();
 
                 if (! $check_question_exists) {
-                    Alert::error('Error', 'Invalid question ID');
-                    DB::rollBack();
-                    // dd('Invalid question ID');
-                    return redirect()->back();
+                    continue;
                 }
+                if (! empty($answer_data['question_id'])) {
 
+                    $question = OnlineExamQuestionChoice::where([
+                        'question_id' => $answer_data['question_id'],
+                        'online_exam_id' => $exam->id
+                    ])->first();
+
+                    // Check if the option exists
+                    if (! empty($answer_data['option_id'])) {
+
+                        $check_option_exists = OnlineExamQuestionOption::where([
+                            'id' => $answer_data['option_id'],
+                            'question_id' => $question->question_id
+                        ])->exists();
+
+                        if ($check_option_exists) {
+                            foreach ($answer_data['option_id'] as $option) {
+                                // Store the answers
+
+                                OnlineExamStudentAnswer::create([
+                                    'student_id' => $student->id,
+                                    'online_exam_id' => $exam->id,
+                                    'question_id' => $question->id,
+                                    'option_id' => $option,
+                                    'submitted_date' => now()->toDateString(),
+                                ]);
+                            }
+
+                            if ($studentExamStatus) {
+                                $studentExamStatus->update([
+                                    'status' => 2
+                                ]);
+                            }
+                        } else {
+                            continue;
+                        }
+                    }
+                }
                 // Get the question ID from the question choice
-                $question = OnlineExamQuestionChoice::where([
-                    'question_id' => $answer_data['question_id'],
-                    'online_exam_id' => $exam->id
-                ])->first();
-                // dd(
-                //     $question
-                // );
-                // Check if the option exists
-                $check_option_exists = OnlineExamQuestionOption::where([
-                    'id' => $answer_data['option_id'],
-                    'question_id' => $question->question_id
-                ])->exists();
-
-                if ($check_option_exists) {
-                    foreach ($answer_data['option_id'] as $option) {
-                        // Store the answers
-                        // dd(
-                        //     [
-                        //     'student_id' => $student->id,
-                        //     'online_exam_id' => $exam->id,
-                        //     // 'question_id' => $answer_data['question_id'],
-                        //     'question_id' => $question->id,
-                        //     'option_id' => $option,
-                        //     'submitted_date' => now()->toDateString(),
-                        // ]
-                        // );
-                        OnlineExamStudentAnswer::create([
-                            'student_id' => $student->id,
-                            'online_exam_id' => $exam->id,
-                            'question_id' => $question->id,
-                            'option_id' => $option,
-                            'submitted_date' => now()->toDateString(),
-                        ]);
-                    }
-
-                    if ($studentExamStatus) {
-                        $studentExamStatus->update([
-                            'status' => 2
-                        ]);
-                    }
-                } else {
-                    Alert::error('Error', 'Invalid option ID');
-                    DB::rollBack();
-                    // dd('Invalid option ID');
-
-                    return redirect()->back();
-                }
             }
 
-            // dd('stored successfully');
             DB::commit();
             // Success message
             Alert::success('Success', 'Data stored successfully');
@@ -223,7 +205,7 @@ class ExamController extends Controller
         } catch (\Exception $e) {
             DB::rollBack();
             report($e);
-            throw $e;
+            // throw $e;
             Alert::error('Error', 'An error occurred');
             return redirect()->back();
         }
@@ -238,7 +220,7 @@ class ExamController extends Controller
             'exam_id' => 'required|exists:online_exams,id',
             'exam_key' => 'required'
         ]);
-        // dd('1234567');/
+
         $exam = OnlineExam::where([
             'id' => $request->exam_id,
             'exam_key' => $request->exam_key
@@ -253,8 +235,8 @@ class ExamController extends Controller
         }
         // checks student exam status
         $check_student_status = $this->examService->getOnlineExamStatus(
-            $student,
-            $request
+            $student->id,
+            $exam->id
         );
 
         if ($check_student_status && $check_student_status->status == 2) {
@@ -279,13 +261,19 @@ class ExamController extends Controller
     }
     public function show(Request $request)
     {
-
         $exam = OnlineExam::where('id', $request->exam)->firstOrFail();
         $student = $request->user()->student;
 
         // checks student exam status
-        $check_student_status = $this->examService->getOnlineExamStatus($student, $request);
+        $check_student_status = $this->examService->getOnlineExamStatus(
+            $student->id,
+            $exam->id
+        );
 
+        if (! $check_student_status) {
+            Alert::error(__('unauthorized_access'));
+            return to_route('student_dashboard.exams.online.index');
+        }
         if ($check_student_status->status == 2) {
             Alert::error(__('student_already_attempted_exam'));
             return redirect()->back();
