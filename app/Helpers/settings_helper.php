@@ -53,7 +53,7 @@ if (! function_exists('loadTenantMainAsset')) {
         });
 
         if (isset($setting[$key]) && !empty($setting[$key])) {
-            return $setting[$key];
+            return tenant_asset($setting[$key]);
         }
 
         return $defaultValue;
