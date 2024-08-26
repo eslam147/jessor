@@ -156,26 +156,26 @@
                             <div class="border border-info box overflow-hidden">
                                 <div class="fx-card-item">
                                     <div class="fx-card-avatar fx-overlay-1">
-                                        <img src="{{ $row->thumbnail ? $row->thumbnail : global_asset('images/no_image_available.jpg') }}"
-                                            alt="{{ $row->name }}" class="bbsr-0 bber-0 lesson_image object-fit-cover">
+                                        <img src="{{ !empty($row->getRawOriginal('thumbnail')) ? $row->thumbnail : global_asset('images/no_image_available.jpg') }}"
+                                            alt="{{ $row->name }}"
+                                            class="bbsr-0 {{ empty($row->getRawOriginal('thumbnail')) ? 'no_image_available' : '' }} bber-0 lesson_image object-fit-cover">
                                         <div class="fx-overlay scrl-up">
-                                            <ul>
+                                            <ul class="fx-info">
                                                 <li>
-                                                    <a href="{{ route('student_dashboard.lesson.show', $row->id) }}">
+                                                    <a class="btn btn-outline" href="{{ route('student_dashboard.lesson.show', $row->id) }}">
                                                         <i class="fa fa-eye" aria-hidden="true"></i>
                                                     </a>
                                                 </li>
                                                 <li>
                                                     @if ($row->enrollments_count > 0)
-                                                            <a href="{{ route('topics.show', $row->id) }}">
-                                                            <i class="fa fa-open"></i>
-
-                                                            </a>
+                                                        <a class="btn btn-outline" href="{{ route('topics.show', $row->id) }}">
+                                                            <i class="fa fa-folder-open"></i>
+                                                        </a>
                                                     @else
-                                                        <a  href="javascript:void(0)"
-                                                            class="locked-btn" data-id="{{ $row->id }}"
-                                                            data-price="{{ $row->price }}" data-bs-toggle="modal"
-                                                            data-bs-target="#payment-methods" data-animation="shake">
+                                                        <a href="javascript:void(0)" class="locked-btn btn btn-outline"
+                                                            data-id="{{ $row->id }}" data-price="{{ $row->price }}"
+                                                            data-bs-toggle="modal" data-bs-target="#payment-methods"
+                                                            data-animation="shake">
                                                             <i class="fa fa-shopping-cart"></i>
                                                         </a>
                                                     @endif

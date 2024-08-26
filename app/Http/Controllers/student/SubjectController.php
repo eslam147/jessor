@@ -21,8 +21,9 @@ class SubjectController extends Controller
 
         $subjects = Subject::whereHas('classSubjects', fn($q) => $q->where('class_id', $class_id))
             ->latest()
-            ->with(['teachers.user'])
-            ->withCount([
+            ->with([
+                'teachersViaSubject' => fn($q) => $q->where('class_section_id', $class_section_id)->with('user'), 
+            ])->withCount([
                 'lessons' => fn($q) => $q->where('class_section_id', $class_section_id),
                 'onlineExams' => fn($q) => $q->whereIn('model_type', [ClassSection::class])->where('model_id', $class_section_id),
             ])->get();

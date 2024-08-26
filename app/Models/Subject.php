@@ -24,6 +24,10 @@ class Subject extends Model
     {
         return $this->hasMany(ClassSubject::class);
     }
+    public function teachersViaSubject()
+    {
+        return $this->hasManyThrough(Teacher::class, SubjectTeacher::class, 'subject_id', 'id', 'id', 'teacher_id');
+    }
     public function teachers()
     {
         return $this->hasManyThrough(Teacher::class, ClassSubject::class, 'subject_id', 'id');
@@ -52,7 +56,7 @@ class Subject extends Model
     //Getter Attributes
     public function getImageAttribute($value)
     {
-        if($value){
+        if ($value) {
             return tenant_asset($value);
         }
         return global_asset('assets/images/subject.png');
