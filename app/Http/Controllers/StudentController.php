@@ -19,8 +19,8 @@ use App\Models\Attendance;
 use App\Models\ExamResult;
 use App\Models\ClassSchool;
 use App\Models\SessionYear;
-use Illuminate\Http\Request;
 use App\Models\ClassSection;
+use Illuminate\Http\Request;
 use App\Models\FeesChoiceable;
 use App\Models\StudentSubject;
 use App\Imports\StudentsImport;
@@ -28,6 +28,7 @@ use App\Models\StudentSessions;
 use Barryvdh\DomPDF\Facade\Pdf;
 use App\Models\PaymentTransaction;
 use Illuminate\Support\Facades\DB;
+use Spatie\Permission\Models\Role;
 use App\Models\AssignmentSubmission;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -563,7 +564,8 @@ class StudentController extends Controller
                 'email' => $request->student_email,
                 'password' => Hash::make($request->student_password)
             ]);
-
+            $studentRole = Role::where('name', 'Student')->first();
+            $student->assignRole($studentRole);
             //add students to students table
             Students::create([
                 'user_id' => $student->id,

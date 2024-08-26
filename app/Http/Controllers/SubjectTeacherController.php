@@ -197,7 +197,7 @@ class SubjectTeacherController extends Controller
             $tempRow['id'] = $row->id;
             $tempRow['no'] = $no++;
             $tempRow['class_section_id'] = $row->class_section_id;
-            $tempRow['class_section_name'] = $row->class_section?->class->name . ' - ' . $row->class_section?->section->name . ' ' . $row->class_section?->class->medium->name;
+            $tempRow['class_section_name'] = $row->class_section?->class->name . ' - ' . $row->class_section?->section?->name . ' ' . $row->class_section?->class?->medium->name;
             $tempRow['stream_id'] = $row->class_section->class->streams->id ?? '-';
             $tempRow['stream_name'] = $row->class_section->class->streams->name ?? '-';
             $tempRow['subject_id'] = $row->subject_id;
