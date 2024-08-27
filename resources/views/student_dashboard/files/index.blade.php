@@ -47,7 +47,7 @@
                         
                         <div class="box-body">
                             <div class="row">
-                                <div class="col-3">
+                                <div class="col-12 col-lg-3 col-md-4">
                                     <div class="bg-light h-550 media-list media-list-divided p-10 rounded-3">
                                         @if($videos->count() > 0)
                                             @foreach ($videos as $row)
@@ -88,7 +88,7 @@
                                         @endif
                                     </div>
                                 </div>
-                                <div class="col-lg-9 col-12 d-flex justify-content-center align-items-center "  >
+                                <div class="col-lg-9 col-md-8 col-12 d-flex justify-content-center align-items-center "  >
                                     <div class=" h-p100 w-p100" id="content">
 
                                         <input type="hidden" id="download_for_browser" value="">
