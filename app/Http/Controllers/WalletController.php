@@ -84,13 +84,17 @@ class WalletController extends Controller
         $msg = '';
         switch ($type) {
             case 'deposit':
-                $user->deposit($request->amount);
+                $user->deposit($request->amount,[
+                    'description' => 'Wallet Balance Added By Admin',
+                ]);
                 $msg = trans('wallet_balance_added_successfully');
 
                 break;
             case 'withdraw':
                 $msg = trans('wallet_balance_withdraw_successfully');
-                $user->forceWithdraw($request->amount);
+                $user->forceWithdraw($request->amount,[
+                    'description' => 'Wallet Balance Deducted By Admin',
+                ]);
                 break;
 
             default:

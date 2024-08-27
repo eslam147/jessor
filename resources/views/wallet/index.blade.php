@@ -185,7 +185,7 @@
                 showCancelButton: true,
                 confirmButtonColor: "#3085d6",
                 cancelButtonColor: "#d33",
-                confirmButtonText: "Yes, delete it!",
+                confirmButtonText: "Yes, Update The Balance!",
             }).then((result) => {
                 if (result.isConfirmed) {
                     let url = `{{ route('wallet.updateBalance',':type') }}`.replace(':type', form.find('.type').val());
