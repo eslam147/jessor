@@ -49,26 +49,26 @@
                             <div class="col-12 col-xl-6">
                                 <div class="box">
                                     <div class="box-header with-border">
-                                        <h4 class="box-title">Notice board</h4>
+                                        <h4 class="box-title">Purchased Lessons</h4>
                                     </div>
                                     <div class="box-body p-0">
                                         <div class="media-list media-list-hover">
-                                            <div class="media bar-0">
-                                                <span class="avatar avatar-lg bg-primary-light rounded"><i
-                                                        class="fa fa-user"></i></span>
-                                                <div class="media-body fw-500">
-                                                    <p class="d-flex align-items-center justify-content-between">
-                                                        <a class="hover-success" href="#"><strong>New
-                                                                Teacher</strong></a>
-                                                        <span class="text-fade fw-500 fs-12">Just Now</span>
-                                                    </p>
-                                                    <p class="text-fade">It is a long established fact that a reader will
-                                                        be<span class="d-xxxl-inline-block d-none"> distracted by the
-                                                            readable</span>...</p>
+                                            @foreach ($purchasedLessons as $lesson)
+                                                <div class="media bar-0">
+                                                    <span class="avatar avatar-lg bg-primary-light rounded">
+                                                        <img src="{{ $lesson->thumbnail }}" width="50" alt="{{ $lesson->name }}">
+                                                    </span>
+                                                    <div class="media-body fw-500">
+                                                        <p class="d-flex align-items-center justify-content-between">
+                                                            <a class="hover-success"
+                                                                href="{{ route('student_dashboard.lesson.show', $lesson->id) }}"><strong>{{ $lesson->name }}</strong></a>
+                                                        </p>
+                                                        <p class="text-fade">{{ str($lesson->description)->limit(15) }}</p>
+                                                    </div>
                                                 </div>
-                                            </div>
+                                            @endforeach
 
-                                            <div class="media bar-0">
+                                            {{-- <div class="media bar-0">
                                                 <span class="avatar avatar-lg bg-danger-light rounded"><i
                                                         class="fa fa-money"></i></span>
                                                 <div class="media-body">
@@ -111,16 +111,16 @@
                                                         be<span class="d-xxxl-inline-block d-none"> distracted by the
                                                             readable</span>...</p>
                                                 </div>
-                                            </div>
+                                            </div> --}}
 
                                         </div>
                                     </div>
-                                    <div class="box-footer text-center p-10">
+                                    {{-- <div class="box-footer text-center p-10">
                                         <a href="#" class="btn w-p100 btn-primary-light p-5">View all</a>
-                                    </div>
+                                    </div> --}}
                                 </div>
                             </div>
-                            <div class="col-12 col-xl-6">
+                            {{-- <div class="col-12 col-xl-6">
                                 <div class="box">
                                     <div class="box-header with-border">
                                         <h4 class="box-title">Daily Offlie Class's</h4>
@@ -170,7 +170,7 @@
                                         </div>
                                     </div>
                                 </div>
-                            </div>
+                            </div> --}}
                         </div>
                         {{-- <div class="row">
                      <div class="col-12" >

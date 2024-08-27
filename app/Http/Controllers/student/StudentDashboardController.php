@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\student;
 
 use App\Models\Coupon;
+use App\Models\Lesson;
 use App\Models\Subject;
 use App\Models\Students;
 use App\Models\ClassSection;
@@ -16,6 +17,7 @@ class StudentDashboardController extends Controller
     public function index()
     {
         $subjects = [];
+        $purchasedLessons = Lesson::withWhereHas('studentActiveEnrollment')->latest()->take(10);
         //get the subjects of the student
         // $studentClassSection = Auth::user()->student->class_section_id;
         // $class_section = ClassSection::find($studentClassSection);
@@ -27,7 +29,7 @@ class StudentDashboardController extends Controller
         // }
 
         //get the time table of the student
-        return view('student_dashboard.dashboard');
+        return view('student_dashboard.dashboard', compact('purchasedLessons'));
     }
 
     public function create()
