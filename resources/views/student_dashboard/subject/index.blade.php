@@ -64,7 +64,7 @@
                                                         <div class="d-flex">
                                                             @foreach ($row->teachersViaSubject->take(4) as $teacher)
                                                                 <a href="#" title="{{ $teacher->user->full_name }}"
-                                                                    class="h-50 l-h-50 overflow-hidden rounded text-center w-50">
+                                                                    class="h-50 l-h-50 me-2 overflow-hidden rounded text-center w-50">
                                                                     <img src="{{ $teacher->user->image }}"
                                                                         class="align-self-end h-50 object-fit-cover"
                                                                         alt="">

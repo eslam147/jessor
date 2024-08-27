@@ -56,63 +56,20 @@
                                             @foreach ($purchasedLessons as $lesson)
                                                 <div class="media bar-0">
                                                     <span class="avatar avatar-lg bg-primary-light rounded">
-                                                        <img src="{{ $lesson->thumbnail }}" width="50" alt="{{ $lesson->name }}">
+                                                        <img src="{{ !empty($lesson->thumbnail) ? $lesson->thumbnail : global_asset('assets/logo.svg') }}" width="50" alt="{{ $lesson->name }}">
                                                     </span>
                                                     <div class="media-body fw-500">
                                                         <p class="d-flex align-items-center justify-content-between">
                                                             <a class="hover-success"
                                                                 href="{{ route('student_dashboard.lesson.show', $lesson->id) }}"><strong>{{ $lesson->name }}</strong></a>
+                                                        <span class="text-fade fw-500 fs-12">{{ $lesson->subject->name }}</span>
+
                                                         </p>
                                                         <p class="text-fade">{{ str($lesson->description)->limit(15) }}</p>
                                                     </div>
                                                 </div>
                                             @endforeach
-
-                                            {{-- <div class="media bar-0">
-                                                <span class="avatar avatar-lg bg-danger-light rounded"><i
-                                                        class="fa fa-money"></i></span>
-                                                <div class="media-body">
-                                                    <p class="d-flex align-items-center justify-content-between">
-                                                        <a class="hover-success" href="#"><strong> New Fees
-                                                                Structure</strong></a>
-                                                        <span class="text-fade fw-500 fs-12">Today</span>
-                                                    </p>
-                                                    <p class="text-fade">It is a long established fact that a reader will
-                                                        be<span class="d-xxxl-inline-block d-none"> distracted by the
-                                                            readable</span>...</p>
-                                                </div>
-                                            </div>
-
-                                            <div class="media bar-0">
-                                                <span class="avatar avatar-lg bg-success-light rounded"><i
-                                                        class="fa fa-book"></i></span>
-                                                <div class="media-body">
-                                                    <p class="d-flex align-items-center justify-content-between">
-                                                        <a class="hover-success" href="#"><strong>Updated
-                                                                Syllabus</strong></a>
-                                                        <span class="text-fade fw-500 fs-12">17 Dec 2020</span>
-                                                    </p>
-                                                    <p class="text-fade">It is a long established fact that a reader will
-                                                        be<span class="d-xxxl-inline-block d-none"> distracted by the
-                                                            readable</span>...</p>
-                                                </div>
-                                            </div>
-
-                                            <div class="media bar-0">
-                                                <span class="avatar avatar-lg bg-info-light rounded"><i
-                                                        class="fa fa-graduation-cap"></i></span>
-                                                <div class="media-body">
-                                                    <p class="d-flex align-items-center justify-content-between">
-                                                        <a class="hover-success" href="#"><strong>New
-                                                                Course</strong></a>
-                                                        <span class="text-fade fw-500 fs-12">27 Oct 2020</span>
-                                                    </p>
-                                                    <p class="text-fade">It is a long established fact that a reader will
-                                                        be<span class="d-xxxl-inline-block d-none"> distracted by the
-                                                            readable</span>...</p>
-                                                </div>
-                                            </div> --}}
-
+                                          
                                         </div>
                                     </div>
                                     {{-- <div class="box-footer text-center p-10">
