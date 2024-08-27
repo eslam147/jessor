@@ -55,13 +55,13 @@ if (! function_exists('cacheForgetTenantSetting')) {
 if (! function_exists('cachedSettings')) {
     function cachedSettings()
     {
-        return Cache::remember("tenant_all_settings", now()->addDay()->timestamp, fn() => Settings::get());
+        return Cache::rememberForever('tenant_all_settings', fn() => Settings::get());
     }
 }
 if (! function_exists('cachedWebSettings')) {
     function cachedWebSettings()
     {
-        return Cache::remember("tenant_all_web_settings", now()->addDay(), fn() => WebSetting::where('status', 1)
+        return Cache::remember("tenant_all_web_settings", now()->addWeek(), fn() => WebSetting::where('status', 1)
             ->get());
     }
 }

@@ -18,9 +18,12 @@ class RedirectIfAuthenticated
                 $user = Auth::user();
                 if ($user->hasRole('Student')) {
                     return to_route('home.index');
-                } else {
+                } elseif($user->hasRole(['Super Admin', 'Teacher'])) {
                     return to_route('home');
+                }else{
+                    return abort(404);
                 }
+
             }
         }
 

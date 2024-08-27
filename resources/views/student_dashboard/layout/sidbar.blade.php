@@ -42,30 +42,30 @@
                             <span>Assignments</span>
                         </a>
                     </li>
-                    <li>
+                    {{-- <li>
                         <a href="#">
                             <i class="si-calendar si"></i>
                             <span>Offile Time Table</span>
                         </a>
-                    </li>
+                    </li> --}}
                     <li class="{{ isRouteActive('coupon.history') }}">
                         <a href="{{ route('coupon.history') }}">
                             <i class="si-tag si"></i>
                             <span>Coupon History</span>
                         </a>
                     </li>
-                    <li>
+                    {{-- <li>
                         <a href="#">
                             <i class="si-check si"></i>
                             <span>Attendace</span>
                         </a>
-                    </li>
+                    </li> 
                     <li>
                         <a href="#">
                             <i class="si-control-play si"></i>
                             <span>Live Class</span>
                         </a>
-                    </li>
+                    </li>--}}
                 </ul>
             </div>
         </div>
