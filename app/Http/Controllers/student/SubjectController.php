@@ -33,7 +33,6 @@ class SubjectController extends Controller
 
     public function show(Subject $subject)
     {
-
         $class_section_id = Students::where('user_id', Auth::user()->id)->value('class_section_id');
         $show_teachers = Settings::where('type', 'show_teachers')->value('message');
 
@@ -50,7 +49,7 @@ class SubjectController extends Controller
 
         $lessons = Lesson::where('subject_id', $subject->id)
             ->where('class_section_id', $class_section_id)
-            ->withCount('studentActiveEnrollment')->get();
+            ->with('studentActiveEnrollment')->get();
         return view('student_dashboard.lessons.index', compact('lessons'));
     }
 

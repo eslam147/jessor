@@ -44,7 +44,7 @@
                                                 <p>{{ $lesson->description }}</p>
                                                 <hr>
                                                 <div class="gap-items">
-                                                    @if ($lesson->enrollments->count())
+                                                    @if (!empty($lesson->studentActiveEnrollment))
                                                         <div class="bg-success mt-5 rounded">
                                                             <a href="{{ route('topics.show', $lesson->id) }}">
                                                                 <h5 class="text-white text-center p-10"> View Topics </h5>
@@ -92,7 +92,7 @@
                                                             </div>
                                                         </div>
                                                         <a href="{{ route('topics.files', $topic->id) }}">
-                                                            @if ($lesson->enrollments->count())
+                                                            @if (!empty($lesson->studentActiveEnrollment))
                                                                 <span class="icon-Arrow-right fs-24"><span
                                                                         class="path1"></span><span
                                                                         class="path2"></span></span>

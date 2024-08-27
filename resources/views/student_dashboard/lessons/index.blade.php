@@ -46,7 +46,7 @@
                                             @endif
                                         </div>
                                     </div>
-                                    @if ($row->enrollments_count > 0)
+                                    @if (!empty($row->studentActiveEnrollment))
                                         <div class="bg-primary mt-5 rounded">
                                             <a href="{{ route('topics.show', $row->id) }}">
                                                 <h5 class="text-white text-center p-10"> Start Now </h5>

@@ -30,7 +30,7 @@ class TeachersController extends Controller
             ->active()
             ->where('class_section_id', $class_section_id)
             ->where('teacher_id', $teacher_id)
-            ->withCount('studentActiveEnrollment')
+            ->with('studentActiveEnrollment')
             ->get();
         return view('student_dashboard.lessons.teacher_lessons', compact('lessons'));
     }

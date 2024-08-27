@@ -18,8 +18,8 @@ class Enrollment extends Model
     public function scopeActiveEnrollments($q)
     {
         return $q->where(function ($q) {
-            $q->where('expires_at', '>', now())->orWhereNull('expires_at');
-        })->where('user_id', auth()->id())->latest();
+            $q->whereNull('expires_at')->orWhere('expires_at', '>', now());
+        })->where('user_id', auth()->user()->id)->latest();
     }
     public function user()
     {

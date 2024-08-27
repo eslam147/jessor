@@ -167,7 +167,7 @@
                                                     </a>
                                                 </li>
                                                 <li>
-                                                    @if ($row->enrollments_count > 0)
+                                                @if (!empty($row->studentActiveEnrollment))
                                                         <a class="btn btn-outline" href="{{ route('topics.show', $row->id) }}">
                                                             <i class="fa fa-folder-open"></i>
                                                         </a>
