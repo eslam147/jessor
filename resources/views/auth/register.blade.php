@@ -40,8 +40,8 @@
                                             @foreach ($class_section as $section)
                                                 <option value="{{ $section->id }}">
                                                     {{ optional($section->class)->name }} -
-                                                    {{ optional($section->section)->name }}
                                                     {{ optional($section->class->medium)->name }}
+                                                    {{ optional($section->section)->name }} 
                                                     {{ optional($section->class->streams)->name ?? ' ' }}
                                                 </option>
                                             @endforeach
@@ -169,7 +169,7 @@
 @if (Session::has('error'))
     <script type='text/javascript'>
         $.toast({
-            text: '{{ Session::get('error') }}',
+            text: `{{ Session::get('error') }}`,
             showHideTransition: 'slide',
             icon: 'error',
             loaderBg: '#f2a654',
