@@ -3,6 +3,7 @@
 use App\Models\Grade;
 use App\Models\Language;
 use App\Models\Settings;
+use App\Models\WebSetting;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Cache;
 use Intervention\Image\Facades\Image;
@@ -60,8 +61,7 @@ if (! function_exists('cachedSettings')) {
 if (! function_exists('cachedWebSettings')) {
     function cachedWebSettings()
     {
-        return Cache::remember("tenant_all_web_settings", now()->addDay(), fn() => DB::table('web_settings')
-            ->where('status', 1)
+        return Cache::remember("tenant_all_web_settings", now()->addDay(), fn() => WebSetting::where('status', 1)
             ->get());
     }
 }
