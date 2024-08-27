@@ -13,16 +13,18 @@ class LoginController extends Controller
     use AuthenticatesUsers;
 
     protected $redirectTo = RouteServiceProvider::HOME;
-    protected $maxAttempts = 5; // Default is 5
+    // protected $maxAttempts = 10; // Default is 5
+    // protected $decayMinutes = 120; // Default is 1
 
     public function __construct()
     {
         $this->middleware('guest')->except('logout');
     }
-    public function hasTooManyLoginAttempts(Request $request)
-    {
-        return redirect()->back();
-    }
+    // public function hasTooManyLoginAttempts(Request $request)
+    // {
+    //     return redirect()->back();
+
+    // }
     /**
      * Handle user authenticated event.
      *
