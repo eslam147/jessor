@@ -56,7 +56,7 @@
                                             @foreach ($purchasedLessons as $lesson)
                                                 <div class="media bar-0">
                                                     <span class="avatar avatar-lg bg-primary-light rounded">
-                                                        <img src="{{ !empty($lesson->thumbnail) ? $lesson->thumbnail : global_asset('assets/logo.svg') }}" width="50" alt="{{ $lesson->name }}">
+                                                        <img src="{{ !empty($lesson->thumbnail) ? $lesson->thumbnail : loadTenantMainAsset('logo1', global_asset('assets/logo.svg') }}" width="50" alt="{{ $lesson->name }}">
                                                     </span>
                                                     <div class="media-body fw-500">
                                                         <p class="d-flex align-items-center justify-content-between">
