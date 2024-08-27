@@ -199,7 +199,7 @@ return [
         // ...
         'Excel' => Maatwebsite\Excel\Facades\Excel::class,
         'Image' => \Intervention\Image\Facades\Image::class,
-        'PDF' => Barryvdh\DomPDF\Facade::class,
+        'PDF' => Barryvdh\DomPDF\Facade\Pdf::class,
         'Paystack' => Unicodeveloper\Paystack\Facades\Paystack::class,
         'Alert' => RealRashid\SweetAlert\Facades\Alert::class,
 

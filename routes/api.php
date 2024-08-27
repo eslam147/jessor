@@ -5,7 +5,6 @@ use App\Http\Middleware\InitializeSchool;
 use App\Http\Controllers\Api\ApiController;
 use App\Http\Controllers\Api\ParentApiController;
 use App\Http\Controllers\Api\TeacherApiController;
-use App\Http\Controllers\student\DeviceController;
 use Stancl\Tenancy\Middleware\InitializeTenancyByDomain;
 use Stancl\Tenancy\Middleware\PreventAccessFromCentralDomains;
 
@@ -82,7 +81,7 @@ Route::middleware([
             });
         });
     });
-    Route::post('/store-device', [DeviceController::class, 'store'])->middleware('auth:api');
+    // Route::post('/store-device', [DeviceController::class, 'store'])->middleware('auth:api');
 
     /**
      * TEACHER APIs

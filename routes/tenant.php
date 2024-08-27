@@ -45,7 +45,6 @@ use App\Http\Controllers\AnnouncementController;
 use App\Http\Controllers\ClassTeacherController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\WalletController;
-use App\Http\Controllers\student\DeviceController;
 use App\Http\Controllers\SystemUpdateController;
 use App\Http\Controllers\ExamTimetableController;
 use App\Http\Controllers\student\EnrollController;

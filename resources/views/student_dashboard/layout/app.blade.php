@@ -11,28 +11,36 @@
     <title>{{ config('app.name') }}</title>
 
     <!-- Vendors Style-->
-    <link rel="stylesheet" href="{{ url('student/css/vendors_css.css') }}">
+    <link rel="stylesheet" href="{{ global_asset('student/css/vendors_css.css') }}">
 
     <!-- Style-->
-    <link rel="stylesheet" href="{{ url('student/css/style.css') }}">
+    <link rel="stylesheet" href="{{ global_asset('student/css/style.css') }}?v=1.0.1">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
-    <link rel="stylesheet" href="{{ url('student/assets/icons/Ionicons/css/ionicons.css') }}">
-    <link rel="stylesheet" href="{{ url('student/assets/icons/themify-icons/themify-icons.css') }}">
-    <link rel="stylesheet" href="{{ url('student/assets/icons/linea-icons/linea.css') }}">
-    <link rel="stylesheet" href="{{ url('student/assets/icons/glyphicons/glyphicon.css') }}">
-    <link rel="stylesheet" href="{{ url('student/assets/icons/flag-icon-css/css/flag-icon.css') }}">
-    <link rel="stylesheet" href="{{ url('student/assets/icons/material-design-iconic-font/css/materialdesignicons.css') }}">
-    <link rel="stylesheet" href="{{ url('student/assets/icons/simple-line-icons/css/simple-line-icons.css') }}">
-    <link rel="stylesheet" href="{{ url('student/assets/icons/cryptocoins-master/cryptocoins.css') }}">
-    <link rel="stylesheet" href="{{ url('student/assets/icons/weather-icons/css/weather-icons.min.css') }}">
-    <link rel="stylesheet" href="{{ url('student/assets/icons/iconsmind/style.css') }}">
-    <link rel="stylesheet" href="{{ url('student/assets/icons/icomoon/style.css') }}">
-    <link rel="stylesheet" href="{{ url('student/assets/vendor_components/animate/animate.css') }}">
-    <link rel="stylesheet" href="{{ url('student/css/skin_color.css') }}">
+    <link rel="stylesheet" href="{{ global_asset('student/assets/icons/Ionicons/css/ionicons.css') }}">
+    <link rel="stylesheet" href="{{ global_asset('student/assets/icons/themify-icons/themify-icons.css') }}">
+    <link rel="stylesheet" href="{{ global_asset('student/assets/icons/linea-icons/linea.css') }}">
+    <link rel="stylesheet" href="{{ global_asset('student/assets/icons/glyphicons/glyphicon.css') }}">
+    <link rel="stylesheet" href="{{ global_asset('student/assets/icons/flag-icon-css/css/flag-icon.css') }}">
+    <link rel="stylesheet"
+        href="{{ global_asset('student/assets/icons/material-design-iconic-font/css/materialdesignicons.css') }}">
+    <link rel="stylesheet" href="{{ global_asset('student/assets/icons/simple-line-icons/css/simple-line-icons.css') }}">
+    <link rel="stylesheet" href="{{ global_asset('student/assets/icons/cryptocoins-master/cryptocoins.css') }}">
+    <link rel="stylesheet" href="{{ global_asset('student/assets/icons/weather-icons/css/weather-icons.min.css') }}">
+    <link rel="stylesheet" href="{{ global_asset('student/assets/icons/iconsmind/style.css') }}">
+    <link rel="stylesheet" href="{{ global_asset('student/assets/icons/icomoon/style.css') }}">
+    <link rel="stylesheet" href="{{ global_asset('student/assets/vendor_components/animate/animate.css') }}">
+    <link rel="stylesheet" href="{{ global_asset('student/css/skin_color.css') }}">
     <link rel="icon" href="{{ url('student/images/favicon.png') }}">
     <link rel="stylesheet"
         href="https://cdnjs.cloudflare.com/ajax/libs/simple-line-icons/2.5.5/css/simple-line-icons.css">
-
+    <style>
+        .main-header .logo .logo-lg .light-logo {
+            display: block;
+            max-width: 200px;
+            max-height: 70px;
+            object-fit: cover;
+        }
+    </style>
     @yield('style')
 </head>
 
@@ -324,7 +332,7 @@
     <!-- ./wrapper -->
 
     <!-- Sidebar -->
-{{-- 
+    {{-- 
     <div id="chat-box-body">
         <div id="chat-circle" class="waves-effect waves-circle btn btn-circle btn-lg btn-warning l-h-70">
             <div id="chat-overlay"></div>
@@ -467,4 +475,5 @@
 
     @yield('script')
 </body>
+
 </html>

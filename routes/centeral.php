@@ -1,10 +1,7 @@
 <?php
 
 use App\Http\Controllers\centeral\DomainController;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\WebController;
-use App\Http\Controllers\WebhookController;
 
 /*
 |--------------------------------------------------------------------------
