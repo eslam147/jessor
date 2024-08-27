@@ -68,11 +68,11 @@ class Teacher extends Model
     }
     public function students()
     {
-        return $this->hasManyDeep(Students::class, [ Lesson::class,Enrollment::class],[
+        return $this->hasManyDeep(Students::class, [Lesson::class, Enrollment::class], [
             'teacher_id',
-             'lesson_id',
-             'user_id',
-        ],[
+            'lesson_id',
+            'user_id',
+        ], [
             'id',
             'id',
             'user_id',

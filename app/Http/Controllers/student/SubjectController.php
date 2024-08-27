@@ -22,11 +22,11 @@ class SubjectController extends Controller
         $subjects = Subject::whereHas('classSubjects', fn($q) => $q->where('class_id', $class_id))
             ->latest()
             ->with([
-                'teachersViaSubject' => fn($q) => $q->where('class_section_id', $class_section_id)->with('user'), 
+                'teachersViaSubject' => fn($q) => $q->where('class_section_id', $class_section_id)->with('user'),
             ])->withCount([
-                'lessons' => fn($q) => $q->where('class_section_id', $class_section_id),
-                'onlineExams' => fn($q) => $q->whereIn('model_type', [ClassSection::class])->where('model_id', $class_section_id),
-            ])->get();
+                    'lessons' => fn($q) => $q->where('class_section_id', $class_section_id),
+                    'onlineExams' => fn($q) => $q->whereIn('model_type', [ClassSection::class])->where('model_id', $class_section_id),
+                ])->get();
 
         return view('student_dashboard.subject.index', compact('subjects'));
     }
@@ -48,9 +48,9 @@ class SubjectController extends Controller
             return view('student_dashboard.teachers.index', compact('subjectTeachers', 'subject'));
         }
 
-        $lessons = Lesson::where('subject_id', $subject->id)->where('class_section_id', $class_section_id)->withCount([
-            'enrollments' => fn($q) => $q->where('user_id', Auth::user()->id)
-        ])->get();
+        $lessons = Lesson::where('subject_id', $subject->id)
+            ->where('class_section_id', $class_section_id)
+            ->withCount('studentActiveEnrollment')->get();
         return view('student_dashboard.lessons.index', compact('lessons'));
     }
 

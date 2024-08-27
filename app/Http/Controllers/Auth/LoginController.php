@@ -13,12 +13,16 @@ class LoginController extends Controller
     use AuthenticatesUsers;
 
     protected $redirectTo = RouteServiceProvider::HOME;
+    protected $maxAttempts = 5; // Default is 5
 
     public function __construct()
     {
         $this->middleware('guest')->except('logout');
     }
-
+    public function hasTooManyLoginAttempts(Request $request)
+    {
+        return redirect()->back();
+    }
     /**
      * Handle user authenticated event.
      *
@@ -33,7 +37,7 @@ class LoginController extends Controller
 
         // Count the active devices for the user
         $agent = md5($_SERVER['HTTP_USER_AGENT']);
-        $deviceExists  = $user->devices()->where('device_agent', $agent)->get();
+        $deviceExists = $user->devices()->where('device_agent', $agent)->get();
 
         // if($user->hasRole('Student')){
         //     if ($deviceExists->count() >= $maxDevices) {

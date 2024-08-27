@@ -24,9 +24,7 @@ class TopicsController extends Controller
         $lesson = Lesson::with('file')->active()->findOrFail($id);
         if ($lesson->is_paid) {
             abort_unless(
-                Enrollment::where('user_id', Auth::user()->id)->where('lesson_id', $lesson->id)->where(function ($q) {
-                    $q->where('expires_at', '>', now())->orWhere('expires_at', null);
-                })->exists(),
+                Enrollment::activeEnrollments()->exists(),
                 Response::HTTP_UNAUTHORIZED
             );
         }
@@ -39,9 +37,7 @@ class TopicsController extends Controller
     {
         $topic = LessonTopic::with('file')->active()->findOrFail($topic_id);
         abort_unless(
-            Enrollment::where('user_id', Auth::user()->id)->where('lesson_id', $topic->lesson_id)->where(function ($q) {
-                $q->where('expires_at', '>', now())->orWhere('expires_at', null);
-            })->exists(),
+            Enrollment::activeEnrollments()->where('lesson_id', $topic->lesson_id)->exists(),
             Response::HTTP_UNAUTHORIZED
         );
 

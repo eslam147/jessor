@@ -129,7 +129,7 @@ class CouponService
         
         if (! is_null($coupon->price)) {
             if ($coupon->usages->sum('amount') >= $coupon->price) {
-                return $this->responseContent(__('coupon_errors_price_limit'), false);
+                return $this->responseContent(__('coupon_errors_usage_price_limit'), false);
             }
 
             if ($lesson->price > $coupon->price) {

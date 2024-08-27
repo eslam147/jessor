@@ -47,7 +47,7 @@ class EnrollController extends Controller
                     DB::beginTransaction();
 
                     $applyCouponCode = $this->couponService->redeemCoupon($user, $purchaseCode, $lesson);
-                    if ($applyCouponCode['status'] == true) {
+                    if ($applyCouponCode['status']) {
                         // ----------------------------------------------- #
                         $this->purchaseService->enrollLesson($lesson, $user->id);
                         // ----------------------------------------------- #
@@ -57,9 +57,6 @@ class EnrollController extends Controller
                     }
                     Alert::error('error', $applyCouponCode['message']);
                     return redirect()->back();
-
-
-
                 }
             } elseif ($payment_method == 'wallet') {
                 $validator = Validator::make($request->all(), [
@@ -78,7 +75,7 @@ class EnrollController extends Controller
                     // ----------------------------------------------- #
                     if (! empty($lesson->price)) {
                         if ($user->balance < $lesson->price) {
-                            Alert::warning('error', "You don't have enough balance.");
+                            Alert::html('error', view('student_dashboard.wallet.balance_is_not_e', compact('user'))->render(), icon: 'error');
                             return redirect()->back();
                         }
                         $user->withdraw($lesson->price, [

@@ -9,9 +9,7 @@ class LessonController extends Controller
     public function show(Lesson $lesson)
     {
         $lesson->load([
-            'enrollments' => fn ($q)=> $q->where('user_id', auth()->id())->where(function ($q){
-                $q->where('expires_at', '>', now())->orWhere('expires_at', null);
-            }),
+            'studentActiveEnrollment' ,
             'topic',
             'teacher' => function ($q) {
                 $q->with('user')->withCount([

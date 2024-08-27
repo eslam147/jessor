@@ -691,5 +691,12 @@
     "coupon_charge_amount": "Charge Amount",
     "coupon_purchase": "Purchase",
     "unauthorized_access" : "Unauthorized access",
-    "invalid_online_exam_attempt_not_found" : "Invalid Online Exam Attempt Not Found"
+    "invalid_online_exam_attempt_not_found" : "Invalid Online Exam Attempt Not Found",
+    "coupon_successfully_applied" : "Coupon Successfully Applied",
+    "coupon_errors_used_by_others" : "This coupon has already been used by others",
+    "coupon_errors_usage_price_limit" : "Coupon usage price limit exceeded",
+    "wallet_balance_added_successfully" : "Wallet Balance Added Successfully",
+    "wallet_balance_withdraw_successfully" : "Wallet Balance Withdraw Successfully",
+    "please_try_again_after" : "Please try again after :secs seconds"
+    
 }

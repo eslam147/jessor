@@ -29,16 +29,20 @@ class PurchaseService
         return $this->model
             ->where('lesson_id', $lesson->id)
             ->where('user_id', $userId)
-            ->exists();
+            ->where(function ($q) {
+                $q->whereNull('expires_at')->orWhere('expires_at', '>', now());
+            })->exists();
     }
 
     public function enrollLesson(Lesson $lesson, $userId)
     {
-        return Enrollment::firstOrCreate([
+        if ($this->isLessonAlreadyEnrolled($lesson, $userId)) {
+            return false;
+        }
+        return Enrollment::create([
             'lesson_id' => $lesson->id,
-            'user_id' => $userId
-        ], [
-            'expires_at' => !empty($lesson->expiry_days) ? null : now()->addDays($lesson->expiry_days),
+            'user_id' => $userId,
+            'expires_at' => ! empty($lesson->expiry_days) ? null : now()->addDays($lesson->expiry_days),
         ]);
     }
 

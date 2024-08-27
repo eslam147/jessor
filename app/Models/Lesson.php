@@ -60,6 +60,12 @@ class Lesson extends Model
     {
         return $this->hasMany(Enrollment::class);
     }
+    public function studentActiveEnrollment()
+    {
+        return $this->hasOne(Enrollment::class)->where(function ($q){
+            $q->where('expires_at', '>', now())->orWhere('expires_at', null);
+        })->where('user_id', auth()->id())->latest();
+    }
 
     public function getIsLessonFreeAttribute()
     {
