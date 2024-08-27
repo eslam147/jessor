@@ -16,7 +16,7 @@
                                                 <pattern id="img" patternUnits="userSpaceOnUse" height="80"
                                                     width="80">
                                                     <image x="5" y="5" height="70%" width="70%"
-                                                        xlink:href="{{ tenant_asset(settingByType('logo1')) }}">
+                                                        xlink:href="{{ loadTenantMainAsset('logo1') }}">
                                                     </image>
                                                 </pattern>
                                             </defs>

@@ -121,7 +121,7 @@
         .no_image_available::before {
             content: "";
             position: absolute;
-            background: url("{{ settingByType('logo1') ? tenant_asset(settingByType('logo1')) : global_asset('assets/logo.svg') }}");
+            background: url("{{ loadTenantMainAsset('logo1', global_asset('assets/logo.svg')) }}");
             z-index: 99;
             top: 50%;
             left: 50%;
@@ -162,13 +162,15 @@
                                         <div class="fx-overlay scrl-up">
                                             <ul class="fx-info">
                                                 <li>
-                                                    <a class="btn btn-outline" href="{{ route('student_dashboard.lesson.show', $row->id) }}">
+                                                    <a class="btn btn-outline"
+                                                        href="{{ route('student_dashboard.lesson.show', $row->id) }}">
                                                         <i class="fa fa-eye" aria-hidden="true"></i>
                                                     </a>
                                                 </li>
                                                 <li>
-                                                @if (!empty($row->studentActiveEnrollment))
-                                                        <a class="btn btn-outline" href="{{ route('topics.show', $row->id) }}">
+                                                    @if (!empty($row->studentActiveEnrollment))
+                                                        <a class="btn btn-outline"
+                                                            href="{{ route('topics.show', $row->id) }}">
                                                             <i class="fa fa-folder-open"></i>
                                                         </a>
                                                     @else

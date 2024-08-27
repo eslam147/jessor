@@ -1124,8 +1124,7 @@ class FeesTypeController extends Controller
             ]);
         }
         try {
-            $logo = settingByType('logo2');
-            $logo = public_path("/storage/{$logo}");
+            $logo = loadTenantMainAsset('logo2');
             $school_name = settingByType('school_name');
             $school_address = getSettings('school_address');
             $school_address = $school_address['school_address'];

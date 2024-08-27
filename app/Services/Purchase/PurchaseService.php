@@ -42,7 +42,7 @@ class PurchaseService
         return Enrollment::create([
             'lesson_id' => $lesson->id,
             'user_id' => $userId,
-            'expires_at' => ! empty($lesson->expiry_days) ? null : now()->addDays($lesson->expiry_days),
+            'expires_at' => empty($lesson->expiry_days) ? null : now()->addDays($lesson->expiry_days),
         ]);
     }
 

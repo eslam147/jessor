@@ -3,6 +3,7 @@
 use App\Models\Grade;
 use App\Models\Language;
 use App\Models\Settings;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Cache;
 use Intervention\Image\Facades\Image;
 
@@ -40,22 +41,38 @@ if (! function_exists('getYouTubeVideoId')) {
 if (! function_exists('settingByType')) {
     function settingByType($type)
     {
-        return Settings::where('type', $type)->value("message");
+        return cachedSettings()->firstWhere('type', $type)?->message;
     }
 }
+if (! function_exists('cacheForgetTenantSetting')) {
+    function cacheForgetTenantSetting()
+    {
+        return cache()->deleteMultiple(["tenant_all_settings", "tenant_all_web_settings"]);
+    }
+}
+
+if (! function_exists('cachedSettings')) {
+    function cachedSettings()
+    {
+        return Cache::remember("tenant_all_settings", now()->addDay()->timestamp, fn() => Settings::get());
+    }
+}
+if (! function_exists('cachedWebSettings')) {
+    function cachedWebSettings()
+    {
+        return Cache::remember("tenant_all_web_settings", now()->addDay(), fn() => DB::table('web_settings')
+            ->where('status', 1)
+            ->get());
+    }
+}
+
 
 if (! function_exists('loadTenantMainAsset')) {
     function loadTenantMainAsset($key, $defaultValue = null)
     {
-
-        $setting = Cache::remember("tenant_app_settings", now()->addDay(), function () {
-            return Settings::whereIn('type', ['logo1', 'logo2', 'favicon'])->pluck("message", 'type')->toArray();
-        });
-
-        if (isset($setting[$key]) && !empty($setting[$key])) {
-            return tenant_asset($setting[$key]);
+        if (! empty($val = cachedSettings()->firstWhere("type", $key)?->message)) {
+            return tenant_asset($val);
         }
-
         return $defaultValue;
     }
 }
@@ -64,9 +81,9 @@ if (! function_exists('getSettings')) {
     {
         $settingList = [];
         if (empty($type)) {
-            $setting = Settings::get();
+            $setting = cachedSettings();
         } else {
-            $setting = Settings::where('type', $type)->get();
+            $setting = cachedSettings()->where('type', $type);
         }
         foreach ($setting as $row) {
             $settingList[$row->type] = $row->message;

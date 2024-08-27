@@ -98,7 +98,7 @@ class WebSettingController extends Controller
                 $websetting->image = $file_path;
             }
             $websetting->save();
-
+            cacheForgetTenantSetting();
             $response = array(
                 'error' => false,
                 'message' => trans('data_update_successfully'),

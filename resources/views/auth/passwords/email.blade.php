@@ -70,7 +70,7 @@
                     <div class="col-lg-4 mx-auto">
                         <div class="auth-form-light text-left p-5">
                             <div class="brand-logo text-center">
-                                <img src="{{ tenant_asset(settingByType('logo1')) }}" alt="logo">
+                                <img src="{{ loadTenantMainAsset('logo1') }}" alt="logo">
                             </div>
                             @if (session('status'))
                                 <div class="alert alert-success" role="alert">

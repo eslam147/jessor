@@ -198,7 +198,7 @@ class SettingController extends Controller
                     $setting->save();
                 }
             }
-            cache()->delete('tenant_app_settings');
+            cacheForgetTenantSetting();
             $response = [
                 'error' => false,
                 'message' => trans('data_update_successfully'),
@@ -282,6 +282,8 @@ class SettingController extends Controller
                     ['type' => 'email_configration_verification'],
                     ['type' => 'email_configration_verification', 'message' => 0]
                 );
+            cacheForgetTenantSetting();
+
             }
 
             $response = [
@@ -339,6 +341,7 @@ class SettingController extends Controller
             });
 
             Settings::where('type', 'email_configration_verification')->update(['message' => 1]);
+            cacheForgetTenantSetting();
 
             $response = array(
                 'error' => false,
@@ -441,6 +444,7 @@ class SettingController extends Controller
                 'message' => trans('data_store_successfully'),
             );
         }
+        cacheForgetTenantSetting();
 
         return response()->json($response);
     }
@@ -521,6 +525,8 @@ class SettingController extends Controller
                 'data' => $e
             );
         }
+        cacheForgetTenantSetting();
+
         return response()->json($response);
     }
 
@@ -587,6 +593,7 @@ class SettingController extends Controller
                 'data' => $e
             );
         }
+        cacheForgetTenantSetting();
 
         return response()->json($response);
     }

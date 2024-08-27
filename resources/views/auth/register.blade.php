@@ -26,7 +26,7 @@
                             <div class="auth-form-light text-left p-5">
 
                                 <div class="brand-logo text-center">
-                                    <img src="{{ settingByType('logo2') ? tenant_asset(settingByType('logo2')) : url('assets/logo.svg') }}"
+                                    <img src="{{ loadTenantMainAsset('logo2', global_asset('assets/logo.svg')) }}"
                                         alt="logo">
                                 </div>
                                 <form action="{{ route('signup.store') }}" method="POST" class="pt-3 row">
@@ -40,7 +40,7 @@
                                             @foreach ($class_section as $section)
                                                 <option value="{{ $section->id }}">
                                                     {{ optional($section->class)->name }} -
-                                                    {{ optional($section->section)->name }} 
+                                                    {{ optional($section->section)->name }}
                                                     {{ optional($section->class->medium)->name }}
                                                     {{ optional($section->class->streams)->name ?? ' ' }}
                                                 </option>
@@ -49,7 +49,7 @@
                                     </div>
                                     <div class="form-group col-6">
                                         <label> {{ __('mobile') }} <span class="text-danger">*</span></label>
-                                        <input type="tel" name="mobile" class="form-control" >
+                                        <input type="tel" name="mobile" class="form-control">
                                     </div>
                                     <div class="form-group col-6">
                                         <label>{{ __('first_name') }}</label>
@@ -120,7 +120,7 @@
     <script src="{{ url('assets/js/vendor.bundle.base.js') }}"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.21.0/jquery.validate.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-toast-plugin/1.3.2/jquery.toast.min.js"></script>
-    
+
     <script type='text/javascript'>
         $("#frmLogin").validate({
             rules: {

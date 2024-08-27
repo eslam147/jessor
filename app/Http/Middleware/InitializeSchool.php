@@ -14,7 +14,7 @@ class InitializeSchool
     {
         $tenancy = tenant();
         if ($tenancy) {
-            $settings = Settings::get();
+            $settings = cachedSettings();
             if ($settings->count()) {
                 $this->setSchool($settings);
             }
@@ -49,6 +49,21 @@ class InitializeSchool
         $mailValues = ['mail_host', 'mail_port', 'mail_mailer', 'mail_username', 'mail_password', 'mail_encryption', 'mail_send_from'];
         $mailSettings = $settings->whereIn('type', $mailValues)->pluck('message', 'type')->toArray();
         if (! empty($mailSettings)) {
+            $mailKeyVal = [
+                'mail.mailers.smtp.mailer' => 'mail_mailer',
+                'mail.mailers.smtp.host' => 'mail_host',
+                'mail.mailers.smtp.port' => 'mail_port',
+                'mail.mailers.smtp.username' => 'mail_username',
+                'mail.mailers.smtp.password' => 'mail_password',
+                'mail.mailers.smtp.encryption' => 'mail_encryption',
+                'mail.from.address' => 'mail_send_from'
+
+            ];
+            foreach ($mailKeyVal as $key => $value) {
+                if(! empty($mailSettings[$key])){
+                    Config::set($key, $mailSettings[$key]);
+                }
+            }
             // mail.mailers.smtp.host
             // config([
             //     'mail.mailers.smtp.mailer' => $mailSettings['mail_mailer'],

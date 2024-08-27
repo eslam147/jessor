@@ -1,15 +1,18 @@
 <header class="main-header">
     <div class="d-flex align-items-center logo-box justify-content-start">
-        <a href="#" class="waves-effect waves-light nav-link d-none d-md-inline-block mx-10 push-btn bg-transparent" data-toggle="push-menu" role="button">
-			<span class="icon-Align-left"><span class="path1"></span><span class="path2"></span><span class="path3"></span></span>
-		</a>
+        <a href="#" class="waves-effect waves-light nav-link d-none d-md-inline-block mx-10 push-btn bg-transparent"
+            data-toggle="push-menu" role="button">
+            <span class="icon-Align-left"><span class="path1"></span><span class="path2"></span><span
+                    class="path3"></span></span>
+        </a>
         <!-- Logo -->
         <a href="index.html" class="logo">
             <!-- logo-->
             <div class="logo-lg">
                 <span class="light-logo overflow-hidden">
-                    <img class="" src="{{ settingByType('logo1') ? tenant_asset(settingByType('logo1')) : global_asset('assets/logo.svg') }}"  alt="logo">
-                </span> 
+                    <img class="" src="{{ loadTenantMainAsset('logo1', global_asset('assets/logo.svg')) }}"
+                        alt="logo">
+                </span>
             </div>
         </a>
     </div>
@@ -82,16 +85,17 @@
                         <li class="user-body">
                             <a class="dropdown-item" href="#"><i class="ti-user text-muted me-2"></i>
                                 Profile</a>
-                            <a class="dropdown-item" href="{{ route('student_dashboard.wallet.index') }}"><i class="ti-wallet text-muted me-2"></i> My
+                            <a class="dropdown-item" href="{{ route('student_dashboard.wallet.index') }}"><i
+                                    class="ti-wallet text-muted me-2"></i> My
                                 Wallet</a>
-                            <a class="dropdown-item" href="{{ route('student-settings.index') }}"><i class="ti-settings text-muted me-2"></i>
+                            <a class="dropdown-item" href="{{ route('student-settings.index') }}"><i
+                                    class="ti-settings text-muted me-2"></i>
                                 Settings</a>
                             <div class="dropdown-divider"></div>
                             <a class="dropdown-item" href="#"
                                 onclick="event.preventDefault(); document.getElementById('logout-form').submit();"><i
                                     class="ti-lock text-muted me-2"></i> Logout</a>
-                            <form id="logout-form" action="{{ route('logout') }}" method="POST"
-                                style="display: none;">
+                            <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
                                 @csrf
                             </form>
                         </li>

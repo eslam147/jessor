@@ -7,7 +7,7 @@
                     <div>
                         <a href="index.html">
                             <a href="{{ url('/') }}">
-                                <img src="{{ settingByType('logo1') ? tenant_asset(settingByType('logo1')) : url('assets/logo.svg') }}"
+                                <img src="{{ loadTenantMainAsset('logo1', global_asset('assets/logo.svg')) }}"
                                     height="50px" width="150px" alt="logo">
                             </a>
                         </a>
@@ -17,7 +17,7 @@
                             {{ isset($settings['school_address'])
                                 ? $settings['school_address']
                                 : ' Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor
-                                                                                                    incididunt ut labore et dolore magna.' }}
+                                                                                                                                incididunt ut labore et dolore magna.' }}
                         </span>
                     </div>
 
@@ -110,7 +110,7 @@
                             {{ isset($settings['school_address'])
                                 ? $settings['school_address']
                                 : ' 4517 Washington Ave. Manchester, Kentucky
-                                                                                                        39495.' }}
+                                                                                                                                    39495.' }}
                         </span>
                     </span>
                 </div>
