@@ -16,6 +16,9 @@
                         <label> Subdomain </label>
                         <input type="text" name="subdomain" class="form-control mt-3" placeholder="example : sampledomain.com">
                     </div>
+                    @error('subdomain')
+                        <p class="text-danger" role="alert">{{ $message }}</p>
+                    @enderror
                 </div>
                 </div>
                 <div class="col-12 mt-5" >
