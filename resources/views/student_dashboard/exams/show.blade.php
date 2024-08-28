@@ -6,8 +6,80 @@
         img.ask_img {
             width: 100% !important;
         }
+
+        .form-quiz {
+            padding: 10px;
+
+        }
+
+        .form-quiz:has(input[type=radio]:checked) {
+            background: #0052cc33;
+            box-sizing: content-box;
+            border: 2px solid #0052cc;
+            border-radius: 5px;
+        }
+
+        .cd-horizontal-timeline .events a::after {
+            height: 25px;
+            width: 25px;
+        }
+
+        .cd-horizontal-timeline .events-wrapper {
+            overflow: unset;
+        }
+
+        .cd-horizontal-timeline .events a.solved::before {
+            content: "";
+            width: 8px;
+            height: 13px;
+            border-top: 2px solid transparent;
+            border-left: 2px solid transparent;
+            border-right: 2px solid #ffffff !important;
+            border-bottom: 2px solid #ffffff !important;
+            position: absolute;
+            left: 0;
+            bottom: 0;
+            transform: rotateZ(37deg) translate(100%, 0%);
+            z-index: 9999;
+        }
+
+        .cd-horizontal-timeline .events a::after {
+            right: auto;
+            -webkit-transform: translate(-50%, 50%);
+            -moz-transform: translate(-50%, 50%);
+            -ms-transform: translate(-50%, 50%);
+            -o-transform: translate(-50%, 50%);
+            transform: translate(-50%, 50%);
+            bottom: 0;
+        }
+
+        .cd-horizontal-timeline .events a.solved::before {
+            border-right-color: #0052cc !important;
+            border-bottom-color: #0052cc !important;
+        }
+
+        .cd-horizontal-timeline .events a.solved.selected::before {
+            border-right-color: #ffffff !important;
+            border-bottom-color: #ffffff !important;
+        }
+
+        .cd-horizontal-timeline .events a {
+            padding-bottom: 25px
+        }
+
+        .cd-horizontal-timeline {
+            margin-bottom: .5rem;
+        }
+        .text-justify {
+            text-align: justify !important;
+        }
+        h5 {
+        font-size: 1.5rem;
+        }
+        
     </style>
     <script>
+        const examEndTime = @json($examEndTime);
         function examWillLeave() {
             var message = 'Are you sure you want to leave? You might lose your progress.';
             e.preventDefault();
@@ -37,7 +109,7 @@
                             action="{{ route('student_dashboard.exams.online.submit', ['exam' => $questions_data['exam']->id]) }}"
                             method="POST" id="quizForm">
                             @csrf
-                            <div class="box">
+                            <div class="box bg-bubbles-white">
                                 <section class="cd-horizontal-timeline">
                                     <div class="timeline">
                                         <div class="events-wrapper">
@@ -46,7 +118,7 @@
                                                     @foreach ($questions_data['data'] as $index => $question)
                                                         <li>
                                                             <a href="#0"
-                                                                data-date="{{ now()->subDays($index)->format('d/m/Y') }}"
+                                                                data-date="{{ now()->subMonths($index)->format('d/m/Y') }}"
                                                                 class="{{ $loop->first ? 'selected' : '' }}">
                                                                 {{ $loop->iteration }}. Q
                                                             </a>
@@ -68,8 +140,8 @@
                                         <ol>
                                             @foreach ($questions_data['data'] as $index => $question)
                                                 <li class="{{ $loop->first ? 'selected' : '' }}"
-                                                    data-date="{{ now()->subDays($index)->format('d/m/Y') }}">
-                                                    <div class="col-md-5">
+                                                    data-date="{{ now()->subMonths($index)->format('d/m/Y') }}">
+                                                    <div class="col-md-7">
                                                         <div class="card">
                                                             <div class="box overflow-hidden">
                                                                 @isset($question['image'])
@@ -78,21 +150,25 @@
                                                                             alt="{{ $question['question'] }}">
                                                                     </figure>
                                                                 @endisset
-                                                                <div class="box-body">
-                                                                    <h5>{{ $loop->iteration }}. {!! $question['question'] !!}
+                                                                <div class="box-body pt-0 px-0">
+                                                                    <h5
+                                                                        class="text-justify bg-{{ collect(['primary', 'success', 'danger', 'warning', 'info','bitbucket','dark','body'])->random() }} p-5 px-25 text-break text-white text-wrap">
+                                                                        {{ $loop->iteration }}. {!! $question['question'] !!}
                                                                     </h5>
-                                                                    <div class="align-items-center mt-3">
+                                                                    <hr>
+                                                                    <div class="align-items-center mt-3 px-15">
                                                                         <input type="hidden"
                                                                             name="answers_data[{{ $question['id'] }}][question_id]"
                                                                             value="{{ $question['id'] }}">
                                                                         @foreach ($question['options'] as $option)
-                                                                            <div class="form-check">
+                                                                            <div class="form-check form-quiz">
                                                                                 <input @checked(old("answers_data.{$question['id']}.option_id") == $option['id'])
-                                                                                    class="form-check-input" type="radio"
+                                                                                    class="form-check-input answer_qs"
+                                                                                    type="radio"
                                                                                     name="answers_data[{{ $question['id'] }}][option_id][]"
                                                                                     id="question{{ $question['id'] }}_{{ $option['id'] }}"
                                                                                     value="{{ $option['id'] }}" required>
-                                                                                <label class="form-check-label"
+                                                                                <label class="form-check-label text-justify"
                                                                                     for="question{{ $question['id'] }}_{{ $option['id'] }}">
                                                                                     {!! $option['option'] !!}
                                                                                 </label>
@@ -102,8 +178,8 @@
                                                                 </div>
                                                             </div>
                                                             @if (!empty($question['note']))
-                                                                <div class="bg-light card-footer">
-                                                                    <b>Note</b>: <p>{{ $question['note'] }}</p>
+                                                                <div class="bg-light card-footer ">
+                                                                    <b>Note</b>: <p class="text-justify">{{ $question['note'] }}</p>
                                                                 </div>
                                                             @endif
                                                         </div>
@@ -114,7 +190,7 @@
                                     </div>
                                     <!-- .events-content -->
                                 </section>
-                                <div class="my-5 d-flex justify-content-between w-75 m-auto">
+                                <div class="bg-secondary-light d-flex justify-content-between m-auto my-5 p-10 rounded-2 w-75">
                                     <button type="button" class="switch_btn prev btn btn-primary d-none">
                                         <i class="fa fa-arrow-left" aria-hidden="true"></i>
                                         Previous
@@ -140,99 +216,8 @@
     <script src="{{ global_asset('student/assets/vendor_components/horizontal-timeline/js/horizontal-timeline.js') }}">
     </script>
     <script src="{{ global_asset('vendor/sweetalert/sweetalert.all.js') }}"></script>
+    <script src="{{ global_asset('assets/js/custom/exam.js') }}"></script>
     <script>
-        $('.exam_submit').click(function(e) {
-            e.preventDefault();
-            // $(this).addClass('d-none');
-            // $('.switch_btn').removeClass('d-none');
-            $('#quizForm').submit();
-        })
-        $('.switch_btn').on('timeline-changed', function() {
-            $('.exam_submit,.switch_btn.prev,.switch_btn.next').addClass('d-none');
 
-            if (window.timeline.currentIndex == window.timeline.lastIndex) {
-                $('.exam_submit,.switch_btn.prev').removeClass('d-none');
-            } else if (window.timeline.currentIndex > 0 && window.timeline.currentIndex < window.timeline
-                .lastIndex) {
-                $('.switch_btn.next,.switch_btn.prev').removeClass('d-none');
-            } else if (window.timeline.currentIndex == 0) {
-                $('.switch_btn.next').removeClass('d-none');
-            }
-        });
-
-        const timerDuration = {{ $duration }};
-        const timerElement = $('#timer');
-        let timeRemaining = timerDuration * 60;
-        $('#quizForm').submit(function(e) {
-            e.preventDefault();
-            Swal.fire({
-                title: 'Are you sure?',
-                text: "You won't be able to revert this!",
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#3085d6',
-                cancelButtonColor: '#d33',
-                confirmButtonText: 'Yes, Submit it!'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    window.removeEventListener('beforeunload', examWillLeave);
-                    document.getElementById('quizForm').submit();
-                }
-            })
-        });
-        let showFiveMinToast = false;
-        let showThreeMinToast = false;
-
-        let countdown = setInterval(function() {
-            let hours = Math.floor(timeRemaining / 3600);
-            let minutes = Math.floor((timeRemaining % 3600) / 60);
-            let seconds = timeRemaining % 60;
-
-            timerElement.text(
-                `${hours}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`);
-            timeRemaining--;
-
-            if (timeRemaining < 0) {
-                clearInterval(countdown);
-                window.removeEventListener('beforeunload', examWillLeave);
-                document.getElementById('quizForm').submit();
-            }else{
-                if (!showFiveMinToast && timeRemaining === 5 * 60) {
-            Swal.fire({
-                position: 'top-end',
-                icon: 'info',
-                title: '5 minutes remaining!',
-                showConfirmButton: false,
-                timer: 1500,
-                toast: true
-            });
-            showFiveMinToast = true;
-        }
-
-        // Check for 3 minutes remaining
-        if (!showThreeMinToast && timeRemaining === 3 * 60) {
-            Swal.fire({
-                position: 'top-end',
-                icon: 'warning',
-                title: '3 minutes remaining!',
-                showConfirmButton: false,
-                timer: 1500,
-                toast: true
-            });
-            showThreeMinToast = true;
-        }
-            }
-        }, 1000);
-        // let countdown = setInterval(function() {
-        //     let minutes = Math.floor(timeRemaining / 60);
-        //     let seconds = timeRemaining % 60;
-        //     timerElement.text(`${minutes}:${seconds.toString().padStart(2, '0')}`);
-        //     timeRemaining--;
-        //     if (timeRemaining < 0) {
-        //         clearInterval(countdown);
-        //         window.removeEventListener('beforeunload', examWillLeave);
-        //         document.getElementById('quizForm').submit();
-        //     }
-        // }, 1000);
     </script>
 @endsection

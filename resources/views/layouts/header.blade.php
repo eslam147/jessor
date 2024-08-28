@@ -10,9 +10,12 @@
                 src="{{ loadTenantMainAsset('favicon') }}" alt="logo"> </a>
     </div>
     <div class="navbar-menu-wrapper d-flex align-items-stretch">
+       <div class="d-flex align-items-center">
         <button class="navbar-toggler navbar-toggler align-self-center" type="button" data-toggle="minimize">
             <span class="fa fa-bars"></span>
         </button>
+        <a href="{{ URL::to('/') }}" class="" target="_blank">View Home Page</a>
+       </div>
 
         @php
             $email_config_verify_value = DB::table('settings')

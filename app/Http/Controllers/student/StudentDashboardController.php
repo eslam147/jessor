@@ -17,7 +17,7 @@ class StudentDashboardController extends Controller
     public function index()
     {
         $subjects = [];
-        $purchasedLessons = Lesson::withWhereHas('studentActiveEnrollment')->latest()->take(10)->with('subject')->get();
+        $purchasedLessons = Lesson::withWhereHas('studentActiveEnrollment')->orderByDesc('id')->with('subject')->get();
         //get the subjects of the student
         // $studentClassSection = Auth::user()->student->class_section_id;
         // $class_section = ClassSection::find($studentClassSection);

@@ -37,13 +37,20 @@ class ExamService
         //get current
         $time_data = $date->toArray();
         $current_date_time = $time_data['formatted'];
-
+        // dd(
+        //     $current_date_time
+        // );
         // checks the subject id param is passed or not .
         // query meets the condition for both class section and class
         $examQuery = OnlineExam::query()
             ->where('session_year_id', $session_year_id)
-            ->where('model_type', ClassSection::class)
-            ->where('model_id', $class_section_id)
+            ->where(function ($q) use ($class_section_id,$class_id){
+                $q->where(function ($q) use ($class_section_id) {
+                    $q->where('model_type', ClassSection::class)->where('model_id', $class_section_id);
+                })->orWhere(function ($q) use ($class_id) {
+                    $q->where('model_type', ClassSchool::class)->where('model_id', $class_id);
+                });
+            })
             ->where('end_date', '>=', $current_date_time)
             ->has('question_choice')
             ->with([
@@ -61,43 +68,36 @@ class ExamService
                 fn($q) => $q->whereIn('subject_id', $subject_id)
             );
 
-        $examQuery->orWhere(function ($query) use ($class_id, $session_year_id, $current_date_time, $student, $subject_id) {
-            $query->where('model_type', ClassSchool::class)
-                ->where('model_id', $class_id)
-                ->where('session_year_id', $session_year_id)
-                ->where('end_date', '>=', $current_date_time)
-                ->with('subject')
-                ->whereDoesntHave('student_attempt', fn($q) => $q->where('student_id', $student->id))
-                ->when(
-                    filled(request('subject_id')),
-                    fn($q) => $q->where('subject_id', request('subject_id')),
-                    fn($q) => $q->whereIn('subject_id', $subject_id)
-                );
-        });
 
-        $exam_data_db = $examQuery->orderBy('start_date')
-            ->leftJoin(
-                'online_exam_question_choices',
-                'online_exams.id',
-                '=',
-                'online_exam_question_choices.online_exam_id'
-            )->select([
-                    'online_exams.*',
-                    DB::raw("sum(online_exam_question_choices.marks) as total_marks"),
-                ])->paginate(15);
+        $exam_data_db = $examQuery->orderBy('start_date')->paginate(15);
         // dd(
         //     $exam_data_db
         // );
+        $choicesMarks = OnlineExamQuestionChoice::whereIn('online_exam_id', $exam_data_db->pluck('id'))->select([
+            'online_exam_id',
+            DB::raw("sum(online_exam_question_choices.marks) as total_marks"),
+        ])->groupBy('online_exam_id')->pluck('total_marks', 'online_exam_id');
+
+        
+        $subjectsWithExams = $exam_data_db->groupBy('subject.id')->map(function ($items) use ($exam_data_db) {
+
+            return [
+                'name' => $items[0]['subject']['name'],
+                'subject_id' => $items[0]['subject']['id'],
+                'image' => $items[0]['subject']['image'],
+                'exams' => $exam_data_db->where('subject_id', $items[0]['subject']['id'])->all(),
+            ];
+        });
+
         $exam_data = [];
         $exam_list = [];
         if (! empty($exam_data_db)) {
-
             // making the array of exam data
             foreach ($exam_data_db as $data) {
 
                 // total marks of exams
                 // $total_marks = OnlineExamQuestionChoice::select(DB::raw("sum(marks)"))->where('online_exam_id', $data['id'])->first();
-                $total_marks = $data->total_marks;
+                $total_marks = $choicesMarks[$data['id']];
 
                 if ($data['model_type'] instanceof ClassSection) {
                     $class_section_data = ClassSection::where('id', $data['model_id'])->with('class.medium', 'section')->first();
@@ -132,14 +132,15 @@ class ExamService
 
             //adding the exam data with pagination data
             $exam_data = [
-                'current_page' => $exam_data_db['current_page'],
                 'data' => $exam_list,
+                'by_subject' => $subjectsWithExams,
                 'current_date' => $date,
-                'from' => $exam_data_db['from'],
-                'last_page' => $exam_data_db['last_page'],
-                'per_page' => $exam_data_db['per_page'],
-                'to' => $exam_data_db['to'],
-                'total' => $exam_data_db['total'],
+                // 'current_page' => $exam_data_db['current_page'],
+                // 'from' => $exam_data_db['from'],
+                // 'last_page' => $exam_data_db['last_page'],
+                // 'per_page' => $exam_data_db['per_page'],
+                // 'to' => $exam_data_db['to'],
+                // 'total' => $exam_data_db['total'],
             ];
         }
         return $exam_data;

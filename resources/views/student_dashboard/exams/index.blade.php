@@ -6,74 +6,65 @@
             <section class="content">
                 <div class="row">
                     <div class="col-xs-12 col-lg-4">
-                        @foreach ($exams['data'] as $exam)
-                            <div class="box-body bg-primary-light mb-30 px-xl-5 px-xxl-20 pull-up">
-                                <div class="d-flex align-items-center ps-xl-20">
-                                    <div class="me-20">
-                                        <svg class="circle-chart" viewBox="0 0 33.83098862 33.83098862" width="80"
-                                            height="80">
-                                            <defs>
-                                                <pattern id="img" patternUnits="userSpaceOnUse" height="80"
-                                                    width="80">
-                                                    <image x="5" y="5" height="70%" width="70%"
-                                                        xlink:href="{{ loadTenantMainAsset('logo1') }}">
-                                                    </image>
-                                                </pattern>
-                                            </defs>
-                                            <circle class="circle-chart__background" stroke="#efefef" stroke-width="2"
-                                                cx="16.91549431" cy="16.91549431" r="15.91549431" fill="url(#img)"></circle>
-                                            <circle class="circle-chart__circle" stroke="#68CA77" stroke-width="2"
-                                                stroke-dasharray="79" stroke-linecap="round" fill="none" cx="16.91549431"
-                                                cy="16.91549431" r="15.91549431"></circle>
-                                        </svg>
-                                    </div>
-                                    <div class="d-flex flex-column w-75">
-                                        <a href="#"
-                                            class="text-dark hover-primary mb-5 fw-600 fs-18">{{ $exam->title }}</a>
-                                    </div>
-                                </div>
-                                <div class="d-flex justify-content-between  mx-lg-10 mt-10">
-                                    {{-- <h2 class="my-5 c-green">79%</h2> --}}
-                                    <div class="text-center">
-                                        {{-- @dd(
-                                            // $exam->student_attempt
-                                        ) --}}
-                                        @if (!$exam->student_attempt)
-                                            <a data-exam-id="{{ $exam->exam_id }}"
-                                                class="start_exam waves-effect waves-light btn bg-green mb-5 px-25 py-8">
-                                                Start Exam
-                                            </a>
-                                        @else
-                                            <a href="{{ route('student_dashboard.exams.online.result', $exam->exam_id) }}"
-                                                class="waves-effect waves-light btn bg-green mb-5 px-25 py-8">Show Marks</a>
-                                        @endif
+                        <div class="box-body bg-white">
+                            @foreach ($exams['by_subject'] as $subject)
+                            <div class="accordion" id="accordionPanelsStayOpenExample">
+                                <div class="accordion-item border-0">
+                                    <h2 class="accordion-header mt-0" id="panelsStayOpen-headingOne">
+                                        <button class="accordion-button p-0 bg-white border-0 no-shadow" type="button"
+                                            data-bs-toggle="collapse" data-bs-target="#panelsStayOpen-collapseOne"
+                                            aria-expanded="true" aria-controls="panelsStayOpen-collapseOne">
+                                            <div class="d-flex align-items-center">
+                                                <div class="me-15 h-50 w-50 l-h-60 rounded text-center">
+                                                    <img src="{{ $subject['image'] }}" width="50" alt="">
+                                                </div>
+                                                <div class="d-flex flex-column fw-500">
+                                                    <a href="#" class="text-dark hover-primary mb-1 fs-16">{{ $subject['name'] }}</a>
+                                                </div>
+                                            </div>
+                                        </button>
+                                    </h2>
+                                    <div id="panelsStayOpen-collapseOne" class="accordion-collapse collapse show"
+                                        aria-labelledby="panelsStayOpen-headingOne">
+                                        <div class="accordion-body p-0">
+                                            <div class="media-list media-list-hover">
+                                                @foreach ($subject['exams'] as $exam)
+                                                    <div class="card mb-3">
+                                                        <div class="card-body">
+                                                            <h4 class="card-title">{{ $exam->title }}</h4>
+                                                            <p class="card-text">
+                                                                {{ $exam->description ?? 'This is a wider card with supporting text below as a natural lead-in to additional content. This content is a little bit longer.' }}
+                                                            </p>
+                                                        </div>
+                                                        <img class="card-img-top bter-0 btsr-0" src="../images/gallery/landscape12.jpg" alt="Card image cap">
+                                                        <div class="card-footer d-flex justify-content-between">
+                                                            <span class="fs-14 text-muted">{{ $exam->created_at->format('M d, h:i a') }}</span>
+                                                            <span class="fs-14 text-muted">Due in {{ $exam->due_days }} days</span>
+                                                        </div>
+                                                        <div class="card-body">
+                                                            @if (empty(optional($exam->student_attempt)->status))
+                                                                <a data-exam-id="{{ $exam->id }}"
+                                                                    class="start_exam waves-effect waves-light btn bg-green mb-5 px-25 py-8">
+                                                                    Start Exam
+                                                                </a>
+                                                            @else
+                                                                <a href="{{ route('student_dashboard.exams.online.result', $exam->id) }}"
+                                                                    class="waves-effect waves-light btn bg-green mb-5 px-25 py-8">
+                                                                    Show Marks
+                                                                </a>
+                                                            @endif
+                                                        </div>
+                                                    </div>
+                                                @endforeach
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
-                            {{-- <tr>
-                            <td>
-                                {{ $exam->id }}
-                            </td>
-                            <td class="fw-600">{{ $exam->name }}</td>
-                            <td class="text-fade">{{ $exam->description }}</td>
-                            <td class="text-fade">{{ $exam->starting_date }}</td>
-                            <td class="text-fade">{{ $exam->ending_date }}</td>
-                            <td class="text-fade">{{ $exam->session_year->name }}</td>
-                            <td class="text-fade">
-                                @if (now()->parse($exam->starting_date)->isPast() &&
-    now()->parse($exam->ending_date)->isPast())
-                                    OnGoinng
-                                @elseif (now()->parse($exam->starting_date)->isFuture())
-                                    UpComing
-                                @else
-                                    Completed
-                                @endif
-                            </td>
-                        </tr> --}}
                         @endforeach
-
+                        
+                        </div>
                     </div>
-
                 </div>
             </section>
         </div>

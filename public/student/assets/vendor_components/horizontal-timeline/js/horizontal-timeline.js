@@ -7,11 +7,6 @@ jQuery(document).ready(function ($) {
     };
 
     timelines.length > 0 && initTimeline(timelines);
-    // console.log(
-    //     timelines.find('.events')
-    //     , timelines.find('.events').length
-    //     , timelines
-    // );
     
 	window.timeline.lastIndex = timelines.find('.events ol li').length - 1;
 
@@ -313,7 +308,10 @@ jQuery(document).ready(function ($) {
             timeSpanNorm = timeSpan / timelineComponents["eventsMinLapse"],
             timeSpanNorm = Math.round(timeSpanNorm) + 4,
             totalWidth = timeSpanNorm * width;
-        timelineComponents["eventsWrapper"].css("width", totalWidth + "px");
+          
+            
+        timelineComponents["eventsWrapper"].css("width", 100 + "%");
+
         updateFilling(
             timelineComponents["eventsWrapper"].find("a.selected"),
             timelineComponents["fillingLine"],
@@ -354,7 +352,6 @@ jQuery(document).ready(function ($) {
                     selectedContent.removeClass("enter-left enter-right");
                 }
             );
-        console.log(eventsContent, selectedContent);
 
         // eventsContent.removeClass('opacity-0');
         eventsContent.css("height", selectedContentHeight + "px");

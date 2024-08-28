@@ -32,78 +32,71 @@ class ExamController extends Controller
     }
     public function result(Request $request, OnlineExam $exam)
     {
-            $studentId = $request->user()->student->id;
-            $examStatus = $this->examService->getOnlineExamStatus($studentId, $exam->id);
+        $studentId = $request->user()->student->id;
+        $examStatus = $this->examService->getOnlineExamStatus($studentId, $exam->id);
 
-            if(!$examStatus) {
-                abort(404);
-            }
-            // Get total questions count
-            $examQuestions = OnlineExamQuestionChoice::where('online_exam_id', $exam->id)->with('questions')->get();
-            $totalQuestions = $examQuestions->count();
+        if (! $examStatus) {
+            abort(404);
+        }
+        // Get total questions count
+        $examQuestions = OnlineExamQuestionChoice::where('online_exam_id', $exam->id)->with('questions')->get();
+        $totalQuestions = $examQuestions->count();
 
-            // Get student's answers
-            $studentAnswers = OnlineExamStudentAnswer::where([
-                'student_id' => $studentId,
-                'online_exam_id' => $exam->id,
-            ])->with('question')->get();
+        // Get student's answers
+        $studentAnswers = OnlineExamStudentAnswer::where([
+            'student_id' => $studentId,
+            'online_exam_id' => $exam->id,
+        ])->with('question')->get();
 
-            // Get correct answers and marks
-            $correctAnswersData = [];
-            $incorrectAnswersData = [];
-            $obtainedMarks = 0;
-            $totalMarks = $examQuestions->sum('marks');
+        // Get correct answers and marks
+        $correctAnswersCount = 0;
+        $incorrectAnswersData = [];
+        $obtainedMarks = 0;
+        $totalMarks = $examQuestions->sum('marks');
 
-            $correctAnswers = OnlineExamQuestionAnswer::whereIn('question_id', $examQuestions->pluck('questions.id'))->get();
+        $correctAnswers = OnlineExamQuestionAnswer::whereIn('question_id', $examQuestions->pluck('questions.id'))->get();
+        $examQuestions = collect($examQuestions);
+        foreach ($examQuestions as $question) {
+            $studentAnswer = $studentAnswers->where('question_id', $question->id)->first();
 
-            foreach ($studentAnswers as $answer) {
-                $correctAnswer = $correctAnswers->where('question_id', $answer->question->id)->where('answer', $answer->option_id)->first();
-                $questionChoice = $examQuestions->where('question_id', $answer->question->id)->first();
-                $questionChoiceAnswers = $questionChoice->questions->answers->pluck('options.id')->toArray();
+            $questionChoiceAnswers = $question->questions->answers->pluck('options.id')->toArray();
 
-                if ($correctAnswer) {
-                    $correctAnswersData[] = [
-                        'is_correct' => true,
-                        'question' => $questionChoice->questions,
-                        'question_choice_id' => $questionChoice->id,
-                        'marks' => $questionChoice->marks,
-                        // questions
-                        'student_answer' => $answer->option_id,
-                        'correct_answers' => $questionChoiceAnswers,
-                    ];
-                    $obtainedMarks += $questionChoice->marks;
-                } else {
-                    $incorrectAnswersData[] = [
-                        'is_correct' => false,
-                        'question' => $questionChoice->questions,
-                        'question_choice_id' => $questionChoice->id,
-                        'marks' => $questionChoice->marks,
-                        // questions
-                        'student_answer' => $answer->option_id,
-                        'correct_answers' => $questionChoiceAnswers,
-                    ];
+            $isAnswerCorrect = null;
+
+            if ($studentAnswer) {
+                // $isAnswerCorrect =  ;
+                if (in_array($studentAnswer->option_id, $correctAnswers->where('question_id', $question->question_id)->pluck('answer')->toArray())) {
+                    $obtainedMarks += $question->marks;
+                    $correctAnswersCount += 1; 
+                    $question->is_correct = true;
+                    $question->student_answer = $studentAnswer->option_id;
+                    $question->correct_answers = $questionChoiceAnswers;
+                    continue;
                 }
             }
 
-            // Get total marks
+            $question->is_correct = false;
+            $question->correct_answers = $questionChoiceAnswers;
+            $question->student_answer = $studentAnswer->option_id ?? null;
+        }
 
-            $examResult = (object) [
-                'total_questions' => $totalQuestions,
-                'correct_answers' => [
-                    'total_questions' => count($correctAnswersData),
-                    'question_data' => $correctAnswersData,
-                ],
-                'in_correct_answers' => [
-                    'total_questions' => count($incorrectAnswersData),
-                    'question_data' => $incorrectAnswersData,
-                ],
-                'total_obtained_marks' => $obtainedMarks,
-                'total_marks' => $totalMarks,
-            ];
-
-            return view('student_dashboard.exams.result', compact('examResult'));
+        // Get total marks
+        $examResult = (object) [
+            'total_questions' => $totalQuestions,
+            'correct_answers_count' =>$correctAnswersCount,
+            'in_correct_answers' => [
+                'total_questions' => count($incorrectAnswersData),
+                'question_data' => $incorrectAnswersData,
+            ],
+            'total_obtained_marks' => $obtainedMarks,
+            'total_marks' => $totalMarks,
+            'grade' => '',
+            // 'grade' => '$this->examService->getGrade($obtainedMarks, $totalMarks)',
+            'examQuestions' => $examQuestions,
+            'exam' => $exam,
+        ];
         
-            
+        return view('student_dashboard.exams.result', compact('examResult'));
     }
     public function submit(Request $request, OnlineExam $exam)
     {
@@ -226,9 +219,11 @@ class ExamController extends Controller
             'exam_key' => $request->exam_key
         ])->first();
         $student = $request->user()->student;
-        $time_data = now()->toArray();
-        $current_date_time = $time_data['formatted'];
-
+        // $time_data = now()->toArray();
+        // $current_date_time = $time_data['formatted'];
+        // dd(
+        //     $exam
+        // );
         if (! $exam) {
             Alert::error(trans('invalid_exam_key'), trans('invalid_exam_key'));
             return redirect()->back();
@@ -257,6 +252,9 @@ class ExamController extends Controller
         $generateTempUrl = FacadesURL::temporarySignedRoute('student_dashboard.exams.online.show', $examStatus->created_at->addMinutes($duration), [
             'exam' => $request->exam_id,
         ]);
+        // dd(
+        //     $generateTempUrl
+        // );
         return redirect($generateTempUrl);
     }
     public function show(Request $request)
@@ -297,13 +295,14 @@ class ExamController extends Controller
             $check_student_status,
             $exam
         );
+        $examEndTime = now()->addMinutes($duration);
         if ($duration <= 0) {
             Alert::error('error', __('exam_expired'));
             return redirect()->route('student_dashboard.exams.online.index');
         }
         $questions_data = $this->examService->getOnlineExamQuestions($request);
 
-        return view('student_dashboard.exams.show', compact('duration', 'questions_data'));
+        return view('student_dashboard.exams.show', compact('duration', 'examEndTime', 'questions_data'));
     }
 
 

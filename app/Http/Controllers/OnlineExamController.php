@@ -41,7 +41,7 @@ class OnlineExamController extends Controller
         $all_subjects = $subject_teacher->pluck('subject');
 
         //get class section all data
-        $class_sections = $subject_teacher->pluck('class_section');
+        $class_sections = $subject_teacher->whereNotNull('class_section.section')->pluck('class_section');
 
         //get the class data
         $classes = $subject_teacher->pluck('class_section.class')->unique('id');
@@ -233,7 +233,7 @@ class OnlineExamController extends Controller
                 $tempRow['online_exam_belongs_to'] = 1;
                 $tempRow['class_section_id'] = $row->model_id;
                 $class_section_data = ClassSection::where('id', $row->model_id)->with('class.medium', 'section', 'class.streams')->withOutTrashedRelations('class', 'section')->first();
-                $tempRow['class_name'] = $class_section_data?->class->name . ' - ' . $class_section_data?->section->name . ' ' . $class_section_data->class->medium->name . ' ' . ($class_section_data->class->streams->name ?? '');
+                $tempRow['class_name'] = $class_section_data?->class?->name . ' - ' . $class_section_data?->section?->name . ' ' . $class_section_data?->class?->medium?->name . ' ' . ($class_section_data?->class?->streams->name ?? '');
             } else {
                 // if online exam based on is Class
                 $tempRow['online_exam_belongs_to'] = 0;
@@ -932,7 +932,7 @@ class OnlineExamController extends Controller
             foreach ($question_ids as $question_id) {
                 $check_questions_answers_exists = OnlineExamQuestionAnswer::where('question_id', $question_id)->whereNotIn('answer', $exam_attempted_answers)->count();
                 if ($check_questions_answers_exists) {
-                    unset($question_ids[array_search($question_id, $question_ids->to[])]);
+                    // unset($question_ids[array_search($question_id, $question_ids->to[])]);
                 }
             }
 

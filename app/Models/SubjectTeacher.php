@@ -2,13 +2,14 @@
 
 namespace App\Models;
 
+use Illuminate\Support\Facades\Auth;
+use App\Traits\WithoutTrashedRelations;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Support\Facades\Auth;
 
 class SubjectTeacher extends Model
 {
-    use SoftDeletes;
+    use SoftDeletes, WithoutTrashedRelations;
     protected $guarded = [];
 
     protected $hidden = ["deleted_at", "created_at", "updated_at"];
