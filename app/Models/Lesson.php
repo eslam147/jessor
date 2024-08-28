@@ -62,9 +62,9 @@ class Lesson extends Model
     }
     public function studentActiveEnrollment()
     {
-        return $this->hasOne(Enrollment::class)->where(function ($q){
-            $q->where('expires_at', '>', now())->orWhere('expires_at', null);
-        })->where('user_id', auth()->user()->id)->latest();
+        return $this->hasOne(Enrollment::class)->where(function (Builder $q){
+            $q->whereNull('expires_at')->orWhere('expires_at', '>', now());
+        })->where('user_id', auth()->user()->id)->orderByDesc('id');
     }
 
     public function getIsLessonFreeAttribute()
