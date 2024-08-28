@@ -104,7 +104,7 @@ class CouponService
     public function isCouponAvailable(Coupon $coupon, User $user, Lesson $lesson): array
     {
         // Step 1: Load related data for coupon and lesson
-        $coupon->load(['usages','classModel', 'onlyAppliedTo']);
+        $coupon->load(['usages', 'classModel', 'onlyAppliedTo']);
         $lesson->load(['teacher', 'subject', 'class.allSubjects']);
 
         // Step 2: Check if the coupon is disabled
@@ -126,7 +126,7 @@ class CouponService
         ) {
             return $this->responseContent(__('coupon_errors_used_by_others'), false);
         }
-        
+
         if (! is_null($coupon->price)) {
             if ($coupon->usages->sum('amount') >= $coupon->price) {
                 return $this->responseContent(__('coupon_errors_usage_price_limit'), false);
@@ -308,7 +308,7 @@ class CouponService
 
         DB::transaction(function () use ($request, $lesson, &$ids) {
             $expiryDate = $this->when($request->expiry_date, fn() => Carbon::parse($request->expiry_date));
-
+            $tags = explode(',', $request->tags ?? "");
             for ($i = 0; $i < $request->coupons_count; $i++) {
                 $ids[] = $this->storePurchaseCoupon(
                     teacherId: $request->teacher_id,
@@ -318,7 +318,7 @@ class CouponService
                     price: $request->price,
                     maxUsageLimit: $request->usage_limit,
                     appliedTo: $lesson,
-                    tags: explode(',', $request->tags),
+                    tags: $tags,
                 )->id;
             }
         });

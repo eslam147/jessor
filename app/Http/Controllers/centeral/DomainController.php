@@ -18,9 +18,9 @@ class DomainController extends Controller
         $request->validate([
             'subdomain' => "required|unique:tenants,id|min:4|max:50|regex:/^[a-zA-Z0-9]+$/"
         ]);
-        DB::beginTransaction();
-
+        
         try {
+            DB::beginTransaction();
             $tenant = Tenant::find($request->subdomain);
             if ($tenant) {
                 Alert::warning('Warning', 'This domain already exists');
@@ -33,6 +33,7 @@ class DomainController extends Controller
             Artisan::call('tenants:migrate-fresh', [
                 '--tenants' => $request->subdomain
             ]);
+            // tenants:seed
             Artisan::call('tenants:seed', [
                 '--tenants' => $request->subdomain
             ]);
