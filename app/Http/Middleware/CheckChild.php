@@ -20,11 +20,11 @@ class CheckChild
         $user = $request->user();
         $children = $user->parent->children()->where('id',$request->child_id)->first();
         if(empty($children)){
-            return response()->json(array(
+            return response()->json([
                 'error' => true,
                 'message' => "Invalid Child ID Passed.",
                 'code'=> 105,
-            ));
+            ]);
         }
         return $next($request);
     }

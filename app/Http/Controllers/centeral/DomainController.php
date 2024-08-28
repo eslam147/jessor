@@ -12,7 +12,9 @@ class DomainController extends Controller
 {
     public function store(Request $request)
     {
-
+        $request->validate([
+            'subdomain' => "required|unique:tenants|min:4|max:50|regex:^[a-zA-Z0-9]+$"
+        ]);
         $tenant= Tenant::find($request->subdomain);
         if($tenant){
             Alert::warning('Warning','this domain already exist');

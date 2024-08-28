@@ -25,11 +25,11 @@ class CheckStudent
         $student_class_section_id = Students::where('id',$request->student_id)->pluck('class_section_id')->first();
 
         if (!$class_section_ids->contains($student_class_section_id)) {
-            return response()->json(array(
+            return response()->json([
                 'error' => true,
                 'message' => "Invalid Student ID Passed.",
                 'code' => 105,
-            ));
+            ]);
         }
 
         return $next($request);
