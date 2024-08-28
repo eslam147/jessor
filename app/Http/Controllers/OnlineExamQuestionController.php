@@ -175,7 +175,7 @@ class OnlineExamQuestionController extends Controller
             ])->pluck('id');
         }
 
-        $sql = OnlineExamQuestion::relatedToTeacher()->with('class_subject', 'options', 'answers')
+        $sql = OnlineExamQuestion::relatedToTeacher()
             //search queries
             ->when($search, function ($query) use ($search) {
                 $query->where(function ($query) use ($search) {
@@ -211,6 +211,7 @@ class OnlineExamQuestionController extends Controller
                 return $q->where('teacher_id', request('teacher_id'));
             });
         }
+        $sql->with('class_subject', 'options', 'answers','teacher.user');
         $sql->orderBy($sort, $order)->skip($offset)->take($limit);
         $res = $sql->get();
         $bulkData = [];
@@ -218,12 +219,16 @@ class OnlineExamQuestionController extends Controller
         $rows = [];
         $tempRow = [];
         $no = 1;
+        $answersIds = OnlineExamQuestionAnswer::whereIn('question_id', $res->pluck('id'))->get();
+        $optionsNotAnswers = OnlineExamQuestionOption::whereIn('question_id', $res->pluck('id'))->get();
+
         foreach ($res as $row) {
             // data for options which not answers
-            $answers_id = '';
-            $options_not_answers = '';
-            $answers_id = OnlineExamQuestionAnswer::where('question_id', $row->id)->pluck('answer');
-            $options_not_answers = OnlineExamQuestionOption::whereNotIn('id', $answers_id)->where('question_id', $row->id)->get();
+            $answers_id = $answersIds->where('question_id', $row->id)->pluck('answer');
+            $options_not_answers = $optionsNotAnswers->where('question_id', $row->id)->whereNotIn('id', $answers_id);
+
+            // $answers_id = OnlineExamQuestionAnswer::where('question_id', $row->id)->pluck('answer');
+            // $options_not_answers = OnlineExamQuestionOption::whereNotIn('id', $answers_id)->where('question_id', $row->id)->get();
 
             $operate = '';
             $operate .= '<a href="#" class="btn btn-xs btn-gradient-primary btn-rounded btn-icon edit-data" data-id=' . $row->id . ' title="Edit" data-toggle="modal" data-target="#editModal"><i class="fa fa-edit"></i></a>&nbsp;&nbsp;';
