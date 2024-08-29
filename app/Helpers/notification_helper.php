@@ -3,16 +3,9 @@
 use Google\Client;
 use App\Models\User;
 use App\Models\Settings;
-use App\Models\Students;
-use GuzzleHttp\HandlerStack;
-use Illuminate\Support\Facades\Storage;
-use Google\Auth\Middleware\AuthTokenMiddleware;
-use Google\Auth\Credentials\ServiceAccountCredentials;
-use Google\Auth\Credentials\ServiceAccountJwtAccessCredentials;
 
 function send_notification($user, $title, $body, $type, $image, $userinfo)
 {
-
     $FcmToken1 = User::where('fcm_id', '!=', '')->whereIn('id', $user)->where('device_type', 'android')->get()->pluck('fcm_id');
     $FcmToken2 = User::where('fcm_id', '!=', '')->whereIn('id', $user)->where('device_type', 'ios')->get()->pluck('fcm_id');
     $device_type = User::whereIn('id', $user)->pluck('device_type');
@@ -82,9 +75,9 @@ function send_notification($user, $title, $body, $type, $image, $userinfo)
                 "message" => [
                     "token" => $token,
                     "notification" => [
-                            "title" => $title,
-                            "body" => $body,
-                        ],
+                        "title" => $title,
+                        "body" => $body,
+                    ],
                     "data" => $notification_data
                 ]
             ];
