@@ -82,15 +82,22 @@
     <title>{{ __('Reset Password') }} || {{ config('app.name') }}</title>
 
     @include('layouts.include')
-
+<style>
+    .auth .auth-form-light{
+        position: static;
+    }
+    .custom_auth {
+    min-height: 100vh;
+}
+</style>
 </head>
 
 <body>
-    <div class="container-scroller">
+    <div class="">
         <div class="container-fluid page-body-wrapper full-page-wrapper">
-            <div class="content-wrapper d-flex align-items-center auth">
-                <div class="row flex-grow">
-                    <div class="col-lg-4 mx-auto">
+            <div class="auth content-wrapper custom_auth p-0">
+                <div class="align-items-center h-100 justify-content-center row">
+                    <div class="col-lg-4 ">
                         <div class="auth-form-light text-left p-5">
                             <div class="brand-logo text-center">
                                 <img src="{{ loadTenantMainAsset('logo1') }}" alt="logo">
