@@ -6,7 +6,7 @@
                     class="path3"></span></span>
         </a>
         <!-- Logo -->
-        <a href="index.html" class="logo">
+        <a href="{{ route('home.index') }}" class="logo">
             <!-- logo-->
             <div class="logo-lg">
                 <span class="light-logo overflow-hidden">

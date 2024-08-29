@@ -201,7 +201,7 @@
                                         </div>
                                         <hr>
                                         <div>
-                                            <h3 class="pro-price text-blue">
+                                            <h3 class="pro-price px-10 text-blue text-end">
                                                 {{ $row->is_lesson_free ? 'Free' : number_format($row->price, 2) }}
                                             </h3>
                                         </div>
