@@ -280,6 +280,10 @@
                                     <label>{{ __('weight') }} <span class="text-danger">*</span></label>
                                     {!! Form::text('weight', null, ['placeholder' => __('weight'), 'class' => 'form-control', 'id' => 'edit_weight']) !!}
                                 </div>
+                                <div class="form-group col-sm-12 col-md-4">
+                                    <label>{{ __('email') }} <span class="text-danger">*</span></label>
+                                    {!! Form::text('email', null, ['placeholder' => __('email'), 'class' => 'form-control', 'id' => 'edit_email','disabled'=>true]) !!}
+                                </div>
                                 <div class="form-group col-12">
                                     <label>{{ __('address') }} <span class="text-danger">*</span></label>
                                     {!! Form::textarea('current_address', null, ['placeholder' => __('current_address'), 'class' => 'form-control', 'id' => 'current_address', 'id' => 'edit_current_address', 'rows' => 2]) !!}

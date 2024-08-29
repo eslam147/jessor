@@ -16,7 +16,7 @@ class RegisterRequest extends ApiRequest
         $rules = [
             'first_name' => 'required',
             'last_name' => 'required',
-            'mobile' => 'nullable|numeric|regex:/^[0-9]{7,16}$/',
+            'mobile' => 'nullable|digits:11|numeric|regex:/^01[0-2,5]{1}[0-9]{8}$/',
 
             'class_section_id' => 'required|exists:class_sections,id',
             'category_id' => 'required|exists:categories,id',
@@ -45,7 +45,7 @@ class RegisterRequest extends ApiRequest
             $rules['mother_email'] = 'required|different:guardian_email|different:father_email|email|regex:/^([a-z0-9\+_\-]+)(\.[a-z0-9\+_\-]+)*@([a-z0-9\-]+\.)+[a-z]{2,6}$/ix|unique:users,email|unique:parents,email';
         }
 
-        
+
         if (isset($this->guardian_email)) {
             $rules['guardian_email'] = 'required|different:mother_email|different:father_email|email|regex:/^([a-z0-9\+_\-]+)(\.[a-z0-9\+_\-]+)*@([a-z0-9\-]+\.)+[a-z]{2,6}$/ix|unique:parents,email';
             $rules['guardian_gender'] = 'required|string|in:male,female';
@@ -58,7 +58,7 @@ class RegisterRequest extends ApiRequest
     public function messages()
     {
         return [
-            'mobile.regex' => 'The mobile number must be a length of 7 to 15 digits.'
+            'mobile.regex' => 'The mobile number format is invalid. It must start with "01" followed by a digit (0, 1, 2, or 5) and contain a total of 11 digits.',
         ];
     }
 }

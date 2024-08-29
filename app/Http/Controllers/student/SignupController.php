@@ -35,14 +35,14 @@ class SignupController extends Controller
             'first_name' => 'required|string',
             'last_name' => 'required|string',
             'password' => 'required|string|min:6',
-            'mobile' => 'required|string',
+            'mobile' => 'required|string|digits:11|unique:users,mobile',
             'email' => 'required|email|unique:users,email',
             'class_section_id' => 'required|exists:class_sections,id'
         ]);
 
         if ($validator->fails()) {
             Alert::warning('Warning', $validator->messages()->all()[0]);
-            return back()->withErrors($validator);
+            return back()->withErrors($validator)->withInput();
         } else {
             // $category_id = 1;
             // Add student to users table
@@ -74,7 +74,7 @@ class SignupController extends Controller
             if ($response = $this->registered($request, $studentUser)) {
                 return $response;
             }
-
+            Alert::success('Success', "Welcome " . $request->first_name . " " . $request->last_name);
             return redirect()->intended(route('home.index'));
         }
     }

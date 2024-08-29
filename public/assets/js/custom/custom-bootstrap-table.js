@@ -616,6 +616,7 @@ window.studentEvents = {
         $("#edit_id").val(row.user_id);
         $("#edit_first_name").val(row.first_name);
         $("#edit_last_name").val(row.last_name);
+        $("#edit_email").val(row.email);
         $("#edit_mobile").val(row.mobile);
         $("#edit_dob").val(row.dob);
         $("#edit_class_section_id").val(row.class_section_id);

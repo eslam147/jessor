@@ -38,7 +38,7 @@
                                             <option value="">
                                                 {{ __('select') . ' ' . __('class') . ' ' . __('section') }}</option>
                                             @foreach ($class_section as $section)
-                                                <option value="{{ $section->id }}">
+                                                <option @selected(old('class_section_id') == $section->id) value="{{ $section->id }}">
                                                     {{ optional($section->class)->name }} -
                                                     {{ optional($section->class->medium)->name }}
                                                     {{ optional($section->section)->name }} 
@@ -49,12 +49,12 @@
                                     </div>
                                     <div class="form-group col-6">
                                         <label> {{ __('mobile') }} <span class="text-danger">*</span></label>
-                                        <input type="tel" name="mobile" class="form-control">
+                                        <input type="tel" value="{{ old('mobile') }}" name="mobile" class="form-control">
                                     </div>
                                     <div class="form-group col-6">
                                         <label>{{ __('first_name') }}</label>
                                         <input id="fisrt_name" type="text" class="form-control form-control-lg"
-                                            name="first_name" required autofocus>
+                                            name="first_name" value="{{ old('first_name') }}" required autofocus>
                                         @error('first_name')
                                             <p class="text-danger">{{ $message }}</p>
                                         @enderror
@@ -62,7 +62,7 @@
                                     <div class="form-group col-6">
                                         <label>{{ __('last_name') }}</label>
                                         <input id="last_name" type="text" class="form-control form-control-lg"
-                                            name="last_name" required autofocus>
+                                            name="last_name" value="{{ old('last_name') }}" required autofocus>
                                         @error('last_name')
                                             <p class="text-danger">{{ $message }}</p>
                                         @enderror
