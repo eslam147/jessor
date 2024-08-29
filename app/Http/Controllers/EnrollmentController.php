@@ -37,6 +37,9 @@ class EnrollmentController extends Controller
             $search = request('search');
             return $q->whereHas('user', function ($q) use ($search) {
                 return $q->where('id', 'LIKE', "%{$search}%")
+                    ->orWhere('phone', 'LIKE', "%{$search}%")
+                    ->orWhere('email', 'LIKE', "%{$search}%")
+                    
                     ->orWhereRaw("CONCAT(first_name, ' ', last_name) LIKE ?", ["%{$search}%"]);
             })->orWhereHas('lesson', function ($q) use ($search) {
                 return $q->where('lesson_id', 'LIKE', "%{$search}%")->orWhere('lesson_id', 'LIKE', "%{$search}%");
