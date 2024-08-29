@@ -3,67 +3,70 @@
     <div class="content-wrapper">
         <div class="container-full">
             <!-- Main content -->
-            <section class="content">
+            <section class="bg-temple-white content">
                 <div class="row">
                     <div class="col-xs-12 col-lg-4">
-                        <div class="box-body bg-white">
-                            @foreach ($exams['by_subject'] as $subject)
-                            <div class="accordion" id="accordionPanelsStayOpenExample">
-                                <div class="accordion-item border-0">
-                                    <h2 class="accordion-header mt-0" id="panelsStayOpen-headingOne">
-                                        <button class="accordion-button p-0 bg-white border-0 no-shadow" type="button"
-                                            data-bs-toggle="collapse" data-bs-target="#panelsStayOpen-collapseOne"
-                                            aria-expanded="true" aria-controls="panelsStayOpen-collapseOne">
-                                            <div class="d-flex align-items-center">
-                                                <div class="me-15 h-50 w-50 l-h-60 rounded text-center">
-                                                    <img src="{{ $subject['image'] }}" width="50" alt="">
-                                                </div>
-                                                <div class="d-flex flex-column fw-500">
-                                                    <a href="#" class="text-dark hover-primary mb-1 fs-16">{{ $subject['name'] }}</a>
-                                                </div>
-                                            </div>
-                                        </button>
-                                    </h2>
-                                    <div id="panelsStayOpen-collapseOne" class="accordion-collapse collapse show"
-                                        aria-labelledby="panelsStayOpen-headingOne">
-                                        <div class="accordion-body p-0">
-                                            <div class="media-list media-list-hover">
-                                                @foreach ($subject['exams'] as $exam)
-                                                    <div class="card mb-3">
-                                                        <div class="card-body">
-                                                            <h4 class="card-title">{{ $exam->title }}</h4>
-                                                            <p class="card-text">
-                                                                {{ $exam->description ?? 'This is a wider card with supporting text below as a natural lead-in to additional content. This content is a little bit longer.' }}
-                                                            </p>
-                                                        </div>
-                                                        <img class="card-img-top bter-0 btsr-0" src="../images/gallery/landscape12.jpg" alt="Card image cap">
-                                                        <div class="card-footer d-flex justify-content-between">
-                                                            <span class="fs-14 text-muted">{{ $exam->created_at->format('M d, h:i a') }}</span>
-                                                            <span class="fs-14 text-muted">Due in {{ $exam->due_days }} days</span>
-                                                        </div>
-                                                        <div class="card-body">
-                                                            @if (empty(optional($exam->student_attempt)->status))
-                                                                <a data-exam-id="{{ $exam->id }}"
-                                                                    class="start_exam waves-effect waves-light btn bg-green mb-5 px-25 py-8">
-                                                                    Start Exam
-                                                                </a>
-                                                            @else
-                                                                <a href="{{ route('student_dashboard.exams.online.result', $exam->id) }}"
-                                                                    class="waves-effect waves-light btn bg-green mb-5 px-25 py-8">
-                                                                    Show Marks
-                                                                </a>
-                                                            @endif
-                                                        </div>
+                        @foreach ($exams['by_subject'] as $subject)
+                            <div
+                                class="bg-{{ collect(['primary', 'info', 'warning', 'danger', 'success', 'bitbucket', 'dark', 'body'])->random() }}-light box-body">
+                                <div class="accordion" id="accordionPanelsStayOpenExample">
+                                    <div class="accordion-item p-20 border-0">
+                                        <h2 class="accordion-header mt-0 pb-20" id="panelsStayOpen-headingOne">
+                                            <button class="accordion-button p-0 bg-white border-0 no-shadow" type="button"
+                                                data-bs-toggle="collapse" data-bs-target="#panelsStayOpen-collapseOne"
+                                                aria-expanded="true" aria-controls="panelsStayOpen-collapseOne">
+                                                <div class="d-flex align-items-center">
+                                                    <div class="me-15 h-50 w-50 l-h-60 rounded text-center">
+                                                        <img src="{{ $subject['image'] }}" width="50" alt="">
                                                     </div>
-                                                @endforeach
+                                                    <div class="d-flex flex-column fw-500">
+                                                        <a href="#"
+                                                            class="text-dark hover-primary mb-1 fs-16">{{ $subject['name'] }}</a>
+                                                    </div>
+                                                </div>
+                                            </button>
+                                        </h2>
+                                        <div id="panelsStayOpen-collapseOne" class="accordion-collapse collapse show"
+                                            aria-labelledby="panelsStayOpen-headingOne">
+                                            <div class="accordion-body p-0">
+                                                <div class="media-list media-list-hover">
+                                                    @foreach ($subject['exams'] as $exam)
+                                                        <div class="card mb-3">
+                                                            <div class="card-header">
+                                                                <h4 class="card-title mb-0">{{ $exam->title }}</h4>
+                                                            </div>
+
+                                                            <div class="card-body">
+                                                                @if (empty(optional($exam->student_attempt)->status))
+                                                                    <a data-exam-id="{{ $exam->id }}"
+                                                                        class="start_exam btn btn-primary-light mb-5 px-25 py-8">
+                                                                        Start Exam
+                                                                    </a>
+                                                                @else
+                                                                    <a href="{{ route('student_dashboard.exams.online.result', $exam->id) }}"
+                                                                        class="btn btn-success-light mb-5 px-25 py-8">
+                                                                        Show Marks
+                                                                    </a>
+                                                                @endif
+                                                            </div>
+                                                            <div class="card-footer d-flex justify-content-between">
+                                                                @if (empty($exam->student_attempt))
+                                                                    <span class="fs-14 text-muted">{{ $exam->duration }}
+                                                                        {{ __('minutes') }}</span>
+                                                                    <span class="fs-14 text-muted">Due in
+                                                                        {{ now()->parse($exam->end_date)->diffInDays() }}
+                                                                        days</span>
+                                                                @endif
+                                                            </div>
+                                                        </div>
+                                                    @endforeach
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
                         @endforeach
-                        
-                        </div>
                     </div>
                 </div>
             </section>
