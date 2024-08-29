@@ -337,16 +337,16 @@ class SettingController extends Controller
             }
             Mail::send('mail', $data, function ($message) use ($data, $admin_mail) {
                 $message->to($data['email'])->subject('Connection Verified successfully');
-                $message->from($admin_mail, 'Eschool Admin');
+                $message->from($admin_mail, settingByType('school_name'));
             });
 
             Settings::where('type', 'email_configration_verification')->update(['message' => 1]);
             cacheForgetTenantSetting();
 
-            $response = array(
+            $response = [
                 'error' => false,
                 'message' => trans('email_sent_successfully'),
-            );
+            ];
         } catch (Throwable $e) {
             $response = array(
                 'error' => true,

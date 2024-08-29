@@ -202,10 +202,6 @@ class ExamController extends Controller
             Alert::error('Error', 'An error occurred');
             return redirect()->back();
         }
-
-        // $examTerms = $this->examService->getExamTerms();
-        // $exams = $this->examService->getOnlineExamList();
-        // return view('student_dashboard.exams.index', compact('exams', 'examTerms'));
     }
     public function start(Request $request)
     {
@@ -219,11 +215,7 @@ class ExamController extends Controller
             'exam_key' => $request->exam_key
         ])->first();
         $student = $request->user()->student;
-        // $time_data = now()->toArray();
-        // $current_date_time = $time_data['formatted'];
-        // dd(
-        //     $exam
-        // );
+        $time_data = now()->toArray()['formatted'];
         if (! $exam) {
             Alert::error(trans('invalid_exam_key'), trans('invalid_exam_key'));
             return redirect()->back();
@@ -238,23 +230,21 @@ class ExamController extends Controller
             Alert::error(trans('student_already_attempted_exam'), trans('student_already_attempted_exam'));
             return redirect()->back();
         }
-        // $exam = OnlineExam::where('id', $request->exam_id)
-        //     ->first();
-        // if ($exam->where('start_date', '>', $current_date_time)) {
-        //     Alert::error(trans('exam_not_started_yet'), trans('exam_not_started_yet'));
-        //     return redirect()->back();
-        // }
+
+        if ($exam->where('start_date', '>', $time_data)) {
+            Alert::error(trans('exam_not_started_yet'), trans('exam_not_started_yet'));
+            return redirect()->back();
+        }
 
         // add the exam status
         $examStatus = $this->examService->createOnlineExamStatus($student->id, $request->exam_id);
-        // dd($examStatus);
+        // -------------------------------------------------------------- \\
         $duration = $this->examService->getRemainingMinutes($examStatus, $exam);
+        // -------------------------------------------------------------- \\
         $generateTempUrl = FacadesURL::temporarySignedRoute('student_dashboard.exams.online.show', $examStatus->created_at->addMinutes($duration), [
             'exam' => $request->exam_id,
         ]);
-        // dd(
-        //     $generateTempUrl
-        // );
+        // -------------------------------------------------------------- \\
         return redirect($generateTempUrl);
     }
     public function show(Request $request)

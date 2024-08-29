@@ -5,8 +5,8 @@
             <!-- Main content -->
             <section class="bg-temple-white content">
                 <div class="row">
-                    <div class="col-xs-12 col-lg-4">
-                        @foreach ($exams['by_subject'] as $subject)
+                    @foreach ($exams['by_subject'] as $subject)
+                        <div class="col-xs-12 col-lg-4">
                             <div
                                 class="bg-{{ collect(['primary', 'info', 'warning', 'danger', 'success', 'bitbucket', 'dark', 'body'])->random() }}-light box-body">
                                 <div class="accordion" id="accordionPanelsStayOpenExample">
@@ -66,8 +66,8 @@
                                     </div>
                                 </div>
                             </div>
-                        @endforeach
-                    </div>
+                        </div>
+                    @endforeach
                 </div>
             </section>
         </div>

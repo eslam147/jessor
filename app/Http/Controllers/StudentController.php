@@ -380,7 +380,7 @@ class StudentController extends Controller
             $student->dynamic_fields = json_encode($data);
             $student->update();
             $studentRole = Role::where('name', 'Student')->first();
-            if(!$user->hasRole($studentRole)){
+            if (! $user->hasRole($studentRole)) {
                 $user->assignRole($studentRole);
             }
 
@@ -673,6 +673,8 @@ class StudentController extends Controller
                         ->orWhere('is_new_admission', 'LIKE', "%$search%")
                         ->orWhereHas('user', function ($q) use ($search) {
                             $q->where('first_name', 'LIKE', "%$search%")
+                                ->orwhere('mobile', 'LIKE', "%$search%")
+
                                 ->orwhere('last_name', 'LIKE', "%$search%")
                                 ->orwhere('email', 'LIKE', "%$search%")
                                 ->orwhere('dob', 'LIKE', "%$search%");
@@ -726,7 +728,7 @@ class StudentController extends Controller
                 $operate .= '<a class="btn btn-xs btn-gradient-danger btn-rounded btn-icon deletedata" data-id=' . $row->id . ' data-user_id=' . $row->user_id . ' data-url=' . url('students', $row->user_id) . ' title="Delete"><i class="fa fa-trash"></i></a>&nbsp;&nbsp;';
             }
             if (Auth::user()->can('student-delete')) {
-                if($row->user){
+                if ($row->user) {
                     if ($row->user?->isNotBanned()) {
                         $operate .= "<a data-url=" . route('users.ban', $row->user->id) . " class='btn btn-xs btn-danger btn-rounded user_ban' data-id='{$row->user->id}' title='Ban Student'><i class='fa fa-lock'></i>Block</a>&nbsp;&nbsp;";
                     } else {
