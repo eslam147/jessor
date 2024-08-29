@@ -58,34 +58,33 @@ class LanguageController extends Controller
         ]);
 
         try {
-            $language = new Language();
-            $language->name = $request->name;
-            $language->code = $request->code;
-            $language->status = 0;
-            if (isset($request->rtl)) {
-                $language->is_rtl = $request->rtl;
-            } else {
-                $language->is_rtl = 0;
-            }
+            $language =  Language::create([
+                'name' => $request->name,
+                'code' => $request->code,
+                'status' => 0,
+                'is_rtl' => isset($request->rtl) ? 1 : 0,
+            ]);
+
             if ($request->hasFile('file')) {
                 $file = $request->file('file');
-                $filename = $request->code . '.' . $file->getClientOriginalExtension();
+                $filename = $request->code . '.' . $file->hashName();
                 $file->move(base_path('resources/lang/'), $filename);
                 $language->file = $filename;
             }
             $language->save();
 
 
-            $response = array(
+            $response = [
                 'error' => false,
                 'message' => trans('data_store_successfully'),
-            );
+            ];
         } catch (Throwable $e) {
-            $response = array(
+            report($e);
+            $response = [
                 'error' => true,
                 'message' => trans('error_occurred'),
                 'data' => $e
-            );
+            ];
         }
         return response()->json($response);
     }
@@ -151,11 +150,10 @@ class LanguageController extends Controller
     public function update(Request $request)
     {
         if (! Auth::user()->can('language-edit')) {
-            $response = array(
+            return redirect(route('home'))->withErrors([
                 'error' => true,
                 'message' => trans('no_permission_message')
-            );
-            return redirect(route('home'))->withErrors($response);
+            ]);
         }
         $request->validate([
             'name' => 'required',
@@ -189,11 +187,11 @@ class LanguageController extends Controller
                 'message' => trans('data_update_successfully'),
             ];
         } catch (Throwable $e) {
-            $response = array(
+            $response = [
                 'error' => true,
                 'message' => trans('error_occurred'),
                 'data' => $e
-            );
+            ];
         }
         return response()->json($response);
     }

@@ -232,6 +232,7 @@ class AssignmentController extends Controller
                 'message' => trans('data_store_successfully')
             );
         } catch (Throwable $e) {
+            report($e);
             $response = array(
                 'error' => true,
                 'message' => trans('error_occurred'),
@@ -275,11 +276,10 @@ class AssignmentController extends Controller
 
 
         if ($validator->fails()) {
-            $response = array(
+            return response()->json([
                 'error' => true,
                 'message' => $validator->errors()->first(),
-            );
-            return response()->json($response);
+            ]);
         }
         try {
 
@@ -331,20 +331,20 @@ class AssignmentController extends Controller
             $image = null;
             $userinfo = null;
 
-            $notification = new Notification();
-            $notification->send_to = 3;
-            $notification->title = $title;
-            $notification->message = $body;
-            $notification->type = $type;
-            $notification->date = Carbon::now();
-            $notification->is_custom = 0;
-            $notification->save();
-
+            $notification = Notification::create([
+                'send_to' => 3,
+                'title' => $title,
+                'message' => $body,
+                'type' => $type,
+                'date' => now(),
+                'is_custom' => 0,
+            ]);
+            
             foreach ($user as $data) {
-                $user_notification = new UserNotification();
-                $user_notification->notification_id = $notification->id;
-                $user_notification->user_id = $data;
-                $user_notification->save();
+                UserNotification::create([
+                    'notification_id' => $notification->id,
+                    'user_id' => $data,
+                ]);
             }
 
             $assignment->save();
@@ -361,16 +361,17 @@ class AssignmentController extends Controller
                 }
             }
 
-            $response = array(
+            $response = [
                 'error' => false,
                 'message' => trans('data_store_successfully')
-            );
+            ];
         } catch (Throwable $e) {
-            $response = array(
+            report($e);
+            $response = [
                 'error' => true,
                 'message' => trans('error_occurred'),
                 'exception' => $e
-            );
+            ];
         }
         return response()->json($response);
     }
@@ -422,6 +423,7 @@ class AssignmentController extends Controller
                 'message' => trans('data_delete_successfully')
             );
         } catch (\Throwable $e) {
+            report($e);
             $response = array(
                 'error' => true,
                 'message' => trans('error_occurred')
@@ -596,6 +598,7 @@ class AssignmentController extends Controller
                 'message' => trans('data_update_successfully'),
             );
         } catch (\Throwable $e) {
+            report($e);
             $response = array(
                 'error' => true,
                 'message' => trans('error_occurred'),

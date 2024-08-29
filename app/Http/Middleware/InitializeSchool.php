@@ -57,23 +57,12 @@ class InitializeSchool
                 'mail.mailers.smtp.password' => 'mail_password',
                 'mail.mailers.smtp.encryption' => 'mail_encryption',
                 'mail.from.address' => 'mail_send_from'
-
             ];
             foreach ($mailKeyVal as $key => $value) {
-                if(! empty($mailSettings[$key])){
-                    Config::set($key, $mailSettings[$key]);
+                if(! empty($emaiVal = $mailSettings[$value])){
+                    Config::set($key, $emaiVal);
                 }
             }
-            // mail.mailers.smtp.host
-            // config([
-            //     'mail.mailers.smtp.mailer' => $mailSettings['mail_mailer'],
-            //     'mail.mailers.smtp.host' => $mailSettings['mail_host'],
-            //     'mail.mailers.smtp.port' => $mailSettings['mail_port'],
-            //     'mail.mailers.smtp.username' => $mailSettings['mail_username'],
-            //     'mail.mailers.smtp.password' => $mailSettings['mail_password'],
-            //     'mail.mailers.smtp.encryption' => $mailSettings['mail_encryption'],
-            //     'mail.from.address' => $mailSettings['mail_send_from'],
-            // ]);
         }
 
     }
