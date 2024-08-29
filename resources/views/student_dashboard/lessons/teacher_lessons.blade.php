@@ -192,18 +192,22 @@
                                     </div>
                                     <div class="fx-card-content text-start">
                                         <div class="product-text">
-                                            <h3 class="pro-price text-blue">
-                                                {{ $row->is_lesson_free ? 'Free' : number_format($row->price, 2) }}
-                                            </h3>
+                                      
                                             <h4 class="box-title mb-0">
                                                 <a
                                                     href="{{ route('student_dashboard.lesson.show', $row->id) }}">{{ $row->name }}</a>
                                             </h4>
                                             <small class="text-muted db">{{ str($row->description)->limit(30) }}</small>
                                         </div>
-
+                                        <hr>
+                                        <div>
+                                            <h3 class="pro-price text-blue">
+                                                {{ $row->is_lesson_free ? 'Free' : number_format($row->price, 2) }}
+                                            </h3>
+                                        </div>
                                         <!-- Enrollment and Actions -->
                                     </div>
+
                                 </div>
                             </div>
                         </div>

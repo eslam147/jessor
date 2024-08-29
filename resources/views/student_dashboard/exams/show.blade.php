@@ -70,16 +70,18 @@
         .cd-horizontal-timeline {
             margin-bottom: .5rem;
         }
+
         .text-justify {
             text-align: justify !important;
         }
+
         h5 {
-        font-size: 1.5rem;
+            font-size: 1.5rem;
         }
-        
     </style>
     <script>
         const examEndTime = @json($examEndTime);
+
         function examWillLeave() {
             var message = 'Are you sure you want to leave? You might lose your progress.';
             e.preventDefault();
@@ -152,7 +154,7 @@
                                                                 @endisset
                                                                 <div class="box-body pt-0 px-0">
                                                                     <h5
-                                                                        class="text-justify bg-{{ collect(['primary', 'success', 'danger', 'warning', 'info','bitbucket','dark','body'])->random() }} p-5 px-25 text-break text-white text-wrap">
+                                                                        class="text-justify bg-{{ collect(['primary', 'success', 'danger', 'warning', 'info', 'bitbucket', 'dark', 'body'])->random() }} p-5 px-25 text-break text-white text-wrap">
                                                                         {{ $loop->iteration }}. {!! $question['question'] !!}
                                                                     </h5>
                                                                     <hr>
@@ -179,7 +181,8 @@
                                                             </div>
                                                             @if (!empty($question['note']))
                                                                 <div class="bg-light card-footer ">
-                                                                    <b>Note</b>: <p class="text-justify">{{ $question['note'] }}</p>
+                                                                    <b>Note</b>: <p class="text-justify">
+                                                                        {{ $question['note'] }}</p>
                                                                 </div>
                                                             @endif
                                                         </div>
@@ -190,16 +193,29 @@
                                     </div>
                                     <!-- .events-content -->
                                 </section>
-                                <div class="bg-secondary-light d-flex justify-content-between m-auto my-5 p-10 rounded-2 w-75">
+                                <div
+                                    class="bg-secondary-light d-flex justify-content-between m-auto my-5 p-10 rounded-2 w-75">
                                     <button type="button" class="switch_btn prev btn btn-primary d-none">
                                         <i class="fa fa-arrow-left" aria-hidden="true"></i>
                                         Previous
                                     </button>
-                                    <button type="button" class="switch_btn next btn btn-primary">
+                                    <button type="button" @class([
+                                        'switch_btn',
+                                        'next',
+                                        'btn',
+                                        'btn-primary',
+                                        'd-none' => count($questions_data['data']) <= 1,
+                                    ])>
                                         Next
                                         <i class="fa fa-arrow-right" aria-hidden="true"></i>
                                     </button>
-                                    <button type="submit" class="btn exam_submit btn-success d-none">
+                                    <button type="submit" @class([
+                                        'switch_btn',
+                                        'send_exam',
+                                        'btn',
+                                        'btn-primary',
+                                        'd-none' => count($questions_data['data']) > 1,
+                                    ])>
                                         <i class="fa fa-check" aria-hidden="true"></i>
                                         Send Exam
                                     </button>
@@ -217,7 +233,5 @@
     </script>
     <script src="{{ global_asset('vendor/sweetalert/sweetalert.all.js') }}"></script>
     <script src="{{ global_asset('assets/js/custom/exam.js') }}"></script>
-    <script>
-
-    </script>
+    <script></script>
 @endsection
