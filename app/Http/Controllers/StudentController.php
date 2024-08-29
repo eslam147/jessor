@@ -673,11 +673,11 @@ class StudentController extends Controller
                         ->orWhere('is_new_admission', 'LIKE', "%$search%")
                         ->orWhereHas('user', function ($q) use ($search) {
                             $q->where('first_name', 'LIKE', "%$search%")
-                                ->orwhere('mobile', 'LIKE', "%$search%")
+                                ->orWhere('mobile', 'LIKE', "%$search%")
 
-                                ->orwhere('last_name', 'LIKE', "%$search%")
-                                ->orwhere('email', 'LIKE', "%$search%")
-                                ->orwhere('dob', 'LIKE', "%$search%");
+                                ->orWhere('last_name', 'LIKE', "%$search%")
+                                ->orWhere('email', 'LIKE', "%$search%")
+                                ->orWhere('dob', 'LIKE', "%$search%");
                         })
                         ->orWhereHas('father', function ($q) use ($search) {
                             $q->where('first_name', 'LIKE', "%$search%")
@@ -833,7 +833,7 @@ class StudentController extends Controller
             return response()->json($response);
         }
         try {
-
+            
             $student_id = Students::select('id')->where('user_id', $id)->pluck('id')->first();
 
             // find that student is associate with other tables ..

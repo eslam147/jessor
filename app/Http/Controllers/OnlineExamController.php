@@ -193,7 +193,7 @@ class OnlineExamController extends Controller
                 });
             })
             //class data filter
-            ->when(request('class_id') != null, function ($query) {
+            ->when(request()->filled('class_id'), function ($query) {
                 $classId = request('class_id');
                 $query->where(function ($query) use ($classId) {
                     $classSectionIds = ClassSection::where('class_id', $classId)->pluck('id');
@@ -293,32 +293,32 @@ class OnlineExamController extends Controller
         ]);
 
         if ($validator->fails()) {
-            $response = array(
+            return response()->json([
                 'error' => true,
                 'message' => $validator->errors()->first()
-            );
-            return response()->json($response);
+            ]);
         }
         try {
             $update_online_exam = OnlineExam::findOrFail($id);
-            $update_online_exam->title = $request->edit_title;
-            $update_online_exam->exam_key = $request->edit_exam_key;
-            $update_online_exam->duration = $request->edit_duration;
-            $update_online_exam->start_date = $request->edit_start_date;
-            $update_online_exam->end_date = $request->edit_end_date;
-            $update_online_exam->save();
+            $update_online_exam->update([
+                'title' => $request->edit_title,
+                'exam_key' => $request->edit_exam_key,
+                'duration' => $request->edit_duration,
+                'start_date' => $request->edit_start_date,
+                'end_date' => $request->edit_end_date,
+            ]);
 
-            $response = array(
+            $response = [
                 'error' => false,
                 'message' => trans('data_update_successfully')
-            );
+            ];
         } catch (Throwable $e) {
             report($e);
 
-            $response = array(
+            $response = [
                 'error' => true,
                 'message' => trans('error_occurred')
-            );
+            ];
         }
         return response()->json($response);
     }
@@ -339,10 +339,10 @@ class OnlineExamController extends Controller
             $student_online_exam_status = StudentOnlineExamStatus::where('online_exam_id', $id)->count();
 
             if ($online_exam_question_choices || $online_exam_student_answers || $student_online_exam_status) {
-                $response = array(
+                $response = [
                     'error' => true,
                     'message' => trans('cannot_delete_beacuse_data_is_associated_with_other_data')
-                );
+                ];
             } else {
                 OnlineExam::where('id', $id)->delete();
                 $response = [
@@ -353,10 +353,10 @@ class OnlineExamController extends Controller
         } catch (Throwable $e) {
             report($e);
 
-            $response = array(
+            $response = [
                 'error' => true,
                 'message' => trans('error_occurred')
-            );
+            ];
         }
         return response()->json($response);
     }

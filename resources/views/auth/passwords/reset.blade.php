@@ -93,7 +93,7 @@
                     <div class="col-lg-4 mx-auto">
                         <div class="auth-form-light text-left p-5">
                             <div class="brand-logo text-center">
-                                <img src="{{ tenant_asset(getSettings('logo1')) }}" alt="logo">
+                                <img src="{{ loadTenantMainAsset('logo1') }}" alt="logo">
                             </div>
 
                             <form method="POST" action="{{ route('password.update') }}">
