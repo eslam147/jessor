@@ -22,21 +22,8 @@ class User extends Authenticatable implements Wallet, Customer, BannableInterfac
     use SoftDeletes;
     use HasWallet, CanPay;
     use Bannable;
+    protected $guarded = [];
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var array
-     */
-    protected $fillable = [
-        'name',
-        'email',
-        'password',
-        'first_name',
-        'last_name',
-        'mobile',
-        'banned_at'
-    ];
     protected $appends =[
         'full_name'
     ];

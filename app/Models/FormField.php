@@ -11,13 +11,6 @@ class FormField extends Model
     use HasFactory;
     use SoftDeletes;
 
-    protected $fillable = [
-        'name',
-        'type',
-        'is_required',
-        'default_values',
-        'other',
-        'rank'
-    ];
+    protected $guarded = [];
 
 }

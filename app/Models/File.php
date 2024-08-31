@@ -15,8 +15,9 @@ class File extends Model
     const VIDEO_CORNER_TYPE = 5;
     const DOWNLOAD_LINK_TYPE = 6;
     const EXTERNAL_LINK = 7;
+    protected $guarded = [];
 
-    protected $fillable = ['id', 'modal_type', 'modal_id', 'file_name', 'file_thumbnail', 'type', 'file_url', 'download_link'];
+    // protected $fillable = ['id', 'modal_type', 'modal_id', 'file_name', 'file_thumbnail', 'type', 'file_url', 'download_link'];
     protected $hidden = ["deleted_at", "created_at", "updated_at"];
     protected $appends = ['file_extension', 'type_detail'];
     public static array $types = [

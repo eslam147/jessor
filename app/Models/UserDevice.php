@@ -9,7 +9,8 @@ class UserDevice extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['user_id', 'device_name', 'device_ip', 'device_agent'];
+    // protected $fillable = ['user_id', 'device_name', 'device_ip', 'device_agent'];
+    protected $guarded = [];
 
     /**
      * The user that owns the device.

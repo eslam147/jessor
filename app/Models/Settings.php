@@ -9,9 +9,7 @@ class Settings extends Model
     use HasFactory;
     public $timestamps = false;
 
-    protected $fillable = [
-        'type',
-        'message'
-    ];
+    protected $guarded = [];
+
 
 }

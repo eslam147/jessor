@@ -8,19 +8,8 @@ use Illuminate\Database\Eloquent\Model;
 class PaidInstallmentFee extends Model
 {
     use HasFactory;
-    protected $fillable = [
-        'id',
-        'student_id',
-        'class_id',
-        'parent_id',
-        'installment_fee_id',
-        'session_year_id',
-        'amount',
-        'due_charges',
-        'date',
-        'payment_transaction_id',
-        'status'
-    ];
+    protected $guarded = [];
+
     protected $hidden = ["created_at", "updated_at"];
 
     public function class(){

@@ -12,6 +12,7 @@ class OnlineExam extends Model
 {
     use HasFactory, SoftDeletes;
     protected $hidden = ["deleted_at", "created_at", "updated_at"];
+    protected $guarded = [];
 
     public function model()
     {

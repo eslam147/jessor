@@ -16,6 +16,6 @@ class WebSetting extends Model
         {
             return tenant_asset($value);
         }
-        return '';
+        return null;
     }
 }

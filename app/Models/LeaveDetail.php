@@ -10,7 +10,7 @@ class LeaveDetail extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['id', 'leave_id', 'date', 'type'];
+    protected $guarded = [];
     
     public function leave()
     {

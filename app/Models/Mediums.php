@@ -10,10 +10,10 @@ use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 
 class Mediums extends Model
 {
+    use SoftDeletes,HasFactory;
     protected $hidden = ["deleted_at", "created_at", "updated_at"];
-    use SoftDeletes;
-    use HasFactory;
-
+    protected $guarded = [];
+    
     public function class(): HasMany
     {
         return $this->hasMany(ClassSchool::class, 'medium_id');

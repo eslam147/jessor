@@ -14,15 +14,8 @@ class Leave extends Model
 {
     use HasFactory;
 
-    protected $fillable = [
-        'id',
-        'user_id',
-        'leave_master_id',
-        'reason',
-        'from_date',
-        'to_date',
-        'status'
-    ];
+    protected $guarded = [];
+
 
     public function user()
     {

@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 class PaymentTransaction extends Model
 {
     use HasFactory;
-
+    protected $guarded = [];
     protected $hidden = ["deleted_at", "created_at", "updated_at"];
 
     public function student(){
