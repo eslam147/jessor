@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Traits\BelongsToTeacher;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Storage;
@@ -10,7 +11,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class OnlineExamQuestion extends Model
 {
-    use HasFactory;
+    use HasFactory, BelongsToTeacher;
     const EQUATION_BASED_TYPE = 1;
     const IMAGE_BASED_TYPE = 2;
     protected $hidden = ["deleted_at", "created_at", "updated_at"];
@@ -23,16 +24,6 @@ class OnlineExamQuestion extends Model
     }
     public function answers(){
         return $this->hasMany(OnlineExamQuestionAnswer::class,'question_id')->with('options');
-    }
-    public function teacher(){
-        return $this->belongsTo(Teacher::class,'teacher_id');
-    }
-    public function scopeRelatedToTeacher($query) {
-        $user = Auth::user();
-        $user->load('teacher');
-        if ($user->hasRole('Teacher')) {
-            return $query->where('teacher_id', $user->teacher->id);
-        }
     }
     public function getImageUrlAttribute($value) {
         if($value){

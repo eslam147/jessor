@@ -44,7 +44,6 @@ class SignupController extends Controller
             Alert::warning('Warning', $validator->messages()->all()[0]);
             return back()->withErrors($validator)->withInput();
         } else {
-            // $category_id = 1;
             // Add student to users table
             $userModel = User::create([
                 'first_name' => $request->first_name,
@@ -52,7 +51,6 @@ class SignupController extends Controller
                 'mobile' => $request->mobile,
                 'email' => $request->email,
                 'password' => Hash::make($request->password),
-                'category_id' => 1,
             ]);
 
             $studentRole = Role::where('name', 'Student')->first();
