@@ -46,22 +46,21 @@ class SignupController extends Controller
         } else {
             // $category_id = 1;
             // Add student to users table
-            $studentUser = User::create([
+            $userModel = User::create([
                 'first_name' => $request->first_name,
                 'last_name' => $request->last_name,
                 'mobile' => $request->mobile,
-                'class_section_id' => $request->class_section_id,
-                'category_id' => 1,
                 'email' => $request->email,
                 'password' => Hash::make($request->password),
+                'category_id' => 1,
             ]);
 
             $studentRole = Role::where('name', 'Student')->first();
-            $studentUser->assignRole($studentRole);
+            $userModel->assignRole($studentRole);
 
             // Add student to students table
             $student = Students::create([
-                'user_id' => $studentUser->id,
+                'user_id' => $userModel->id,
                 'class_section_id' => $request->class_section_id,
                 'category_id' => 1,
                 'father_id' => null,
@@ -69,9 +68,9 @@ class SignupController extends Controller
                 'guardian_id' => null,
             ]);
 
-            $this->guard()->login($studentUser);
+            $this->guard()->login($userModel);
 
-            if ($response = $this->registered($request, $studentUser)) {
+            if ($response = $this->registered($request, $userModel)) {
                 return $response;
             }
             Alert::success('Success', "Welcome " . $request->first_name . " " . $request->last_name);

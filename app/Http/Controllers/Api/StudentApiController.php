@@ -1883,7 +1883,7 @@ class StudentApiController extends Controller
                 'student_id' => $student->id,
                 'status' => 1,
             ]);
-            
+
 
             // get total questions
             $total_questions = OnlineExamQuestionChoice::where('online_exam_id', $request->exam_id)->count();
@@ -2009,12 +2009,12 @@ class StudentApiController extends Controller
                                 'student_id' => $student->id,
                                 'online_exam_id' => $request->online_exam_id
                             ])->first();
-                            
+
                             if (! empty($studentExamStatus) && $studentExamStatus) {
                                 $studentExamStatus->update([
                                     'status' => 2
                                 ]);
-                            }else{
+                            } else {
                                 return response()->json([
                                     'error' => true,
                                     'message' => trans('invalid_online_exam_attempt_not_found'),
@@ -2491,7 +2491,10 @@ class StudentApiController extends Controller
             foreach ($exam_in_correct_answers_data as $in_correct_data) {
                 $choice_questions = OnlineExamQuestionChoice::where(['online_exam_id' => $request->online_exam_id, 'question_id' => $in_correct_data->question_id])->first();
                 if (isset($choice_questions) && ! empty($choice_questions)) {
-                    $choice_questions = OnlineExamQuestionChoice::where(['online_exam_id' => $request->online_exam_id, 'question_id' => $correct_data->question_id])->first();
+                    $choice_questions = OnlineExamQuestionChoice::where([
+                        'online_exam_id' => $request->online_exam_id,
+                        'question_id' => $in_correct_data->question_id
+                    ])->first();
 
                     // $questionChoiceAnswers = $;
                     $in_correct_answers_data[] = $this->answerFormat(
@@ -2561,10 +2564,11 @@ class StudentApiController extends Controller
 
             $user = Auth::user()->load(['student.class_section', 'student.category']);
             //Set Class Section name
-            $classSectionName = "{$user->student->class_section->class->name} {$user->student->class_section->section->name}";
+            $classSection  = optional($user->student->class_section);
+            $classSectionName = "{$classSection->class?->name} {$classSection->section?->name}";
 
             // Set Class Section name
-            $streamName = $user->student->class_section->class->streams->name ?? null;
+            $streamName = $classSection->class->streams->name ?? null;
             if ($streamName !== null) {
                 $user->class_section_name = $classSectionName . " " . $streamName;
             } else {
@@ -4011,13 +4015,14 @@ class StudentApiController extends Controller
         return [
             'is_correct' => $isCorrect,
 
-            'student_answer' => $exam_attempts->firstWhere('question.id', $correct_data->question_id)->only(
+            'student_answer' => $exam_attempts->firstWhere('question.id', $correct_data->question_id)?->only(
                 'option_id',
                 'question_id',
                 'id',
                 'submitted_date'
             ),
             'question' => $choiceQuestions->questions->only(
+                'id',
                 'question_type',
                 'question',
                 'image_url',

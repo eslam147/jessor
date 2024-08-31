@@ -1,15 +1,22 @@
-import FingerprintJS from '@fingerprintjs/fingerprintjs';
+require('./bootstrap');
 import axios from 'axios';
+// /import devtools from 'devtools-detect/devtools';
+// import {useDevToolsStatus} from './useDevToolsStatus.js';
+import devtools from '../../node_modules/devtools-detect/index.js';
 
+// require('devtools-detect/index.js');
+// import devtools from '@devtools-detect/index.js';
+// import FingerprintJS from '@fingerprintjs/fingerprintjs';
+// const devtools = require('devtools-detect');
+window.devtools = devtools;
 /**
  * First we will load all of this project's JavaScript dependencies which
  * includes Vue and other libraries. It is a great starting point when
  * building robust, powerful web applications using Vue and Laravel.
  */
 
-require('./bootstrap');
 
-window.Vue = require('vue').default;
+// window.Vue = require('vue').default;
 
 /**
  * The following block of code may be used to automatically register your
@@ -22,7 +29,7 @@ window.Vue = require('vue').default;
 // const files = require.context('./', true, /\.vue$/i)
 // files.keys().map(key => Vue.component(key.split('/').pop().split('.')[0], files(key).default))
 
-Vue.component('example-component', require('./components/ExampleComponent.vue').default);
+// Vue.component('example-component', require('./components/ExampleComponent.vue').default);
 
 /**
  * Next, we will create a fresh Vue application instance and attach it to
@@ -30,9 +37,9 @@ Vue.component('example-component', require('./components/ExampleComponent.vue').
  * or customize the JavaScript scaffolding to fit your unique needs.
  */
 
-const app = new Vue({
-    el: '#app',
-});
+// const app = new Vue({
+//     el: '#app',
+// });
 
 
 
