@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enums\Lesson\LessonStatus;
+use App\Traits\BelongsToTeacher;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Storage;
@@ -12,7 +13,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Lesson extends Model
 {
-    use HasFactory, BelongsToThrough;
+    use HasFactory, BelongsToThrough, BelongsToTeacher;
     protected $guarded = [];
     public $casts = [
         'status' => LessonStatus::class,
@@ -42,16 +43,6 @@ class Lesson extends Model
     {
         return $query->where('status', LessonStatus::PUBLISHED);
     }
-    public function scopeRelatedToTeacher($query)
-    {
-        $user = Auth::user();
-        if ($user->hasRole('Teacher')) {
-            $teacher_id = $user->load('teacher')->teacher->id;
-            return $query->where('teacher_id', $teacher_id);
-
-        }
-        return $query;
-    }
     public function subject()
     {
         return $this->belongsTo(Subject::class);
@@ -80,11 +71,6 @@ class Lesson extends Model
     {
         return $this->belongsTo(ClassSection::class)->with('class', 'section');
     }
-    public function teacher()
-    {
-        return $this->belongsTo(Teacher::class, 'teacher_id');
-    }
-
     public function class()
     {
         return $this->belongsToThrough(ClassSchool::class, ClassSection::class);
