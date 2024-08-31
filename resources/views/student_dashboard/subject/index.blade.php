@@ -55,7 +55,7 @@
                                     data-overlay-light="9">
                                     <div class="d-lg-flex align-items-center justify-content-between">
                                         <div class="d-md-flex align-items-center mb-30 mb-lg-0 w-p100">
-                                            <img src="{{ !empty($row->image) ? $row->image : loadTenantMainAsset('logo1', global_asset('images/no_image_available.jpg')) }}"
+                                            <img style="background-color: #{{ $row->bg_color }}66" src="{{ !empty($row->image) ? $row->image : loadTenantMainAsset('logo1', global_asset('images/no_image_available.jpg')) }}"
                                                 class="h-100 img-fluid object-fit-cover w-150 " alt="">
                                             <div class="ms-30 w-75">
                                                 <h4 class="mb-10 text-bold">{{ $row->name }}</h4>
