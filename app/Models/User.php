@@ -24,7 +24,7 @@ class User extends Authenticatable implements Wallet, Customer, BannableInterfac
     use Bannable;
     protected $guarded = [];
 
-    protected $appends =[
+    protected $appends = [
         'full_name'
     ];
 
@@ -60,7 +60,7 @@ class User extends Authenticatable implements Wallet, Customer, BannableInterfac
     }
     public function enrollmentLessons()
     {
-        return $this->belongsToMany(Lesson::class, Enrollment::class, 'user_id', 'lesson_id');
+        return $this->belongsToMany(Lesson::class, Enrollment::class, 'user_id', 'lesson_id')->withPivot('user_id', 'expires_at', 'lesson_id');
     }
 
     public function parent()
@@ -109,7 +109,7 @@ class User extends Authenticatable implements Wallet, Customer, BannableInterfac
     public function hasAccessToLesson($lessonId)
     {
         return $this->whereHas('enrollmentLessons', function ($q) use ($lessonId) {
-            return $q->where('lessons.id', $lessonId);
+            return $q->where('lessons.id', $lessonId)->where('enrollments.expires_at', '>', now());
         })->exists();
     }
 }
