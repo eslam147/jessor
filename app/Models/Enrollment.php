@@ -15,11 +15,11 @@ class Enrollment extends Model
     {
         return $this->belongsTo(Lesson::class);
     }
-    public function scopeActiveEnrollments($q)
+    public function scopeActiveEnrollments($q,$userId = null)
     {
         return $q->where(function ($q) {
             $q->whereNull('expires_at')->orWhere('expires_at', '>', now()->toDateTimeString());
-        })->where('user_id', auth()->user()->id)
+        })->where('user_id', $userId ?? auth()->user()->id)
             ->orderByDesc('id');
     }
     public function user()

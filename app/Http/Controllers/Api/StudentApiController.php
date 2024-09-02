@@ -886,7 +886,7 @@ class StudentApiController extends Controller
                 ->with('topic', 'file', 'subject', 'class');
 
             $data = $data->addSelect([
-                'is_enrolled' => Enrollment::whereColumn('lesson_id', 'lessons.id')->select('id')->activeEnrollments(),
+                'is_enrolled' => Enrollment::whereColumn('lesson_id', 'lessons.id')->select('id')->activeEnrollments($user->id),
             ])->get();
 
             $response = [
