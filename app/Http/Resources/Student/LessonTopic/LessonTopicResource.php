@@ -20,7 +20,7 @@ class LessonTopicResource extends JsonResource
             'name' => $this->name,
             'description' => $this->description,
             'lesson_id' => $this->lesson_id,
-            'files' => $this->when($request->user()->hasAccessToLesson($this->lesson_id), function () {
+            'files' => $this->when($request->user()->hasAccessToLesson($this->lesson_id) == true, function () {
                 return FileResource::collection($this->file);
             }, null),
 

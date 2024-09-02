@@ -19,9 +19,8 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 class User extends Authenticatable implements Wallet, Customer, BannableInterface
 {
     use HasApiTokens, HasFactory, Notifiable, HasRoles;
-    use SoftDeletes;
-    use HasWallet, CanPay;
-    use Bannable;
+    use Bannable, SoftDeletes, HasWallet, CanPay;
+
     protected $guarded = [];
 
     protected $appends = [
@@ -32,11 +31,7 @@ class User extends Authenticatable implements Wallet, Customer, BannableInterfac
     {
         return $this->hasMany(UserDevice::class);
     }
-    /**
-     * The attributes that should be hidden for arrays.
-     *
-     * @var array
-     */
+
     protected $hidden = [
         'password',
         'remember_token',
@@ -45,11 +40,6 @@ class User extends Authenticatable implements Wallet, Customer, BannableInterfac
         "updated_at"
     ];
 
-    /**
-     * The attributes that should be cast to native types.
-     *
-     * @var array
-     */
     protected $casts = [
         'email_verified_at' => 'datetime',
     ];
@@ -87,11 +77,6 @@ class User extends Authenticatable implements Wallet, Customer, BannableInterfac
     {
         return $this->first_name . ' ' . $this->last_name;
     }
-
-    // //Getter Attributes
-    // public function getOriginalImageAttribute() {
-    //     return $this->getRawOriginal('image');
-    // }
 
     public function notifications()
     {

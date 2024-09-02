@@ -212,30 +212,29 @@ class StudentApiController extends Controller
                 $auth->device_type = $request->device_type;
                 $auth->save();
             }
-
-            $classSectionName = optional($user->student->class_section)?->class?->name . " " . optional($user->student->class_section)?->section?->name;
+            $classSection = optional($user->student->class_section);
+            $classSectionName = $classSection->class?->name . " " . $classSection->section?->name;
 
             // Set Class Section name
-            $streamName = $user->student->class_section->class->streams->name ?? null;
+            $streamName = $classSection->class->streams->name ?? null;
             if (! is_null($streamName)) {
-                $user->class_section_name = $classSectionName . " " . $streamName;
+                $user->class_section_name = "{$classSectionName} {$streamName}";
             } else {
                 $user->class_section_name = $classSectionName;
             }
 
             //Set Medium name
-            $user->medium_name = $user->student->class_section?->class?->medium->name;
+            $user->medium_name = $classSection?->class?->medium->name;
 
 
             //Set Shift name
-            $user->shift_id = $user->student->class_section->class->shifts->id ?? '';
+            $user->shift_id = $classSection->class->shifts->id ?? '';
             $user->shift = Shift::find($user->shift_id);
-            if ($user->shift) {
-                $user->shift->id;
-                $user->shift->title;
-                $user->shift->start_time;
-
-            }
+            // if ($user->shift) {
+            //     $user->shift->id;
+            //     $user->shift->title;
+            //     $user->shift->start_time;
+            // }
 
 
             // $user->dynamic_field = $dynamicFields;
@@ -1358,9 +1357,8 @@ class StudentApiController extends Controller
         }
         try {
             $student = $request->user()->student;
-            $class_id = $student->class_section->class->id;
-            $session_year = getSettings('session_year');
-            $session_year_id = $session_year['session_year'];
+            $class_id = $student->class_section?->class->id;
+            $session_year_id = getSettings('session_year')['session_year'];
             $table = null;
             if (isset($request->type) && $request->type == "subject") {
                 $table = SubjectTeacher::where('class_section_id', $student->class_section_id)->where('subject_id', $request->subject_id)->get()->pluck('id');
@@ -1381,28 +1379,28 @@ class StudentApiController extends Controller
             }
 
             if (isset($request->type) && $request->type == "class") {
-                $data = $data->where('table_type', "App\Models\ClassSchool")->where('table_id', $class_id);
+                $data = $data->where('table_type', ClassSchool::class)->where('table_id', $class_id);
             }
 
             if (isset($request->type) && $request->type == "subject") {
-                $data = $data->where('table_type', "App\Models\SubjectTeacher")->whereIn('table_id', $table);
+                $data = $data->where('table_type', SubjectTeacher::class)->whereIn('table_id', $table);
             }
 
-            $data = $data->orderBy('id', 'desc')->paginate();
-            $response = array(
+            $data = $data->orderByDesc('id')->paginate();
+            $response = [
                 'error' => false,
                 'message' => "Announcement Details Fetched Successfully",
                 'data' => $data,
                 'code' => 200,
-            );
+            ];
         } catch (Exception $e) {
             report($e);
 
-            $response = array(
+            $response = [
                 'error' => true,
                 'message' => trans('error_occurred'),
                 'code' => 103,
-            );
+            ];
         }
         return response()->json($response);
     }
@@ -2576,10 +2574,10 @@ class StudentApiController extends Controller
             }
 
             //Set Medium name
-            $user->medium_name = $user->student->class_section->class->medium->name;
+            $user->medium_name = $classSection->class->medium->name;
 
             //Set School Shift name
-            $user->shift_id = $user->student->class_section->class->shifts->id ?? '';
+            $user->shift_id = $classSection->class->shifts->id ?? '';
             $user->shift = Shift::find($user->shift_id);
             if ($user->shift) {
                 $user->shift->id;

@@ -15,7 +15,7 @@ class Students extends Model
 
     protected $hidden = ["deleted_at", "created_at", "updated_at"];
     protected $guarded = [];
-    
+
     public function announcement()
     {
         return $this->morphMany(Announcement::class, 'table');
@@ -38,10 +38,10 @@ class Students extends Model
 
     public function subjects()
     {
-        $session_year = getSettings('session_year');
-        $session_year_id = $session_year['session_year'];
+        $session_year_id = settingByType('session_year');
+        // $session_year_id = $session_year;
 
-        $class_id = $this->class_section->class->id;
+        // $class_id = $this->class_section->class->id;
 
         $class_section_id = $this->class_section->id;
 
@@ -66,19 +66,28 @@ class Students extends Model
     {
         $core_subjects = $this->class_section->class->coreSubject;
         $elective_subjects = $this->class_section->class->electiveSubjectGroup->load('electiveSubjects.subject');
-        return ['core_subject' => $core_subjects, 'elective_subject_group' => $elective_subjects];
+        return [
+            'core_subject' => $core_subjects,
+            'elective_subject_group' => $elective_subjects
+        ];
     }
-
 
     //Getter Attributes
     public function getFatherImageAttribute($value)
     {
-        return tenant_asset($value);
+        if ($value) {
+            return tenant_asset($value);
+        }
+        return null;
     }
 
     public function getMotherImageAttribute($value)
     {
-        return tenant_asset($value);
+        if ($value) {
+            return tenant_asset($value);
+        }
+        return null;
+
     }
 
     public function father()

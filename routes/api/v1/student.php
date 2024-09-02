@@ -12,13 +12,6 @@ Route::prefix('student')->middleware([
   InitializeSchool::class,
   'api-check-user-banned',
 ])->group(function () {
-
-  //Non Authenticated APIs
-  Route::post('login', [StudentApiController::class, 'login']);
-  Route::post('register', [StudentApiController::class, 'register']);
-  Route::post('forgot-password', [StudentApiController::class, 'forgotPassword']);
-
-  //Authenticated APIs
   Route::group(['middleware' => ['auth:sanctum','forbid-banned-user']], function () {
     Route::get('dashboard', [StudentApiController::class, 'dashboard']);
     Route::get('subjects', [StudentApiController::class, 'subjects']);
@@ -80,4 +73,11 @@ Route::prefix('student')->middleware([
     //fee notification
     Route::get('send-fee-notification', [StudentApiController::class, 'sendFeeNotification']);
   });
+  //Non Authenticated APIs
+  Route::post('login', [StudentApiController::class, 'login']);
+  Route::post('register', [StudentApiController::class, 'register']);
+  Route::post('forgot-password', [StudentApiController::class, 'forgotPassword']);
+
+  //Authenticated APIs
+
 });

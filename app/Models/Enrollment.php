@@ -15,7 +15,7 @@ class Enrollment extends Model
     {
         return $this->belongsTo(Lesson::class);
     }
-    public function scopeActiveEnrollments($q,$userId = null)
+    public function scopeActiveEnrollments($q, $userId = null)
     {
         return $q->where(function ($q) {
             $q->whereNull('expires_at')->orWhere('expires_at', '>', now()->toDateTimeString());

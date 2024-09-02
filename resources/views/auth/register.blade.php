@@ -37,7 +37,7 @@
                                         <select name="class_section_id" id="class_section" class="form-control ">
                                             <option value="">
                                                 {{ __('select') . ' ' . __('class') . ' ' . __('section') }}</option>
-                                            @foreach ($class_section as $section)
+                                            @foreach ($classSections as $section)
                                                 <option @selected(old('class_section_id') == $section->id) value="{{ $section->id }}">
                                                     {{ optional($section->class)->name }} -
                                                     {{ optional($section->class->medium)->name }}
