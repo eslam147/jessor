@@ -68,9 +68,12 @@
                                         </div>
                                     @endif
                                     <div class="mt-3">
-                                        <input type="submit" name="btnlogin" id="login_btn"
-                                            value="{{ __('login') }}"
-                                            class="btn btn-block btn-theme btn-lg font-weight-medium auth-form-btn" />
+                                        <button type="submit"
+                                        name="btnlogin"
+                                        id="login_btn"
+                                        class="btn btn-block btn-theme btn-lg font-weight-medium auth-form-btn"
+                                        >{{ __('login') }}</button>
+                                        
                                     </div>
                                 </form>
 
@@ -119,7 +122,10 @@
             }
         });
         $('#frmLogin').submit(function(e) {
-            $('#login_btn').attr('disabled', 'disabled');
+            if($(this).valid()) {
+                $('#login_btn').html(`<i class="fa fa-spinner fa-spin"></i> {{ __('login') }}`);
+                $('#login_btn').attr('disabled', 'disabled');
+            }
         })
         const togglePassword = document.querySelector("#togglePassword");
         const password = document.querySelector("#password");
