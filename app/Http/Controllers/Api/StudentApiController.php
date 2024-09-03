@@ -864,9 +864,8 @@ class StudentApiController extends Controller
         $validator = Validator::make($request->all(), [
             'lesson_id' => 'nullable|numeric',
             'teacher_id' => 'required|numeric',
-            'class_subject_id' => 'required|numeric',
+            'subject_id' => 'required|numeric',
         ]);
-        $subjectId = ClassSubject::where('id', $request->class_subject_id)->value('subject_id');
         if ($validator->fails()) {
             return response()->json([
                 'error' => true,
@@ -882,7 +881,7 @@ class StudentApiController extends Controller
 
             $data = Lesson::where('teacher_id', $request->teacher_id)
                 ->active()
-                ->where('subject_id', $subjectId)
+                ->where('subject_id', $request->subject_id)
                 ->relatedToCurrentStudentClass($studentInfo)
                 ->with('topic', 'file', 'subject', 'class');
 
