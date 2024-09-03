@@ -76,7 +76,7 @@ class LessonTopicController extends Controller
                 // -----------------------------------------------
                 'file.*.external_link' => ['nullable', 'required_if:file.*.type,external_link', 'url'],
                 // -----------------------------------------------
-                'thumbnail' => 'required|image|mimes:jpg,jpeg,png',
+                'thumbnail' => 'required|image|mimes:jpg,jpeg,png|max:2048',
             ],
         );
 
@@ -327,8 +327,8 @@ class LessonTopicController extends Controller
                             $topic_file->download_link = $file['download_link'];
                             break;
                         case "external_link":
-                            $file->type = File::EXTERNAL_LINK;
-                            $file->file_url = $file['external_link'];
+                            $topic_file->type = File::EXTERNAL_LINK;
+                            $topic_file->file_url = $file['external_link'];
                             break;
                         case "other_link":
                             $topic_file->type = 4;
