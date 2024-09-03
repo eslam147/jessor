@@ -864,8 +864,9 @@ class StudentApiController extends Controller
         $validator = Validator::make($request->all(), [
             'lesson_id' => 'nullable|numeric',
             'teacher_id' => 'required|numeric',
+            'class_subject_id' => 'required|numeric',
         ]);
-
+        $subjectId = ClassSubject::where('id', $request->class_subject_id)->value('subject_id');
         if ($validator->fails()) {
             return response()->json([
                 'error' => true,
@@ -881,6 +882,7 @@ class StudentApiController extends Controller
 
             $data = Lesson::where('teacher_id', $request->teacher_id)
                 ->active()
+                ->where('subject_id', $subjectId)
                 ->relatedToCurrentStudentClass($studentInfo)
                 ->with('topic', 'file', 'subject', 'class');
 
@@ -962,8 +964,8 @@ class StudentApiController extends Controller
                 return $q->where('subject_id', $request->subject_id)->where('class_section_id', $student->class_section_id);
             })->with('user')
                 ->withCount([
-                    'lessons' => fn($q) => $q->active()->relatedToCurrentStudentClass($student),
-                    'lessonTopics'
+                    'lessons' => fn($q) => $q->active()->where('subject_id', $request->subject_id)->relatedToCurrentStudentClass($student),
+                    'lessonTopics' => fn($q) => $q->whereHas('lesson', fn($q) => $q->active()->where('subject_id', $request->subject_id)->relatedToCurrentStudentClass($student)),
                 ])->get();
             //----------------------------------------- \\
 
@@ -2562,7 +2564,7 @@ class StudentApiController extends Controller
 
             $user = Auth::user()->load(['student.class_section', 'student.category']);
             //Set Class Section name
-            $classSection  = optional($user->student->class_section);
+            $classSection = optional($user->student->class_section);
             $classSectionName = "{$classSection->class?->name} {$classSection->section?->name}";
 
             // Set Class Section name
