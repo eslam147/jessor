@@ -93,8 +93,8 @@ class User extends Authenticatable implements Wallet, Customer, BannableInterfac
     }
     public function hasAccessToLesson($lessonId)
     {
-        return $this->whereHas('enrollmentLessons', function ($q) use ($lessonId) {
-            return $q->where('lessons.id', $lessonId)->where('enrollments.expires_at', '>', now());
-        })->exists();
+        return Enrollment::activeEnrollments($this->getRawOriginal('id'))
+            ->where('lesson_id', $lessonId)
+            ->exists();
     }
 }

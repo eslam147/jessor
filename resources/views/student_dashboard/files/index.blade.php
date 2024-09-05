@@ -109,7 +109,7 @@
                         <div class="box-body">
                             <div class="row">
                                 <div class="col-12 col-lg-3 col-md-4">
-                                    <div class="bg-light h-550 media-list media-list-divided p-10 rounded-3">
+                                    <div class="bg-light h-550 media-list media-list-divided overflow-y-auto p-10 rounded-3">
                                         @if ($videos->count() > 0)
                                             @foreach ($videos as $row)
                                                 <div class="media media-single px-0">
