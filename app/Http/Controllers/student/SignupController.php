@@ -21,10 +21,10 @@ class SignupController extends Controller
         $category = Category::where('status', 1)->get();
 
         $classSections = ClassSection::with(['class', 'section'])->withOutTrashedRelations('class', 'section')->get();
+
         return view('auth.register', compact('classSections', 'category'));
     }
 
-    public function create(){}
 
     public function store(Request $request)
     {
@@ -70,38 +70,17 @@ class SignupController extends Controller
             if ($response = $this->registered($request, $userModel)) {
                 return $response;
             }
-            Alert::success('Success', "Welcome " . $request->first_name . " " . $request->last_name);
-            return redirect()->intended(route('home.index'));
         }
     }
 
-    protected function guard()
+    private function guard()
     {
         return Auth::guard('web'); // Use the appropriate guard
     }
 
-    protected function registered(Request $request, $user)
+    private function registered(Request $request, User $user)
     {
-        //
-    }
-
-    public function show($id)
-    {
-        //
-    }
-
-    public function edit($id)
-    {
-        //
-    }
-
-    public function update(Request $request, $id)
-    {
-        //
-    }
-
-    public function destroy($id)
-    {
-        //
+        Alert::success('Success', "Welcome " . $user->full_name);
+        return redirect()->intended(route('home.index'));
     }
 }

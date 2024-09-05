@@ -2,8 +2,9 @@
 
 namespace App\Exceptions;
 
-use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
 use Throwable;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
 
 class Handler extends ExceptionHandler
 {
@@ -26,7 +27,13 @@ class Handler extends ExceptionHandler
         'password',
         'password_confirmation',
     ];
-
+    public function report(Throwable $exception)
+    {
+        if (tenancy()->initialized) {
+            Log::withContext(['tenant_id' => tenancy()->tenant->id]);
+        }
+        parent::report($exception);
+    }
     /**
      * Register the exception handling callbacks for the application.
      *
