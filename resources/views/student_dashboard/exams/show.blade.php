@@ -92,7 +92,7 @@
     </script>
 @endsection
 @section('content')
-    <div class="content-wrapper">
+    <div class="{{ !isset($isDemo) ? 'content-wrapper' :' ' }}">
         <div class="container-full">
             <!-- Main content -->
             <section class="content">
@@ -100,10 +100,12 @@
                     <div class="col-12">
                         <div class="d-flex justify-content-between align-items-center">
                             <h2 class="text-center mb-4">Exam - {{ $questions_data['exam']->title }}</h2>
-                            <div class="time">
-                                <span>LeftTime: </span>
-                                <span id="timer"></span>
-                            </div>
+                            @if(!isset($isDemo))
+                                <div class="time">
+                                    <span>LeftTime: </span>
+                                    <span id="timer"></span>
+                                </div>
+                            @endif
                         </div>
                     </div>
                     <div class="col-xs-12">
@@ -126,7 +128,8 @@
                                                             </a>
                                                         </li>
                                                     @endforeach
-                                                </ol> <span class="filling-line" aria-hidden="true"></span>
+                                                </ol>
+                                                <span class="filling-line" aria-hidden="true"></span>
                                             </div>
                                             <!-- .events -->
                                         </div>
@@ -141,53 +144,10 @@
                                     <div class="events-content">
                                         <ol>
                                             @foreach ($questions_data['data'] as $index => $question)
-                                                <li class="{{ $loop->first ? 'selected' : '' }}"
-                                                    data-date="{{ now()->subMonths($index)->format('d/m/Y') }}">
-                                                    <div class="col-md-7">
-                                                        <div class="card">
-                                                            <div class="box overflow-hidden">
-                                                                @isset($question['image'])
-                                                                    <figure class="img-hov-zoomin mb-0">
-                                                                        <img class="ask_img" src="{{ $question['image'] }}"
-                                                                            alt="{{ $question['question'] }}">
-                                                                    </figure>
-                                                                @endisset
-                                                                <div class="box-body pt-0 px-0">
-                                                                    <h5
-                                                                        class="text-justify bg-{{ collect(['primary', 'success', 'danger', 'warning', 'info', 'bitbucket', 'dark', 'body'])->random() }} p-5 px-25 text-break text-white text-wrap">
-                                                                        {{ $loop->iteration }}. {!! $question['question'] !!}
-                                                                    </h5>
-                                                                    <hr>
-                                                                    <div class="align-items-center mt-3 px-15">
-                                                                        <input type="hidden"
-                                                                            name="answers_data[{{ $question['id'] }}][question_id]"
-                                                                            value="{{ $question['id'] }}">
-                                                                        @foreach ($question['options'] as $option)
-                                                                            <div class="form-check form-quiz">
-                                                                                <input @checked(old("answers_data.{$question['id']}.option_id") == $option['id'])
-                                                                                    class="form-check-input answer_qs"
-                                                                                    type="radio"
-                                                                                    name="answers_data[{{ $question['id'] }}][option_id][]"
-                                                                                    id="question{{ $question['id'] }}_{{ $option['id'] }}"
-                                                                                    value="{{ $option['id'] }}" required>
-                                                                                <label class="form-check-label text-justify"
-                                                                                    for="question{{ $question['id'] }}_{{ $option['id'] }}">
-                                                                                    {!! $option['option'] !!}
-                                                                                </label>
-                                                                            </div>
-                                                                        @endforeach
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                            @if (!empty($question['note']))
-                                                                <div class="bg-light card-footer ">
-                                                                    <b>Note</b>: <p class="text-justify">
-                                                                        {{ $question['note'] }}</p>
-                                                                </div>
-                                                            @endif
-                                                        </div>
-                                                    </div>
-                                                </li>
+                                                @include('student_dashboard.exams.partials._question', [
+                                                    'question' => $question,
+                                                    'index' => $index,
+                                                ])
                                             @endforeach
                                         </ol>
                                     </div>
@@ -199,6 +159,7 @@
                                         <i class="fa fa-arrow-left" aria-hidden="true"></i>
                                         Previous
                                     </button>
+
                                     <button type="button" @class([
                                         'switch_btn',
                                         'next',
@@ -209,16 +170,19 @@
                                         Next
                                         <i class="fa fa-arrow-right" aria-hidden="true"></i>
                                     </button>
-                                    <button type="submit" @class([
-                                        'switch_btn',
-                                        'send_exam',
-                                        'btn',
-                                        'btn-primary',
-                                        'd-none' => count($questions_data['data']) > 1,
-                                    ])>
-                                        <i class="fa fa-check" aria-hidden="true"></i>
-                                        Send Exam
-                                    </button>
+                                    @if (!isset($isDemo))
+                                        <button type="submit" @class([
+                                            'switch_btn',
+                                            'send_exam',
+                                            'btn',
+                                            'btn-success',
+                                            'd-none' => count($questions_data['data']) > 1,
+                                        ])>
+                                            <i class="fa fa-check" aria-hidden="true"></i>
+                                            Send Exam
+                                        </button>
+                                    @endif
+
                                 </div>
                             </div>
                         </form>
@@ -233,5 +197,4 @@
     </script>
     <script src="{{ global_asset('vendor/sweetalert/sweetalert.all.js') }}"></script>
     <script src="{{ global_asset('assets/js/custom/exam.js') }}"></script>
-    <script></script>
 @endsection

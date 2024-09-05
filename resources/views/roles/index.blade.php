@@ -28,11 +28,19 @@
                             <div class="col-xs-12 col-sm-12 col-md-12">
                                 <label>{{ __('permission') }}</label>
                                 <div class="row">
+                                    <div class="form-group col-lg-3 col-sm-12 col-xs-12 col-md-3">
+                                        <div class="form-check">
+                                            <label class="form-check-label">
+                                                <input type="checkbox" class="name form-check-input all_permissions" name="all" id="all_permissions">
+                                                {{ __('all') }}
+                                            </label>
+                                        </div>
+                                    </div>
                                     @foreach ($permission as $value)
                                         <div class="form-group col-lg-3 col-sm-12 col-xs-12 col-md-3">
                                             <div class="form-check">
                                                 <label class="form-check-label">
-                                                    {{ Form::checkbox('permission[]', $value->id, false, ['class' => 'name form-check-input']) }}
+                                                    {{ Form::checkbox('permission[]', $value->id, false, ['class' => 'name form-check-input permission']) }}
                                                     {{ $value->name }}
                                                 </label>
                                             </div>
@@ -83,5 +91,7 @@
         </div>
     </div>
 </div>
-
+@endsection
+@section('script')
+    <script src="{{ global_asset('assets/js/role.js')}}"></script>
 @endsection

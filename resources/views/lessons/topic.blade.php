@@ -89,6 +89,8 @@
                                             <option value="video_upload">{{ __('video_upload') }}</option>
                                             <option value="video_corner_link">{{ __('video_corner_link') }}</option>
                                             <option value="external_link">{{ __('external_link') }}</option>
+                                            <option value="online_exam">{{ __('online_exam') }}</option>
+                                            <option value="assignment">{{ __('assignment') }}</option>
                                         </select>
                                     </div>
                                     <div class="form-group input_file_content col-md-3" id="file_name_div"
@@ -129,8 +131,20 @@
                                         <input type="text" name="file[0][external_link]" class="form-control"
                                             placeholder="{{ __('link') }}" required>
                                     </div>
-
-
+                                    <div class="form-group input_file_content col-md-3" id="quizzes"
+                                        style="display: none">
+                                        <label>{{ __('online_exam') }} <span class="text-danger">*</span></label>
+                                        <select type="text" name="file[0][online_exam]" class="form-control quizzes" placeholder="{{ __('online_exam') }}" required>
+                                            <option value="">{{ __('select_online_exam') }}</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group input_file_content col-md-3" id="assignments"
+                                        style="display: none">
+                                        <label>{{ __('assignments') }} <span class="text-danger">*</span></label>
+                                        <select type="text" name="file[0][assignments]" class="form-control assignments" placeholder="{{ __('assignments') }}" required>
+                                            <option value="">{{ __('select_assignment') }}</option>
+                                        </select>
+                                    </div>
                                     <div class="form-group col-md-1 col-md-1 pl-0 mt-4">
                                         <button type="button" class="btn btn-inverse-success btn-icon add-lesson-file">
                                             <i class="fa fa-plus"></i>
@@ -314,6 +328,8 @@
                                             <option value="video_upload">{{ __('video_upload') }}</option>
                                             <option value="video_corner_link">{{ __('video_corner_link') }}</option>
                                             <option value="external_link">{{ __('external_link') }}</option>
+                                            <option value="online_exam">{{ __('online_exam') }}</option>
+                                            <option value="assignment">{{ __('assignment') }}</option>
                                         </select>
                                     </div>
                                     <div class="form-group input_file_content col-md-3" id="file_name_div"
@@ -356,6 +372,20 @@
                                         <input type="text" name="edit_file[0][external_link]"
                                             class="external_link form-control" placeholder="{{ __('link') }}"
                                             required>
+                                    </div>
+                                    <div class="form-group input_file_content col-md-3" id="edit_quizzes"
+                                        style="display: none">
+                                        <label>{{ __('online_exam') }} <span class="text-danger">*</span></label>
+                                        <select type="text" name="edit_file[0][online_exam]" class="form-control quizzes" placeholder="{{ __('online_exam') }}" required>
+                                            <option value="">{{ __('select_online_exam') }}</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group input_file_content col-md-3" id="edit_assignments"
+                                        style="display: none">
+                                        <label>{{ __('assignments') }} <span class="text-danger">*</span></label>
+                                        <select type="text" name="edit_file[0][assignments]" class="form-control assignments" placeholder="{{ __('assignments') }}" required>
+                                            <option value="">{{ __('select_assignment') }}</option>
+                                        </select>
                                     </div>
                                     <div class="form-group col-md-1 pl-0 mt-4">
                                         <button type="button" class="btn btn-icon btn-inverse-danger remove-lesson-file">

@@ -15,7 +15,8 @@ class OnlineExamQuestionChoice extends Model
     public function online_exam() {
         return $this->belongsTo(OnlineExam::class,'online_exam_id');
     }
+
     public function questions() {
-        return $this->belongsTo(OnlineExamQuestion::class,'question_id')->with('options','answers');
+        return $this->belongsTo(OnlineExamQuestion::class,'question_id')->with('options','answers','student_answer');
     }
 }

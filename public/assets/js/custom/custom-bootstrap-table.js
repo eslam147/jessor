@@ -7,6 +7,8 @@ const OTHER_LINK_TYPE = 4;
 const VIDEO_CORNER_TYPE = 5;
 const VIDEO_CORNER_DOWNLOAD_TYPE = 6;
 const EXTERNAL_LINK_TYPE = 7;
+const ONLINE_EXAM_TYPE = 8;
+const ASSIGNMENT_TYPE = 9;
 
 //Bootstrap actionEvents
 window.lessonEvents = {
@@ -96,7 +98,6 @@ window.lessonEvents = {
                             .attr("src", data.file_url)
                             .text(data.file_name);
                         html.find(".file_name").val(data.file_name);
-
                         break;
                     case 4:
                         html.find(".file_typeedit_file_type")
@@ -104,6 +105,18 @@ window.lessonEvents = {
                             .trigger("change");
                         html.find(".file_name").val(data.file_name);
                         html.find(".file_link").val(data.file_url);
+                        break;
+                    case 5:
+                        html.find(".file_typeedit_file_type")
+                            .val("online_exam")
+                            .trigger("change");
+                        html.find(".quizzes").val(data.online_exam_id);
+                        break;
+                    case 6:
+                        html.find(".file_typeedit_file_type")
+                            .val("assignment")
+                            .trigger("change");
+                        html.find(".assignments").val(data.assignment_id);
                         break;
                 }
             });
@@ -122,7 +135,6 @@ window.topicEvents = {
         $("#edit_topic_class_section_id")
             .val(row.class_section_id)
             .trigger("change");
-
         setTimeout(() => {
             $("#edit_topic_subject_id").val(row.subject_id).trigger("change");
             $("#edit_topic_lesson_id").val(row.lesson_id);
@@ -159,13 +171,11 @@ window.topicEvents = {
 
                 html.find(".remove-lesson-file").attr("data-id", data.id);
                 html.find("#edit_file_id").val(data.id);
-
                 switch (Number(data.type)) {
                     case FILE_UPLOAD_TYPE:
                         html.find(".file_type")
                             .val("file_upload")
                             .trigger("change");
-
                         html.find("#file_preview")
                             .attr("href", data.file_url)
                             .text(data.file_name);
@@ -182,12 +192,10 @@ window.topicEvents = {
                         html.find(".file_type")
                             .val("video_upload")
                             .trigger("change");
-
                         html.find("#file_preview")
                             .attr("src", data.file_url)
                             .text(data.file_name);
                         html.find(".file_name").val(data.file_name);
-
                         break;
                     case OTHER_LINK_TYPE:
                         html.find(".file_type")
@@ -210,6 +218,22 @@ window.topicEvents = {
                             .trigger("change");
                         html.find(".file_name").val(data.file_name);
                         html.find(".external_link").val(data.file_url);
+                        break;
+                    case ONLINE_EXAM_TYPE:
+                        html.find(".file_type")
+                            .val("online_exam")
+                            .trigger("change");
+                        setTimeout(function() {
+                            html.find(".quizzes").val(data.online_exam_id);
+                        }, 2000);
+                        break;
+                    case ASSIGNMENT_TYPE:
+                        html.find(".file_type")
+                            .val("assignment")
+                            .trigger("change");
+                        setTimeout(function() {
+                            html.find(".assignments").val(data.assignment_id)
+                        }, 2000);
                         break;
                 }
             });

@@ -91,8 +91,8 @@
                                                                 <span class="text-fade">{{ $topic->description }}</span>
                                                             </div>
                                                         </div>
-                                                        <a href="{{ route('topics.files', $topic->id) }}">
-                                                            @if (!empty($lesson->studentActiveEnrollment))
+                                                        <a @if(!empty($lesson->studentActiveEnrollment)  && !in_array($topic->id,$result)) href="{{ route('topics.files', $topic->id) }}" @else href="#" @endif>
+                                                            @if (!empty($lesson->studentActiveEnrollment)  && !in_array($topic->id,$result))
                                                                 <span class="icon-Arrow-right fs-24"><span
                                                                         class="path1"></span><span
                                                                         class="path2"></span></span>

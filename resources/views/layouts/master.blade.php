@@ -19,14 +19,11 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     @include('layouts.include')
     @yield('css')
-
 </head>
-<body class="sidebar-fixed">
+<body class="sidebar-fixed ">
 <div class="container-scroller">
-
     {{-- header --}}
     @include('layouts.header')
-
     <div class="container-fluid page-body-wrapper">
 
         {{-- siderbar --}}

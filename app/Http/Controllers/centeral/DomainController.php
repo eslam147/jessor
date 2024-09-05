@@ -43,6 +43,7 @@ class DomainController extends Controller
             Alert::success('Congratulations', 'Tenant Created Successfully');
             return redirect()->back();
         } catch (Exception $e) {
+            report($e);
             DB::rollBack();
             Alert::error('Error', 'An error occurred: ' . $e->getMessage());
             return redirect()->back()->withInput();

@@ -390,7 +390,9 @@ class CouponService
     {
         $tags = array_map('trim', $tags);
         $tagModels = collect($tags)->map(function ($tag) {
-            return Tag::firstOrCreate(['name' => $tag]);
+            if(!empty($tag)){
+                return Tag::firstOrCreate(['name' => $tag]);
+            }
         });
         $coupon->tags()->sync($tagModels->pluck('id'));
     }

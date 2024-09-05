@@ -30,7 +30,7 @@ class LessonTopicController extends Controller
         }
         $class_section = ClassSection::SubjectTeacher()->with('class', 'section')->withOutTrashedRelations('class', 'section')->get();
         $subjects = Subject::SubjectTeacher()->orderBy('id', 'ASC')->get();
-
+        
         $lessons = Lesson::relatedToTeacher()->get();
         return response(view('lessons.topic', compact('class_section', 'subjects', 'lessons')));
     }
@@ -56,18 +56,19 @@ class LessonTopicController extends Controller
                 'description' => 'required',
                 'edit_file' => 'nullable|array',
                 'edit_file.*.type' => ['nullable', Rule::in(File::$types)],
-                'edit_file.*.name' => 'required_with:edit_file.*.type',
+                'edit_file.*.name' => 'required_if:edit_file.*.type,!=,online_exam,assignment',
+                // 'file.*.name' => 'required_if:file.*.type,!=,online_exam,assignment',
                 'edit_file.*.thumbnail' => 'required_if:edit_file.*.type,youtube_link,video_upload,other_link',
                 //Regex for Youtube Link
                 'edit_file.*.link' => ['nullable', 'required_if:edit_file.*.type,youtube_link', new YouTubeUrl],
-
+                'edit_file.*.online_exam' => ['required_if:edit_file.*.type,online_exam', 'nullable'],
+                'edit_file.*.assignments' => ['required_if:edit_file.*.type,assignment', 'nullable'],
                 'file' => 'nullable|array',
                 'file.*.type' => ['nullable', Rule::in(File::$types)],
-
                 'file.*.video_corner_url' => ['required_if:file.*.type,video_corner_link', 'nullable'],
+                'file.*.online_exam' => ['required_if:file.*.type,online_exam', 'nullable'],
+                'file.*.assignments' => ['required_if:file.*.type,assignment', 'nullable'],
                 'file.*.download_link' => ['required_if:file.*.type,video_corner_link', 'url', 'nullable'],
-
-                'file.*.name' => 'required_with:file.*.type',
                 // -----------------------------------------------
                 'file.*.file' => 'required_if:file.*.type,file_upload,video_upload|mimes:pdf,doc,docx,jpg,jpeg,png,mp4,mp3,webm|max:5125',
                 //Regex for Youtube Link
@@ -107,7 +108,7 @@ class LessonTopicController extends Controller
             foreach ($request->file as $data) {
                 if ($data['type']) {
                     $file = new File();
-                    $file->file_name = $data['name'];
+                    $file->file_name = isset($data['name']) ? $data['name'] : null;
                     $file->modal()->associate($topic);
                     switch ($data['type']) {
                         case "file_upload":
@@ -130,6 +131,14 @@ class LessonTopicController extends Controller
                         case "video_upload":
                             $file->type = File::VIDEO_UPLOAD_TYPE;
                             $file->file_url = $data['file']->store('lessons', 'public');
+                            break;
+                        case "online_exam":
+                            $file->type = File::ONLINE_EXAM_TYPE;
+                            $file->online_exam_id = $data['online_exam'];
+                            break;
+                        case "assignment":
+                            $file->type = File::ASSIGNMENT_TYPE;
+                            $file->assignment_id = $data['assignments'];
                             break;
                         case "other_link":
                             $file->type = 4;
@@ -217,7 +226,6 @@ class LessonTopicController extends Controller
             $row = (object) $row;
             $operate = '<a href=' . route('lesson-topic.edit', $row->id) . ' class="btn btn-xs btn-gradient-primary btn-rounded btn-icon edit-data" data-id=' . $row->id . ' title="Edit" data-toggle="modal" data-target="#editModal"><i class="fa fa-edit"></i></a>&nbsp;&nbsp;';
             $operate .= '<a href=' . route('lesson-topic.destroy', $row->id) . ' class="btn btn-xs btn-gradient-danger btn-rounded btn-icon delete-form" data-id=' . $row->id . '><i class="fa fa-trash"></i></a>';
-
             $tempRow['id'] = $row->id;
             $tempRow['no'] = $no++;
             $tempRow['name'] = $row->name;
@@ -256,8 +264,10 @@ class LessonTopicController extends Controller
             // ------------------------------------- \\
             'edit_file' => 'nullable|array',
             'edit_file.*.type' => ['nullable', Rule::in(File::$types)],
-            'edit_file.*.name' => 'nullable|required_with:edit_file.*.type',
+            'edit_file.*.name' => 'required_if:edit_file.*.type,!=,online_exam,assignment',
             'edit_file.*.video_corner_url' => ['required_if:edit_file.*.type,video_corner_link', 'nullable'],
+            'edit_file.*.online_exam' => ['required_if:edit_file.*.type,online_exam', 'nullable'],
+            'edit_file.*.assignments' => ['required_if:edit_file.*.type,assignment', 'nullable'],
             'edit_file.*.download_link' => ['required_if:edit_file.*.type,video_corner_link', 'url', 'nullable'],
             'edit_file.*.external_link' => ['nullable', 'required_if:edit_file.*.type,external_link', 'url'],
             //Regex for Youtube Link
@@ -267,7 +277,7 @@ class LessonTopicController extends Controller
             // ------------------------------------- \\
             // ------------------------------------- \\
             'file' => 'nullable|array',
-            'file.*.name' => 'nullable|required_with:file.*.type',
+            'file.*.name' => 'required_if:edit_file.*.type,!=,online_exam,assignment',
             'file.*.type' => ['nullable', Rule::in(File::$types)],
             'file.*.video_corner_url' => ['required_if:file.*.type,video_corner_link', 'nullable'],
             'file.*.download_link' => ['required_if:file.*.type,video_corner_link', 'url', 'nullable'],
@@ -330,6 +340,20 @@ class LessonTopicController extends Controller
                             $file->type = File::EXTERNAL_LINK;
                             $file->file_url = $file['external_link'];
                             break;
+                        case "online_exam":
+                            $topic_file->type = File::ONLINE_EXAM_TYPE;
+                            $topic_file->online_exam_id = $file['online_exam'];
+                            $topic_file->file_url = null;
+                            $topic_file->download_link = null;
+                            $topic_file->assignment_id = null;
+                            break;
+                        case "assignment":
+                            $topic_file->type = File::ASSIGNMENT_TYPE;
+                            $topic_file->file_url = null;
+                            $topic_file->download_link = null;
+                            $topic_file->online_exam_id = null;
+                            $topic_file->assignment_id = $file['assignments'];
+                            break;        
                         case "other_link":
                             $topic_file->type = 4;
                             $topic_file->file_url = $file['link'];
@@ -368,6 +392,14 @@ class LessonTopicController extends Controller
                             $topic_file->file_url = $file['video_corner_url'];
                             $topic_file->download_link = $file['download_link'];
                             break;
+                        case "online_exam":
+                            $topic_file->type = File::ONLINE_EXAM_TYPE;
+                            $topic_file->online_exam_id = $file['online_exam'];
+                            break;
+                        case "assignment":
+                            $topic_file->type = File::ASSIGNMENT_TYPE;
+                            $topic_file->assignment_id = $file['assignments'];
+                            break;    
                         case "other_link":
                             $topic_file->type = 4;
                             $topic_file->file_url = $file['link'];

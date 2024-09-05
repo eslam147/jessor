@@ -153,20 +153,16 @@ Route::middleware([
             Route::get('add-bulk-attendance', [AttendanceController::class, 'createBulkData'])->name('attendance.add-bulk-data');
             Route::post('attendance/store_bulk', [AttendanceController::class, 'storeBulkData'])->name('attendance.store-bulk-data');
             Route::post('student/export', [AttendanceController::class, 'studentExport'])->name('student-export');
-
             Route::resource('lesson', LessonController::class);
             Route::get('search-lesson', [LessonController::class, 'search']);
             Route::delete('file/delete/{id}', [LessonController::class, 'deleteFile'])->name('file.delete');
             Route::resource('lesson-topic', LessonTopicController::class);
-
             Route::resource('announcement', AnnouncementController::class);
             Route::get('announcement-list', [AnnouncementController::class, 'show']);
             Route::get('getAssignData', [AnnouncementController::class, 'getAssignData']);
-
             Route::resource('holiday', HolidayController::class);
             Route::get('holiday-list', [HolidayController::class, 'show']);
             Route::get('holiday-view', [HolidayController::class, 'holiday_view']);
-
             Route::resource('assignment', AssignmentController::class);
             Route::get('assignment-submission', [AssignmentController::class, 'viewAssignmentSubmission'])->name('assignment.submission');
             Route::put('assignment-submission/{id}', [AssignmentController::class, 'updateAssignmentSubmission'])->name('assignment.submission.update');
@@ -280,6 +276,7 @@ Route::middleware([
 
             // Online Exam
             Route::get('online-exam/terms-conditions', [OnlineExamController::class, 'onlineExamTermsConditionIndex'])->name('online-exam.terms-conditions');
+            Route::get('online-exam/show-as-student/{id}', [OnlineExamController::class, 'showAsStudent'])->name('online-exam.show-as-student');
             Route::post('online-exam/store-terms-conditions', [OnlineExamController::class, 'storeOnlineExamTermsCondition'])->name('online-exam.store-terms-conditions');
 
             Route::resource('online-exam', OnlineExamController::class);

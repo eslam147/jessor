@@ -19,7 +19,6 @@ class ExamService
         $student = auth()->user()->student;
 
         $student_subject = $student->subjects();
-        $class_subject = $student->classSubjects();
 
         $core_subjects = array_column($student_subject["core_subject"], 'subject_id');
 
@@ -120,6 +119,7 @@ class ExamService
                         ],
                         'title' => $data['title'],
                         'exam_key' => $data['exam_key'],
+                        'pass_mark' => $data['pass_mark'],
                         'duration' => $data['duration'],
                         'start_date' => $data['start_date'],
                         'end_date' => $data['end_date'],
@@ -159,10 +159,6 @@ class ExamService
     }
     public function getOnlineExamQuestions(Request $request)
     {
-        // dd(
-        //     $request->exam
-        // );
-        $student = $request->user()->student;
         $onlineExam = OnlineExam::where('id', $request->exam)->firstOrFail();
         // get total questions
         $total_questions = OnlineExamQuestionChoice::where('online_exam_id', $request->exam)->count();
@@ -181,15 +177,16 @@ class ExamService
                 $this->foramtExamOptions($exam_questions->questions->options),
                 $this->formatAnswers($exam_questions->questions->answers)
             );
+
         }
         return [
-            'data' => $questions_data ?? [],
+            'data' => collect($questions_data)->shuffle() ?? [],
             'exam' => $onlineExam,
             'total_questions' => $total_questions,
             'total_marks' => $total_marks,
         ];
     }
-    private function foramtExamOptions($options): array
+    public function foramtExamOptions($options): array
     {
         $formateOptions = [];
         foreach ($options as $option) {
@@ -200,7 +197,7 @@ class ExamService
         }
         return $formateOptions;
     }
-    private function formatAnswers($answers)
+    public function formatAnswers($answers)
     {
         $formatedData = [];
         foreach ($answers as $answer) {
@@ -212,7 +209,7 @@ class ExamService
         }
         return $formatedData;
     }
-    private function formatQuestion($question, $options, $answers)
+    function formatQuestion($question, $options, $answers)
     {
         // dd(
         //     $question, $options, $answers

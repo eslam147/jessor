@@ -348,7 +348,7 @@ class AssignmentController extends Controller
             }
 
             $assignment->save();
-            send_notification($user, $title, $body, $type, $image, $userinfo);
+            // send_notification($user, $title, $body, $type, $image, $userinfo);
 
             if ($request->hasFile('file')) {
                 foreach ($request->file as $file_upload) {

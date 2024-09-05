@@ -21,9 +21,7 @@ class ExamController extends Controller
 {
     public function __construct(
         private readonly ExamService $examService
-    ) {
-
-    }
+    ) {}
     public function index()
     {
         // $examTerms = $this->examService->getExamTerms();
@@ -34,14 +32,12 @@ class ExamController extends Controller
     {
         $studentId = $request->user()->student->id;
         $examStatus = $this->examService->getOnlineExamStatus($studentId, $exam->id);
-
         if (! $examStatus) {
             abort(404);
         }
         // Get total questions count
         $examQuestions = OnlineExamQuestionChoice::where('online_exam_id', $exam->id)->with('questions')->get();
         $totalQuestions = $examQuestions->count();
-
         // Get student's answers
         $studentAnswers = OnlineExamStudentAnswer::where([
             'student_id' => $studentId,
@@ -53,37 +49,26 @@ class ExamController extends Controller
         $incorrectAnswersData = [];
         $obtainedMarks = 0;
         $totalMarks = $examQuestions->sum('marks');
-
         $correctAnswers = OnlineExamQuestionAnswer::whereIn('question_id', $examQuestions->pluck('questions.id'))->get();
         $examQuestions = collect($examQuestions);
         foreach ($examQuestions as $question) {
-            $studentAnswer = $studentAnswers->where('question_id', $question->id)->first();
-
             $questionChoiceAnswers = $question->questions->answers->pluck('options.id')->toArray();
-
-            $isAnswerCorrect = null;
-
-            if ($studentAnswer) {
-                // $isAnswerCorrect =  ;
-                if (in_array($studentAnswer->option_id, $correctAnswers->where('question_id', $question->question_id)->pluck('answer')->toArray())) {
-                    $obtainedMarks += $question->marks;
-                    $correctAnswersCount += 1; 
-                    $question->is_correct = true;
-                    $question->student_answer = $studentAnswer->option_id;
-                    $question->correct_answers = $questionChoiceAnswers;
-                    continue;
-                }
+            if(count($question->questions->student_answer) > 0) {
+                $obtainedMarks += $question->marks;
+                $correctAnswersCount += 1;
+                $question->is_correct = true;
+                $question->student_answer = $question->questions->student_answer->first()->option_id;
+                $question->correct_answers = $questionChoiceAnswers;
+                continue;
             }
-
             $question->is_correct = false;
             $question->correct_answers = $questionChoiceAnswers;
             $question->student_answer = $studentAnswer->option_id ?? null;
         }
-
         // Get total marks
         $examResult = (object) [
             'total_questions' => $totalQuestions,
-            'correct_answers_count' =>$correctAnswersCount,
+            'correct_answers_count' => $correctAnswersCount,
             'in_correct_answers' => [
                 'total_questions' => count($incorrectAnswersData),
                 'question_data' => $incorrectAnswersData,
@@ -95,7 +80,7 @@ class ExamController extends Controller
             'examQuestions' => $examQuestions,
             'exam' => $exam,
         ];
-        
+
         return view('student_dashboard.exams.result', compact('examResult'));
     }
     public function submit(Request $request, OnlineExam $exam)
@@ -112,8 +97,6 @@ class ExamController extends Controller
             Alert::error('Validation Error', $validator->errors()->first());
             return redirect()->back();
         }
-
-        // dd('Check asd');
         DB::beginTransaction();
 
         try {
@@ -165,9 +148,9 @@ class ExamController extends Controller
                         ])->exists();
 
                         if ($check_option_exists) {
-                            foreach ($answer_data['option_id'] as $option) {
-                                // Store the answers
 
+                            foreach ($answer_data['option_id'] as $option) {
+                                // Store the answer
                                 OnlineExamStudentAnswer::create([
                                     'student_id' => $student->id,
                                     'online_exam_id' => $exam->id,
@@ -192,9 +175,8 @@ class ExamController extends Controller
 
             DB::commit();
             // Success message
-            Alert::success('Success', 'Data stored successfully');
-            return to_route('student_dashboard.exams.online.index');
-
+            Alert::success('Success', 'Exam Submitted successfully');
+            return to_route('student_dashboard.exams.online.result', $exam->id);
         } catch (\Exception $e) {
             DB::rollBack();
             report($e);
@@ -207,7 +189,7 @@ class ExamController extends Controller
     {
         $request->validate([
             'exam_id' => 'required|exists:online_exams,id',
-            'exam_key' => 'required'
+            'exam_key' => 'required',
         ]);
 
         $exam = OnlineExam::where([
@@ -231,7 +213,7 @@ class ExamController extends Controller
             return redirect()->back();
         }
 
-        if ($exam->where('start_date', '>', $time_data)) {
+        if ($exam->start_date->isFuture()) {
             Alert::error(trans('exam_not_started_yet'), trans('exam_not_started_yet'));
             return redirect()->back();
         }
@@ -247,12 +229,26 @@ class ExamController extends Controller
         // -------------------------------------------------------------- \\
         return redirect($generateTempUrl);
     }
-    public function show(Request $request)
+    public function show(Request $request, $id)
     {
-        $exam = OnlineExam::where('id', $request->exam)->firstOrFail();
+        if(!empty($request->all()))
+        {
+            $exam = OnlineExam::where('id', $request->exam)->firstOrFail();
+        }
+        else
+        {
+            $exam = OnlineExam::where('id', $id)->firstOrFail();
+        }
         $student = $request->user()->student;
 
-        // checks student exam status
+        // // checks student exam status
+        if(empty($request->all()))
+        {
+            $examStatus = $this->examService->createOnlineExamStatus($student->id, $id);
+            // -------------------------------------------------------------- \\
+            $duration = $this->examService->getRemainingMinutes($examStatus, $exam);
+            // -------------------------------------------------------------- \\    
+        }
         $check_student_status = $this->examService->getOnlineExamStatus(
             $student->id,
             $exam->id
@@ -280,7 +276,6 @@ class ExamController extends Controller
             return redirect()->back();
         }
 
-
         $duration = $this->examService->getRemainingMinutes(
             $check_student_status,
             $exam
@@ -291,13 +286,9 @@ class ExamController extends Controller
             return redirect()->route('student_dashboard.exams.online.index');
         }
         $questions_data = $this->examService->getOnlineExamQuestions($request);
-
         return view('student_dashboard.exams.show', compact('duration', 'examEndTime', 'questions_data'));
     }
-
-
 }
-
 /*
   try {
         $student = $request->user()->student;

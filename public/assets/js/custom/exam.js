@@ -1,18 +1,15 @@
 $(document).on("change", ".answer_qs", function () {
     let dateParent = $(this).closest("li").data("date");
-    console.log(dateParent, $(`.events a[data-date="${dateParent}"]`));
-
     $(`.events a[data-date="${dateParent}"]`).addClass("solved");
 });
-$(".exam_submit").click(function (e) {
+$(".send_exam").click(function (e) {
     e.preventDefault();
     $("#quizForm").submit();
 });
 $(".switch_btn").on("timeline-changed", function () {
-    $(".exam_submit,.switch_btn.prev,.switch_btn.next").addClass("d-none");
-
+    $(".send_exam,.switch_btn.prev,.switch_btn.next").addClass("d-none");
     if (window.timeline.currentIndex == window.timeline.lastIndex) {
-        $(".exam_submit,.switch_btn.prev").removeClass("d-none");
+        $(".send_exam,.switch_btn.prev").removeClass("d-none");
     } else if (
         window.timeline.currentIndex > 0 &&
         window.timeline.currentIndex < window.timeline.lastIndex

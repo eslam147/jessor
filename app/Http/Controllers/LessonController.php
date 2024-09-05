@@ -2,25 +2,27 @@
 
 namespace App\Http\Controllers;
 
-use Exception;
-use Throwable;
+use App\Enums\Lesson\LessonStatus;
+use App\Http\Controllers\Controller;
+use App\Models\Assignment;
+use App\Models\ClassSchool;
+use App\Models\ClassSection;
 use App\Models\File;
 use App\Models\Lesson;
-use App\Models\Subject;
-use App\Models\Students;
-use App\Rules\YouTubeUrl;
-use App\Models\ClassSchool;
 use App\Models\LessonTopic;
-use App\Models\ClassSection;
-use Illuminate\Http\Request;
-use Illuminate\Validation\Rule;
-use App\Enums\Lesson\LessonStatus;
+use App\Models\OnlineExam;
+use App\Models\Students;
+use App\Models\Subject;
 use App\Rules\uniqueLessonInClass;
-use App\Http\Controllers\Controller;
+use App\Rules\YouTubeUrl;
+use Exception;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\Rule;
 use phpDocumentor\Reflection\Types\Nullable;
+use Throwable;
 
 class LessonController extends Controller
 {
@@ -64,7 +66,7 @@ class LessonController extends Controller
             'lesson_thumbnail' => 'nullable|max:2048|image',
             'file' => 'nullable|array',
             'file.*.type' => ['nullable', Rule::in(['file_upload', 'youtube_link', 'video_upload', 'video_corner_link', 'video_corner_download_link', 'other_link'])],
-            'file.*.name' => 'required_with:file.*.type',
+            // 'file.*.name' => 'required_with:file.*.type',
             'file.*.thumbnail' => 'required_if:file.*.type,youtube_link,video_corner_link,video_corner_download_link,video_upload,other_link|max:2048',
             'file.*.file' => 'required_if:file.*.type,file_upload,video_upload',
             // 'file.*.link' => 'required_if:file.*.type,youtube_link,other_link',
@@ -395,9 +397,20 @@ class LessonController extends Controller
             $lesson = $lesson->where('class_section_id', $request->class_section_id);
         }
         $lesson = $lesson->relatedToTeacher()->get();
+        $OnlineExam = new OnlineExam;
+        $Assignment = new Assignment;
+        if (isset($request->subject_id)) {
+            $OnlineExam = $OnlineExam->where('subject_id', $request->subject_id)->get();
+        }
+
+        if (isset($request->class_section_id) && isset($request->subject_id)) {
+            $Assignment = $Assignment->where('class_section_id', $request->class_section_id)->where('subject_id', $request->subject_id)->get();
+        }
         return response()->json([
             'error' => false,
             'data' => $lesson,
+            'online_exams' => $OnlineExam,
+            'assignments' => $Assignment,
             'message' => 'Lesson fetched successfully'
         ]);
     }
