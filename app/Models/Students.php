@@ -41,23 +41,24 @@ class Students extends Model
         $session_year_id = settingByType('session_year');
         // $session_year_id = $session_year;
 
-        // $class_id = $this->class_section->class->id;
+        $classSection = optional($this->class_section);
 
-        $class_section_id = $this->class_section->id;
+        $class_section_id = $classSection->id;
 
-        $core_subjects = (! empty($this->class_section->class->coreSubject)) ? $this->class_section->class->coreSubject->toArray() : [];
+        $core_subjects = (! empty($classSection->class->coreSubject)) ? $classSection->class->coreSubject->toArray() : [];
 
-        $elective_subject_count = $this->class_section->class->electiveSubjectGroup->count();
+        $elective_subject_count = $classSection->class->electiveSubjectGroup->count();
 
-        $elective_subjects = StudentSubject::where('student_id', $this->id)->where('class_section_id', $class_section_id)
+        $elective_subjects = StudentSubject::where('student_id', $this->id)
+            ->where('class_section_id', $class_section_id)
             ->where('session_year_id', $session_year_id)
-            ->select("subject_id")->with('subject')->get();
+            ->select("subject_id")->with('subject')
+            ->get();
 
         $response = [
-            'core_subject' => $core_subjects
+            'core_subject' => $core_subjects,
+            'elective_subject' => ($elective_subject_count > 0 ? $elective_subjects : [])
         ];
-
-        $response['elective_subject'] = $elective_subject_count > 0 ? $elective_subjects : [];
 
         return $response;
     }

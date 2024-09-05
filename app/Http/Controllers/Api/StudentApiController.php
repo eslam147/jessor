@@ -1131,12 +1131,11 @@ class StudentApiController extends Controller
         ]);
 
         if ($validator->fails()) {
-            $response = [
+            return response()->json([
                 'error' => true,
                 'message' => $validator->errors()->first(),
                 'code' => 102,
-            ];
-            return response()->json($response);
+            ]);
         }
 
         try {
@@ -1175,19 +1174,19 @@ class StudentApiController extends Controller
             $subject_teacher_id = SubjectTeacher::where('class_section_id', $student->class_section_id)->where('subject_id', $assignment->subject_id)->pluck('teacher_id');
             $user = Teacher::whereIn('id', $subject_teacher_id)->pluck('user_id');
             $title = 'New submission';
-            $body = $student->user->first_name . ' ' . $student->user->last_name . ' submitted their assignment.';
+            $body = $student->user->full_name . ' submitted their assignment.';
             $type = 'assignment_submission';
             $image = null;
             $userinfo = null;
 
-            $notification = new Notification();
-            $notification->send_to = 2;
-            $notification->title = $title;
-            $notification->message = $body;
-            $notification->type = $type;
-            $notification->date = Carbon::now();
-            $notification->is_custom = 0;
-            $notification->save();
+            $notification = Notification::create([
+                'send_to' => 2,
+                'title' => $title,
+                'message' => $body,
+                'type' => $type,
+                'date' => now(),
+                'is_custom' => 0,
+            ]);
 
             foreach ($user as $data) {
                 $user_notification = new UserNotification();
@@ -1208,20 +1207,20 @@ class StudentApiController extends Controller
             }
 
             $submitted_assignment = AssignmentSubmission::where('id', $assignment_submission->id)->with('file')->get();
-            $response = array(
+            $response = [
                 'error' => false,
                 'message' => "Assignments Submitted Successfully",
                 'data' => $submitted_assignment,
                 'code' => 200,
-            );
+            ];
         } catch (Exception $e) {
             report($e);
 
-            $response = array(
+            $response = [
                 'error' => true,
                 'message' => trans('error_occurred'),
                 'code' => 103,
-            );
+            ];
         }
         return response()->json($response);
     }
@@ -2575,7 +2574,7 @@ class StudentApiController extends Controller
             }
 
             //Set Medium name
-            $user->medium_name = $classSection->class->medium->name;
+            $user->medium_name = $classSection->class->medium?->name ?? '';
 
             //Set School Shift name
             $user->shift_id = $classSection->class->shifts->id ?? '';
