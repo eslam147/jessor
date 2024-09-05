@@ -24,6 +24,7 @@ class DatabaseSeeder extends Seeder
             TeacherSeeder::class,
             LessonSeeder::class,
             CouponSeeder::class,
+            StaticPageSeeder::class,
         ]);
     }
 }

@@ -1,3 +1,4 @@
 *
 !public/
+!static_pages/
 !.gitignore

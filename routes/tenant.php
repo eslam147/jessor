@@ -86,7 +86,10 @@ Route::middleware([
 
 
     Route::view('login', 'auth.login')->middleware('guest')->name('login');
-    Route::resource('signup', SignupController::class);
+    Route::controller(SignupController::class)->as('signup.')->group(function () {
+        Route::get('signup', 'index')->name('index');
+        Route::post('signup', 'store')->name('store');
+    });
 
     // webhooks
     Route::post('webhook/razorpay', [WebhookController::class, 'razorpay']);
@@ -171,7 +174,7 @@ Route::middleware([
 
     Route::group(['middleware' => ['Role', 'auth', 'logs-out-banned-user']], function () {
         Route::group(['middleware' => 'language'], function () {
-        Route::post('uploadImage', [MediaController::class, 'uploadImage'])->name('media.uploadImage');
+            Route::post('uploadImage', [MediaController::class, 'uploadImage'])->name('media.uploadImage');
             // Route::get('/home', [HomeController::class, 'index']);
             Route::get('home', [HomeController::class, 'index'])->name('home');
             Route::get('/logout', [HomeController::class, 'logout'])->name('logout');
