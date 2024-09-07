@@ -30,8 +30,7 @@ class EnrollController extends Controller
         $user = Auth::user();
         try {
             $lesson = Lesson::find($request->lesson_id);
-            if(!$this->purchaseService->isLessonAlreadyEnrolled($lesson, $user->id)) {
-                
+            if (! $this->purchaseService->isLessonAlreadyEnrolled($lesson, $user->id)) {
                 if ($payment_method == 'coupon_code') {
                     $validator = Validator::make($request->all(), [
                         'purchase_code' => 'required|string',
@@ -46,7 +45,7 @@ class EnrollController extends Controller
                         $purchaseCode = $request->input('purchase_code');
                         // ----------------------------------------------- #
                         DB::beginTransaction();
-    
+
                         $applyCouponCode = $this->couponService->redeemCoupon($user, $purchaseCode, $lesson);
                         if ($applyCouponCode['status']) {
                             // ----------------------------------------------- #
@@ -83,15 +82,20 @@ class EnrollController extends Controller
                             $this->purchaseService->enrollLesson($lesson, $user->id);
                             // ----------------------------------------------- #
                             DB::commit();
-    
                             Alert::success('Success', 'Lesson has been unlocked successfully.');
                             return redirect()->back();
                         }
                         // ----------------------------------------------- #
                     }
-    
+
+                } elseif ($payment_method == 'free') {
+                    if (empty($lesson->price) || $lesson->is_free == 1) {
+                        $this->purchaseService->enrollLesson($lesson, $user->id);
+                        Alert::success('Success', 'Lesson has been unlocked successfully.');
+                        return redirect()->back();
+                    }
                 }
-            }else{
+            } else {
                 Alert::warning('warning', 'You have already enrolled this lesson.');
                 return back();
             }

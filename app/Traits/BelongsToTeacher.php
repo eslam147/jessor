@@ -14,7 +14,7 @@ trait BelongsToTeacher
             if (auth()->check()) {
                 $user = Auth::user();
                 if ($user->hasRole('Teacher')) {
-                    return $model->teacher_id = auth()->user()->teacher()->value('id');
+                    $model->teacher_id = auth()->user()->teacher()->value('id');
                 }
             }
         });

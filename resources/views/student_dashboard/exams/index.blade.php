@@ -38,10 +38,17 @@
 
                                                             <div class="card-body">
                                                                 @if (empty(optional($exam->student_attempt)->status))
-                                                                    <a data-exam-id="{{ $exam->id }}"
-                                                                        class="start_exam btn btn-primary-light mb-5 px-25 py-8">
-                                                                        Start Exam
-                                                                    </a>
+                                                                    @if (!empty($exam->exam_key))
+                                                                        <a data-exam-id="{{ $exam->id }}"
+                                                                            class="start_exam btn btn-primary-light mb-5 px-25 py-8">
+                                                                            Start Exam
+                                                                        </a>
+                                                                    @else
+                                                                        <a href="{{ route('student_dashboard.exams.online.show', $exam->id) }}"
+                                                                            class="btn btn-primary-light mb-5 px-25 py-8">
+                                                                            Start Exam
+                                                                        </a>
+                                                                    @endif
                                                                 @else
                                                                     <a href="{{ route('student_dashboard.exams.online.result', $exam->id) }}"
                                                                         class="btn btn-success-light mb-5 px-25 py-8">

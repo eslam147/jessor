@@ -87,12 +87,10 @@
                                                             <input type="hidden"
                                                                 name="answers_data[{{ $question['id'] }}][question_id]"
                                                                 value="{{ $question['id'] }}">
-                                                            {{-- @dd($question->questions->options) --}}
                                                             @foreach ($question->questions->options as $option)
-                                                                {{-- @dd($option->id) --}}
                                                                 <div
                                                                     class="form-check form-quiz {{ in_array($option['id'], $question->correct_answers) ? 'success' : 'error' }}">
-                                                                    <input disabled @checked(old("answers_data.{$question->id}.option_id", $question->student_answer) == $option['id'])
+                                                                    <input disabled @checked($question->student_answer == $option['id'])
                                                                         class="form-check-input answer_qs text-black"
                                                                         type="radio"
                                                                         name="answers_data[{{ $question['id'] }}][option_id][]"
@@ -102,8 +100,6 @@
                                                                         for="question{{ $question['id'] }}_{{ $option['id'] }}">
                                                                         {!! html_entity_decode($option['option']) !!}
                                                                         @if (in_array($option->id, $question->correct_answers))
-                                                                            {{-- @dd($question->student_answer,$option['id']) --}}
-                                                                            {{-- @dump($question->student_answer,$option['id'],$question->correct_answers) --}}
                                                                             @if ($option->id != $question->student_answer)
                                                                                 <span class="badge badge-success">الاجابه
                                                                                     الصحيحه</span>
@@ -119,12 +115,10 @@
                                                         </div>
                                                     </div>
                                                 </div>
-                                                @if (!empty($question->questions->explain_answer))
-                                                    <div class="bg-light card-footer ">
-                                                        <b>Explain Answer</b>: <p class="text-justify">
-                                                            {{ $question->questions->explain_answer }}</p>
-                                                    </div>
-                                                @endif
+                                                <div class="bg-light card-footer ">
+                                                    <b>Explain Answer</b>: <p class="text-justify">
+                                                        {{ $question->questions->explain_answer ?? 'No Explanation' }}</p>
+                                                </div>
                                             </div>
                                         </div>
                                     @endforeach

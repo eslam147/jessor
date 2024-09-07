@@ -7,6 +7,7 @@ use App\Models\Category;
 use App\Models\Students;
 use App\Models\ClassSection;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 use Spatie\Permission\Models\Role;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
@@ -35,7 +36,7 @@ class SignupController extends Controller
             'last_name' => 'required|string',
             'password' => 'required|string|min:6',
             'mobile' => 'required|string|digits:11|unique:users,mobile',
-            'email' => 'required|email|unique:users,email',
+            'email' => ['required', 'email', Rule::unique('users')],
             'class_section_id' => 'required|exists:class_sections,id'
         ]);
 

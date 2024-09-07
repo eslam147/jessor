@@ -15,6 +15,8 @@ class File extends Model
     const VIDEO_CORNER_TYPE = 5;
     const DOWNLOAD_LINK_TYPE = 6;
     const EXTERNAL_LINK = 7;
+    const ONLINE_EXAM_TYPE = 8;
+    const ASSIGNMENT_TYPE = 9;
     protected $guarded = [];
 
     // protected $fillable = ['id', 'modal_type', 'modal_id', 'file_name', 'file_thumbnail', 'type', 'file_url', 'download_link'];
@@ -26,6 +28,8 @@ class File extends Model
         'video_upload',
         'other_link',
         'video_corner_link',
+        'online_exam',
+        'assignment',
         'external_link'
     ];
     protected static function boot()
@@ -112,5 +116,15 @@ class File extends Model
     public function isExternalLink()
     {
         return $this->type == self::EXTERNAL_LINK;
+    }
+
+    public function exam()
+    {
+        return $this->belongsTo(OnlineExam::class,'online_exam_id','id');
+    }
+
+    public function assignment()
+    {
+        return $this->belongsTo(Assignment::class,'assignment_id','id');
     }
 }

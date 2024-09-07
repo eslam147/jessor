@@ -21,7 +21,6 @@
                             </h4>
                             <form class="pt-3 mt-6 create-online-exam" id="create-form" method="POST"
                                 action="{{ route('online-exam.store') }}">
-
                                 {{-- online exam based option --}}
                                 <div class="form-group">
                                     <label>{{ __('online_exam_based_on') }} <span class="text-danger">*</span> <i
@@ -44,7 +43,6 @@
                                         </div>
                                     </div>
                                 </div>
-
                                 {{-- class container  --}}
                                 <div class="class_container" style="display : none">
                                     <div class="row">
@@ -81,6 +79,12 @@
                                                     class="text-danger">*</span></label>
                                             <input type="number" id="online-exam-key" name="exam_key_class"
                                                 placeholder="{{ __('exam_key') }}" class="form-control" />
+                                        </div>
+                                        <div class="form-group col-md-2">
+                                            <label>{{ __('pass') }} {{ __('mark') }} <span
+                                                    class="text-danger">*</span></label>
+                                            <input type="number" id="online-pass-mark" name="pass_mark_class"
+                                                placeholder="{{ __('pass_mark') }}" class="form-control" />
                                         </div>
                                         <div class="form-group col-md-2">
                                             <label>{{ __('duration') }} <span class="text-danger">*</span></label><span
@@ -145,6 +149,12 @@
                                                     class="text-danger">*</span></label>
                                             <input type="number" id="online-exam-key" name="exam_key_class_section"
                                                 placeholder="{{ __('exam_key') }}" class="form-control" />
+                                        </div>
+                                        <div class="form-group col-md-2">
+                                            <label>{{ __('pass') }} {{ __('mark') }} <span
+                                                    class="text-danger">*</span></label>
+                                            <input type="number" id="online-exam-pass" name="pass_mark_class_section"
+                                                placeholder="{{ __('pass_mark') }}" class="form-control" />
                                         </div>
                                         <div class="form-group col-md-2">
                                             <label>{{ __('duration') }} <span class="text-danger">*</span></label><span
@@ -234,6 +244,8 @@
                                     <th scope="col" data-field="title" data-sortable="false">{{ __('title') }}</th>
                                     <th scope="col" data-field="exam_key" data-sortable="false" data-align="center">
                                         {{ __('exam_key') }}</th>
+                                    <th scope="col" data-field="pass_mark" data-sortable="false" data-align="center">
+                                        {{ __('pass_mark') }}</th>
                                     <th scope="col" data-field="duration" data-sortable="false" data-align="center">
                                         {{ __('duration') }} <span class="text-info small">( {{ __('in_minutes') }}
                                             )</span></th>
@@ -283,6 +295,11 @@
                                 <label>{{ __('exam') }} {{ __('key') }} <span class="text-danger">*</span></label>
                                 <input type="number" id="edit-online-exam-key" name="edit_exam_key"
                                     placeholder="{{ __('exam_key') }}" class="form-control" />
+                            </div>
+                            <div class="form-group col-md-6">
+                                <label>{{ __('pass') }} {{ __('mark') }} <span class="text-danger">*</span></label>
+                                <input type="number" id="edit-online-exam-key" name="edit_pass_mark"
+                                    placeholder="{{ __('pass_mark') }}" class="form-control" />
                             </div>
                             <div class="form-group col-md-6">
                                 <label>{{ __('duration') }} <span class="text-danger">*</span></label><span

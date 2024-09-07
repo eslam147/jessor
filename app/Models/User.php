@@ -20,7 +20,6 @@ class User extends Authenticatable implements Wallet, Customer, BannableInterfac
 {
     use HasApiTokens, HasFactory, Notifiable, HasRoles;
     use Bannable, SoftDeletes, HasWallet, CanPay;
-
     protected $guarded = [];
 
     protected $appends = [

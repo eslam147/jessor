@@ -637,6 +637,10 @@ $(document).on("change", ".file_type", function () {
     var type = $(this).val();
     var parent = $(this).parent();
     parent.siblings(".input_file_content").hide();
+    parent
+        .siblings("#quizzes, #edit_quizzes,#assignments, #edit_assignments")
+        .find("input,select")
+        .attr("disabled", "disabled");
 
     switch (type) {
         case "file_upload":
@@ -673,6 +677,20 @@ $(document).on("change", ".file_type", function () {
                     "#file_name_div, #file_thumbnail_div, #video_corner_url_div, #video_corner_download_link_div"
                 )
                 .show();
+            break;
+        case "online_exam":
+            parent
+                .siblings("#quizzes, #edit_quizzes")
+                .show()
+                .find("input,select")
+                .removeAttr("disabled");
+            break;
+        case "assignment":
+            parent
+                .siblings("#assignments, #edit_assignments")
+                .show()
+                .find("input,select")
+                .removeAttr("disabled");
             break;
     }
 });
@@ -790,8 +808,12 @@ $("#topic_subject_id").on("change", function () {
 
     function successCallback(response) {
         let html = "";
+        let html1 = "";
+        let html2 = "";
         if (response.data.length > 0) {
             html += "<option>--Select Lesson--</option>";
+            html1 += "<option>--Select Online Exam--</option>";
+            html2 += "<option>--Select Assignment--</option>";
             response.data.forEach(function (data) {
                 html +=
                     "<option value='" +
@@ -800,10 +822,31 @@ $("#topic_subject_id").on("change", function () {
                     data.name +
                     "</option>";
             });
+
+            response.online_exams.forEach(function (data) {
+                html1 +=
+                    "<option value='" +
+                    data.id +
+                    "'>" +
+                    data.title +
+                    "</option>";
+            });
+            response.assignments.forEach(function (data) {
+                html2 +=
+                    "<option value='" +
+                    data.id +
+                    "'>" +
+                    data.name +
+                    "</option>";
+            });
         } else {
             html = "<option value=''>No Data Found</option>";
+            html1 = "<option value=''>No Data Found</option>";
+            html2 = "<option value=''>No Data Found</option>";
         }
         $("#topic_lesson_id").html(html);
+        $(".quizzes").html(html1);
+        $(".assignments").html(html2);
     }
 
     ajaxRequest("GET", url, data, null, successCallback, null, null, true);
@@ -841,10 +884,13 @@ $("#edit_topic_subject_id").on("change", function () {
         subject_id: $(this).val(),
         class_section_id: $("#edit_topic_class_section_id").val(),
     };
-
     function successCallback(response) {
         let html = "";
+        let html1 = "";
+        let html2 = "";
         if (response.data.length > 0) {
+            html1 += "<option>--Select Online Exam--</option>";
+            html2 += "<option>--Select Assignment--</option>";
             response.data.forEach(function (data) {
                 html +=
                     "<option value='" +
@@ -853,10 +899,30 @@ $("#edit_topic_subject_id").on("change", function () {
                     data.name +
                     "</option>";
             });
+            response.online_exams.forEach(function (data) {
+                html1 +=
+                    "<option value='" +
+                    data.id +
+                    "'>" +
+                    data.title +
+                    "</option>";
+            });
+            response.assignments.forEach(function (data) {
+                html2 +=
+                    "<option value='" +
+                    data.id +
+                    "'>" +
+                    data.name +
+                    "</option>";
+            });
         } else {
             html = "<option value=''>No Data Found</option>";
+            html1 = "<option value=''>No Data Found</option>";
+            html2 = "<option value=''>No Data Found</option>";
         }
         $("#edit_topic_lesson_id").html(html);
+        $(".quizzes").html(html1);
+        $(".assignments").html(html2);
     }
 
     ajaxRequest("GET", url, data, null, successCallback, null, null, true);
@@ -2778,8 +2844,7 @@ $("#add-new-eqation-option").on("click", function (e) {
         .ready(function () {
             createCkeditor();
         });
-        let select_answer_option = `
-        <option value="${inner_html}" class="answer_option extra_answers_options">
+    let select_answer_option = `<option value="${inner_html}" class="answer_option extra_answers_options">
             ${lang_option} ${inner_html}
         </option>`;
     $("#answer_select").append(select_answer_option);
@@ -4951,4 +5016,5 @@ $("#create-leave").submit(function (e) {
         successCallback,
         errorCallback
     );
+    
 });

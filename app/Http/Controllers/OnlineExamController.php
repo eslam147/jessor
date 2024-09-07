@@ -11,6 +11,7 @@ use App\Models\ClassSchool;
 use App\Models\ClassSection;
 use App\Models\ClassSubject;
 use Illuminate\Http\Request;
+use App\Services\Exam\ExamService;
 use App\Models\SubjectTeacher;
 use App\Models\OnlineExamQuestion;
 use Illuminate\Support\Facades\DB;
@@ -24,6 +25,10 @@ use Illuminate\Support\Facades\Validator;
 
 class OnlineExamController extends Controller
 {
+    public function __construct(
+        private readonly ExamService $examService
+    ) {}
+
     public function index()
     {
         if (! Auth::user()->can('manage-online-exam')) {
@@ -71,15 +76,16 @@ class OnlineExamController extends Controller
             'class_id' => 'required_if:online_exam_based_on,0|nullable',
             'subject_class_id' => 'required_if:online_exam_based_on,0|nullable',
             'title_class' => 'required_if:online_exam_based_on,0|nullable',
-            'exam_key_class' => 'required_if:online_exam_based_on,0|numeric|unique:online_exams,exam_key,NULL,id,deleted_at,NULL|nullable',
+            'exam_key_class' => 'numeric|unique:online_exams,exam_key,NULL,id,deleted_at,NULL|nullable',
+            'pass_mark_class_section' => 'required_if:online_exam_based_on,1|numeric|gt:0|max:100|nullable',
+            'pass_mark_class' => 'required_if:online_exam_based_on,0|numeric|gt:0|max:100|nullable',
             'duration_class' => 'required_if:online_exam_based_on,0|numeric|gte:1|nullable',
             'start_date_class' => 'required_if:online_exam_based_on,0|nullable',
             'end_date_class' => 'required_if:online_exam_based_on,0|after:start_date_class|nullable',
-
             'class_section_id' => 'required_if:online_exam_based_on,1|nullable',
             'subject_class_section_id' => 'required_if:online_exam_based_on,1|nullable',
             'title_class_section' => 'required_if:online_exam_based_on,1|nullable',
-            'exam_key_class_section' => 'required_if:online_exam_based_on,1|nullable|numeric|unique:online_exams,exam_key,NULL,id,deleted_at,NULL',
+            'exam_key_class_section' => 'nullable|numeric|unique:online_exams,exam_key,NULL,id,deleted_at,NULL',
             'duration_class_section' => 'required_if:online_exam_based_on,1|nullable|numeric|gte:1',
             'start_date_class_section' => 'required_if:online_exam_based_on,1|nullable',
             'end_date_class_section' => 'required_if:online_exam_based_on,1|after:start_date_class_section|nullable',
@@ -88,13 +94,13 @@ class OnlineExamController extends Controller
             'subject_class_id.required_if' => trans('subject_required'),
             'title_class.required_if' => trans('title_required'),
             'exam_key_class.required_if' => trans('exam_key_required'),
+            'pass_mark_class_section.required_if' => trans('pass_mark_class_section_required'),
             'exam_key_class.unique' => trans('exam_key_already_taken'),
             'duration_class.required_if' => trans('duration_required'),
             'duration_class.gte' => trans('duration_should_be_greater_than_or_equal_to_1'),
             'start_date_class.required_if' => trans('start_date_required'),
             'end_date_class.required_if' => trans('end_date_required'),
             'end_date_class.after' => trans('end_date_should_be_date_after_start_date'),
-
             'class_section_id.required_if' => trans('class_section_required_when_online_exam_is_class_section_based'),
             'subject_class_section_id.required_if' => trans('subject_required'),
             'title_class_section.required_if' => trans('title_required'),
@@ -118,7 +124,6 @@ class OnlineExamController extends Controller
         try {
             $data = getSettings('session_year');
             $session_year_id = $data['session_year'];
-
             $online_exam_create = new OnlineExam();
             if ($request->online_exam_based_on) {
                 // store class section based online exam
@@ -127,6 +132,7 @@ class OnlineExamController extends Controller
                 $online_exam_create->subject_id = $request->subject_class_section_id;
                 $online_exam_create->title = htmlspecialchars($request->title_class_section);
                 $online_exam_create->exam_key = $request->exam_key_class_section;
+                $online_exam_create->pass_mark = $request->pass_mark_class_section;
                 $online_exam_create->duration = $request->duration_class_section;
                 $online_exam_create->start_date = $request->start_date_class_section;
                 $online_exam_create->end_date = $request->end_date_class_section;
@@ -139,6 +145,7 @@ class OnlineExamController extends Controller
                 $online_exam_create->subject_id = $request->subject_class_id;
                 $online_exam_create->title = htmlspecialchars($request->title_class);
                 $online_exam_create->exam_key = $request->exam_key_class;
+                $online_exam_create->pass_mark = $request->pass_mark_class;
                 $online_exam_create->duration = $request->duration_class;
                 $online_exam_create->start_date = $request->start_date_class;
                 $online_exam_create->end_date = $request->end_date_class;
@@ -166,7 +173,6 @@ class OnlineExamController extends Controller
             return to_route('home')->withErrors([
                 'message' => trans('no_permission_message')
             ]);
-
         }
 
         $offset = request('offset', 0);
@@ -221,13 +227,12 @@ class OnlineExamController extends Controller
         foreach ($res as $row) {
             $operate = '';
             $operate = '<a href="' . route('exam.questions.index', ['id' => $row->id]) . '" class="btn btn-xs btn-gradient-info btn-rounded btn-icon add-questions" data-online_exam_id=' . $row->id . ' data-url=' . url('online-exam-question.index') . '><i class="fa fa-question-circle"></i></a>&nbsp;&nbsp;';
+            $operate .= '<a href=' . route('online-exam.show-as-student.index', ['id' => $row->id]) . ' class="btn btn-xs btn-success btn-rounded btn-icon"><i class="fa fa-eye"></i></a>';
             $operate .= '<a href="#" class="btn btn-xs btn-gradient-primary btn-rounded btn-icon edit-data" data-id=' . $row->id . ' title="Edit" data-toggle="modal" data-target="#editModal"><i class="fa fa-edit"></i></a>&nbsp;&nbsp;';
             $operate .= '<a href="' . route('online-exam.result.index', ['id' => $row->id]) . '" title="Result" class="btn btn-xs btn-gradient-success btn-rounded btn-icon view-result"><i class="fa fa-file-text-o"></i></a>&nbsp;&nbsp;';
             $operate .= '<a href=' . route('online-exam.destroy', $row->id) . ' class="btn btn-xs btn-gradient-danger btn-rounded btn-icon delete-form" data-id=' . $row->id . '><i class="fa fa-trash"></i></a>';
-
             $tempRow['online_exam_id'] = $row->id;
             $tempRow['no'] = $no++;
-
             if ($row->model_type == 'App\Models\ClassSection') {
                 // if online exam based on is Class Section
                 $tempRow['online_exam_belongs_to'] = 1;
@@ -244,7 +249,8 @@ class OnlineExamController extends Controller
             $tempRow['subject_id'] = $row->subject_id;
             $tempRow['subject_name'] = $row->subject->name . ' - ' . $row->subject->type;
             $tempRow['title'] = htmlspecialchars_decode($row->title);
-            $tempRow['exam_key'] = $row->exam_key;
+            $tempRow['exam_key'] =  isset($row->exam_key) ? $row->exam_key : '';
+            $tempRow['pass_mark'] = $row->pass_mark;
             $tempRow['duration'] = $row->duration;
             $tempRow['start_date'] = convertDateFormat($row->start_date, 'd-m-Y H:i:s');
             $tempRow['end_date'] = convertDateFormat($row->end_date, 'd-m-Y H:i:s');
@@ -256,6 +262,22 @@ class OnlineExamController extends Controller
         }
         $bulkData['rows'] = $rows;
         return response()->json($bulkData);
+    }
+
+    public function showAsStudentView(OnlineExam $id)
+    {
+        return view('online_exam.show_as_student', compact('id'));
+    }
+    public function showAsStudent($id)
+    {
+        // return auth()->user();
+        $onlineExam = OnlineExam::where('id', $id)->firstOrFail();
+        $questions_data = (new ExamService)->getOnlineExamQuestions(request()->merge(
+            [
+                'exam' => $id
+            ]
+        ));
+        return view('online_exam.show_as_student_embeded', compact('questions_data'));
     }
 
     /**
@@ -282,11 +304,11 @@ class OnlineExamController extends Controller
             return to_route('home')->withErrors([
                 'message' => trans('no_permission_message')
             ]);
-
         }
         $validator = Validator::make($request->all(), [
             'edit_title' => 'required',
-            'edit_exam_key' => 'required|numeric|unique:online_exams,exam_key,' . $id . ',id,deleted_at,NULL',
+            'edit_exam_key' => 'nullable|numeric|unique:online_exams,exam_key,' . $id . ',id,deleted_at,NULL',
+            'edit_pass_mark' => 'required|numeric|gt:0|max:100',
             'edit_duration' => 'required|numeric|gte:1',
             'edit_start_date' => 'required|date',
             'edit_end_date' => 'required|date',
@@ -303,6 +325,7 @@ class OnlineExamController extends Controller
             $update_online_exam->update([
                 'title' => $request->edit_title,
                 'exam_key' => $request->edit_exam_key,
+                'pass_mark' => $request->edit_pass_mark,
                 'duration' => $request->edit_duration,
                 'start_date' => $request->edit_start_date,
                 'end_date' => $request->edit_end_date,
@@ -329,7 +352,6 @@ class OnlineExamController extends Controller
             return to_route('home')->withErrors([
                 'message' => trans('no_permission_message')
             ]);
-
         }
         try {
 
@@ -395,7 +417,6 @@ class OnlineExamController extends Controller
             return to_route('home')->withErrors([
                 'message' => trans('no_permission_message')
             ]);
-
         }
         $online_exam_id = $_GET['id'];
         $online_exam_db = OnlineExam::where('id', $online_exam_id)->with('subject')->first();
@@ -429,7 +450,6 @@ class OnlineExamController extends Controller
             return to_route('home')->withErrors([
                 'message' => trans('no_permission_message')
             ]);
-
         }
         $validator = Validator::make(
             $request->all(),
@@ -570,7 +590,6 @@ class OnlineExamController extends Controller
                         'question' => "<textarea id='qc" . $question_store->id . "'>" . htmlspecialchars_decode($request->equestion) . "</textarea><script>setTimeout(() => {equation_editor = CKEDITOR.inline('qc" . $question_store->id . "', { skin:'moono',extraPlugins: 'mathjax', mathJaxLib: 'https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.4/MathJax.js?config=TeX-AMS_HTML', readOnly:true, }); },1000);</script>"
                     )
                 );
-
             } else {
                 $response = array(
                     'error' => false,
@@ -726,7 +745,6 @@ class OnlineExamController extends Controller
             return to_route('home')->withErrors([
                 'message' => trans('no_permission_message')
             ]);
-
         }
         $validator = Validator::make(
             $request->all(),
@@ -785,7 +803,6 @@ class OnlineExamController extends Controller
             return to_route('home')->withErrors([
                 'message' => trans('no_permission_message')
             ]);
-
         }
         try {
 
@@ -818,7 +835,6 @@ class OnlineExamController extends Controller
             return to_route('home')->withErrors([
                 'message' => trans('no_permission_message')
             ]);
-
         }
         $settings = Settings::where('type', 'online_exam_terms_condition')->first();
         $type = 'online_exam_terms_condition';
@@ -884,7 +900,6 @@ class OnlineExamController extends Controller
             return to_route('home')->withErrors([
                 'message' => trans('no_permission_message')
             ]);
-
         }
         $offset = 0;
         $limit = 10;

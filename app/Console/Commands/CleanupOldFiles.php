@@ -2,10 +2,10 @@
 
 namespace App\Console\Commands;
 
-use Carbon\Carbon;
 use App\Models\Tenant;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\File;
+use Carbon\Carbon;
 
 class CleanupOldFiles extends Command
 {
@@ -16,7 +16,9 @@ class CleanupOldFiles extends Command
     public function handle()
     {
         $tenants = $this->getAllTenants();
+        
         $now = now();
+        
         foreach ($tenants as $tenantId) {
             $this->info("Cleaning up files for tenant: {$tenantId}");
             $tenantFolderName = config('tenancy.filesystem.suffix_base') . $tenantId;

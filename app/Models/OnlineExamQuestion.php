@@ -22,6 +22,9 @@ class OnlineExamQuestion extends Model
     public function options(){
         return $this->hasMany(OnlineExamQuestionOption::class,'question_id');
     }
+    public function student_answer(){
+        return $this->hasMany(OnlineExamStudentAnswer::class,'question_id')->with('options');
+    }
     public function answers(){
         return $this->hasMany(OnlineExamQuestionAnswer::class,'question_id')->with('options');
     }

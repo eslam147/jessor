@@ -39,7 +39,6 @@ class Students extends Model
     public function subjects()
     {
         $session_year_id = settingByType('session_year');
-        // $session_year_id = $session_year;
 
         $classSection = optional($this->class_section);
 
@@ -55,12 +54,10 @@ class Students extends Model
             ->select("subject_id")->with('subject')
             ->get();
 
-        $response = [
+        return [
             'core_subject' => $core_subjects,
             'elective_subject' => ($elective_subject_count > 0 ? $elective_subjects : [])
         ];
-
-        return $response;
     }
 
     public function classSubjects()
@@ -88,7 +85,6 @@ class Students extends Model
             return tenant_asset($value);
         }
         return null;
-
     }
 
     public function father()

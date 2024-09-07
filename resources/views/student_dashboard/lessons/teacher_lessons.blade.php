@@ -174,25 +174,26 @@
                                                             <i class="fa fa-folder-open"></i>
                                                         </a>
                                                     @else
-                                                        <a href="javascript:void(0)" class="locked-btn btn btn-outline"
-                                                            data-id="{{ $row->id }}" data-price="{{ $row->price }}"
-                                                            data-bs-toggle="modal" data-bs-target="#payment-methods"
-                                                            data-animation="shake">
-                                                            <i class="fa fa-shopping-cart"></i>
-                                                        </a>
+                                                        @if ($row->is_lesson_free)
+                                                            <a href="javascript:void(0)" class="free_enrollment_btn btn btn-outline"
+                                                                data-id="{{ $row->id }}">
+                                                                <i class="fa fa-gift"></i>
+                                                            </a>
+                                                        @else
+                                                            <a href="javascript:void(0)" class="locked-btn btn btn-outline"
+                                                                data-id="{{ $row->id }}"
+                                                                data-price="{{ $row->price }}" data-bs-toggle="modal"
+                                                                data-bs-target="#payment-methods" data-animation="shake">
+                                                                <i class="fa fa-shopping-cart"></i>
+                                                            </a>
+                                                        @endif
                                                     @endif
                                                 </li>
-                                                {{-- <li>
-                                                    <a class="btn btn-outline" href="javascript:void(0);">
-                                                        <i class="mdi mdi-settings"></i>
-                                                    </a>
-                                                </li> --}}
                                             </ul>
                                         </div>
                                     </div>
                                     <div class="fx-card-content text-start">
                                         <div class="product-text">
-                                      
                                             <h4 class="box-title mb-0">
                                                 <a
                                                     href="{{ route('student_dashboard.lesson.show', $row->id) }}">{{ $row->name }}</a>

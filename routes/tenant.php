@@ -90,7 +90,6 @@ Route::middleware([
         Route::get('signup', 'index')->name('index');
         Route::post('signup', 'store')->name('store');
     });
-
     // webhooks
     Route::post('webhook/razorpay', [WebhookController::class, 'razorpay']);
     Route::post('webhook/stripe', [WebhookController::class, 'stripe']);
@@ -152,7 +151,6 @@ Route::middleware([
                     Route::post('submit/{exam}', 'submit')->name('submit');
                     Route::get('result/{exam}', 'result')->name('result');
                     Route::get('show/{exam}', 'show')->name('show')->middleware('signed');
-
                 });
             });
 
@@ -401,6 +399,8 @@ Route::middleware([
 
             // Online Exam
             Route::get('online-exam/terms-conditions', [OnlineExamController::class, 'onlineExamTermsConditionIndex'])->name('online-exam.terms-conditions');
+            Route::get('online-exam/show-as-student/{id}', [OnlineExamController::class, 'showAsStudentView'])->name('online-exam.show-as-student.index');
+            Route::get('online-exam/show-as-student/{id}/embeded', [OnlineExamController::class, 'showAsStudent'])->name('online-exam.show-as-student.embeded');
             Route::post('online-exam/store-terms-conditions', [OnlineExamController::class, 'storeOnlineExamTermsCondition'])->name('online-exam.store-terms-conditions');
 
             Route::resource('online-exam', OnlineExamController::class);

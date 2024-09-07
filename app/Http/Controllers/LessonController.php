@@ -2,25 +2,23 @@
 
 namespace App\Http\Controllers;
 
-use Exception;
-use Throwable;
+use App\Enums\Lesson\LessonStatus;
+use App\Http\Controllers\Controller;
+use App\Models\Assignment;
+use App\Models\ClassSection;
 use App\Models\File;
 use App\Models\Lesson;
-use App\Models\Subject;
-use App\Models\Students;
-use App\Rules\YouTubeUrl;
-use App\Models\ClassSchool;
 use App\Models\LessonTopic;
-use App\Models\ClassSection;
-use Illuminate\Http\Request;
-use Illuminate\Validation\Rule;
-use App\Enums\Lesson\LessonStatus;
+use App\Models\OnlineExam;
+use App\Models\Subject;
 use App\Rules\uniqueLessonInClass;
-use App\Http\Controllers\Controller;
+use App\Rules\YouTubeUrl;
+use Exception;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
-use phpDocumentor\Reflection\Types\Nullable;
+use Illuminate\Validation\Rule;
 
 class LessonController extends Controller
 {
@@ -58,13 +56,13 @@ class LessonController extends Controller
             'subject_id' => 'required|numeric',
             'status' => ['required', Rule::in(LessonStatus::values())],
             'payment_status' => 'required|in:0,1',
-            
+
             'price' => 'nullable|required_if:payment_status,1|numeric|gt:0',
 
             'lesson_thumbnail' => 'nullable|max:2048|image',
             'file' => 'nullable|array',
             'file.*.type' => ['nullable', Rule::in(['file_upload', 'youtube_link', 'video_upload', 'video_corner_link', 'video_corner_download_link', 'other_link'])],
-            'file.*.name' => 'required_with:file.*.type',
+            // 'file.*.name' => 'required_with:file.*.type',
             'file.*.thumbnail' => 'required_if:file.*.type,youtube_link,video_corner_link,video_corner_download_link,video_upload,other_link|max:2048',
             'file.*.file' => 'required_if:file.*.type,file_upload,video_upload',
             // 'file.*.link' => 'required_if:file.*.type,youtube_link,other_link',
@@ -199,7 +197,7 @@ class LessonController extends Controller
             $operate = '<a href=' . route('lesson.edit', $row->id) . ' class="btn btn-xs btn-gradient-primary btn-rounded btn-icon edit-data" data-id=' . $row->id . ' title="Edit" data-toggle="modal" data-target="#editModal"><i class="fa fa-edit"></i></a>&nbsp;&nbsp;';
             $operate .= '<a href=' . route('lesson.destroy', $row->id) . ' class="btn btn-xs btn-gradient-danger btn-rounded btn-icon delete-form" data-id=' . $row->id . '><i class="fa fa-trash"></i></a>';
             $tempRow['payment_status'] = view('lessons.datatable.is_paid', ['row' => $row])->render();
-            $tempRow['is_paid'] = $row->is_paid ;
+            $tempRow['is_paid'] = $row->is_paid;
 
             $tempRow['status_name'] = view('lessons.datatable.status', ['status' => $row->status])->render();
             $tempRow['status'] = $row->status;
@@ -395,9 +393,24 @@ class LessonController extends Controller
             $lesson = $lesson->where('class_section_id', $request->class_section_id);
         }
         $lesson = $lesson->relatedToTeacher()->get();
+        $OnlineExam = new OnlineExam;
+        $Assignment = new Assignment;
+        if (isset($request->subject_id)) {
+            $OnlineExam = $OnlineExam->where('model_type', ClassSection::class)
+                ->where('model_id', $request->class_section_id)
+                ->where('subject_id', $request->subject_id)
+                ->has('question_choice')
+                ->get();
+        }
+
+        if (isset($request->class_section_id) && isset($request->subject_id)) {
+            $Assignment = $Assignment->where('class_section_id', $request->class_section_id)->where('subject_id', $request->subject_id)->get();
+        }
         return response()->json([
             'error' => false,
             'data' => $lesson,
+            'online_exams' => $OnlineExam,
+            'assignments' => $Assignment,
             'message' => 'Lesson fetched successfully'
         ]);
     }

@@ -3,27 +3,17 @@
 namespace App\Services\Assigment;
 
 use App\Models\File;
-use App\Models\User;
-use Spatie\Tags\Tag;
-use App\Models\Coupon;
-use App\Models\Lesson;
 use App\Models\Teacher;
 use App\Models\Assignment;
 use App\Models\Notification;
 use Illuminate\Http\Request;
-use App\Exports\CouponExport;
 use App\Models\SubjectTeacher;
 use Illuminate\Support\Carbon;
 use App\Models\UserNotification;
-use Illuminate\Support\Facades\DB;
-use App\Enums\Course\CouponTypeEnum;
 use App\Models\AssignmentSubmission;
-use Maatwebsite\Excel\Facades\Excel;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
-use Illuminate\Support\Traits\Conditionable;
-use App\Http\Requests\Dashboard\Coupon\CouponRequest;
+use App\Models\Students;
 
 class AssignmentService
 {
@@ -42,6 +32,13 @@ class AssignmentService
         }
 
         return null;
+    }
+    public function getStudentAssignmentSubmission(Assignment $assignment, Students $student)
+    {
+        $assignment->load([
+            'submission' => fn($q) => $q->where('student_id', $student->id),
+        ]);
+        return $assignment->submission;
     }
 
     public function getAssignment(Request $request)
@@ -96,7 +93,7 @@ class AssignmentService
         $notification = Notification::create([
             'send_to' => 2,
             'title' => 'New submission',
-            'message' => $student->user->first_name . ' ' . $student->user->last_name . ' submitted their assignment.',
+            'message' => $student->user->full_name . ' submitted their assignment.',
             'type' => 'assignment_submission',
             'date' => Carbon::now(),
             'is_custom' => 0,
