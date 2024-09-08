@@ -211,7 +211,7 @@ class ExamService
             'note' => $question->note,
         ];
     }
-    public function getOnlineExamStatus($studentId, $examId): StudentOnlineExamStatus
+    public function getOnlineExamStatus($studentId, $examId): ?StudentOnlineExamStatus
     {
         return StudentOnlineExamStatus::where([
             'online_exam_id' => $examId,
