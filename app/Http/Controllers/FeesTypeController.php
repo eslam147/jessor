@@ -573,7 +573,7 @@ class FeesTypeController extends Controller
             $tempRow['no'] = $no++;
             $tempRow['father_id'] = $row->father_id;
             $tempRow['mother_id'] = $row->mother_id;
-            $tempRow['student_name'] = $row->user->first_name . ' ' . $row->user->last_name;
+            $tempRow['student_name'] = $row->user->full_name;
             $tempRow['class_id'] = $row->class_section->class_id;
             $tempRow['class_name'] = $row->class_section->class->name . '-' . $row->class_section->section->name . ' ' . $row->class_section->class->medium->name;
             $tempRow['stream_name'] = $row->class_section->class->streams->name ?? '-';

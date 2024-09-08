@@ -1802,7 +1802,7 @@ class StudentController extends Controller
             $tempRow['id'] = $row->id;
             $tempRow['no'] = $no++;
             $tempRow['user_id'] = $row->user_id;
-            $tempRow['student_name'] = $row->user->first_name . ' ' . $row->user->last_name;
+            $tempRow['student_name'] = $row->user->full_name;
             $tempRow['dob'] = date($data['date_formate'], strtotime($row->user->dob));
             $tempRow['admission_no'] = $row->admission_no;
             $tempRow['class_section_id'] = $row->class_section_id;

@@ -4,6 +4,7 @@ namespace App\Exceptions;
 
 use Throwable;
 use Sentry\Laravel\Integration;
+use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
 
@@ -30,11 +31,24 @@ class Handler extends ExceptionHandler
     ];
     public function report(Throwable $exception)
     {
+        $tenantId = null;
         if (tenancy()->initialized) {
+            $tenantId = tenancy()->tenant->id;
             Log::withContext(['tenant_id' => tenancy()->tenant->id]);
         }
         // Integration::handles($exception);
-
+        if (! App::environment('local') && $this->shouldReport($exception) && app()->bound('sentry')) {
+            if ($user = request()->user()) {
+                \Sentry\configureScope(function (\Sentry\State\Scope $scope) use ($user, $tenantId) {
+                    $scope->setUser([
+                        'id' => $user->id,
+                        'name' => $user->full_name,
+                    ]);
+                    $scope->setContext('tenant_id', $tenantId);
+                });
+            }
+            app('sentry')->captureException($exception);
+        }
         parent::report($exception);
     }
     /**

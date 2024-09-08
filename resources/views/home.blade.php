@@ -120,7 +120,7 @@
                                     <img class="img-sm rounded-circle" src="{{ $row->user->image }}" alt="profile"
                                         onerror="onErrorImage(event)">
                                     <div class="wrapper ml-3">
-                                        <h6 class="ml-1 mb-1">{{ $row->user->first_name . ' ' . $row->user->last_name }}
+                                        <h6 class="ml-1 mb-1">{{ $row->user->full_name }}
                                         </h6>
                                         <small class="text-muted mb-0">
                                             <i

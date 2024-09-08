@@ -647,7 +647,7 @@ class LeaveController extends Controller
 
             $tempRow['id'] = $row->id;
             $tempRow['no'] = $no++;
-            $tempRow['name'] = $row->user->first_name . ' ' . $row->user->last_name;
+            $tempRow['name'] = $row->user->full_name;
             $tempRow['from_date'] = date('d-m-Y', strtotime($row->from_date));
             $tempRow['to_date'] = date('d-m-Y', strtotime($row->to_date));
             $tempRow['days'] = $row->full_leave + ($row->half_leave / 2);
