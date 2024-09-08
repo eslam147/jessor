@@ -38,11 +38,10 @@ class Handler extends ExceptionHandler
         }
         // Integration::handles($exception);
         if (! App::environment('local') && $this->shouldReport($exception) && app()->bound('sentry')) {
-            if ($user = request()->user()) {
+            if ($user = session()->user()) {
                 \Sentry\configureScope(function (\Sentry\State\Scope $scope) use ($user, $tenantId) {
                     $scope->setUser([
-                        'id' => $user->id,
-                        'name' => $user->full_name,
+                        'user_id' => $user->id,
                     ]);
                     $scope->setContext('tenant_id', $tenantId);
                 });
