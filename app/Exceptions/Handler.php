@@ -3,6 +3,7 @@
 namespace App\Exceptions;
 
 use Throwable;
+use Sentry\Laravel\Integration;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
 
@@ -32,6 +33,8 @@ class Handler extends ExceptionHandler
         if (tenancy()->initialized) {
             Log::withContext(['tenant_id' => tenancy()->tenant->id]);
         }
+        // Integration::handles($exception);
+
         parent::report($exception);
     }
     /**
@@ -42,7 +45,7 @@ class Handler extends ExceptionHandler
     public function register()
     {
         $this->reportable(function (Throwable $e) {
-            //
+            Integration::captureUnhandledException($e);
         });
     }
 }
