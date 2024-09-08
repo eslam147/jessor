@@ -23,7 +23,10 @@ class SignupController extends Controller
 
         $classSections = ClassSection::with(['class', 'section'])->withOutTrashedRelations('class', 'section')->get();
 
-        return view('auth.register', compact('classSections', 'category'));
+        return view('auth.register', [
+            'classSections' => $classSections,
+            'category' => $category
+        ]);
     }
 
 
