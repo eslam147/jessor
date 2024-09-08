@@ -340,8 +340,8 @@ class LessonTopicController extends Controller
                             $topic_file->download_link = $file['download_link'];
                             break;
                         case "external_link":
-                            $file->type = File::EXTERNAL_LINK;
-                            $file->file_url = $file['external_link'];
+                            $topic_file->type = File::EXTERNAL_LINK;
+                            $topic_file->file_url = $file['external_link'];
                             break;
                         case "online_exam":
                             $topic_file->type = File::ONLINE_EXAM_TYPE;
