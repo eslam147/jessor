@@ -37,16 +37,19 @@ class Handler extends ExceptionHandler
             $tenantId = tenancy()->tenant->id;
             Log::withContext(['tenant_id' => tenancy()->tenant->id]);
         }
+
+        parent::report($exception);
         if (! App::environment('local') && $this->shouldReport($exception) && app()->bound('sentry')) {
             \Sentry\configureScope(function (\Sentry\State\Scope $scope) use ($tenantId) {
-                if ($user = request()->session()->get(Auth::getName())) {
-                    $scope->setTag('user_id', $user);
+                if (session()->isStarted()) {
+                    if ($user = session()->get(Auth::getName())) {
+                        $scope->setTag('user_id', $user);
+                    }
                 }
                 $scope->setTag('tenant_id', $tenantId);
             });
             app('sentry')->captureException($exception);
         }
-        parent::report($exception);
     }
 
     public function register()
