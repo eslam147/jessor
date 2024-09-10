@@ -11,13 +11,14 @@
 <div class="row justify-content-center align-items-center">
     <div class="form-group col-sm-12">
         <label>{{ __('coupon_type') }}<span class="text-danger">*</span></label>
+
         {!! Form::select(
             'coupon_type',
             [
                 'purchase' => __('purchase'),
                 'wallet' => __('wallet'),
             ],
-            isset($coupon) ? $coupon['coupon_type'] : '',
+            isset($coupon) ? $coupon->type->value : '',
             ['required', 'placeholder' => __('coupon_type'), 'class' => 'form-control coupon_type'],
         ) !!}
         @error('coupon_type')
@@ -117,7 +118,7 @@
                     <select name="medium_id" id="medium_id" class="form-control">
                         <option selected disabled readonly>{{ __('select_medium') }}</option>
                         @foreach ($mediums as $medium)
-                            <option value="{{ $medium->id }}" @selected(old('medium_id', isset($coupon) ? $coupon->classModel->medium_id : '') == $medium->id)>
+                            <option value="{{ $medium->id }}" @selected(old('medium_id', isset($coupon) ? $coupon->classModel?->medium_id : '') == $medium->id)>
                                 {{ $medium->name }}
                             </option>
                         @endforeach
@@ -129,7 +130,7 @@
                 <div class="col-12 mb-2 row">
                     <div class="col-sm-6">
                         <label>{{ __('class') }}</label>
-                        <select name="class_id"  id="class_m_id" readonly class="form-control"></select>
+                        <select name="class_id" id="class_m_id" readonly class="form-control"></select>
                         @error('class_id')
                             <p class="text-danger" role="alert">{{ $message }}</p>
                         @enderror
@@ -409,6 +410,7 @@
                     $('#lesson_id').val(coupon.lesson_id);
                 }
             }
+            $('.coupon_type').trigger('change');
             setCouponData()
         </script>
     @endisset

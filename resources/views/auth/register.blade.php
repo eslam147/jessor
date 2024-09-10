@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <!-- Required meta tags -->
     <meta charset="utf-8">
@@ -10,6 +11,7 @@
 
     @include('layouts.include')
 </head>
+
 <body class="bg-image">
     <div class="container-scroller">
         {{-- <div class="bg-image"> --}}
@@ -35,20 +37,22 @@
                                         <select name="class_section_id" id="class_section" class="form-control ">
                                             <option value="">
                                                 {{ __('select') . ' ' . __('class') . ' ' . __('section') }}</option>
-                                            @foreach ($classSections as $section)
-                                                <option @selected(old('class_section_id') == $section->id) value="{{ $section->id }}">
-                                                    {{ optional($section->class)->name }} -
-                                                    {{ optional($section->class->medium)->name }}
-                                                    {{ optional($section->section)->name }}
-                                                    {{ optional($section->class->streams)->name ?? ' ' }}
-                                                </option>
-                                            @endforeach
+                                            @isset($classSections)
+                                                @foreach ($classSections as $section)
+                                                    <option @selected(old('class_section_id') == $section->id) value="{{ $section->id }}">
+                                                        {{ optional($section->class)->name }} -
+                                                        {{ optional($section->class->medium)->name }}
+                                                        {{ optional($section->section)->name }}
+                                                        {{ optional($section->class->streams)->name ?? ' ' }}
+                                                    </option>
+                                                @endforeach
+                                            @endisset
                                         </select>
                                     </div>
                                     <div class="form-group col-6">
                                         <label> {{ __('mobile') }} <span class="text-danger">*</span></label>
-                                        <input type="tel" value="{{ old('mobile') }}" maxlength="11" minlength="11" id="mobile" name="mobile"
-                                            class="form-control">
+                                        <input type="tel" value="{{ old('mobile') }}" maxlength="11" minlength="11"
+                                            id="mobile" name="mobile" class="form-control">
                                     </div>
                                     <div class="form-group col-6">
                                         <label>{{ __('first_name') }}</label>
@@ -99,7 +103,8 @@
                                         </div>
                                     @endif
                                     <div class="mt-3 col-12">
-                                        <button type="submit" name="btnlogin" id="login_btn" class="btn btn-block btn-theme btn-lg font-weight-medium auth-form-btn">
+                                        <button type="submit" name="btnlogin" id="login_btn"
+                                            class="btn btn-block btn-theme btn-lg font-weight-medium auth-form-btn">
                                             {{ __('register') }}
                                         </button>
                                     </div>
@@ -216,7 +221,7 @@
         });
 
         $("#signup-form").submit(function() {
-            if($(this).valid()) {
+            if ($(this).valid()) {
                 $('#login_btn').html(`<i class="fa fa-spinner fa-spin"></i> {{ __('send') }}`);
                 $('#login_btn').attr('disabled', 'disabled');
             }
