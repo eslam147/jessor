@@ -46,7 +46,9 @@ class Handler extends ExceptionHandler
                         $scope->setTag('user_id', $user);
                     }
                 }
-                $scope->setTag('tenant_id', $tenantId);
+                if(!empty($tenantId)){
+                    $scope->setTag('tenant_id', $tenantId);
+                }
             });
             app('sentry')->captureException($exception);
         }
