@@ -14,7 +14,7 @@ class LessonResource extends JsonResource
     {
         return [
             'id' => $this->id,
-            'title' => $this->name,
+            'title' => str($this->name)->limit(30, '...'),
             'description' => $this->description,
             'status' => $this->status,
             'class' => new ClassSchoolResource($this->whenLoaded('class')),
