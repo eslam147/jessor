@@ -16,16 +16,18 @@
                                             <img style="background-color: {{ $row->bg_color }}" src="{{ !empty($row->image) ? $row->image : loadTenantMainAsset('logo1', global_asset('images/no_image_available.jpg')) }}"
                                                 class="img-fluid object-fit-cover w-150 p-10" alt="">
                                             <div class="ms-30 w-75">
-                                                <h4 class="mb-10 text-bold">{{ $row->name }}</h4>
+                                                <h4 class="mb-10 text-bold">
+                                                    <a href="{{ route('subjects.show', $row->id) }}">{{ $row->name }}</a>
+                                                </h4>
                                                 @if ($row->teachersViaSubject->count())
                                                     <div class="d-flex flex-column mt-10 w-75">
                                                         <div class="d-flex">
                                                             @foreach ($row->teachersViaSubject->take(4) as $teacher)
                                                                 <a href="#" title="{{ $teacher->user->full_name }}"
-                                                                    class="h-50 l-h-50 me-2 overflow-hidden rounded text-center w-50">
-                                                                    <img src="{{ $teacher->user->image }}"
+                                                                    class="border border-black h-50 l-h-50 me-2 overflow-hidden rounded text-center w-50">
+                                                                    <img src="{{ !empty($teacher->user->getRawOriginal('image')) ? $teacher->user->image : loadTenantMainAsset('logo1', global_asset('images/no_image_available.jpg')) }}"
                                                                         class="align-self-end h-50 object-fit-cover"
-                                                                        alt="">
+                                                                        alt="{{ $teacher->user->full_name }}">
                                                                 </a>
                                                             @endforeach
                                                             @if ($row->teachersViaSubject->count() > 4)
