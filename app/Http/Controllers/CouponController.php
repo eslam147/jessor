@@ -65,9 +65,9 @@ class CouponController extends Controller
             $tags = explode(',', request('tags'));
             return $q->whereHas('tags', function ($query) use ($tags) {
                 array_map('trim', $tags);
-                $query->where(function () use ($tags, $query) {
+                $query->where(function ($q) use ($tags) {
                     foreach ($tags as $tag) {
-                        $query->orWhere("name->en","LIKE", "%{$tag}%");
+                        $q->orWhere("name->en","LIKE", "%{$tag}%");
                     }
                 });
             });

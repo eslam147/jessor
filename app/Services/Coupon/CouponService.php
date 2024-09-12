@@ -21,7 +21,8 @@ class CouponService
 {
     use Conditionable;
     public function __construct(private Coupon $model)
-    {}
+    {
+    }
 
     public function findCoupon($couponId, CouponTypeEnum $type = CouponTypeEnum::PURCHASE): ?Coupon
     {
@@ -267,6 +268,7 @@ class CouponService
             $expiryDate = $this->when($request->expiry_date, fn() => Carbon::parse($request->expiry_date));
             $tags = explode(',', $request->tags ?? "");
             for ($i = 0; $i < $request->coupons_count; $i++) {
+                $couponCode = $this->generateCouponCode();
                 $ids[] = $this->storePurchaseCoupon(
                     teacherId: $request->teacher_id,
                     classId: $request->class_id,
@@ -276,6 +278,7 @@ class CouponService
                     maxUsageLimit: $request->usage_limit,
                     appliedTo: $lesson,
                     tags: $tags,
+                    code: $couponCode,
                 )->id;
             }
         });
@@ -303,7 +306,7 @@ class CouponService
         $this->insertTags($tags, $coupon);
         return $coupon;
     }
-    private function storePurchaseCoupon(
+    public function storePurchaseCoupon(
         $teacherId = null,
         $subjectId = null,
         $classId = null,
@@ -311,19 +314,26 @@ class CouponService
         $price = null,
         $maxUsageLimit,
         $appliedTo = null,
-        array $tags = []
+        array $tags = [],
+        $code = null
     ) {
         $couponData = [
             'teacher_id' => $teacherId,
             'subject_id' => $subjectId,
             'class_id' => $classId,
-            'code' => $this->generateCouponCode(),
             'expiry_date' => $expiryDate->toDateString(),
             'price' => $price,
             'type' => CouponTypeEnum::PURCHASE,
             'maximum_usage' => $maxUsageLimit,
         ];
-
+        if (! empty($code)) {
+            if ($this->model->where('code', $code)->exists()) {
+                return null;
+            }
+            $couponData['code'] = $code;
+        } else {
+            $couponData['code'] = $this->generateCouponCode();
+        }
         if (! is_null($appliedTo)) {
             $couponData['only_applied_to_id'] = $appliedTo->id;
             $couponData['only_applied_to_type'] = get_class($appliedTo);
