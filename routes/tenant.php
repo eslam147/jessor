@@ -229,12 +229,16 @@ Route::middleware([
             Route::get('session_years_list', [SessionYearController::class, 'show']);
             Route::delete('remove-installment-data/{id}', [SessionYearController::class, 'deleteInstallmentData']);
 
+            Route::get('students-deleted', [StudentController::class, 'deletedStudents'])->name('students.deleted');
+            Route::get('students-deleted-list', [StudentController::class, 'deletedStudentsList'])->name('students.deleted.list');
             Route::get('students-list', [StudentController::class, 'show'])->name('students.list');
             Route::get('students/assign-class', [StudentController::class, 'assignClass'])->name('students.assign-class');
             Route::post('students/assign-class', [StudentController::class, 'assignClass_store'])->name('students.assign-class.store');
             Route::get('students/new-student-list', [StudentController::class, 'newStudentList'])->name('students.new-student-list');
             Route::get('students/create_bulk', [StudentController::class, 'createBulkData'])->name('students.create-bulk-data');
             Route::post('students/store_bulk', [StudentController::class, 'storeBulkData'])->name('students.store-bulk-data');
+            Route::delete('students/permanent_delete/{user}', [StudentController::class, 'permanent_delete'])->name('students.permanent_delete');
+            Route::post('students/restore/{user}', [StudentController::class, 'restore'])->name('students.restore');
             Route::resource('students', StudentController::class);
 
             //student generate roll number
