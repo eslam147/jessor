@@ -60,9 +60,11 @@ class InitializeSchool
                 'mail.from.address' => 'mail_send_from'
             ];
             foreach ($mailKeyVal as $key => $value) {
-                if(! empty($emaiVal = $mailSettings[$value])){
-                    Config::set($key, $emaiVal);
+                $schoolEmailConfig = "";
+                if (! empty($mailSettings[$value])) {
+                    $schoolEmailConfig = $mailSettings[$value];
                 }
+                Config::set($key, $schoolEmailConfig);
             }
         }
 

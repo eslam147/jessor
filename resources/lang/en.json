@@ -702,6 +702,9 @@
     "coupon_errors_usage_price_limit" : "Coupon usage price limit exceeded",
     "wallet_balance_added_successfully" : "Wallet Balance Added Successfully",
     "wallet_balance_withdraw_successfully" : "Wallet Balance Withdraw Successfully",
-    "please_try_again_after" : "Please try again after :secs seconds"
+    "please_try_again_after" : "Please try again after :secs seconds",
+    "are_u_sure_restore" : "Are you sure restore?",
+    "data_restored_successfully" : "Data restored successfully",
+    "deleted_students" : "Deleted Students"
     
 }

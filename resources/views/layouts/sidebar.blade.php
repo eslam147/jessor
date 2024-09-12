@@ -142,12 +142,20 @@
                             </li>
                         @endcan
 
-                        @canany(['student-list', 'class-teacher', 'generate-document'])
+
+                        @canany(['student-list', 'class-teacher', 'generate-document', 'student-list-deleted'])
                             <li class="nav-item">
                                 <a class="nav-link" href="{{ route('students.index') }}">
                                     {{ __('student_details') }}
                                 </a>
                             </li>
+                            @can('student-list-deleted')
+                                <li class="nav-item">
+                                    <a class="nav-link" href="{{ route('students.deleted') }}">
+                                        {{ __('deleted_students') }}
+                                    </a>
+                                </li>
+                            @endcan
                         @endcanany
 
                         @can('generate-id-card')
@@ -800,7 +808,7 @@
                 </div>
             </li>
             @endif
-{{-- 
+            {{-- 
             @if (Auth::user()->hasRole('Super Admin'))
                 <li class="nav-item">
                     <a class="nav-link" href="{{ route('system-update.index') }}">

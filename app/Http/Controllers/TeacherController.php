@@ -57,7 +57,7 @@ class TeacherController extends Controller
                 'last_name' => 'required',
                 'gender' => 'required',
                 'email' => 'required|email|unique:users,email,NULL,id,deleted_at,NULL',
-                'password' => 'required',
+                'password' => 'nullable|min:8',
                 'mobile' => 'required|numeric|regex:/^[0-9]{7,16}$/',
             ],
             [
@@ -157,13 +157,9 @@ class TeacherController extends Controller
                 }
                 if ($request->grant_permission) {
                     $user->givePermissionTo([
-                        'student-create',
                         'student-list',
-                        'student-edit',
-                        'student-delete',
                         'parents-create',
                         'parents-list',
-                        'parents-edit'
                     ]);
                 } else {
                     $user->revokePermissionTo([
@@ -293,10 +289,11 @@ class TeacherController extends Controller
                     'subject' => 'Welcome to ' . $school_name['school_name'],
                     'name' => $request->first_name,
                     'email' => $request->email,
-                    'password' => Hash::make($request->password),
                     'school_name' => $school_name['school_name']
                 ];
-
+                if ($request->password) {
+                    $data['password'] = Hash::make($request->password);
+                }
                 // Mail::send('teacher.email', $data, function ($message) use ($data) {
                 //     $message->to($data['email'])->subject($data['subject']);
                 // });
@@ -328,10 +325,9 @@ class TeacherController extends Controller
     public function show()
     {
         if (! Auth::user()->can('teacher-list')) {
-            $response = array(
+            return response()->json([
                 'message' => trans('no_permission_message')
-            );
-            return response()->json($response);
+            ]);
         }
         $offset = 0;
         $limit = 10;
@@ -429,7 +425,7 @@ class TeacherController extends Controller
 
 
     public function update(Request $request)
-    { 
+    {
         if (! Auth::user()->can('teacher-edit')) {
             $response = [
                 'message' => trans('no_permission_message')
