@@ -3,7 +3,10 @@
 namespace App\Console\Commands;
 
 use App\Models\Tenant;
+use App\Models\Teacher;
 use App\Imports\CouponImport;
+use App\Models\ClassSchool;
+use App\Models\Subject;
 use Illuminate\Console\Command;
 use Stancl\Tenancy\Facades\Tenancy;
 use Illuminate\Support\Facades\File;
@@ -31,19 +34,17 @@ class ImportListCoupons extends Command
             $this->error('Tenant not found');
             return Command::FAILURE;
         }
-        $this->couponImport->setData(
-            tags: (array) $this->option('tags'),
-            classId: $this->option('class'),
-            subjectId: $this->option('subject'),
-            teacherId: $this->option('teacher')
-        );
+
+
         $this->setTenant($tenant);
+        $this->checkIsDataCorrect();
         $file = 'app' . DIRECTORY_SEPARATOR . 'imports' . DIRECTORY_SEPARATOR . 'coupons' . DIRECTORY_SEPARATOR . $this->option('file') . '.xlsx';
 
         if (! File::exists(storage_path($file))) {
             $this->error('File not found: ' . $file);
             return Command::FAILURE;
         }
+        $this->setDataToImport($this->options());
         $this->importCoupons(storage_path($file));
         $this->endTenant();
         $this->info('Coupons imported successfully');
@@ -60,10 +61,46 @@ class ImportListCoupons extends Command
         Tenancy::initialize($tenant);
         $this->info("Tenant set: {$tenant->id}");
     }
+    private function setDataToImport($options)
+    {
+        return $this->couponImport->setData(
+            tags: (array) $options['tags'],
+            classId: $options['class'],
+            subjectId: $options['subject'],
+            teacherId: $options['teacher']
+        );
+    }
     private function endTenant()
     {
         if ($this->tenant && tenancy()->initialized) {
             Tenancy::end();
         }
+    }
+    private function checkIsDataCorrect()
+    {
+        $teacherId = $this->option('teacher');
+        $classId = $this->option('class');
+        $subjectId = $this->option('subject');
+        if ($teacherId) {
+            $teacher = Teacher::find($teacherId);
+            if (! $teacher) {
+                throw new \Exception("Teacher with ID $teacherId not found.");
+            }
+        }
+
+        if ($classId) {
+            $class = ClassSchool::find($classId);
+            if (! $class) {
+                throw new \Exception("Class with ID $classId not found.");
+            }
+        }
+
+        if ($subjectId) {
+            $subject = Subject::find($subjectId);
+            if (! $subject) {
+                throw new \Exception("Subject with ID $subjectId not found.");
+            }
+        }
+
     }
 }

@@ -107,13 +107,9 @@
 @endsection
 @section('script')
     <script>
-        console.log('asdfsadf');
-
-
         window.actionEvents = {
             'click .restore_btn': function(e, value, row, index) {
                 let btn = $(e.target);
-
                 Swal.fire({
                     title: translations.are_u_sure_restore,
                     icon: "warning",
@@ -124,7 +120,6 @@
                 }).then((result) => {
                     if (result.isConfirmed) {
                         const url = btn.data("url");
-                        console.log(url);
 
                         ajaxRequest(
                             "POST",
@@ -142,6 +137,7 @@
             },
             'click .force_delete_btn': function(e, value, row, index) {
                 let btn = $(e.target);
+
                 Swal.fire({
                     title: "{{ __('delete_title') }}",
                     icon: "warning",

@@ -237,8 +237,8 @@ Route::middleware([
             Route::get('students/new-student-list', [StudentController::class, 'newStudentList'])->name('students.new-student-list');
             Route::get('students/create_bulk', [StudentController::class, 'createBulkData'])->name('students.create-bulk-data');
             Route::post('students/store_bulk', [StudentController::class, 'storeBulkData'])->name('students.store-bulk-data');
-            Route::delete('students/permanent_delete/{user}', [StudentController::class, 'permanent_delete'])->name('students.permanent_delete');
             Route::post('students/restore/{user}', [StudentController::class, 'restore'])->name('students.restore');
+            Route::delete('students/permanent_delete/{user}', [StudentController::class, 'permanent_delete'])->name('students.permanent_delete');
             Route::resource('students', StudentController::class);
 
             //student generate roll number

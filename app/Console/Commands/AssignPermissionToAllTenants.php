@@ -10,6 +10,7 @@ use Spatie\Permission\Models\Permission;
 
 class AssignPermissionToAllTenants extends Command
 {
+    // php artisan tenants:assign-permission --role="Super Admin" --permission="student-list-deleted"
     protected $signature = 'tenants:assign-permission {--role=} {--permission=}';
     protected $description = 'Assign a specific permission to all tenants';
 
