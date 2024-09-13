@@ -2,8 +2,8 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Enrollment extends Model
 {
@@ -25,5 +25,8 @@ class Enrollment extends Model
     {
         return $this->belongsTo(User::class);
     }
-
+    public function scopeTeacherFilter($q)
+    {
+        return $q->whereHas('lesson', fn($q) => $q->relatedToTeacher());
+    }
 }

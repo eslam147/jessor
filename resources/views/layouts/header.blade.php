@@ -14,7 +14,7 @@
         <button class="navbar-toggler navbar-toggler align-self-center" type="button" data-toggle="minimize">
             <span class="fa fa-bars"></span>
         </button>
-        <a href="{{ URL::to('/') }}" class="" target="_blank">View Home Page</a>
+        <a href="{{ URL::to('/') }}" class="text-bold" target="_blank"><i class="fa fa-home"></i> Visit Home</a>
        </div>
 
         @php

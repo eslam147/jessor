@@ -12,12 +12,12 @@ class EnrollmentController extends Controller
 {
     public function index()
     {
-        $lessons = Lesson::with('teacher.user')->get();
+        $lessons = Lesson::relatedToTeacher()->with('teacher.user')->get();
         return view('enrollment.index', compact('lessons'));
     }
     public function list()
     {
-        $enrollmentQuery = Enrollment::query();
+        $enrollmentQuery = Enrollment::query()->teacherFilter();
         $mappedOrderKeys = [
             'id' => 'id',
         ];

@@ -14,38 +14,53 @@ const ASSIGNMENT_TYPE = 9;
 window.lessonEvents = {
     "click .edit-data": function (e, value, row, index) {
         //Reset Values
+        let editForm = $(".edit-lesson-form");
+        $(".payment_status").trigger("change");
+
         $(".edit-extra-files").html("");
+        editForm[0].reset();
+
         $(".edit_file_type_div").show();
         $("#edit_id").val(row.id);
+
         $("#edit_class_section_id").val(row.class_section_id).trigger("change");
         setTimeout(() => {
             $("#edit_subject_id").val(row.subject_id).trigger("change");
         }, 1000);
-        $("#edit_name").val(row.name);
-        if (row.is_paid == 1) {
-            $(".edit-lesson-form .paid[name=payment_status]").prop(
-                "checked",
-                true
-            );
-        } else {
-            $(".edit-lesson-form .free[name=payment_status]").prop(
-                "checked",
-                false
-            );
-        }
-        $(".edit-lesson-form input[name=payment_status]").trigger("change");
-        $(`.edit-lesson-form input[name=status][value='${row.status}']`).prop(
-            "checked",
-            true
-        );
 
-        $(".edit-lesson-form .price_row input").val(row.price);
+        $("#edit_name").val(row.name);
+
+        editForm
+            .find(`input[name=status][value=${row.status}]`)
+            .prop("checked", true);
+
+        if (row.is_paid == 1) {
+            editForm.find(".payment_status.paid").prop("checked", true).trigger("change");
+            editForm.find("#price").val(row.price);
+        } else {
+            editForm.find(".payment_status.free").prop("checked", true).trigger("change");
+        }
+        editForm.find(".price_row input").val(row.price);
+        
+        // ---------------------------- Expiry Days ------------------------------ \\
+        /* Expiry Days  */
+        if (row.expiry_days == null) {
+            editForm
+                .find("#edit_lesson_has_expiry_date")
+                .prop("checked", false);
+            editForm.find(".lesson_expiry_days input").val(0);
+        } else {
+            editForm.find("#edit_lesson_has_expiry_date").prop("checked", true);
+            editForm.find(".lesson_expiry_days input").val(row.expiry_days);
+        }
+        editForm.find("#edit_lesson_has_expiry_date").trigger("change");
+        /* Expiry Days */
         let thumbnail = $(".edit-lesson-form input[name=lesson_thumbnail]");
         thumbnail.attr("data-default-file", row.lesson_thumbnail);
         $(".dropify-render img").attr("src", row.lesson_thumbnail);
 
         $("#edit_description").val(row.description);
-        if (row.file.length > 0) {
+        if (row.file && row.file.length > 0) {
             $.each(row.file, function (key, data) {
                 let html = "";
                 if (key == 0) {
@@ -223,7 +238,7 @@ window.topicEvents = {
                         html.find(".file_type")
                             .val("online_exam")
                             .trigger("change");
-                        setTimeout(function() {
+                        setTimeout(function () {
                             html.find(".quizzes").val(data.online_exam_id);
                         }, 2000);
                         break;
@@ -231,8 +246,8 @@ window.topicEvents = {
                         html.find(".file_type")
                             .val("assignment")
                             .trigger("change");
-                        setTimeout(function() {
-                            html.find(".assignments").val(data.assignment_id)
+                        setTimeout(function () {
+                            html.find(".assignments").val(data.assignment_id);
                         }, 2000);
                         break;
                 }
@@ -1908,7 +1923,9 @@ window.onlineExamQuestionsEvents = {
             $.each(row.options, function (index, value) {
                 if (index >= 2) {
                     html_option += `<div class="form-group col-md-6">
-        <input type="hidden" class="edit_eoption_id" name="edit_eoption[${index + 1}][id]" value="${value.id}">
+        <input type="hidden" class="edit_eoption_id" name="edit_eoption[${
+            index + 1
+        }][id]" value="${value.id}">
         <label>
             ${lang_option} 
             <span class="edit-eoption-number">${index + 1}</span> 
@@ -3153,7 +3170,9 @@ function onlineExamQueryParams(p) {
     };
 }
 
-$("#filter-view-question-class-id,#filter-question-class-section-id,#filter-question-subject-id,#filter-question-teacher-id").on("change", function () {
+$(
+    "#filter-view-question-class-id,#filter-question-class-section-id,#filter-question-subject-id,#filter-question-teacher-id"
+).on("change", function () {
     $("#table_list_questions").bootstrapTable("refresh");
 });
 function onlineExamQuestionsQueryParams(p) {
@@ -3166,7 +3185,6 @@ function onlineExamQuestionsQueryParams(p) {
         class_id: $("#filter-view-question-class-id").val(),
         subject_id: $("#filter-question-subject-id").val(),
         teacher_id: $("#filter-question-teacher-id").val(),
-
     };
 }
 function teacherQueryParams(p) {
