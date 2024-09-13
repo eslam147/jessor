@@ -61,17 +61,7 @@ class CouponController extends Controller
         } elseif ($limit > 100) {
             $limit = 100;
         }
-        $coupons->when(request()->filled('tags'), function ($q) {
-            $tags = explode(',', request('tags'));
-            return $q->whereHas('tags', function ($query) use ($tags) {
-                array_map('trim', $tags);
-                $query->where(function ($q) use ($tags) {
-                    foreach ($tags as $tag) {
-                        $q->orWhere("name->en","LIKE", "%{$tag}%");
-                    }
-                });
-            });
-        });
+
         $coupons = $this->filter($coupons);
         $total = $coupons->count();
 
@@ -101,7 +91,7 @@ class CouponController extends Controller
             $tempRow['class_name'] = optional($row->classModel)?->name ?? 'N/A';
             $tempRow['subject_name'] = optional($row->subject)?->name ?? 'N/A';
             $tempRow['expiry_date'] = $row->expiry_date->toDateString();
-            $tempRow['price'] = !is_null($row->price) ? number_format($row->price, 2) : 'N/A';
+            $tempRow['price'] = ! is_null($row->price) ? number_format($row->price, 2) : 'N/A';
             $tempRow['maximum_usage'] = $row->maximum_usage;
             $tempRow['created_at'] = convertDateFormat($row->created_at, 'd-m-Y H:i:s');
             $tempRow['updated_at'] = convertDateFormat($row->updated_at, 'd-m-Y H:i:s');
@@ -145,9 +135,9 @@ class CouponController extends Controller
 
     public function store(CouponRequest $request)
     {
-        if($request->post('coupon_type') == 'wallet'){
+        if ($request->post('coupon_type') == 'wallet') {
             $couponIds = $this->couponService->saveWalletCoupons($request);
-        }else{
+        } else {
             $couponIds = $this->couponService->savePurchaseCoupons($request);
         }
 
@@ -232,7 +222,6 @@ class CouponController extends Controller
 
         $lessons = Lesson::select('name', 'teacher_id', 'class_section_id', 'id')->get();
 
-
         return view('coupons.edit', compact('coupon', 'teachers', 'subjects', 'mediums', 'lessons'));
     }
 
@@ -244,7 +233,6 @@ class CouponController extends Controller
             'error' => false,
             'message' => trans('data_update_successfully'),
         ]);
-
     }
 
     public function destroy(Coupon $coupon)
@@ -257,8 +245,20 @@ class CouponController extends Controller
             'message' => trans('data_delete_successfully')
         ]);
     }
-    
-    private function filter($couponQuery){
+
+    private function filter($couponQuery)
+    {
+        $couponQuery->when(request()->filled('tags'), function ($q) {
+            $tags = explode(',', request('tags'));
+            return $q->whereHas('tags', function ($query) use ($tags) {
+                array_map('trim', $tags);
+                $query->where(function ($q) use ($tags) {
+                    foreach ($tags as $tag) {
+                        $q->orWhere("name->en", "LIKE", "%{$tag}%");
+                    }
+                });
+            });
+        });
         $couponQuery->when(request()->filled('search'), function ($q) {
             $search = request('search');
             return $q->where('id', 'LIKE', "%{$search}%")->orWhere('code', 'LIKE', "%{$search}%");
@@ -269,20 +269,20 @@ class CouponController extends Controller
             });
         });
 
-        $couponQuery->when(request('class_id'), function ($q, $val) {
-            return $q->where('class_id', $val);
+        $couponQuery->when(request()->filled('class_id'), function ($q) {
+            return $q->where('class_id', request('class_id'));
         });
 
-        $couponQuery->when(request('teacher_id'), function ($q, $val) {
-            return $q->where('teacher_id', $val);
+        $couponQuery->when(request()->filled('teacher_id'), function ($q) {
+            return $q->where('teacher_id', request('teacher_id'));
         });
 
-        $couponQuery->when(request('subject_id'), function ($q, $val) {
-            return $q->where('subject_id', $val);
+        $couponQuery->when(request()->filled('subject_id'), function ($q) {
+            return $q->where('subject_id', request('subject_id'));
         });
 
-        $couponQuery->when(request('lesson_id'), function ($q, $val) {
-            return $q->where('lesson_id', $val);
+        $couponQuery->when(request()->filled('lesson_id'), function ($q) {
+            return $q->where('lesson_id', request('lesson_id'));
         });
 
         $couponQuery->when(request()->filled('filter_start_date'), function ($q) {
