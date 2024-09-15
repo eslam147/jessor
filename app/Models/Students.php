@@ -117,7 +117,7 @@ class Students extends Model
                 }
             }
             $query->whereHas(
-                'user.enrollmentLessons.lesson',
+                'user.enrollmentLessons',
                 fn($q) => $q->where('teacher_id', $teacher->id)
             );
             return $query->whereIn('class_section_id', $class_section_ids);
