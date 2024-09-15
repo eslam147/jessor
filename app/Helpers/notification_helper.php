@@ -5,6 +5,7 @@ use App\Models\User;
 use App\Models\Settings;
 use Illuminate\Support\Facades\Storage;
 
+// c9zcdSFhUlWY7x67XCV5HI:APA91bGq2OkkBoeTFVhH0IBscS6aI5t4vdYBz0A6HtPKV4BgMmwOgRExVA69HplKFGhYli4rYbHxdjJhxWFlCgL00O1CT_rcn8UzwLx83ZpzmUKh1-fa46u1YHubZMgRy798o5o-9eNQ
 function send_notification($user, $title, $body, $type, $image, $userinfo)
 {
     $access_token = getAccessToken();
@@ -131,8 +132,7 @@ function sendNotificationToFCM($url, $access_token, $Data)
 function getAccessToken()
 {
     $file_name = Settings::select('message')->where('type', 'service_account_file')->value('message');
-
-    if (Storage::exists("app/public/{$file_name}") && Storage::size("app/public/{$file_name}") > 0) {
+    if (Storage::disk('public')->exists($file_name)  ) {
         $client = new Client();
         $client->setAuthConfig(storage_path("app/public/{$file_name}"));
         $client->setScopes(['https://www.googleapis.com/auth/firebase.messaging']);

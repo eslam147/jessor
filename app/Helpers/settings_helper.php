@@ -38,7 +38,13 @@ if (! function_exists('getYouTubeVideoId')) {
         return null;
     }
 }
-
+if (! function_exists('checkUserAgentCustomBrowser')) {
+    function checkUserAgentCustomBrowser()
+    {
+        $userAgent = trim(request()->userAgent());
+        return in_array($userAgent, ['semi_browser_by_adel_v2', 'semi_browser_by_adel']);
+    }
+}
 if (! function_exists('settingByType')) {
     function settingByType($type)
     {

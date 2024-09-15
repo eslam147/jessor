@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\WebController;
+use App\Http\Controllers\ChatController;
 use App\Http\Controllers\ExamController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\RoleController;
@@ -19,6 +20,7 @@ use App\Http\Controllers\LessonController;
 use App\Http\Controllers\MediumController;
 use App\Http\Controllers\SliderController;
 use App\Http\Controllers\StreamController;
+use App\Http\Controllers\WalletController;
 use App\Http\Controllers\HolidayController;
 use App\Http\Controllers\ParentsController;
 use App\Http\Controllers\SectionController;
@@ -44,7 +46,6 @@ use App\Http\Controllers\SessionYearController;
 use App\Http\Controllers\AnnouncementController;
 use App\Http\Controllers\ClassTeacherController;
 use App\Http\Controllers\NotificationController;
-use App\Http\Controllers\WalletController;
 use App\Http\Controllers\SystemUpdateController;
 use App\Http\Controllers\ExamTimetableController;
 use App\Http\Controllers\student\EnrollController;
@@ -59,12 +60,12 @@ use Stancl\Tenancy\Middleware\InitializeTenancyByDomain;
 use App\Http\Controllers\student\StudentDashboardController;
 use Stancl\Tenancy\Middleware\PreventAccessFromCentralDomains;
 use App\Http\Controllers\student\WalletController as StudentWallet;
-use App\Http\Controllers\student\AssignmentController as StudentAssignmentController;
 use App\Http\Controllers\student\LessonController as StudentLessonController;
+use App\Http\Controllers\student\ExamController as StudentOnlineExamController;
 use App\Http\Controllers\student\SubjectController as StudentSubjectController;
 use App\Http\Controllers\student\SettingController as StudentSettingsController;
+use App\Http\Controllers\student\AssignmentController as StudentAssignmentController;
 use App\Http\Controllers\student\OfflineExamController as StudentOfflineExamController;
-use App\Http\Controllers\student\ExamController as StudentOnlineExamController;
 
 Route::middleware([
     'web',
@@ -521,7 +522,11 @@ Route::middleware([
 
 
             Route::resource('leave-master', LeaveMasterController::class);
-
+            Route::prefix('chat')->middleware(['throttle:5,1'])->controller(ChatController::class)->as('chat.')->group(function () {
+                Route::get('/list', 'list')->name('list');
+                Route::get('/messages/{user}', action: 'chatMessages')->name('messages');
+                Route::post('/send-message', 'sendMessage')->name('send.message');
+            });
             // ------------------------------------------------------ \\
             Route::prefix('coupons')->as('coupons.')->controller(CouponController::class)->group(function () {
                 Route::get('/', 'index')->name('index');

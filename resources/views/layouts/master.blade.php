@@ -2,7 +2,7 @@
 @php
     $lang = Session::get('language');
 @endphp
-@if($lang)
+@if ($lang)
     @if ($lang->is_rtl)
         <html lang="en" dir="rtl">
     @else
@@ -11,6 +11,7 @@
 @else
     <html lang="en">
 @endif
+
 <head>
     <!-- Required meta tags -->
     <meta charset="utf-8">
@@ -21,38 +22,40 @@
     @yield('css')
 
 </head>
+
 <body class="sidebar-fixed">
-<div class="container-scroller">
+    <div class="container-scroller">
 
-    {{-- header --}}
-    @include('layouts.header')
+        {{-- header --}}
+        @include('layouts.header')
 
-    <div class="container-fluid page-body-wrapper">
+        <div class="container-fluid page-body-wrapper">
 
-        {{-- siderbar --}}
-        @include('layouts.sidebar')
+            {{-- siderbar --}}
+            @include('layouts.sidebar')
 
-        <div class="main-panel">
+            <div class="main-panel">
 
-            @yield('content')
+                @yield('content')
 
-            {{-- footer --}}
-            @include('layouts.footer')
+                {{-- footer --}}
+                @include('layouts.footer')
+
+            </div>
 
         </div>
-
+        @hasrole('Teacher')
+            <x-chat-component />
+        @endhasrole
     </div>
 
-</div>
+    @include('layouts.footer_js')
 
-@include('layouts.footer_js')
-
-{{-- After Update Notes Modal --}}
-@include('after-update-note-modal')
+    {{-- After Update Notes Modal --}}
+    @include('after-update-note-modal')
 
 
-@yield('js')
-
-@yield('script')
+    @yield('js')
+    @yield('script')
 </body>
 </html>
