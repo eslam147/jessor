@@ -40,48 +40,53 @@ class ChatService
         $teacher = auth()->user()->teacher;
 
         $class_section_ids = ClassTeacher::with('class_section')->where('class_teacher_id', $teacher->id)->pluck('class_section_id')->toArray();
-
-        $subject_teachers = SubjectTeacher::with('class_section')->where('teacher_id', $teacher->id)->whereNotIn('class_section_id', $class_section_ids)->groupBy('class_section_id')->get();
+        $total_items = 0;
+        $totalunreadusers = 0;
+        // $subject_teachers = SubjectTeacher::with('class_section')->where('teacher_id', $teacher->id)->whereNotIn('class_section_id', $class_section_ids)->groupBy('class_section_id')->get();
         $data = [];
-        $parents_ids = [];
 
         if ($class_section_ids) {
-            $students = Students::with(['user', 'class_section.class', 'student_subjects.subject'])->whereIn('class_section_id', $class_section_ids)->get();
-            foreach ($students as $student) {
-                $parents_ids[] = $student->father_id;
-                $parents_ids[] = $student->mother_id;
-                $parents_ids[] = $student->guardian_id;
-            }
+            $students = Students::with('user', 'class_section.class', 'student_subjects.subject')
+                ->whereIn('class_section_id', $class_section_ids)
+                ->paginate();
 
-            $parents_ids = array_filter(array_unique($parents_ids));
+            $studentIds = $students->pluck('user_id')->toArray();
+
+            $chatMessages = ChatMessage::where(function ($query) use ($studentIds, $teacher) {
+                $query->whereIn('modal_id', $studentIds)
+                    ->where('sender_id', $teacher->user->id);
+            })->orWhere(function ($query) use ($studentIds, $teacher) {
+                $query->where('modal_id', $teacher->user->id)
+                    ->whereIn('sender_id', $studentIds);
+            })->latest('id')
+                ->get();
+
+            $lastReadMessages = ReadMessage::where('modal_id', $teacher->user->id)
+                ->whereIn('user_id', $students->pluck('user_id'))
+                ->get();
 
             foreach ($students as $student) {
                 $unreadCount = 0;
-
                 if ($student->user_id != 0) {
-                    $lastMessage = ChatMessage::with('file')->where(function ($query) use ($student, $teacher) {
-                        $query->where('modal_id', $student->user_id)
-                            ->where('sender_id', $teacher->user->id);
-                    })
-                        ->orWhere(function ($query) use ($student, $teacher) {
-                            $query->where('modal_id', $teacher->user->id)
-                                ->where('sender_id', $student->user_id);
-                        })
-                        ->select('id', 'body', 'date', 'sender_id')
-                        ->latest()
+                    $lastMessage = $chatMessages
+                        ->filter(
+                            function ($item) use ($student, $teacher) {
+                                return $item->modal_id == $student->user->id || $item->sender_id == $student->user->id;
+                            }
+                        )->last();
+
+                    $lastReadMessage = $lastReadMessages
+                        ->where('modal_id', $teacher->user->id)
+                        ->where('user_id', $student->user_id)
                         ->first();
 
-                    $lastReadMessage = ReadMessage::where('modal_id', $teacher->user->id)->where('user_id', $student->user_id)->first();
-
                     if ($lastReadMessage) {
-
                         $lastReadMessageId = $lastReadMessage->last_read_message_id;
-                        $unreadCount = ChatMessage::where('sender_id', $student->user_id)->where('modal_id', $teacher->user->id)
-                            ->when(
-                                ! empty($lastReadMessageId),
-                                fn($q) => $q->where('id', '>', $lastReadMessageId)
-                            )
-                            ->count();
+                        if ($lastReadMessageId) {
+                            $unreadCount = $chatMessages->where('sender_id', $student->user_id)
+                                ->where('id', '>', $lastReadMessageId)
+                                ->count();
+                        }
                     }
 
                     $student_subject = $student->subjects();
@@ -94,12 +99,11 @@ class ChatService
                     }
                     $subject_id = array_merge($core_subjects, $elective_subjects);
 
-
-                    $subjects = Subject::whereIn('id', $subject_id)->select('id', 'name')->get();
+                    // $subjects = Subject::whereIn('id', $subject_id)->select('id', 'name')->get(['id', 'name'])->toArray();
                     $studentUser = optional($student->user);
                     $data[] = [
                         'id' => $student->id,
-                        'user_id' => $student->user_id, // Assuming this is the correct property name
+                        'user_id' => $student->user_id,
                         'first_name' => $studentUser->first_name ?? '',
                         'last_name' => $studentUser->last_name ?? '',
                         'image' => $studentUser->image ?? '',
@@ -107,11 +111,11 @@ class ChatService
                         'admission_no' => $student->admission_no,
                         'gender' => $studentUser->gender,
                         'dob' => $studentUser->dob,
-                        'subjects' => $subjects,
-                        'address' => $studentUser->current_address,
+                        // 'subjects' => $subjects,
+                        // 'address' => $studentUser->current_address,
                         'last_message' => $lastMessage ?? null,
                         'class_name' => $student->class_section->class->name . ' ' . $student->class_section->section->name . ' ' . $student->class_section->class->medium->name,
-                        'isParent' => $user_type,
+                        // 'isParent' => $user_type,
                         'unread_message' => $unreadCount ?? 0
                     ];
                 }
@@ -119,23 +123,18 @@ class ChatService
 
             $total_items = count($data) ?? 0;
 
-            $unreadusers = array_filter($data, function ($user) {
-                return $user['unread_message'] > 0;
-            });
-
-            $totalunreadusers = count($unreadusers);
+            $totalunreadusers = count(array_filter($data, fn($user) => $user['unread_message'] > 0));
 
             $data = collect($data)->sortByDesc(function ($user) {
-                return optional($user['last_message']?->date) ?? 0;
+                return boolval(optional($user['last_message'])->date);
             })->values();
 
-            return [
-                'items' => $data,
-                'total_items' => $total_items,
-                'total_unread_users' => $totalunreadusers,
-            ];
-
         }
+        return [
+            'items' => $data,
+            'total_items' => $total_items,
+            'total_unread_users' => $totalunreadusers,
+        ];
     }
 
     public function sendMessage(ChatDto $chatDto)
@@ -206,6 +205,13 @@ class ChatService
                         'name' => $subject->subject->name,
                     ];
                 }
+                $this->sendPushNotification(
+                    teacher: $teacher,
+                    receiverId: $chatDto->receiver->id,
+                    filesCount: $count,
+                    unreadCount: $unreadCount,
+                    data: $data
+                );
             }
 
 
@@ -222,13 +228,7 @@ class ChatService
 
             // }
 
-            $this->sendPushNotification(
-                teacher: $teacher,
-                receiverId: $chatDto->receiver->id,
-                filesCount: $count,
-                unreadCount: $unreadCount,
-                data: $data
-            );
+
             DB::commit();
 
             return [
@@ -323,7 +323,7 @@ class ChatService
     {
         $auth = Auth::id();
         $userId = $user->id;
-
+        $message_id = null;
         $lastMessage = ChatMessage::select('id')->where('sender_id', $userId)
             ->latest('id')
             ->where('modal_id', $auth)->value('id');

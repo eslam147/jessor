@@ -85,6 +85,11 @@
     <div class="position-relative">
         <i class="fa fa-commenting"></i>
     </div>
+    @if ($content['total_unread_users'])
+        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+            {{ $content['total_unread_users'] }}
+        </span>
+    @endif
 </button>
 
 <div class="chat-container" id="chatContainer">
@@ -110,7 +115,10 @@
     <div class="chat_content">
 
         <div class="chat-users" id="chatUsers">
-            @foreach ($users as $user)
+            <div class="alert alert-warning" role="alert">
+                <b>Note</b> : The Pop up Chat Feature Is Still Under Development
+            </div>
+            @foreach ($content['items'] as $user)
                 <div class="chat-user d-flex align-items-center p-2 border-bottom ">
                     <!-- User Image -->
                     <div class="user-image col-2">
@@ -134,7 +142,9 @@
                         <div class="user-details text-muted">
                             <small>
                                 @if ($user['last_message'])
-                                    {{ $user['last_message']->sender_id == auth()->user()->id ? 'You:' : '' }}
+                                    @if ($user['last_message']->sender_id == auth()->user()->id)
+                                        <small>You : </small>
+                                    @endif
                                     {{ $user['last_message']->body }}
                                 @endif
                             </small>
@@ -241,10 +251,9 @@
             const message = messageInput.value.trim();
 
             if (message.length > 0) {
-                    addMessage({
-                    msg: message,
+                addMessage({
+                    body: message,
                     type: 'text',
-
                 }, 'sent');
 
                 // const {
@@ -341,7 +350,7 @@
                 //     status: 'sent',
                 //     timeStamp: '14:30:00'
                 // });
-// /
+                // /
                 addMessage(msg, (msg.sender_id === userId ? 'received' : 'sent'), position, scrollTop);
 
                 if (msg.files) {
@@ -362,7 +371,7 @@
             messageElement.textContent = message.body;
             const userInfo = document.createElement('div');
             userInfo.className = 'd-flex align-items-center justify-content-end';
-            
+
 
 
             // <div class="d-flex align-items-center justify-content-end">
