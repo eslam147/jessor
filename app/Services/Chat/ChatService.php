@@ -141,9 +141,9 @@ class ChatService
             $totalunreadusers = count(array_filter($data, fn($user) => $user['unread_message'] > 0));
 
             $data = collect($data)->sortByDesc(function ($user) {
-                return optional($user['last_message'])?->date ?? 0;
+                return optional($user['last_message'])?->date ? $user['last_message']->date->timestamp : 0;
             })->sortByDesc('unread_message')
-            ->values();
+                ->values();
 
         }
         return [
