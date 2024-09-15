@@ -281,7 +281,7 @@ class AttendanceController extends Controller
                 $tempRow['student_id'] = "<input type='text' name='student_id[]' class='form-control' readonly value=" . $row->id . ">";
                 $tempRow['admission_no'] = $row->admission_no;
                 $tempRow['roll_no'] = $row->roll_number;
-                $tempRow['name'] = $row->user->full_name;
+                $tempRow['name'] = $row->user?->full_name;
                 $tempRow['type'] = $type;
                 $rows[] = $tempRow;
             }
