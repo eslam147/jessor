@@ -76,6 +76,10 @@
         height: 40px;
     }
 
+    .chat_badge {
+        transform: translate(50%, -50%);
+    }
+
     .back_to_users {
         cursor: pointer;
     }
@@ -112,7 +116,7 @@
             <button class="btn btn-sm btn-light" id="closeChat">×</button>
         </div>
     </div>
-    <div class="chat_content">
+    <div class="chat_content overflow-auto">
 
         <div class="chat-users" id="chatUsers">
             <div class="alert alert-warning" role="alert">
@@ -136,7 +140,7 @@
                             @if ($user['unread_message'] > 0)
                                 <span class="badge badge-primary rounded-circle">{{ $user['unread_message'] }}</span>
                             @else
-                                <small>{{ $user['last_message'] == null ? '' : $user['last_message']->date?->diffForHumans() }}</small>
+                                <small>{{ $user['last_message'] == null ? '' : optional($user['last_message'])->date?->diffForHumans() }}</small>
                             @endif
                         </div>
                         <div class="user-details text-muted">

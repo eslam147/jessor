@@ -101,9 +101,6 @@ class ChatService
                             $unreadCount = $chatMessages->where('sender_id', $student->user_id)
                                 ->where('id', '>', $lastReadMessageId)
                                 ->count();
-                                dd(
-                                    $unreadCount
-                                );
                         }
                     }
 
