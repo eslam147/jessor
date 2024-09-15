@@ -70,8 +70,8 @@ class ChatService
                 if ($student->user_id != 0) {
                     $lastMessage = $chatMessages
                         ->filter(
-                            function ($item) use ($student, $teacher) {
-                                return $item->modal_id == $student->user->id || $item->sender_id == $student->user->id;
+                            function ($item) use ($student) {
+                                return $item->modal_id == $student->user?->id || $item->sender_id == $student->user?->id;
                             }
                         )->last();
 
