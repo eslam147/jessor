@@ -206,7 +206,8 @@
                     $("#chatView").removeClass('d-none')
                     $('.header_chat_info').removeClass('d-none');
                     $(".chat_title").addClass('d-none');
-                    displayMessagesWithFiles(response.data.items);
+
+                    displayMessagesWithFiles(response.data.items, currentChatUserId, 'bottom', false);
                     lastPage = Math.ceil(response.data.total_items / limit);
                     nextPage = nextPage + 1;
                 },
@@ -234,7 +235,11 @@
             $("#chatView").addClass('d-none')
             $('.header_chat_info').addClass('d-none');
             $(".chat_title").removeClass('d-none');
-
+            currentChatUserId = null;
+            nextPage = 1;
+            currentPage = 1;
+            lastPage = 0;
+            $("#chatMessages").empty();
         }
         // Close chat
         backToUsers.addEventListener('click', () => {
@@ -294,8 +299,6 @@
         }
 
         function loadMoreMessages() {
-            console.log('load more messages');
-
             $("#spinner").removeClass('d-none')
             // const userId = $(this).data('user-id');
             //     $("#chatMessages").empty();
@@ -315,7 +318,7 @@
                     $('.header_chat_info').removeClass('d-none');
                     $(".chat_title").addClass('d-none');
                     if (response.data.items.length > 0) {
-                        displayMessagesWithFiles(response.data.items, currentChatUserId, 'bottom', false);
+                        displayMessagesWithFiles(response.data.items, currentChatUserId, 'top', false);
                         currentPage = nextPage;
                         nextPage = nextPage + 1;
                     }
