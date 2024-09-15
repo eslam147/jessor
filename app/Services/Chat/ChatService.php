@@ -46,8 +46,15 @@ class ChatService
         $data = [];
 
         if ($class_section_ids) {
+            $chatMessagesTable = (new ChatMessage)->getTable();
             $students = Students::with('user', 'class_section.class', 'student_subjects.subject')
                 ->whereIn('class_section_id', $class_section_ids)
+                ->orderByRaw(
+                    "(SELECT COUNT(*) 
+                      FROM {$chatMessagesTable} AS messages
+                      WHERE (messages.modal_id = students.user_id AND messages.sender_id = ?) OR (messages.modal_id = ? AND messages.sender_id = students.user_id)) DESC",
+                    [Auth::user()->id, Auth::user()->id]
+                )->orderByDesc('id')
                 ->paginate();
 
             $studentIds = $students->pluck('user_id')->toArray();

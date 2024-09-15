@@ -2834,7 +2834,7 @@ class StudentApiController extends Controller
             $totalunreadusers = count($unreadusers);
 
             $data = collect($data)->sortByDesc(function ($user) {
-                return optional($user['last_message'])->date ?? 0;
+                return boolval(optional($user['last_message'])->date);
             })->values();
 
             $response = [
