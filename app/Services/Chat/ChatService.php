@@ -107,14 +107,14 @@ class ChatService
                         'first_name' => $studentUser->first_name ?? '',
                         'last_name' => $studentUser->last_name ?? '',
                         'image' => $studentUser->image ?? '',
-                        'roll_no' => $student->roll_number,
-                        'admission_no' => $student->admission_no,
                         'gender' => $studentUser->gender,
                         'dob' => $studentUser->dob,
+                        // 'roll_no' => $student->roll_number,
+                        // 'admission_no' => $student->admission_no,
                         // 'subjects' => $subjects,
                         // 'address' => $studentUser->current_address,
                         'last_message' => $lastMessage ?? null,
-                        'class_name' => $student->class_section->class->name . ' ' . $student->class_section->section->name . ' ' . $student->class_section->class->medium->name,
+                        'class_name' => $student->class_section?->class?->name . ' ' . $student->class_section?->section?->name . ' ' . $student->class_section?->class?->medium?->name,
                         // 'isParent' => $user_type,
                         'unread_message' => $unreadCount ?? 0
                     ];

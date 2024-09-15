@@ -7,7 +7,7 @@ use App\Services\Chat\ChatService;
 
 class ChatComponent extends Component
 {
-    public $users = [];
+    public $content = [];
     public function __construct(
         private readonly ChatService $chatService
     ) {
@@ -16,7 +16,7 @@ class ChatComponent extends Component
     public function render()
     {
         $chatUsers = $this->chatService->getChatUserList();
-        $this->users = $chatUsers['items'];
+        $this->content = $chatUsers;
 
         return view('components.chat-component');
     }
