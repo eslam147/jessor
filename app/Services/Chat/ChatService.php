@@ -101,6 +101,9 @@ class ChatService
                             $unreadCount = $chatMessages->where('sender_id', $student->user_id)
                                 ->where('id', '>', $lastReadMessageId)
                                 ->count();
+                                dd(
+                                    $unreadCount
+                                );
                         }
                     }
 
@@ -137,12 +140,13 @@ class ChatService
             }
 
             $total_items = count($data) ?? 0;
-
+            // $undata = ;
             $totalunreadusers = count(array_filter($data, fn($user) => $user['unread_message'] > 0));
 
             $data = collect($data)->sortByDesc(function ($user) {
-                return boolval(optional($user['last_message'])->date);
-            })->values();
+                return optional($user['last_message'])?->date ?? 0;
+            })->sortByDesc('unread_message')
+            ->values();
 
         }
         return [
