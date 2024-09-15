@@ -45,7 +45,7 @@
 
         </div>
         @hasrole('Teacher')
-            {{-- <x-chat-component /> --}}
+            <x-chat-component />
         @endhasrole
     </div>
 
@@ -56,7 +56,7 @@
 
 
     @yield('js')
-    @include('layouts.firebase')
+    {{-- @include('layouts.firebase') --}}
     @yield('script')
 </body>
 </html>
