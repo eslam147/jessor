@@ -90,7 +90,7 @@
         <i class="fa fa-commenting"></i>
     </div>
     @if ($content['total_unread_users'])
-        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger chat_badge">
             {{ $content['total_unread_users'] }}
         </span>
     @endif
@@ -159,7 +159,7 @@
             @endforeach
         </div>
         <div class="chat_view d-none" id="chatView">
-            <div class="chat-messages d-flex flex-column" id="chatMessages"></div>
+            <div class="chat-messages d-flex flex-column-reverse" id="chatMessages"></div>
             <div class="chat-input">
                 <div class="input-group">
                     <input type="text" class="form-control" placeholder="Type a message..." id="messageInput">

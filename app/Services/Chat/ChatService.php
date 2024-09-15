@@ -316,7 +316,7 @@ class ChatService
 
             unset($message['file']);
         }
-        // $messages = array_reverse($messages);
+        $messages = array_reverse($messages);
         return [
             'error' => false,
 
