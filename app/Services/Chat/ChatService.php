@@ -96,19 +96,19 @@ class ChatService
 
 
                     $subjects = Subject::whereIn('id', $subject_id)->select('id', 'name')->get();
-
+                    $studentUser = optional($student->user);
                     $data[] = [
                         'id' => $student->id,
                         'user_id' => $student->user_id, // Assuming this is the correct property name
-                        'first_name' => $student->user->first_name ?? '',
-                        'last_name' => $student->user->last_name ?? '',
-                        'image' => $student->user->image ?? '',
+                        'first_name' => $studentUser->first_name ?? '',
+                        'last_name' => $studentUser->last_name ?? '',
+                        'image' => $studentUser->image ?? '',
                         'roll_no' => $student->roll_number,
                         'admission_no' => $student->admission_no,
-                        'gender' => $student->user->gender,
-                        'dob' => $student->user->dob,
+                        'gender' => $studentUser->gender,
+                        'dob' => $studentUser->dob,
                         'subjects' => $subjects,
-                        'address' => $student->user->current_address,
+                        'address' => $studentUser->current_address,
                         'last_message' => $lastMessage ?? null,
                         'class_name' => $student->class_section->class->name . ' ' . $student->class_section->section->name . ' ' . $student->class_section->class->medium->name,
                         'isParent' => $user_type,
