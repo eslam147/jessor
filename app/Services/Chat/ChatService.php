@@ -54,7 +54,15 @@ class ChatService
                       FROM {$chatMessagesTable} AS messages
                       WHERE (messages.modal_id = students.user_id AND messages.sender_id = ?) OR (messages.modal_id = ? AND messages.sender_id = students.user_id)) DESC",
                     [Auth::user()->id, Auth::user()->id]
-                )->orderByDesc('id')
+                )
+                ->orderByRaw(
+                    "(SELECT MAX(messages.id)
+                      FROM {$chatMessagesTable} AS messages
+                      WHERE (messages.modal_id = students.user_id AND messages.sender_id = ?) 
+                         OR (messages.modal_id = ? AND messages.sender_id = students.user_id)) DESC",
+                    [Auth::user()->id, Auth::user()->id]
+                )
+                ->orderByDesc('id')
                 ->paginate();
 
             $studentIds = $students->pluck('user_id')->toArray();
