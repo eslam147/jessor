@@ -48,6 +48,7 @@ use App\Http\Controllers\ClassTeacherController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\SystemUpdateController;
 use App\Http\Controllers\ExamTimetableController;
+// use App\Http\Controllers\LiveLessonController;
 use App\Http\Controllers\student\EnrollController;
 use App\Http\Controllers\student\SignupController;
 use App\Http\Controllers\student\TopicsController;
@@ -527,6 +528,19 @@ Route::middleware([
                 Route::get('/messages/{user}', action: 'chatMessages')->name('messages');
                 Route::post('/send-message', 'sendMessage')->name('send.message');
             });
+            // Route::prefix('live_lessons')->as('live_lessons.')->controller(LiveLessonController::class)->group(function (){
+            //     Route::get('/', 'index')->name('index');
+            //     Route::get('create', 'create')->name('create');
+            //     Route::post('store', 'store')->name('store');
+            //     Route::get('edit/{live_lesson}', 'edit')->name('edit');
+            //     Route::put('update/{live_lesson}', 'update')->name('update');
+            //     Route::delete('destroy/{live_lesson}', 'destroy')->name('destroy');
+            //     Route::get('show/{live_lesson}', 'show')->name('show');
+            //     Route::get('list', 'list')->name('list');
+            //     Route::put('start/{live_lesson}', 'start')->name('start');
+            //     Route::put('stop/{live_lesson}', 'stop')->name('stop');
+                
+            // });
             // ------------------------------------------------------ \\
             Route::prefix('coupons')->as('coupons.')->controller(CouponController::class)->group(function () {
                 Route::get('/', 'index')->name('index');
@@ -557,8 +571,9 @@ Route::middleware([
             Route::controller(EnrollmentController::class)->prefix('enrollment')->as('enrollment.')->group(function () {
                 Route::get('/', 'index')->name('index');
                 Route::get('/list', 'list')->name('list');
-                Route::delete('delete/{enrollment}', 'destroy')->name('destroy');
                 Route::put('update/{enrollment}', 'update')->name('update');
+                Route::post('store', 'store')->name('store');
+                Route::delete('delete/{enrollment}', 'destroy')->name('destroy');
             });
             //return 'This is your multi-tenant application. The id of the current tenant is ' . tenant('id');
         });

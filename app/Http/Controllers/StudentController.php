@@ -1892,10 +1892,9 @@ class StudentController extends Controller
     public function studentList(Request $request)
     {
         if (! Auth::user()->can('student-list')) {
-            $response = array(
+            return response()->json([
                 'message' => trans('no_permission_message')
-            );
-            return response()->json($response);
+            ]);
         }
         $offset = request('offset', 0);
         $limit = request('limit', 10);

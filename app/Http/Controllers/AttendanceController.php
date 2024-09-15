@@ -36,6 +36,7 @@ class AttendanceController extends Controller
 
         $class_section_ids = ClassTeacher::where('class_teacher_id', $teacher_id)->pluck('class_section_id');
         $class_sections = ClassSection::with('class', 'section', 'classTeachers', 'class.streams')->whereIn('id', $class_section_ids)->get();
+
         return view('attendance.index', compact('class_sections'));
     }
 
@@ -247,7 +248,7 @@ class AttendanceController extends Controller
                 $rows[] = $tempRow;
             }
         } else {
-            $sql = Students::with('user')->where('class_section_id', $class_section_id);
+            $sql = Students::with('user')->where('class_section_id', $class_section_id)->ofTeacher();
 
             if (isset($_GET['search']) && ! empty($_GET['search'])) {
                 $search = $_GET['search'];
@@ -346,7 +347,7 @@ class AttendanceController extends Controller
                         ->orwhere('roll_number', 'LIKE', "%$search%");
                 });
         }
-        if (!empty($attendance_type)) {
+        if (! empty($attendance_type)) {
             $sql->where('type', $attendance_type);
         }
         $total = $sql->count();

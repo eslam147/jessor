@@ -41,6 +41,13 @@
                                         </select>
                                     </div>
                                 @endhasrole
+                                @can('enrollments-create')
+                                    <div class="col">
+                                        <button type="button" class="btn btn-primary" id="add_enrollment">Add New
+                                            Enrollment</button>
+                                    </div>
+                                @endcan
+
                             </div>
                         </div>
                         <div class="row">
@@ -95,39 +102,81 @@
                     </div>
                 </div>
             </div>
-            <div class="modal fade" id="editModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
-                aria-hidden="true">
-                <div class="modal-dialog m" role="document">
-                    <div class="modal-content">
-                        <div class="modal-header border-bottom border-secondary">
-                            <h5 class="modal-title" id="exampleModalLabel">
-                                {{ __('edit') . ' ' . __('enrollment') }}
-                            </h5>
-                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                <span aria-hidden="true">&times;</span>
-                            </button>
-                        </div>
-                        <form class="pt-3 edit-enrollment-form" id="edit-form" method="POST"
-                            action="{{ route('enrollment.update', '') }}" novalidate="novalidate">
-                            <div class="modal-body">
-                                <input type="hidden" name="edit_id" id="edit_id">
-                                @method('PUT')
-                                <div class="row justify-content-center">
-                                    <div class="form-group col-sm-12">
-                                        <label>{{ __('expiry_date') }} <span class="text-danger">*</span></label>
-                                        <input type="datetime-local" class="expiry_date form-control"
-                                            name="expiration_at" id="edit_expiry_date">
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="modal-footer border-light border-top">
-                                <button type="button" class="btn btn-secondary"
-                                    data-dismiss="modal">{{ __('close') }}</button>
-                                <input class="btn btn-theme" type="submit" value={{ __('edit') }} />
-                            </div>
-                        </form>
-                    </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="editModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog m" role="document">
+            <div class="modal-content">
+                <div class="modal-header border-bottom border-secondary">
+                    <h5 class="modal-title" id="exampleModalLabel">
+                        {{ __('edit') . ' ' . __('enrollment') }}
+                    </h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
                 </div>
+                <form class="pt-3 edit-enrollment-form" id="edit-form" method="POST"
+                    action="{{ route('enrollment.update', '') }}" novalidate="novalidate">
+                    <div class="modal-body">
+                        <input type="hidden" name="edit_id" id="edit_id">
+                        @method('PUT')
+                        <div class="row justify-content-center">
+                            <div class="form-group col-sm-12">
+                                <label>{{ __('expiry_date') }} <span class="text-danger">*</span></label>
+                                <input type="datetime-local" class="expiry_date form-control" name="expiration_at"
+                                    id="edit_expiry_date">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer border-light border-top">
+                        <button type="button" class="btn btn-secondary"
+                            data-dismiss="modal">{{ __('close') }}</button>
+                        <input class="btn btn-theme" type="submit" value={{ __('edit') }} />
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="storeModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog m" role="document">
+            <div class="modal-content">
+                <div class="modal-header border-bottom border-secondary">
+                    <h5 class="modal-title" id="exampleModalLabel">
+                        {{ __('create') . ' ' . __('enrollment') }}
+                    </h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <form class="pt-3 store-enrollment-form" id="store-form" method="POST"
+                    action="{{ route('enrollment.store') }}" novalidate="novalidate">
+                    <div class="modal-body">
+                        @csrf
+                        <div class="row justify-content-center">
+                            <div class="col">
+                                <select name="lesson_id" id="lesson_id" required class="form-control">
+                                    <option>{{ __('select_lesson') }}</option>
+                                    @foreach ($lessons as $lesson)
+                                        <option value="{{ $lesson->id }}">{{ $lesson->name }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div class="col">
+                                <select name="student_id" id="filter_student" required class="form-control select2">
+                                    <option>{{ __('select_student') }}</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer border-light border-top">
+                        <button type="button" class="btn btn-secondary"
+                            data-dismiss="modal">{{ __('close') }}</button>
+                        <input class="btn btn-theme" type="submit" value={{ __('create') }} />
+                    </div>
+                </form>
             </div>
         </div>
     </div>
@@ -155,5 +204,80 @@
                 teacher_id: $('#filter_teacher').val(),
             };
         }
+        $("#filter_student").select2({
+            ajax: {
+                url: `{{ route('students.list', '') }}`, // Replace with your actual endpoint URL
+                dataType: 'json',
+                delay: 500, // Optional: delay before triggering the request
+                data: function(params) {
+                    return {
+                        search: params.term
+                    };
+                },
+                processResults: function(data) {
+                    return {
+                        results: data.rows.map(student => {
+                            return {
+                                id: student.id, // Use a unique identifier for the option
+                                text: `${student.first_name} ${student.last_name}` // Display text combining first and last names
+                            };
+                        })
+                    };
+                },
+                cache: true
+            },
+            minimumInputLength: 3,
+            placeholder: 'Select a student',
+            allowClear: true
+        });
+
+        $("#add_enrollment").click(function() {
+            $("#storeModal").modal("show");
+        })
+        $(".store-enrollment-form").validate({
+            rules: {
+                lesson_id: {
+                    required: true
+                },
+                student_id: {
+                    required: true
+                }
+            }
+        })
+        $(".store-enrollment-form").submit(function(e) {
+            e.preventDefault();
+            let formElement = $(this);
+            if (formElement.valid()) {
+
+                let submitButtonElement = formElement.find('input[type="submit"]');
+                let url = formElement.attr('action');
+                // if (formElement.valid()) {
+                let submitButtonText = submitButtonElement.val();
+
+                function beforeSendCallback() {
+                    submitButtonElement.attr('disabled', true);
+                }
+
+                function mainSuccessCallback(response) {
+                    showSuccessToast(response.message);
+                    $('#storeModal').modal('hide');
+                    $('#table_list').bootstrapTable('refresh');
+                    formElement[0].reset();
+                }
+
+                function mainErrorCallback(response) {
+                    showErrorToast(response.message);
+                }
+
+                function finalCallback(response) {
+                    submitButtonElement.attr('disabled', false);
+                }
+
+                ajaxRequest("POST", url, new FormData(formElement[0]), beforeSendCallback, mainSuccessCallback,
+                    mainErrorCallback,
+                    finalCallback, false);
+            }
+
+        })
     </script>
 @endsection

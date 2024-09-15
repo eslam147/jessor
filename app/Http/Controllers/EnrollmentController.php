@@ -2,14 +2,22 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\Response\HttpResponseCode;
 use Exception;
 use App\Models\Lesson;
 use App\Models\Enrollment;
+use App\Services\Purchase\PurchaseService;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\Auth;
 
 class EnrollmentController extends Controller
 {
+    public function __construct(
+        public PurchaseService $enrollmentService
+    ) {
+
+    }
     public function index()
     {
         $lessons = Lesson::relatedToTeacher()->with('teacher.user')->get();
@@ -36,11 +44,9 @@ class EnrollmentController extends Controller
         $enrollmentQuery->when(request()->filled('search'), function ($q) {
             $search = request('search');
             return $q->whereHas('user', function ($q) use ($search) {
-                
                 return $q->where('id', 'LIKE', "%{$search}%")
                     ->orWhere('mobile', 'LIKE', "%{$search}%")
                     ->orWhere('email', 'LIKE', "%{$search}%")
-                    
                     ->orWhereRaw("CONCAT(first_name, ' ', last_name) LIKE ?", ["%{$search}%"]);
             })->orWhereHas('lesson', function ($q) use ($search) {
                 return $q->where('lesson_id', 'LIKE', "%{$search}%")->orWhere('lesson_id', 'LIKE', "%{$search}%");
@@ -101,6 +107,40 @@ class EnrollmentController extends Controller
         $bulkData['rows'] = $rows;
         return response()->json($bulkData);
     }
+
+    public function store(Request $request)
+    {
+        if (! Auth::user()->can('enrollments-create')) {
+            return response()->json([
+                'error' => true,
+                'message' => trans('no_permission_message')
+            ],HttpResponseCode::UNAUTHORIZED);
+        }
+
+        $this->validate($request, [
+            'expiration_at' => ['nullable', 'date_format:Y-m-d\TH:i', 'after:now'],
+            'lesson_id' => ['required', Rule::exists('lessons', 'id')->where('teacher_id', Auth::user()->teacher->id)],
+            'student_id' => ['required', Rule::exists('users', 'id')],
+        ]);
+
+        $enrollment = $this->enrollmentService->enrollLesson(Lesson::findOrFail($request->input('lesson_id')), Auth::user()->id);
+        if (! $enrollment) {
+            return response()->json([
+                'error' => true,
+                'message' => trans('lesson_already_enrolled'),
+            ],HttpResponseCode::UNPROCESSABLE_ENTITY);
+        }
+        if ($request->has('expiration_at')) {
+            $enrollment->update([
+                'expires_at' => $request->input('expiration_at')
+            ]);
+        }
+        return response()->json([
+            'error' => false,
+            'message' => trans('successfully_lesson_enrolled'),
+            'data' => $enrollment
+        ]);
+    }
     public function update(Request $request, Enrollment $enrollment)
     {
         if (! Auth::user()->can('role-edit')) {
@@ -110,7 +150,7 @@ class EnrollmentController extends Controller
             ]);
         }
         $this->validate($request, [
-            'expiration_at' => ['required','date_format:Y-m-d\TH:i','after:now'],
+            'expiration_at' => ['required', 'date_format:Y-m-d\TH:i', 'after:now'],
         ]);
 
         try {
