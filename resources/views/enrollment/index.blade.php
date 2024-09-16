@@ -47,7 +47,6 @@
                                             Enrollment</button>
                                     </div>
                                 @endcan
-
                             </div>
                         </div>
                         <div class="row">
@@ -156,7 +155,8 @@
                     <div class="modal-body">
                         @csrf
                         <div class="row justify-content-center">
-                            <div class="col">
+                            <div class="col-12 mb-2">
+                                <label for="lesson_id">{{ __('lesson') }} </label>
                                 <select name="lesson_id" id="lesson_id" required class="form-control">
                                     <option>{{ __('select_lesson') }}</option>
                                     @foreach ($lessons as $lesson)
@@ -164,10 +164,64 @@
                                     @endforeach
                                 </select>
                             </div>
-                            <div class="col">
-                                <select name="student_id" id="filter_student" required class="form-control select2">
-                                    <option>{{ __('select_student') }}</option>
-                                </select>
+                            <div class="col-12 mb-2">
+                                <label for="expire_date">{{ __('expiry_date') }} </label>
+                                <input type="datetime-local" class="form-control" name="expiration_at" id="expire_date">
+                            </div>
+                            <div class="col-12">
+                                <div class="form-group mb-0">
+                                    <label>{{ __('enroll_based_on') }} <span class="text-danger">*</span> <i
+                                            class="fa fa-question-circle ml-1" aria-hidden="true"
+                                            title="{{ __('class_and_class_section_exam_info') }}"></i></label><br>
+                                    <div class="d-flex">
+                                        <div class="form-check form-check-inline">
+                                            <label class="form-check-label">
+                                                <input type="radio" name="enroll_based_on" class="enroll_based_on"
+                                                    value="0">
+                                                {{ __('student') }}
+                                            </label>
+                                        </div>
+                                        <div class="form-check form-check-inline">
+                                            <label class="form-check-label">
+                                                <input type="radio" name="enroll_based_on" class="enroll_based_on"
+                                                    value="1" checked="true">
+                                                {{ __('class_section') }}
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            {{-- class container  --}}
+                            <div class="col-12">
+                                <div class="student_container" style="display : none">
+                                    <div class="row">
+                                        <div class="col-12 mb-2">
+                                            <label for="student_id">{{ __('student') }} </label>
+                                            <select name="student_id" id="filter_student" required style="width: 100%"
+                                                class="form-control select2 w-100">
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </div>
+
+                            {{-- class section container --}}
+                            <div class="col-12">
+                                <div class="class_section_container">
+                                    <div class="col-12 mb-2">
+                                        <label for="class_section_id">{{ __('class') }} </label>
+                                        <select name="class_section_id" id="class_section_id" required
+                                            class="form-control">
+                                            <option>{{ __('select_class') }}</option>
+                                            @foreach ($classSectionsMapped as $class)
+                                                <option value="{{ $class['id'] }}">
+                                                    {{ $class['name'] }}
+                                                </option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -211,7 +265,8 @@
                 delay: 500, // Optional: delay before triggering the request
                 data: function(params) {
                     return {
-                        search: params.term
+                        search: params.term,
+                        class_section_id: $('#class_section_id').val()
                     };
                 },
                 processResults: function(data) {
@@ -243,7 +298,17 @@
                     required: true
                 }
             }
-        })
+        });
+        $(".enroll_based_on").change(function() {
+            $('.student_container,.class_section_container').hide();
+            if ($(this).val() == 1) {
+                $(".class_section_container").show();
+                $('.student_container').hide();
+            } else {
+                $(".class_section_container").hide();
+                $('.student_container').show();
+            }
+        });
         $(".store-enrollment-form").submit(function(e) {
             e.preventDefault();
             let formElement = $(this);

@@ -35,7 +35,9 @@ class AttendanceController extends Controller
         $teacher_id = Auth::user()->teacher->id;
 
         $class_section_ids = ClassTeacher::where('class_teacher_id', $teacher_id)->pluck('class_section_id');
-        $class_sections = ClassSection::with('class', 'section', 'classTeachers', 'class.streams')->whereIn('id', $class_section_ids)->get();
+        $class_sections = ClassSection::with('class', 'section', 'classTeachers', 'class.streams')
+            ->withOutTrashedRelations('section', 'class', 'classTeachers')
+            ->whereIn('id', $class_section_ids)->get();
 
         return view('attendance.index', compact('class_sections'));
     }

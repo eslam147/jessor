@@ -544,12 +544,11 @@ class StudentApiController extends Controller
         ]);
 
         if ($validator->fails()) {
-            $response = array(
+            return response()->json([
                 'error' => true,
                 'message' => $validator->errors()->first(),
                 'code' => 102,
-            );
-            return response()->json($response);
+            ]);
         }
         try {
             $get_id = Students::select('user_id')->where('admission_no', $request->gr_no)->pluck('user_id')->first();
@@ -565,11 +564,11 @@ class StudentApiController extends Controller
                         'code' => 200,
                     );
                 } else {
-                    $response = array(
+                    $response = [
                         'error' => true,
                         'message' => "Invalid user Details",
                         'code' => 107,
-                    );
+                    ];
                 }
             } else {
                 $response = array(

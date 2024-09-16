@@ -4,6 +4,7 @@ namespace App\Services\Purchase;
 
 use App\Models\Lesson;
 use App\Models\Enrollment;
+use Illuminate\Support\Carbon;
 
 class PurchaseService
 {
@@ -51,15 +52,18 @@ class PurchaseService
     }
 
 
-    public function enrollLesson(Lesson $lesson, $userId)
+    public function enrollLesson(Lesson $lesson, $userId, ?Carbon $expiresAt = null)
     {
         if ($this->isLessonAlreadyEnrolled($lesson, $userId)) {
             return false;
         }
+        if (func_num_args() < 3) {
+            $expiresAt = empty($lesson->expiry_days) ? null : now()->addDays($lesson->expiry_days);
+        }
         return Enrollment::create([
             'lesson_id' => $lesson->id,
             'user_id' => $userId,
-            'expires_at' => empty($lesson->expiry_days) ? null : now()->addDays($lesson->expiry_days),
+            'expires_at' => $expiresAt,
         ]);
     }
 

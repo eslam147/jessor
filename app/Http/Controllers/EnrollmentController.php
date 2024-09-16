@@ -2,14 +2,17 @@
 
 namespace App\Http\Controllers;
 
-use App\Enums\Response\HttpResponseCode;
-use Exception;
 use App\Models\Lesson;
 use App\Models\Enrollment;
-use App\Services\Purchase\PurchaseService;
+use App\Models\ClassSection;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
+use App\Enums\Response\HttpResponseCode;
+use App\Models\Students;
+use App\Services\Purchase\PurchaseService;
+use Carbon\Carbon;
 
 class EnrollmentController extends Controller
 {
@@ -20,8 +23,24 @@ class EnrollmentController extends Controller
     }
     public function index()
     {
+        $classSections = ClassSection::with(
+            'class.medium',
+            'streams',
+            'section'
+        )->withOutTrashedRelations('section', 'class')->get();
+        $classSectionsMapped = [];
+
+        foreach ($classSections as $classSection) {
+            $name = "{$classSection->class->name} - {$classSection->section->name} " .
+                $classSection->class?->medium?->name . '' .
+                optional($classSection->streams)->name ?? '';
+            $classSectionsMapped[] = [
+                'id' => $classSection->id,
+                'name' => trim($name),
+            ];
+        }
         $lessons = Lesson::relatedToTeacher()->with('teacher.user')->get();
-        return view('enrollment.index', compact('lessons'));
+        return view('enrollment.index', compact('lessons', 'classSectionsMapped'));
     }
     public function list()
     {
@@ -114,36 +133,72 @@ class EnrollmentController extends Controller
             return response()->json([
                 'error' => true,
                 'message' => trans('no_permission_message')
-            ],HttpResponseCode::UNAUTHORIZED);
+            ], HttpResponseCode::UNAUTHORIZED);
         }
 
-        $this->validate($request, [
+        $rules = [
             'expiration_at' => ['nullable', 'date_format:Y-m-d\TH:i', 'after:now'],
             'lesson_id' => ['required', Rule::exists('lessons', 'id')->where('teacher_id', Auth::user()->teacher->id)],
-            'student_id' => ['required', Rule::exists('users', 'id')],
-        ]);
+            'enroll_based_on' => ['required', 'in:0,1'],
+            'student_id' => ['nullable', 'required_if:enroll_based_on,0', Rule::exists('users', 'id')],
+            'class_section_id' => ['required_if:enroll_based_on,1', Rule::exists('class_sections', 'id')],
+        ];
 
-        $enrollment = $this->enrollmentService->enrollLesson(Lesson::findOrFail($request->input('lesson_id')), Auth::user()->id);
-        if (! $enrollment) {
-            return response()->json([
-                'error' => true,
-                'message' => trans('lesson_already_enrolled'),
-            ],HttpResponseCode::UNPROCESSABLE_ENTITY);
+        $this->validate($request, $rules);
+
+        $lesson = Lesson::findOrFail($request->input('lesson_id'));
+        $expiryDate = Carbon::parse($request->input('expiration_at'));
+
+        if ($request->input('enroll_based_on') == '0') {
+            // Enroll a single student
+            $enrollLesson = $this->enrollmentService->enrollLesson($lesson, $request->input('student_id'), $expiryDate);
+            if (!$enrollLesson) {
+                return response()->json([
+                    'error' => true,
+                    'message' => trans('lesson_already_enrolled')
+                ]);
+            }
+        } else {
+
+            // Enroll all students in the class section
+            $students = Students::where('class_section_id', $request->input('class_section_id'))->with('user')
+                ->whereDoesntHave('user.enrollmentLessons', function ($q) use ($lesson) {
+                    $q->where('lesson_id', $lesson->id)->where('expires_at', '>', now());
+                })->get();
+            $newEnrollmets = [];
+            foreach ($students as $student) {
+                if (! empty($student->user->id)) {
+                    $newEnrollmets[] = [
+                        'user_id' => $student->user->id,
+                        'lesson_id' => $lesson->id,
+                        'expires_at' => $expiryDate->toDateTimeString(),
+                    ];
+                }
+            }
+
+            $isTransactionSuccess = DB::transaction(function () use ($newEnrollmets) {
+                foreach (array_chunk($newEnrollmets, 100) as $chunk) {
+                    Enrollment::insert($chunk);
+                }
+                return true;
+            });
+            if (! $isTransactionSuccess) {
+                return response()->json([
+                    'error' => true,
+                    'message' => trans('error_occurred'),
+                ]);
+            }
         }
-        if ($request->has('expiration_at')) {
-            $enrollment->update([
-                'expires_at' => $request->input('expiration_at')
-            ]);
-        }
+
         return response()->json([
             'error' => false,
             'message' => trans('successfully_lesson_enrolled'),
-            'data' => $enrollment
         ]);
+
     }
     public function update(Request $request, Enrollment $enrollment)
     {
-        if (! Auth::user()->can('role-edit')) {
+        if (! Auth::user()->can('enrollments-edit')) {
             return response()->json([
                 'error' => true,
                 'message' => trans('no_permission_message')
@@ -179,11 +234,10 @@ class EnrollmentController extends Controller
             ]);
         }
         $enrollment->delete();
-        $response = [
+
+        return response()->json([
             'error' => false,
             'message' => trans('data_delete_successfully')
-        ];
-
-        return response()->json($response);
+        ]);
     }
 }
