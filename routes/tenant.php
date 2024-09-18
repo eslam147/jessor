@@ -77,7 +77,13 @@ Route::middleware([
     LaravelAuth::routes();
 
     Route::get('/', [WebController::class, 'index']);
-
+    Route::get('/instructors', [WebController::class, 'instructors']);
+    Route::get('/instructor/{id}', [WebController::class, 'instructor'])->name('instructor.profile');
+    Route::get('/subject/{id}', [WebController::class, 'subject'])->name('subject.lessons');
+    Route::get('/lesson/{id}', [WebController::class, 'lesson'])->name('lesson.topics');
+    Route::post('/get_subjects', [WebController::class, 'get_subjects']);
+    Route::post('/get_teachers', [WebController::class, 'get_teachers']);
+    Route::post('/get_lessons', [WebController::class, 'get_lessons']);
     Route::get('about', [WebController::class, 'about'])->name('about.us');
     Route::get('contact', [WebController::class, 'contact_us'])->name('contact.us');
     Route::get('photo', [WebController::class, 'photo'])->name('photo');
@@ -105,10 +111,23 @@ Route::middleware([
         return settingByType('terms_condition');
     });
 
+    Route::group(['middleware' => 'auth'], function () {
+        Route::post('/follow', [WebController::class, 'send_follow']);
+        Route::post('/like', [WebController::class, 'send_like']);
+        Route::post('/dislike', [WebController::class, 'send_dislike']);
+        Route::post('/comment',[WebController::class, 'store_comment']);
+        Route::post('/replay_comment',[WebController::class, 'replay_comment']);
+        Route::post('/get_replaies_comment',[WebController::class, 'get_replaies_comment']);
+        Route::post('/get_comments',[WebController::class, 'get_comments']);
+        Route::post('/get_auth',[WebController::class, 'get_auth']);
+    });
     // ***************************
     // Students
     // ***************************
     Route::prefix('student_dashboard')->group(function () {
+        Route::controller(EnrollController::class)->prefix('enroll')->as('enroll.')->group(function () {
+            Route::post('store/{payment_method}', 'store')->name('store');
+        });
         Route::group(['middleware' => ['student_authorized', 'logs-out-banned-user']], function () {
             Route::resource('/home', StudentDashboardController::class);
             Route::get('/coupon/history', [StudentDashboardController::class, 'couponHistory'])->name('coupon.history');
@@ -160,7 +179,6 @@ Route::middleware([
             Route::get('/teacher_lessons/{teacher_id}/subject/{subject_id}', [TeachersController::class, 'teacher_lessons'])->name('teacher.lessons');
             Route::controller(EnrollController::class)->prefix('enroll')->as('enroll.')->group(function () {
                 Route::get('/', 'index')->name('index');
-                Route::post('store/{payment_method}', 'store')->name('store');
             });
             Route::resource('/student-settings', StudentSettingsController::class);
             // Route::resource('/enroll', EnrollController::class);

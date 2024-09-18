@@ -10,10 +10,11 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Database\Eloquent\Builder;
 use Znck\Eloquent\Traits\BelongsToThrough;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use App\Traits\HasComments;
 
 class Lesson extends Model
 {
-    use HasFactory, BelongsToThrough, BelongsToTeacher;
+    use HasFactory, BelongsToThrough, BelongsToTeacher, HasComments;
     protected $guarded = [];
     public $casts = [
         'status' => LessonStatus::class,
@@ -53,9 +54,15 @@ class Lesson extends Model
     }
     public function studentActiveEnrollment()
     {
-        return $this->hasOne(Enrollment::class)->where(function (Builder $q){
+
+        if (auth()->check()) {
+            return $this->hasOne(Enrollment::class)->where(function (Builder $q) {
+                $q->whereNull('expires_at')->orWhere('expires_at', '>', now());
+            })->where('user_id', auth()->user()->id)->orderByDesc('id');
+        }
+        return $this->hasOne(Enrollment::class)->where(function (Builder $q) {
             $q->whereNull('expires_at')->orWhere('expires_at', '>', now());
-        })->where('user_id', auth()->user()->id)->orderByDesc('id');
+        })->orderByDesc('id');
     }
 
     public function getIsLessonFreeAttribute()
@@ -69,7 +76,9 @@ class Lesson extends Model
 
     public function class_section()
     {
-        return $this->belongsTo(ClassSection::class)->with('class', 'section');
+        return $this->belongsTo(ClassSection::class)->with(['class' => function ($query) {
+            $query->with('medium');
+        }, 'section']);
     }
     public function class()
     {
@@ -88,8 +97,9 @@ class Lesson extends Model
     {
         return $this->morphMany(File::class, 'modal');
     }
-    public function getThumbnailAttribute($value){
-        if(isset($value)){
+    public function getThumbnailAttribute($value)
+    {
+        if (isset($value)) {
             return tenant_asset($value);
         }
     }
@@ -111,7 +121,6 @@ class Lesson extends Model
                 return $query->whereIn('class_section_id', $class_section_id)->whereIn('subject_id', $subject_id);
             }
             return $query;
-
         }
         return $query;
     }

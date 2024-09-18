@@ -16,11 +16,13 @@
                                             required="" aria-invalid="false">
                                         <label for="coupon_code">Coupon Code</label>
                                     </fieldset>
-                                    <fieldset>
-                                        <input name="payment_method" type="radio" id="wallet" value="wallet"
-                                            aria-invalid="false">
-                                        <label for="wallet">My Wallet</label>
-                                    </fieldset>
+                                    @if(auth()->check() && auth()->user()->student)
+                                        <fieldset>
+                                            <input name="payment_method" type="radio" id="wallet" value="wallet"
+                                                aria-invalid="false">
+                                            <label for="wallet">My Wallet</label>
+                                        </fieldset>
+                                    @endif
                                     <div class="help-block"></div>
                                 </div>
                             </div>
@@ -47,12 +49,50 @@
             <div class="modal-body">
                 <form id="purchaseForm" method="POST" action="{{ route('enroll.store', 'coupon_code') }}">
                     @csrf
-                    <div class="form-group">
-                        <label>Purchase Code</label>
-                        <input type="text" name="purchase_code" class="form-control mt-5">
+                    <div class="row">
+                        @if(!auth()->check())
+                            <div class="form-group col-6">
+                                <label>{{ __('first_name') }}</label>
+                                <input id="fisrt_name" type="text" class="form-control form-control-lg"
+                                    name="first_name" value="{{ old('first_name') }}" autofocus>
+                            </div>
+                            <div class="form-group col-6">
+                                <label>{{ __('last_name') }}</label>
+                                <input id="last_name" type="text" class="form-control form-control-lg"
+                                    name="last_name" value="{{ old('last_name') }}" autofocus>
+                            </div>
+                            <div class="form-group col-12">
+                                <label> {{ __('mobile') }} <span class="text-danger">*</span></label>
+                                <input type="tel" value="{{ old('mobile') }}" name="mobile" class="form-control">
+                            </div>
+                            <div class="form-group col-12">
+                                <label>{{ __('email') }}</label>
+                                <input id="email" type="email" class="form-control form-control-lg"
+                                    name="email" value="{{ old('email') }}" autocomplete="email"
+                                    autofocus placeholder="{{ __('email') }}">
+                            </div>
+                            <div class="form-group col-12">
+                                <label>{{ __('password') }}</label>
+                                <div class="input-group">
+                                    <input id="password" type="password" class="form-control form-control-lg"
+                                        name="password" autocomplete="current-password"
+                                        placeholder="{{ __('password') }}">
+                                    <div class="input-group-append">
+                                        <span class="input-group-text">
+                                            <i class="fa fa-eye-slash" id="togglePassword"></i>
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        @endif
+                        <div class="form-group col-12">
+                            <label>Purchase Code</label>
+                            <input type="text" name="purchase_code" class="form-control">
+                        </div>
                     </div>
                     <input type="hidden" id="LessonId" name="lesson_id" value="">
                     <input type="hidden" id="price_amount" name="price_amount" value="">
+                    <input type="hidden" id="class_section_id" name="class_section_id" value="">
                 </form>
             </div>
             <div class="modal-footer modal-footer-uniform">
@@ -62,6 +102,49 @@
     </div>
 </div>
 @section('script')
+    <script type='text/javascript'>
+        $("#frmLogin").validate({
+            rules: {
+                username: "required",
+                password: "required",
+            },
+            success: function(label, element) {
+                $(element).parent().removeClass('has-danger')
+                $(element).removeClass('form-control-danger')
+            },
+            errorPlacement: function(label, element) {
+                if (label.text()) {
+                    if ($(element).attr("name") == "password") {
+                        label.insertAfter(element.parent()).addClass('text-danger mt-2');
+                    } else {
+                        label.addClass('mt-2 text-danger');
+                        label.insertAfter(element);
+                    }
+                }
+
+            },
+            highlight: function(element, errorClass) {
+                $(element).parent().addClass('has-danger')
+                $(element).addClass('form-control-danger')
+            }
+        });
+
+        const togglePassword = document.querySelector("#togglePassword");
+        const password = document.querySelector("#password");
+
+        togglePassword.addEventListener("click", function() {
+            const type = password.getAttribute("type") === "password" ? "text" : "password";
+            password.setAttribute("type", type);
+            // this.classList.toggle("fa-eye");
+            if (password.getAttribute("type") === 'password') {
+                $('#togglePassword').addClass('fa-eye-slash');
+                $('#togglePassword').removeClass('fa-eye');
+            } else {
+                $('#togglePassword').removeClass('fa-eye-slash');
+                $('#togglePassword').addClass('fa-eye');
+            }
+        });
+    </script>
     <script src="{{ global_asset('student/assets/icons/feather-icons/feather.min.js') }}"></script>
     <script
         src="{{ global_asset('student/assets/vendor_components/Magnific-Popup-master/dist/jquery.magnific-popup.min.js') }}">
@@ -74,8 +157,10 @@
         $(document).ready(function() {
             $('#payment-btn').on('click', function(e) {
                 e.preventDefault();
+
                 let paymentSelect = $('input[name="payment_method"]:checked').val();
                 let lessonPrice = $('#price_amount').val();
+                let class_section_id = $('#class_section_id').val();
                 switch (paymentSelect) {
                     case 'coupon_code':
                         $('#payment-methods').modal('hide');
@@ -101,20 +186,17 @@
                                 lessonId.type = 'hidden';
                                 lessonId.name = 'lesson_id';
                                 lessonId.value = $('#LessonId').val();
-
                                 const token = document.createElement('input');
                                 token.type = 'hidden';
                                 token.name = '_token';
                                 token.value = "{{ csrf_token() }}";
                                 form.appendChild(token);
                                 form.appendChild(lessonId);
-
                                 document.body.appendChild(form);
                                 form.submit();
                             }
                         })
                         break;
-
                 }
             })
             $('.free_enrollment_btn').on('click', function(e) {
@@ -137,13 +219,37 @@
                 document.body.appendChild(form);
                 form.submit();
             })
-            $('.locked-btn').on('click', function() {
-                var id = $(this).data('id');
-
-                // Pass the id to the hidden input field with the specified ID
+            $('body').on('click','.locked-btn', function(e) {
+                e.preventDefault();
+                var id = $(this).attr('data-id');
                 $('#LessonId').val(id);
-                $('#price_amount').val($(this).data('price'));
+                $('#price_amount').val($(this).attr('data-price'));
+                $('#class_section_id').val($(this).attr('data-class-section-id'));
             });
         });
     </script>
+    @if (Session::has('error'))
+        <script type='text/javascript'>
+            $.toast({
+                text: `{{ Session::get('error') }}`,
+                showHideTransition: 'slide',
+                icon: 'error',
+                loaderBg: '#f2a654',
+                position: 'top-right'
+            });
+        </script>
+    @endif
+    @if ($errors->any())
+        @foreach ($errors->all() as $error)
+            <script type='text/javascript'>
+                $.toast({
+                    text: '{{ $error }}',
+                    showHideTransition: 'slide',
+                    icon: 'error',
+                    loaderBg: '#f2a654',
+                    position: 'top-right'
+                });
+            </script>
+        @endforeach
+    @endif
 @endsection

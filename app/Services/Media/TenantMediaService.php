@@ -7,8 +7,8 @@ use Illuminate\Support\Facades\Storage;
 class TenantMediaService
 {
     protected static function checkPath($path){
-        if (!preg_match('/^[a-zA-Z0-9_]+$/', $path)) {
-            throw new \InvalidArgumentException('The path can only contain letters, numbers, and underscores.');
+        if (!preg_match('/^[a-zA-Z0-9_\/\\\\]+$/', $path)) {
+            throw new \InvalidArgumentException('The path can only contain letters, numbers, underscores and slashes.');
         }
 
         return $path;

@@ -706,6 +706,11 @@
     "are_u_sure_restore" : "Are you sure restore?",
     "data_restored_successfully" : "Data restored successfully",
     "deleted_students" : "Deleted Students",
-    "enroll_based_on" : "Enroll Based On"
-    
+    "enroll_based_on" : "Enroll Based On",
+    "view_profile" : "View Profile",
+    "related_subjects": "Related Subjects",
+    "profile" : "profile",
+    "related_lessons" : "Related Lessons",
+    "your_message_contains_inappropriate_words": "Your message contains inappropriate words",
+    "your_message_can_only_contain_text_or_image_tags" : "Your message can only contain text or image tags"
 }

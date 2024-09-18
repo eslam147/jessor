@@ -216,7 +216,7 @@ if (! function_exists('findExamGrade')) {
 if (! function_exists('resizeImage')) {
     function resizeImage($image)
     {
-        return Image::make($image)->encode($image->getClientOriginalExtension())->save(null, 50);
+        // return Image::make($image)->encode($image->getClientOriginalExtension())->save(null, 50);
     }
 }
 

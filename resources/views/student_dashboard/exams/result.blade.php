@@ -68,18 +68,17 @@
                                         <div class="col-7">
                                             <div class="card">
                                                 <div class="box overflow-hidden">
-                                                    @isset($question->questions->image_url)
+                                                    @isset($question->image_url)
                                                         <figure class="img-hov-zoomin mb-0">
                                                             <img class="ask_img w-p100" draggable="false"
-                                                                src="{{ $question->questions->image_url }}" alt="">
+                                                                src="{{ $question->image_url }}" alt="">
                                                         </figure>
                                                     @endisset
-
                                                     <div class="box-body pt-0 px-0">
                                                         <div
                                                             class="d-block  bg-primary align-items-center p-5 px-25 justify-content-between">
                                                             <h5 class="text-break text-justify text-white mb-0 text-wrap">
-                                                                {{ $loop->iteration }}. {!! html_entity_decode($question->questions->question) !!}
+                                                                {{ $loop->iteration }}. {!! html_entity_decode($question->question) !!}
                                                             </h5>
                                                         </div>
                                                         <hr class="mt-0">
@@ -99,14 +98,14 @@
                                                                     <label class="form-check-label text-justify text-black"
                                                                         for="question{{ $question['id'] }}_{{ $option['id'] }}">
                                                                         {!! html_entity_decode($option['option']) !!}
-                                                                        @if (in_array($option->id, $question->correct_answers))
-                                                                            @if ($option->id != $question->student_answer)
+                                                                        @if (in_array($option->id,$question->correct_answers))
+                                                                            @if (!in_array($option->id,$question->student_answers))
                                                                                 <span class="badge badge-success">الاجابه
                                                                                     الصحيحه</span>
                                                                             @endif
                                                                             <span
                                                                                 class="badge bg-dark mx-2 px-10 text-white">
-                                                                                Marks:{{ $question->marks }}
+                                                                                Marks:{{ $question->mark }}
                                                                             </span>
                                                                         @endif
                                                                     </label>
@@ -117,7 +116,7 @@
                                                 </div>
                                                 <div class="bg-light card-footer ">
                                                     <b>Explain Answer</b>: <p class="text-justify">
-                                                        {{ $question->questions->explain_answer ?? 'No Explanation' }}</p>
+                                                        {{ $question->explain_answer ?? 'No Explanation' }}</p>
                                                 </div>
                                             </div>
                                         </div>

@@ -19,7 +19,10 @@ class OnlineExamStudentAnswer extends Model
     public function options() {
         return $this->belongsTo(OnlineExamQuestionOption::class,'option_id');
     }
-
+    public function question_choice()
+    {
+        return $this->belongsTo(OnlineExam::class, 'online_exam_id');
+    }
     public function questionAnswer()
     {
         return $this->belongsTo(OnlineExamQuestionAnswer::class, 'question_id');

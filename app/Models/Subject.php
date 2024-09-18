@@ -7,11 +7,13 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
+use EslamFaroug\LaravelLikeDislike\Traits\Likeable;
 
 class Subject extends Model
 {
     use SoftDeletes;
     use HasFactory;
+    use Likeable;
     protected $guarded = [];
 
     protected $hidden = ["deleted_at", "created_at", "updated_at"];

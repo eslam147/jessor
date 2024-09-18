@@ -14,8 +14,10 @@
         "awobaz/compoships": "^2.1",
         "barryvdh/laravel-dompdf": "^2.0",
         "bavix/laravel-wallet": "*",
+        "beyondcode/laravel-comments": "^1.5",
         "cybercog/laravel-ban": "^4.9",
-        "doctrine/dbal": "^3.3",
+        "doctrine/dbal": "^3.9",
+        "eslamfaroug/laravel-like-dislike": "^1.5",
         "fruitcake/laravel-cors": "^2.0.5",
         "google/apiclient": "^2.14",
         "guzzlehttp/guzzle": "^7.2",
@@ -26,7 +28,9 @@
         "laravel/ui": "^3.4",
         "laravelcollective/html": "^6.3",
         "maatwebsite/excel": "^3.1",
+        "overtrue/laravel-follow": "5.0",
         "psr/simple-cache": "^2.0",
+        "pusher/pusher-php-server": "^7.2",
         "razorpay/razorpay": "2.*",
         "realrashid/sweet-alert": "^7.2",
         "sentry/sentry-laravel": "^4.8",
@@ -55,7 +59,8 @@
         "files": [
             "app/Helpers/settings_helper.php",
             "app/Helpers/notification_helper.php",
-             "app/Helpers/DeviceHelper.php"
+            "app/Helpers/DeviceHelper.php",
+            "app/helpers.php"
         ]
     },
     "autoload-dev": {

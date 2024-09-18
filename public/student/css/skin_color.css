@@ -946,5 +946,47 @@ body.dark-skin {
   border-color: rgba(255, 255, 255, 0.12); }
 .dark-skin .wizard-content .wizard > .steps > ul > li.disabled a {
   color: #ffffff; }
+  .social-btn {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 1000;
+}
 
+.social-btn button {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background-color: #28a745;
+    color: white;
+    font-size: 24px;
+    border: none;
+    cursor: pointer;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.social-icons {
+    position: fixed;
+    bottom: 80px;
+    right: 20px;
+    display: none; /* إخفاء الأيقونات في البداية */
+    flex-direction: column;
+    gap: 10px;
+}
+
+.social-icons a {
+    display: block;
+    padding: 10px;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    text-align: center;
+    color: #333;
+    text-decoration: none;
+}
+
+.social-icons a:hover {
+    background-color: #28a745;
+    color: white;
+}
 /*# sourceMappingURL=skin_color.css.map */

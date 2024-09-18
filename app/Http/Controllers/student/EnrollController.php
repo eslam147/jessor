@@ -3,17 +3,21 @@
 namespace App\Http\Controllers\student;
 
 
-use App\Models\Lesson;
-use App\Models\Enrollment;
-use App\Models\CouponUsage;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
-use Illuminate\Support\Facades\Auth;
+use App\Models\CouponUsage;
+use App\Models\Enrollment;
+use App\Models\Lesson;
+use App\Models\Students;
+use App\Models\User;
 use App\Services\Coupon\CouponService;
 use App\Services\Purchase\PurchaseService;
-use RealRashid\SweetAlert\Facades\Alert;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
+use RealRashid\SweetAlert\Facades\Alert;
+use Spatie\Permission\Models\Role;
 
 class EnrollController extends Controller
 {
@@ -27,10 +31,13 @@ class EnrollController extends Controller
 
     public function store(Request $request, string $payment_method)
     {
-        $user = Auth::user();
         try {
+            if(Auth::check()) {
+                $user = Auth::user();
+            }
             $lesson = Lesson::find($request->lesson_id);
-            if (! $this->purchaseService->isLessonAlreadyEnrolled($lesson, $user->id)) {
+            if(!$this->purchaseService->isLessonAlreadyEnrolled($lesson, $user->id)) {
+                
                 if ($payment_method == 'coupon_code') {
                     $validator = Validator::make($request->all(), [
                         'purchase_code' => 'required|string',
@@ -45,7 +52,7 @@ class EnrollController extends Controller
                         $purchaseCode = $request->input('purchase_code');
                         // ----------------------------------------------- #
                         DB::beginTransaction();
-
+    
                         $applyCouponCode = $this->couponService->redeemCoupon($user, $purchaseCode, $lesson);
                         if ($applyCouponCode['status']) {
                             // ----------------------------------------------- #
@@ -82,20 +89,15 @@ class EnrollController extends Controller
                             $this->purchaseService->enrollLesson($lesson, $user->id);
                             // ----------------------------------------------- #
                             DB::commit();
+    
                             Alert::success('Success', 'Lesson has been unlocked successfully.');
                             return redirect()->back();
                         }
                         // ----------------------------------------------- #
                     }
-
-                } elseif ($payment_method == 'free') {
-                    if (empty($lesson->price) || $lesson->is_free == 1) {
-                        $this->purchaseService->enrollLesson($lesson, $user->id);
-                        Alert::success('Success', 'Lesson has been unlocked successfully.');
-                        return redirect()->back();
-                    }
+    
                 }
-            } else {
+            }else{
                 Alert::warning('warning', 'You have already enrolled this lesson.');
                 return back();
             }

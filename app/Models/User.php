@@ -4,6 +4,9 @@ namespace App\Models;
 
 use Cog\Contracts\Ban\Bannable as BannableInterface;
 use Cog\Laravel\Ban\Traits\Bannable;
+use Overtrue\LaravelFollow\Traits\Followable;
+use Overtrue\LaravelFollow\Traits\Follower;
+use EslamFaroug\LaravelLikeDislike\Traits\Liker;
 
 use Bavix\Wallet\Traits\CanPay;
 use Laravel\Sanctum\HasApiTokens;
@@ -19,10 +22,14 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 class User extends Authenticatable implements Wallet, Customer, BannableInterface
 {
     use HasApiTokens, HasFactory, Notifiable, HasRoles;
-    use Bannable, SoftDeletes, HasWallet, CanPay;
+    use SoftDeletes;
+    use HasWallet, CanPay;
+    use Bannable;
+    use Followable;
+    use Follower;
+    use Liker;
     protected $guarded = [];
-
-    protected $appends = [
+    protected $appends =[
         'full_name'
     ];
 

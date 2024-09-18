@@ -652,5 +652,10 @@
     "coupon_errors_already_used": "تم استخدام هذه القسيمة من قبل.",
     "coupon_errors_not_related_to_teacher": "هذه القسيمة غير مرتبطة بالمعلم.",
     "coupon_errors_not_related_to_class": "هذه القسيمة غير مرتبطة بالصف.",
-    "coupon_errors_not_related_to_subject": "هذه القسيمة غير مرتبطة بالمادة."
+    "view_profile": "View Profile",
+    "related_subjects": "Related Subjects",
+    "profile" : "profile",
+    "related_lessons" : "Related Lessons",
+    "your_message_contains_inappropriate_words": "Your message contains inappropriate words",
+    "your_message_can_only_contain_text_or_image_tags" : "Your message can only contain text or image tags"
 }

@@ -81,6 +81,9 @@
                         <li>
                             <a href="{{ url('/') }}">{{ __('home') }}</a>
                         </li>
+                        <li>
+                            <a href="{{ url('/instructors') }}">{{ __('teachers') }}</a>
+                        </li>
                         @if ($about || $whoweare || $teacher)
                             <li>
                                 <a href="{{ route('about.us') }}">{{ __('about-us') }}</a>

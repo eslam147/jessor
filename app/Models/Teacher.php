@@ -8,10 +8,13 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Staudenmeir\EloquentHasManyDeep\HasRelationships;
 use Znck\Eloquent\Traits\BelongsToThrough;
+use Overtrue\LaravelFollow\Traits\Followable;
+use Overtrue\LaravelFollow\Traits\Follower;
+use App\Traits\HasComments;
 
 class Teacher extends Model
 {
-    use SoftDeletes, HasRelationships;
+    use SoftDeletes, HasRelationships, Followable, Follower, HasComments;
     protected $guarded = [];
 
     protected $hidden = ["deleted_at", "created_at", "updated_at"];
@@ -54,6 +57,11 @@ class Teacher extends Model
     {
         return $this->hasMany(SubjectTeacher::class, 'teacher_id')->groupBy('class_section_id');
     }
+
+    public function lessons_teacher()
+    {
+        return $this->hasManyThrough(Lesson::class,SubjectTeacher::class,'teacher_id','subject_id','id','subject_id');
+    }
     public function lessons()
     {
         return $this->hasMany(Lesson::class, 'teacher_id');
@@ -76,7 +84,7 @@ class Teacher extends Model
             'id',
             'id',
             'user_id',
-        ]);
+        ])->with('user');
     }
     //Getter Attributes
     public function getImageAttribute($value)

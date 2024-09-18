@@ -19,7 +19,7 @@
 
 body {
     font-family: "Roboto" !important;
-    background-color: #fff;
+    background-color: #fafbfd !important;
 }
 
 body.modal-open {

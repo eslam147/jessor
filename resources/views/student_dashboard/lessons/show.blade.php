@@ -175,6 +175,5 @@
             </section>
         </div>
     </div>
-
     @include('student_dashboard.lessons.partials.purchase_lessons_modal')
 @endsection

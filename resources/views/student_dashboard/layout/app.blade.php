@@ -12,6 +12,7 @@
 
     <!-- Vendors Style-->
     <link rel="stylesheet" href="{{ global_asset('student/css/vendors_css.css') }}">
+    <script src="https://js.pusher.com/7.0/pusher.min.js"></script>
 
     <!-- Style-->
     <link rel="stylesheet" href="{{ global_asset('student/css/style.css') }}?v=1.0.1">
@@ -471,6 +472,7 @@
 
     <!-- EduAdmin App -->
     <script src="{{ url('student/js/template.js') }}"></script>
+    <script src="{{ url('js/pusher.js') }}"></script>
     {{-- <script src="{{ url('student/js/pages/dashboard.js') }}"></script> --}}
     <script src="{{ url('student/js/pages/calendar.js') }}"></script>
     @include('sweetalert::alert')
