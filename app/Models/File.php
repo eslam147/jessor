@@ -50,7 +50,7 @@ class File extends Model
     //Getter Attributes
     public function getFileUrlAttribute($value)
     {
-        if ($this->type == 1 || $this->type == 3) {
+        if (in_array(intval($this->type), [self::FILE_UPLOAD_TYPE, self::VIDEO_UPLOAD_TYPE])) {
             // IF type is File Upload or Video Upload then add Full URL.
             return tenant_asset($value);
         }
@@ -92,6 +92,10 @@ class File extends Model
         } elseif ($this->type == self::EXTERNAL_LINK) {
             return "External Link";
         }
+    }
+    public function isFileUpload()
+    {
+        return $this->type == self::FILE_UPLOAD_TYPE;
     }
     public function isYoutubeVideo()
     {

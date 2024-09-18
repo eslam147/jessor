@@ -25,10 +25,10 @@
                                                 <th>Subject</th>
                                                 <th>Due Date</th>
                                                 <th>File</th>
+                                                <th>Show Submission Files</th>
                                                 <th>Action</th>
                                             </tr>
                                         </thead>
-
                                         <tbody>
                                             @foreach ($assignments as $assignment)
                                                 <tr>
@@ -48,21 +48,27 @@
                                                         {{ $assignment->points }}
                                                     </td>
                                                     <td class="fw-600">
-                                                        {{ $assignment->resubmission }}
+                                                        @if ($assignment->resubmission)
+                                                            <span class="badge badge-sm badge-dot badge-primary">
+                                                                {{ $assignment->extra_days_for_resubmission }} days
+                                                            </span>
+                                                        @endif
                                                     </td>
                                                     <td class="fw-600">{{ $assignment->subject->name }}</td>
                                                     <td class="fw-600">{{ $assignment->due_date }}</td>
                                                     <td class="text-fade">
-                                                        @if ($assignment->submission)
-                                                            @foreach ($assignment->submission->file as $file)
+                                                        @if ($assignment->file)
+                                                            @foreach ($assignment->file as $file)
                                                                 <a href="{{ $file->file_url }}" target="_blank">
-                                                                    {{ $loop->iteration }} - {{ str($file->file_name)-> limit(5) }}
+                                                                    {{ $loop->iteration }} -
+                                                                    {{ str($file->file_name)->limit(5) }}
                                                                 </a>
                                                             @endforeach
                                                         @endif
                                                     </td>
                                                     <td>
-                                                        @unless ($assignment->submission && $assignment->submission->file)
+                                                        @if (empty($assignment->submission))
+                                                            {{-- || ( $assignment->resubmission ) --}}
                                                             <a data-href="{{ route('student_dashboard.assignments.submit', $assignment->id) }}"
                                                                 class="btn btn-icon btn-light btn-sm submit-assignment">
                                                                 <span class="icon-Arrow-right fs-14"><span
@@ -70,7 +76,7 @@
                                                                         class="path2"></span></span>
                                                                 Submit
                                                             </a>
-                                                        @endunless
+                                                        @endif
                                                     </td>
                                                 </tr>
                                             @endforeach

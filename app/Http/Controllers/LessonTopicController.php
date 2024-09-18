@@ -54,9 +54,11 @@ class LessonTopicController extends Controller
                 'lesson_id' => ['required', 'numeric', Rule::exists('lessons', 'id')->where('teacher_id', $teacher->id)],
                 'name' => ['required', new uniqueTopicInLesson($request->lesson_id)],
                 'description' => 'required',
+                // ------------------------------------------ //
                 'edit_file' => 'nullable|array',
                 'edit_file.*.type' => ['nullable', Rule::in(File::$types)],
                 'edit_file.*.name' => 'required_if:edit_file.*.type,!=,online_exam,assignment',
+                // ------------------------------------------ //
                 // 'file.*.name' => 'required_if:file.*.type,!=,online_exam,assignment',
                 'edit_file.*.thumbnail' => 'required_if:edit_file.*.type,youtube_link,video_upload,other_link',
                 //Regex for Youtube Link
@@ -66,8 +68,9 @@ class LessonTopicController extends Controller
                 'file' => 'nullable|array',
                 'file.*.type' => ['nullable', Rule::in(File::$types)],
                 'file.*.video_corner_url' => ['required_if:file.*.type,video_corner_link', 'nullable'],
-                'file.*.online_exam' => ['required_if:file.*.type,online_exam', 'nullable'],
-                'file.*.assignments' => ['required_if:file.*.type,assignment', 'nullable'],
+                // ------------------------------------------ //
+                'file.*.assignments' => ['required_if:file.*.type,assignment', 'nullable', Rule::exists('assignments', 'id')],
+                'file.*.online_exam' => ['required_if:file.*.type,online_exam', 'nullable', Rule::exists('online_exams', 'id')],
                 'file.*.download_link' => ['required_if:file.*.type,video_corner_link', 'url', 'nullable'],
                 // -----------------------------------------------
                 'file.*.file' => 'required_if:file.*.type,file_upload,video_upload|mimes:pdf,doc,docx,jpg,jpeg,png,mp4,mp3,webm|max:5125',
@@ -337,8 +340,22 @@ class LessonTopicController extends Controller
                             $topic_file->download_link = $file['download_link'];
                             break;
                         case "external_link":
-                            $file->type = File::EXTERNAL_LINK;
-                            $file->file_url = $file['external_link'];
+                            $topic_file->type = File::EXTERNAL_LINK;
+                            $topic_file->file_url = $file['external_link'];
+                            break;
+                        case "online_exam":
+                            $topic_file->type = File::ONLINE_EXAM_TYPE;
+                            $topic_file->online_exam_id = $file['online_exam'];
+                            $topic_file->file_url = null;
+                            $topic_file->download_link = null;
+                            $topic_file->assignment_id = null;
+                            break;
+                        case "assignment":
+                            $topic_file->type = File::ASSIGNMENT_TYPE;
+                            $topic_file->file_url = null;
+                            $topic_file->download_link = null;
+                            $topic_file->online_exam_id = null;
+                            $topic_file->assignment_id = $file['assignments'];
                             break;
                         case "online_exam":
                             $topic_file->type = File::ONLINE_EXAM_TYPE;
@@ -399,7 +416,7 @@ class LessonTopicController extends Controller
                         case "assignment":
                             $topic_file->type = File::ASSIGNMENT_TYPE;
                             $topic_file->assignment_id = $file['assignments'];
-                            break;    
+                            break;
                         case "other_link":
                             $topic_file->type = 4;
                             $topic_file->file_url = $file['link'];

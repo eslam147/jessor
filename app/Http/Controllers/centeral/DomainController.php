@@ -20,6 +20,7 @@ class DomainController extends Controller
         ]);
         
         try {
+
             DB::beginTransaction();
             $tenant = Tenant::find($request->subdomain);
             if ($tenant) {

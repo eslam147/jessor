@@ -1,7 +1,5 @@
 @extends('layouts.master')
-@section('title')
-    {{ __('dashboard') }}
-@endsection
+@section('title', __('dashboard'))
 @section('content')
     <div class="content-wrapper">
         <div class="page-header">
@@ -16,13 +14,11 @@
                 <div class="col-md-4 stretch-card grid-margin">
                     <div class="card bg-gradient-danger card-img-holder text-white">
                         <div class="card-body">
-                            <img src="{{ url(config('global.CIRCLE_SVG')) }}" class="card-img-absolute"
-                                alt="circle-image" />
+                            <img src="{{ url(config('global.CIRCLE_SVG')) }}" class="card-img-absolute" alt="circle-image" />
                             <h4 class="font-weight-normal mb-3">{{ __('total_teachers') }} <i
                                     class="mdi mdi-chart-line mdi-24px float-right"></i>
                             </h4>
                             <h2 class="mb-5">{{ $teacher }}</h2>
-                            {{-- <h6 class="card-text">Increased by 60%</h6> --}}
                         </div>
                     </div>
                 </div>
@@ -120,7 +116,7 @@
                                     <img class="img-sm rounded-circle" src="{{ $row->user->image }}" alt="profile"
                                         onerror="onErrorImage(event)">
                                     <div class="wrapper ml-3">
-                                        <h6 class="ml-1 mb-1">{{ $row->user->first_name . ' ' . $row->user->last_name }}
+                                        <h6 class="ml-1 mb-1">{{ $row->user->full_name }}
                                         </h6>
                                         <small class="text-muted mb-0">
                                             <i
@@ -177,8 +173,8 @@
                                         <div class="col-12 col-md-6 col-lg-4 grid-margin overflow-hidden stretch-card">
                                             <div class="card {{ $currentColor }} card-img-holder text-white">
                                                 <div class="card-body">
-                                                    <img src="{{ url(config('global.CIRCLE_SVG')) }}"
-                                                        class="card-img-absolute" alt="circle-image" />
+                                                    <img src="{{ url(config('global.CIRCLE_SVG')) }}" class="card-img-absolute"
+                                                        alt="circle-image" />
                                                     <h6 class="mb-2">
                                                         <h4>{{ $class_section->class->name }}-{{ $class_section->section->name }}
                                                             {{ $class_section->class->medium->name }}

@@ -88,12 +88,9 @@
                                                                 name="answers_data[{{ $question['id'] }}][question_id]"
                                                                 value="{{ $question['id'] }}">
                                                             @foreach ($question->questions->options as $option)
-                                                                @php
-                                                                    // dd($question->questions->student_answer);
-                                                                @endphp
                                                                 <div
                                                                     class="form-check form-quiz {{ in_array($option['id'], $question->correct_answers) ? 'success' : 'error' }}">
-                                                                    <input disabled @if(count($question->questions->student_answer) > 0 && $question->questions->student_answer[0]->option_id == $option['id']) checked @endif
+                                                                    <input disabled @checked($question->student_answer == $option['id'])
                                                                         class="form-check-input answer_qs text-black"
                                                                         type="radio"
                                                                         name="answers_data[{{ $question['id'] }}][option_id][]"

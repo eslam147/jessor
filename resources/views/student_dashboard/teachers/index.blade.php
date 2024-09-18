@@ -61,7 +61,7 @@
                                 </div>
                                 <div class="box-body">
                                     <p dir="auto" class="aboutscroll">
-                                        {{ $row->qualification }}
+                                        {{ str($row->qualification)->limit(50) }}
                                     </p>
                                     <ul class="list-inline text-center">
                                     </ul>

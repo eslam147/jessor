@@ -637,6 +637,11 @@ $(document).on("change", ".file_type", function () {
     var type = $(this).val();
     var parent = $(this).parent();
     parent.siblings(".input_file_content").hide();
+    parent
+        .siblings("#quizzes, #edit_quizzes,#assignments, #edit_assignments")
+        .find("input,select")
+        .attr("disabled", "disabled");
+
     switch (type) {
         case "file_upload":
             parent.siblings("#file_name_div, #file_div").show();
@@ -675,17 +680,17 @@ $(document).on("change", ".file_type", function () {
             break;
         case "online_exam":
             parent
-                .siblings(
-                    "#quizzes, #edit_quizzes"
-                )
-                .show();
+                .siblings("#quizzes, #edit_quizzes")
+                .show()
+                .find("input,select")
+                .removeAttr("disabled");
             break;
         case "assignment":
             parent
-                .siblings(
-                    "#assignments, #edit_assignments"
-                )
-                .show();
+                .siblings("#assignments, #edit_assignments")
+                .show()
+                .find("input,select")
+                .removeAttr("disabled");
             break;
     }
 });
@@ -820,7 +825,7 @@ $("#topic_subject_id").on("change", function () {
             });
 
             response.online_exams.forEach(function (data) {
-                html1 += 
+                html1 +=
                     "<option value='" +
                     data.id +
                     "'>" +
@@ -828,7 +833,7 @@ $("#topic_subject_id").on("change", function () {
                     "</option>";
             });
             response.assignments.forEach(function (data) {
-                html2 += 
+                html2 +=
                     "<option value='" +
                     data.id +
                     "'>" +
@@ -896,7 +901,7 @@ $("#edit_topic_subject_id").on("change", function () {
                     "</option>";
             });
             response.online_exams.forEach(function (data) {
-                html1 += 
+                html1 +=
                     "<option value='" +
                     data.id +
                     "'>" +
@@ -904,7 +909,7 @@ $("#edit_topic_subject_id").on("change", function () {
                     "</option>";
             });
             response.assignments.forEach(function (data) {
-                html2 += 
+                html2 +=
                     "<option value='" +
                     data.id +
                     "'>" +
@@ -2840,8 +2845,7 @@ $("#add-new-eqation-option").on("click", function (e) {
         .ready(function () {
             createCkeditor();
         });
-        let select_answer_option = `
-        <option value="${inner_html}" class="answer_option extra_answers_options">
+    let select_answer_option = `<option value="${inner_html}" class="answer_option extra_answers_options">
             ${lang_option} ${inner_html}
         </option>`;
     $("#answer_select").append(select_answer_option);
@@ -5013,4 +5017,5 @@ $("#create-leave").submit(function (e) {
         successCallback,
         errorCallback
     );
+    
 });

@@ -2,27 +2,23 @@
 
 namespace App\Http\Controllers;
 
+use Exception;
 use App\Enums\Lesson\LessonStatus;
 use App\Http\Controllers\Controller;
 use App\Models\Assignment;
-use App\Models\ClassSchool;
 use App\Models\ClassSection;
 use App\Models\File;
 use App\Models\Lesson;
 use App\Models\LessonTopic;
 use App\Models\OnlineExam;
-use App\Models\Students;
 use App\Models\Subject;
 use App\Rules\uniqueLessonInClass;
 use App\Rules\YouTubeUrl;
-use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
-use phpDocumentor\Reflection\Types\Nullable;
-use Throwable;
 
 class LessonController extends Controller
 {
@@ -45,11 +41,10 @@ class LessonController extends Controller
     public function store(Request $request)
     {
         if (! Auth::user()->can('lesson-create')) {
-            $response = [
+            return response()->json([
                 'error' => true,
                 'message' => trans('no_permission_message')
-            ];
-            return response()->json($response);
+            ]);
         }
         $teacher = auth()->user()->load('teacher')->teacher;
 
@@ -60,7 +55,7 @@ class LessonController extends Controller
             'subject_id' => 'required|numeric',
             'status' => ['required', Rule::in(LessonStatus::values())],
             'payment_status' => 'required|in:0,1',
-            
+
             'price' => 'nullable|required_if:payment_status,1|numeric|gt:0',
 
             'lesson_thumbnail' => 'nullable|max:2048|image',
@@ -110,8 +105,6 @@ class LessonController extends Controller
                 'price' => $request->payment_status == 1 ? $request->price : null,
                 'thumbnail' => $lessonThumbnailPath
             ]);
-
-
 
             $response = [
                 'error' => false,
@@ -201,7 +194,7 @@ class LessonController extends Controller
             $operate = '<a href=' . route('lesson.edit', $row->id) . ' class="btn btn-xs btn-gradient-primary btn-rounded btn-icon edit-data" data-id=' . $row->id . ' title="Edit" data-toggle="modal" data-target="#editModal"><i class="fa fa-edit"></i></a>&nbsp;&nbsp;';
             $operate .= '<a href=' . route('lesson.destroy', $row->id) . ' class="btn btn-xs btn-gradient-danger btn-rounded btn-icon delete-form" data-id=' . $row->id . '><i class="fa fa-trash"></i></a>';
             $tempRow['payment_status'] = view('lessons.datatable.is_paid', ['row' => $row])->render();
-            $tempRow['is_paid'] = $row->is_paid ;
+            $tempRow['is_paid'] = $row->is_paid;
 
             $tempRow['status_name'] = view('lessons.datatable.status', ['status' => $row->status])->render();
             $tempRow['status'] = $row->status;
@@ -218,7 +211,8 @@ class LessonController extends Controller
             $tempRow['subject_name'] = $row->subject->name . ' - ' . $row->subject->type;
             $tempRow['topic'] = $row->topic;
 
-            $tempRow['expiry_days'] = $row->expiry_days ? $row->expiry_days : "N/A";
+            $tempRow['expiry_days_str'] = $row->expiry_days ? $row->expiry_days : "N/A";
+            $tempRow['expiry_days'] = $row->expiry_days ;
             $tempRow['price'] = $row->price;
             $tempRow['lesson_thumbnail'] = $row->thumbnail;
             $tempRow['created_at'] = convertDateFormat($row->created_at, 'd-m-Y H:i:s');
@@ -245,52 +239,50 @@ class LessonController extends Controller
         $teacher = auth()->user()->load('teacher')->teacher;
 
         if (! Auth::user()->can('lesson-edit') || $lesson->teacher_id != $teacher->id) {
-            $response = array(
+            return response()->json([
                 'error' => true,
-                'message' => trans('no_permission_message')
-            );
-            return response()->json($response);
+                'message' => trans(key: 'no_permission_message')
+            ]);
         }
+        $validator = Validator::make($request->all(), [
+            'edit_id' => 'required|numeric',
+            'name' => ['required', new uniqueLessonInClass($request->class_section_id, $request->subject_id, $request->edit_id)],
+            'description' => 'required',
+            'class_section_id' => 'required|numeric',
+            'subject_id' => 'required|numeric',
+            'status' => ['required', Rule::in(LessonStatus::values())],
+            'payment_status' => 'required|in:0,1',
 
-        $validator = Validator::make(
-            $request->all(),
-            [
-                'edit_id' => 'required|numeric',
-                'name' => ['required', new uniqueLessonInClass($request->class_section_id, $request->subject_id, $request->edit_id)],
-                'description' => 'required',
-                'class_section_id' => 'required|numeric',
-                'subject_id' => 'required|numeric',
-                'status' => ['required', Rule::in(LessonStatus::values())],
+            'price' => 'nullable|required_if:payment_status,1|numeric|gt:0',
 
-                'payment_status' => 'required|in:0,1',
-                'price' => 'required_if:payment_status,1|numeric|gt:0|nullable',
-                'lesson_thumbnail' => 'nullable|max:2048|image',
+            'lesson_thumbnail' => 'nullable|max:2048|image',
+
+            // 'edit_file' => 'nullable|array',
+            // 'edit_file.*.type' => 'nullable|in:file_upload,youtube_link,video_upload,other_link',
+            // 'edit_file.*.name' => 'nullable|required_with:edit_file.*.type',
+            // // 'edit_file.*.link' => 'nullable|required_if:edit_file.*.type,youtube_link,other_link',
+
+            // // for Youtube Link
+            // 'edit_file.*.link' => ['nullable|required_if:edit_file.*.type,youtube_link', new YouTubeUrl, 'nullable'],
 
 
-                'edit_file' => 'nullable|array',
-                'edit_file.*.type' => 'nullable|in:file_upload,youtube_link,video_upload,other_link',
-                'edit_file.*.name' => 'nullable|required_with:edit_file.*.type',
-                // 'edit_file.*.link' => 'nullable|required_if:edit_file.*.type,youtube_link,other_link',
+            // 'file' => 'nullable|array',
+            // 'file.*.type' => 'nullable|in:file_upload,youtube_link,video_upload,other_link',
+            // 'file.*.name' => 'nullable|required_with:file.*.type',
+            // 'file.*.thumbnail' => 'required_if:file.*.type,youtube_link,video_upload,other_link|max:2048',
+            // 'file.*.file' => 'nullable|required_if:file.*.type,file_upload,video_upload',
+            // 'file.*.link' => 'nullable|required_if:file.*.type,youtube_link,other_link',
 
-                // for Youtube Link
-                'edit_file.*.link' => ['nullable|required_if:edit_file.*.type,youtube_link', new YouTubeUrl, 'nullable'],
-
-                'file' => 'nullable|array',
-                'file.*.type' => 'nullable|in:file_upload,youtube_link,video_upload,other_link',
-                'file.*.name' => 'nullable|required_with:file.*.type',
-                'file.*.thumbnail' => 'required_if:file.*.type,youtube_link,video_upload,other_link|max:2048',
-                'file.*.file' => 'nullable|required_if:file.*.type,file_upload,video_upload',
-                // 'file.*.link' => 'nullable|required_if:file.*.type,youtube_link,other_link',
-
-                //Regex for Youtube Link
-                'file.*.link' => ['nullable|required_if:file.*.type,youtube_link', new YouTubeUrl],
-                //Regex for Other Link
-                // 'file.*.link'=>'required_if:file.*.type,other_link|url'
-            ],
-            [
-                'name.unique' => trans('lesson_alredy_exists')
-            ]
-        );
+            //Regex for Youtube Link
+            // 'file.*.link' => ['nullable|required_if:file.*.type,youtube_link', new YouTubeUrl, 'nullable'],
+            // 'file.*.video_corner_url' => ['required_if:file.*.type,video_corner_url', 'nullable'],
+            'has_expire_days' => 'nullable|in:0,1',
+            'expiry_days' => 'nullable|numeric|required_if:has_expire_days,1|gt:0',
+            //Regex for Other Link
+            // 'file.*.link'=>'required_if:file.*.type,other_link|url'
+        ], [
+            'name.unique' => trans('lesson_alredy_exists')
+        ]);
         if ($validator->fails()) {
             return response()->json([
                 'error' => true,
@@ -310,12 +302,14 @@ class LessonController extends Controller
                 $fileThumbnail->move($destinationPath, $file_name);
                 $lesson->thumbnail = $lessonThumbnailPath;
             }
+
             $lesson->name = $request->name;
             $lesson->description = $request->description;
             $lesson->class_section_id = $request->class_section_id;
             $lesson->subject_id = $request->subject_id;
             $lesson->status = $request->status;
-            $lesson->is_paid = $request->payment_status;
+            $lesson->expiry_days = $request->has_expire_days ? $request->expiry_days : null;
+            $lesson->is_paid =  ($request->payment_status == 1);
             $lesson->price = $request->payment_status == 1 ? $request->price : null;
             $lesson->save();
 
@@ -400,7 +394,11 @@ class LessonController extends Controller
         $OnlineExam = new OnlineExam;
         $Assignment = new Assignment;
         if (isset($request->subject_id)) {
-            $OnlineExam = $OnlineExam->where('subject_id', $request->subject_id)->get();
+            $OnlineExam = $OnlineExam->where('model_type', ClassSection::class)
+                ->where('model_id', $request->class_section_id)
+                ->where('subject_id', $request->subject_id)
+                ->has('question_choice')
+                ->get();
         }
 
         if (isset($request->class_section_id) && isset($request->subject_id)) {

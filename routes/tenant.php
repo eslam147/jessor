@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\WebController;
+use App\Http\Controllers\ChatController;
 use App\Http\Controllers\ExamController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\RoleController;
@@ -19,6 +20,7 @@ use App\Http\Controllers\LessonController;
 use App\Http\Controllers\MediumController;
 use App\Http\Controllers\SliderController;
 use App\Http\Controllers\StreamController;
+use App\Http\Controllers\WalletController;
 use App\Http\Controllers\HolidayController;
 use App\Http\Controllers\ParentsController;
 use App\Http\Controllers\SectionController;
@@ -44,9 +46,9 @@ use App\Http\Controllers\SessionYearController;
 use App\Http\Controllers\AnnouncementController;
 use App\Http\Controllers\ClassTeacherController;
 use App\Http\Controllers\NotificationController;
-use App\Http\Controllers\WalletController;
 use App\Http\Controllers\SystemUpdateController;
 use App\Http\Controllers\ExamTimetableController;
+// use App\Http\Controllers\LiveLessonController;
 use App\Http\Controllers\student\EnrollController;
 use App\Http\Controllers\student\SignupController;
 use App\Http\Controllers\student\TopicsController;
@@ -59,12 +61,12 @@ use Stancl\Tenancy\Middleware\InitializeTenancyByDomain;
 use App\Http\Controllers\student\StudentDashboardController;
 use Stancl\Tenancy\Middleware\PreventAccessFromCentralDomains;
 use App\Http\Controllers\student\WalletController as StudentWallet;
-use App\Http\Controllers\student\AssignmentController as StudentAssignmentController;
 use App\Http\Controllers\student\LessonController as StudentLessonController;
+use App\Http\Controllers\student\ExamController as StudentOnlineExamController;
 use App\Http\Controllers\student\SubjectController as StudentSubjectController;
 use App\Http\Controllers\student\SettingController as StudentSettingsController;
+use App\Http\Controllers\student\AssignmentController as StudentAssignmentController;
 use App\Http\Controllers\student\OfflineExamController as StudentOfflineExamController;
-use App\Http\Controllers\student\ExamController as StudentOnlineExamController;
 
 Route::middleware([
     'web',
@@ -86,8 +88,10 @@ Route::middleware([
 
 
     Route::view('login', 'auth.login')->middleware('guest')->name('login');
-    Route::resource('signup', SignupController::class);
-
+    Route::controller(SignupController::class)->as('signup.')->group(function () {
+        Route::get('signup', 'index')->name('index');
+        Route::post('signup', 'store')->name('store');
+    });
     // webhooks
     Route::post('webhook/razorpay', [WebhookController::class, 'razorpay']);
     Route::post('webhook/stripe', [WebhookController::class, 'stripe']);
@@ -148,7 +152,7 @@ Route::middleware([
                     Route::post('start', 'start')->name('start');
                     Route::post('submit/{exam}', 'submit')->name('submit');
                     Route::get('result/{exam}', 'result')->name('result');
-                    Route::get('show/{exam}', 'show')->name('show');
+                    Route::get('show/{exam}', 'show')->name('show')->middleware('signed');
                 });
             });
 
@@ -170,7 +174,7 @@ Route::middleware([
 
     Route::group(['middleware' => ['Role', 'auth', 'logs-out-banned-user']], function () {
         Route::group(['middleware' => 'language'], function () {
-        Route::post('uploadImage', [MediaController::class, 'uploadImage'])->name('media.uploadImage');
+            Route::post('uploadImage', [MediaController::class, 'uploadImage'])->name('media.uploadImage');
             // Route::get('/home', [HomeController::class, 'index']);
             Route::get('home', [HomeController::class, 'index'])->name('home');
             Route::get('/logout', [HomeController::class, 'logout'])->name('logout');
@@ -227,12 +231,16 @@ Route::middleware([
             Route::get('session_years_list', [SessionYearController::class, 'show']);
             Route::delete('remove-installment-data/{id}', [SessionYearController::class, 'deleteInstallmentData']);
 
+            Route::get('students-deleted', [StudentController::class, 'deletedStudents'])->name('students.deleted');
+            Route::get('students-deleted-list', [StudentController::class, 'deletedStudentsList'])->name('students.deleted.list');
             Route::get('students-list', [StudentController::class, 'show'])->name('students.list');
             Route::get('students/assign-class', [StudentController::class, 'assignClass'])->name('students.assign-class');
             Route::post('students/assign-class', [StudentController::class, 'assignClass_store'])->name('students.assign-class.store');
             Route::get('students/new-student-list', [StudentController::class, 'newStudentList'])->name('students.new-student-list');
             Route::get('students/create_bulk', [StudentController::class, 'createBulkData'])->name('students.create-bulk-data');
             Route::post('students/store_bulk', [StudentController::class, 'storeBulkData'])->name('students.store-bulk-data');
+            Route::post('students/restore/{user}', [StudentController::class, 'restore'])->name('students.restore');
+            Route::delete('students/permanent_delete/{user}', [StudentController::class, 'permanent_delete'])->name('students.permanent_delete');
             Route::resource('students', StudentController::class);
 
             //student generate roll number
@@ -515,7 +523,24 @@ Route::middleware([
 
 
             Route::resource('leave-master', LeaveMasterController::class);
-
+            Route::prefix('chat')->middleware(['throttle:5,1'])->controller(ChatController::class)->as('chat.')->group(function () {
+                Route::get('/list', 'list')->name('list');
+                Route::get('/messages/{user}', action: 'chatMessages')->name('messages');
+                Route::post('/send-message', 'sendMessage')->name('send.message');
+            });
+            // Route::prefix('live_lessons')->as('live_lessons.')->controller(LiveLessonController::class)->group(function (){
+            //     Route::get('/', 'index')->name('index');
+            //     Route::get('create', 'create')->name('create');
+            //     Route::post('store', 'store')->name('store');
+            //     Route::get('edit/{live_lesson}', 'edit')->name('edit');
+            //     Route::put('update/{live_lesson}', 'update')->name('update');
+            //     Route::delete('destroy/{live_lesson}', 'destroy')->name('destroy');
+            //     Route::get('show/{live_lesson}', 'show')->name('show');
+            //     Route::get('list', 'list')->name('list');
+            //     Route::put('start/{live_lesson}', 'start')->name('start');
+            //     Route::put('stop/{live_lesson}', 'stop')->name('stop');
+                
+            // });
             // ------------------------------------------------------ \\
             Route::prefix('coupons')->as('coupons.')->controller(CouponController::class)->group(function () {
                 Route::get('/', 'index')->name('index');
@@ -546,8 +571,9 @@ Route::middleware([
             Route::controller(EnrollmentController::class)->prefix('enrollment')->as('enrollment.')->group(function () {
                 Route::get('/', 'index')->name('index');
                 Route::get('/list', 'list')->name('list');
-                Route::delete('delete/{enrollment}', 'destroy')->name('destroy');
                 Route::put('update/{enrollment}', 'update')->name('update');
+                Route::post('store', 'store')->name('store');
+                Route::delete('delete/{enrollment}', 'destroy')->name('destroy');
             });
             //return 'This is your multi-tenant application. The id of the current tenant is ' . tenant('id');
         });

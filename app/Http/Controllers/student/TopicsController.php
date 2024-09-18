@@ -35,25 +35,32 @@ class TopicsController extends Controller
 
     public function topic_files($topic_id)
     {
-        $topic = LessonTopic::with(['file' => function ($query) {
-            $query->with(['exam' => function($query){$query->with(['question_choice' => function ($query) { $query->with('questions'); }, 'student_attempt']);},'assignment']);
-        }])->active()->findOrFail($topic_id);
-        foreach($topic->file as $row)
-        {
+        $topic = LessonTopic::with([
+            'file' => function ($query) {
+                $query->with([
+                    'exam' => function ($query) {
+                        $query->with([
+                            'question_choice' => function ($query) {
+                                $query->with('questions');
+                            },
+                            'student_attempt'
+                        ]);
+                    },
+                    'assignment'
+                ]);
+            }
+        ])->active()->findOrFail($topic_id);
+        foreach ($topic->file as $row) {
             $obtainedMarks = 0;
-            if(!empty($row->online_exam_id))
-            {
+            if (! empty($row->online_exam_id)) {
                 $exam = $row->exam;
                 $totalMarks = $exam->question_choice->sum('marks');
                 $row->exam->total_marks = $totalMarks;
-                foreach($exam->question_choice as $question)
-                {
+                foreach ($exam->question_choice as $question) {
                     $correctAnswers = $question->questions->answers->pluck('answer');
-                    $studentAnswer = !empty($question->questions->student_answer) ? $question->questions->student_answer->pluck('option_id') : [];
-                    foreach($correctAnswers as $key => $value)
-                    {
-                        if(isset($studentAnswer[$key]) && $studentAnswer[$key] == $value)
-                        {
+                    $studentAnswer = ! empty($question->questions->student_answer) ? $question->questions->student_answer->pluck('option_id') : [];
+                    foreach ($correctAnswers as $key => $value) {
+                        if (isset($studentAnswer[$key]) && $studentAnswer[$key] == $value) {
                             $obtainedMarks += $question->marks;
                         }
                     }
@@ -72,19 +79,27 @@ class TopicsController extends Controller
             File::YOUTUBE_TYPE,
             File::VIDEO_UPLOAD_TYPE,
         ]);
-        $exams = $topic->file->where('type',File::ONLINE_EXAM_TYPE);
-        $assignments = $topic->file->where('type',File::ASSIGNMENT_TYPE);
-        $files = $topic->file->whereIn('type', [File::FILE_UPLOAD_TYPE, File::EXTERNAL_LINK,File::ONLINE_EXAM_TYPE,File::ASSIGNMENT_TYPE]);
+        $exams = $topic->file->where('type', File::ONLINE_EXAM_TYPE);
+        $assignments = $topic->file->where('type', File::ASSIGNMENT_TYPE);
+        $files = $topic->file->whereIn('type', [File::FILE_UPLOAD_TYPE, File::EXTERNAL_LINK, File::ONLINE_EXAM_TYPE, File::ASSIGNMENT_TYPE]);
         return view('student_dashboard.files.index', compact('files', 'videos', 'topic'));
     }
 
     public function get_file($id)
     {
-        $file = File::with(['exam' => function($query){$query->with(['question_choice' => function ($query) { $query->with('questions'); }]);},'assignment'])->find($id);
+        $file = File::with([
+            'exam' => function ($query) {
+                $query->with([
+                    'question_choice' => function ($query) {
+                        $query->with('questions');
+                    }
+                ]);
+            },
+            'assignment'
+        ])->find($id);
         if (! $file)
             return '';
-        else
-        {
+        else {
             return view('student_dashboard.files.file', compact('file'));
         }
     }

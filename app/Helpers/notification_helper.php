@@ -3,19 +3,27 @@
 use Google\Client;
 use App\Models\User;
 use App\Models\Settings;
+use Illuminate\Support\Facades\Storage;
 
+// c9zcdSFhUlWY7x67XCV5HI:APA91bGq2OkkBoeTFVhH0IBscS6aI5t4vdYBz0A6HtPKV4BgMmwOgRExVA69HplKFGhYli4rYbHxdjJhxWFlCgL00O1CT_rcn8UzwLx83ZpzmUKh1-fa46u1YHubZMgRy798o5o-9eNQ
 function send_notification($user, $title, $body, $type, $image, $userinfo)
 {
-    $FcmToken1 = User::where('fcm_id', '!=', '')->whereIn('id', $user)->where('device_type', 'android')->get()->pluck('fcm_id');
-    $FcmToken2 = User::where('fcm_id', '!=', '')->whereIn('id', $user)->where('device_type', 'ios')->get()->pluck('fcm_id');
-    $device_type = User::whereIn('id', $user)->pluck('device_type');
-
-    $project_id = Settings::select('message')->where('type', 'project_id')->pluck('message')->first();
-    $sender_id = Settings::select('message')->where('type', 'sender_id')->pluck('message')->first();
-    $url = 'https://fcm.googleapis.com/v1/projects/' . $project_id . '/messages:send';
-
-
     $access_token = getAccessToken();
+    if (! $access_token) {
+        return;
+    }
+    $users = User::where('fcm_id', '!=', '')
+        ->whereIn('id', $user)
+        ->get();
+
+    $FcmToken1 = $users->where('device_type', 'android')->pluck('fcm_id');
+    $FcmToken2 = $users->where('device_type', 'ios')->pluck('fcm_id');
+    $device_type = $users->pluck('device_type');
+
+    $project_id = Settings::select('message')->where('type', 'project_id')->value('message');
+
+    $url = "https://fcm.googleapis.com/v1/projects/{$project_id}/messages:send";
+
 
     if ($type == 'chat') {
         $userDetails = $userinfo;
@@ -84,7 +92,7 @@ function send_notification($user, $title, $body, $type, $image, $userinfo)
 
             $data2 = json_encode($message2);
             // Send notification to iOS users
-            $result2 = sendNotificationToFCM($url, $access_token, $data2);
+            sendNotificationToFCM($url, $access_token, $data2);
         }
     }
 }
@@ -123,14 +131,13 @@ function sendNotificationToFCM($url, $access_token, $Data)
 
 function getAccessToken()
 {
-    $file_name = Settings::select('message')->where('type', 'service_account_file')->pluck('message')->first();
+    $file_name = Settings::select('message')->where('type', 'service_account_file')->value('message');
+    if (Storage::disk('public')->exists($file_name)  ) {
+        $client = new Client();
+        $client->setAuthConfig(storage_path("app/public/{$file_name}"));
+        $client->setScopes(['https://www.googleapis.com/auth/firebase.messaging']);
+        return $client->fetchAccessTokenWithAssertion()['access_token'];
+    }
 
-    $file_path = storage_path('app/public/' . $file_name);
-
-    $client = new Client();
-    $client->setAuthConfig($file_path);
-    $client->setScopes(['https://www.googleapis.com/auth/firebase.messaging']);
-    $accessToken = $client->fetchAccessTokenWithAssertion()['access_token'];
-
-    return $accessToken;
+    return null;
 }

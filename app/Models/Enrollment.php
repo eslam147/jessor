@@ -2,8 +2,8 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Enrollment extends Model
 {
@@ -15,16 +15,18 @@ class Enrollment extends Model
     {
         return $this->belongsTo(Lesson::class);
     }
-    public function scopeActiveEnrollments($q)
+    public function scopeActiveEnrollments($q, $userId = null)
     {
         return $q->where(function ($q) {
-            $q->whereNull('expires_at')->orWhere('expires_at', '>', now()->toDateTimeString());
-        })->where('user_id', auth()->user()->id)
-            ->orderByDesc('id');
+            $q->where('expires_at', '>', now()->toDateTimeString())->orWhereNull('expires_at');
+        })->where('user_id', $userId ?? auth()->user()->id)->orderByDesc('id');
     }
     public function user()
     {
         return $this->belongsTo(User::class);
     }
-
+    public function scopeTeacherFilter($q)
+    {
+        return $q->whereHas('lesson', fn($q) => $q->relatedToTeacher());
+    }
 }

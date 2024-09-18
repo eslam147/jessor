@@ -7,10 +7,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    <title>{{ __('login') }} || {{ config('app.name') }}</title>
+    <title>{{ __('register') }} || {{ config('app.name') }}</title>
 
     @include('layouts.include')
-
 </head>
 
 <body class="bg-image">
@@ -29,7 +28,8 @@
                                     <img src="{{ loadTenantMainAsset('logo2', global_asset('assets/logo.svg')) }}"
                                         alt="logo">
                                 </div>
-                                <form action="{{ route('signup.store') }}" method="POST" class="pt-3 row">
+                                <form action="{{ route('signup.store') }}" method="POST" id="signup-form"
+                                    class="pt-3 row">
                                     @csrf
                                     <div class="form-group col-6">
                                         <label>{{ __('class') . ' ' . __('section') }} <span
@@ -37,19 +37,22 @@
                                         <select name="class_section_id" id="class_section" class="form-control ">
                                             <option value="">
                                                 {{ __('select') . ' ' . __('class') . ' ' . __('section') }}</option>
-                                            @foreach ($class_section as $section)
-                                                <option @selected(old('class_section_id') == $section->id) value="{{ $section->id }}">
-                                                    {{ optional($section->class)->name }} -
-                                                    {{ optional($section->class->medium)->name }}
-                                                    {{ optional($section->section)->name }} 
-                                                    {{ optional($section->class->streams)->name ?? ' ' }}
-                                                </option>
-                                            @endforeach
+                                            @isset($classSections)
+                                                @foreach ($classSections as $section)
+                                                    <option @selected(old('class_section_id') == $section->id) value="{{ $section->id }}">
+                                                        {{ optional($section->class)->name }} -
+                                                        {{ optional($section->class->medium)->name }}
+                                                        {{ optional($section->section)->name }}
+                                                        {{ optional($section->class->streams)->name ?? ' ' }}
+                                                    </option>
+                                                @endforeach
+                                            @endisset
                                         </select>
                                     </div>
                                     <div class="form-group col-6">
                                         <label> {{ __('mobile') }} <span class="text-danger">*</span></label>
-                                        <input type="tel" value="{{ old('mobile') }}" name="mobile" class="form-control">
+                                        <input type="tel" value="{{ old('mobile') }}" maxlength="11" minlength="11"
+                                            id="mobile" name="mobile" class="form-control">
                                     </div>
                                     <div class="form-group col-6">
                                         <label>{{ __('first_name') }}</label>
@@ -100,9 +103,10 @@
                                         </div>
                                     @endif
                                     <div class="mt-3 col-12">
-                                        <input type="submit" name="btnlogin" id="login_btn"
-                                            value="{{ __('register') }}"
-                                            class="btn btn-block btn-theme btn-lg font-weight-medium auth-form-btn" />
+                                        <button type="submit" name="btnlogin" id="login_btn"
+                                            class="btn btn-block btn-theme btn-lg font-weight-medium auth-form-btn">
+                                            {{ __('register') }}
+                                        </button>
                                     </div>
                                 </form>
                             </div>
@@ -122,30 +126,106 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-toast-plugin/1.3.2/jquery.toast.min.js"></script>
 
     <script type='text/javascript'>
-        $("#frmLogin").validate({
-            rules: {
-                username: "required",
-                password: "required",
-            },
-            success: function(label, element) {
-                $(element).parent().removeClass('has-danger')
-                $(element).removeClass('form-control-danger')
-            },
-            errorPlacement: function(label, element) {
-                if (label.text()) {
-                    if ($(element).attr("name") == "password") {
-                        label.insertAfter(element.parent()).addClass('text-danger mt-2');
-                    } else {
-                        label.addClass('mt-2 text-danger');
-                        label.insertAfter(element);
+        $(document).ready(function() {
+            $.validator.addMethod("egyptPhone", function(value, element) {
+                return this.optional(element) || /^01[0-2,5]{1}[0-9]{8}$/.test(value);
+            }, `{{ __('validation.phone', ['attribute' => 'mobile number']) }}`);
+
+            $('#signup-form').validate({
+                rules: {
+                    class_section_id: {
+                        required: true
+                    },
+                    mobile: {
+                        required: true,
+                        digits: true,
+                        egyptPhone: true,
+                        minlength: 11,
+                        maxlength: 11
+
+                    },
+                    first_name: {
+                        required: true,
+                        minlength: 2
+                    },
+                    last_name: {
+                        required: true,
+                        minlength: 2
+                    },
+                    email: {
+                        required: true,
+                        email: true
+                    },
+                    password: {
+                        required: true,
+                        minlength: 6
                     }
+                },
+                messages: {
+                    class_section_id: {
+                        required: `{{ __('validation.required', ['attribute' => 'Class Section']) }}`
+                    },
+                    mobile: {
+                        required: `{{ __('validation.required', ['attribute' => 'mobile number']) }}`,
+                        digits: `{{ __('validation.digits', ['attribute' => 'mobile number']) }}`,
+                        egyptPhone: `{{ __('validation.custom.mobile.egyptPhone', ['attribute' => 'mobile number']) }}`,
+                        minlength: `{{ __('validation.min.string', ['attribute' => 'mobile number', 'min' => 11]) }}`,
+                        maxlength: `{{ __('validation.max.string', ['attribute' => 'mobile number', 'max' => 11]) }}`
+                    },
+                    first_name: {
+                        required: `{{ __('validation.required', ['attribute' => 'first name']) }}`,
+                        minlength: `{{ __('validation.min.string', ['attribute' => 'first name', 'min' => 2]) }}`
+                    },
+                    last_name: {
+                        required: `{{ __('validation.required', ['attribute' => 'last name']) }}`,
+                        minlength: `{{ __('validation.min.string', ['attribute' => 'last name', 'min' => 2]) }}`
+                    },
+                    email: {
+                        required: `{{ __('validation.required', ['attribute' => 'email']) }}`,
+                        email: `{{ __('validation.email', ['attribute' => 'email']) }}`
+                    },
+                    password: {
+                        required: `{{ __('validation.required', ['attribute' => 'password']) }}`,
+                        minlength: `{{ __('validation.min.string', ['attribute' => 'password', 'min' => 6]) }}`
+                    }
+                },
+                errorElement: 'p',
+                errorClass: 'text-danger',
+                success: function(label, element) {
+                    $(element).parent().removeClass('has-danger')
+                    $(element).removeClass('form-control-danger')
+                },
+                errorPlacement: function(label, element) {
+                    if (label.text()) {
+                        if ($(element).attr("name") == "password") {
+                            label.insertAfter(element.parent()).addClass('text-danger mt-2');
+                        } else {
+                            label.addClass('mt-2 text-danger');
+                            label.insertAfter(element);
+                        }
+                    }
+                },
+                highlight: function(element, errorClass) {
+                    $(element).parent().addClass('has-danger')
+                    $(element).addClass('form-control-danger')
+                },
+                unhighlight: function(element) {
+                    $(element).removeClass('is-invalid');
+                },
+                submitHandler: function(form) {
+                    $('#mobile').val(convertToArabicNumerals($('#mobile').val()));
+                    form.submit();
                 }
 
-            },
-            highlight: function(element, errorClass) {
-                $(element).parent().addClass('has-danger')
-                $(element).addClass('form-control-danger')
+            });
+        });
+
+        $("#signup-form").submit(function() {
+            if ($(this).valid()) {
+                $('#login_btn').html(`<i class="fa fa-spinner fa-spin"></i> {{ __('send') }}`);
+                $('#login_btn').attr('disabled', 'disabled');
             }
+            return true;
         });
 
         const togglePassword = document.querySelector("#togglePassword");
@@ -154,7 +234,6 @@
         togglePassword.addEventListener("click", function() {
             const type = password.getAttribute("type") === "password" ? "text" : "password";
             password.setAttribute("type", type);
-            // this.classList.toggle("fa-eye");
             if (password.getAttribute("type") === 'password') {
                 $('#togglePassword').addClass('fa-eye-slash');
                 $('#togglePassword').removeClass('fa-eye');

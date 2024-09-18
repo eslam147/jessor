@@ -42,7 +42,7 @@
 <script src="{{ url('assets/js/jquery-additional-methods.min.js') }}"></script>
 <script src="{{ url('assets/js/custom/function.js') }}?v=1.0.7"></script>
 <script src="{{ url('assets/js/custom/custom.js') }}?v=1.0.7"></script>
-<script src="{{ url('assets/js/custom/custom-bootstrap-table.js') }}?v=1.0.7"></script>
+<script src="{{ url('assets/js/custom/custom-bootstrap-table.js') }}?v=1.0.8"></script>
 
 <script src="{{ url('assets/ckeditor-4/ckeditor.js') }}"></script>
 <script src="{{ url('assets/ckeditor-4/adapters/jquery.js') }}" async></script>
@@ -88,7 +88,7 @@
                 $.ajax({
                     url: $(this).attr('data-url'),
                     type: "POST",
-                    data:{
+                    data: {
                         _token: "{{ csrf_token() }}",
                         _method: 'DELETE',
                     },
@@ -119,7 +119,7 @@
                 $.ajax({
                     url: $(this).attr('data-url'),
                     type: "POST",
-                    data:{
+                    data: {
                         _token: "{{ csrf_token() }}",
                     },
                     success: function(response) {
@@ -149,7 +149,7 @@
                 $.ajax({
                     url: $(this).attr('data-url'),
                     type: "POST",
-                    data:{
+                    data: {
                         _token: "{{ csrf_token() }}",
                     },
                     success: function(response) {
@@ -166,9 +166,13 @@
     });
 </script>
 <script>
+    const translations = {
+        are_u_sure_restore: "{{ __('are_u_sure_restore') }}"
+    };
     const lang_no = "{{ __('no') }}"
     const lang_yes = "{{ __('yes') }}"
-    const lang_cannot_delete_beacuse_data_is_associated_with_other_data = "{{ __('cannot_delete_beacuse_data_is_associated_with_other_data') }}"
+    const lang_cannot_delete_beacuse_data_is_associated_with_other_data =
+        "{{ __('cannot_delete_beacuse_data_is_associated_with_other_data') }}"
     const lang_delete_title = "{{ __('delete_title') }}"
     const lang_delete_warning = "{{ __('delete_warning') }}"
     const lang_yes_delete = "{{ __('yes_delete') }}"
@@ -192,14 +196,13 @@
     const lang_partial_paid = "{{ __('partial_paid') }}";
     const lang_due_date_on = "{{ __('due_date_on') }}";
     const lang_charges = "{{ __('charges') }}";
-    const lang_total_amount = "{{ __('total')}} {{__('amount')}}";
-    const lang_paid_on = "{{ __('paid_on')}}";
-    const lang_due_charges = "{{ __('due_charges')}}";
-    const lang_date = "{{ __('date')}}";
-    const lang_pay_in_installment = "{{__('pay_in_installment')}}";
+    const lang_total_amount = "{{ __('total') }} {{ __('amount') }}";
+    const lang_paid_on = "{{ __('paid_on') }}";
+    const lang_due_charges = "{{ __('due_charges') }}";
+    const lang_date = "{{ __('date') }}";
+    const lang_pay_in_installment = "{{ __('pay_in_installment') }}";
     const lang_active = "{{ __('active') }}";
     const lang_inactive = "{{ __('inactive') }}";
     const lang_enable = "{{ __('enable') }}";
     const lang_disable = "{{ __('disable') }}";
 </script>
-

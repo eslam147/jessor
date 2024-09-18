@@ -35,7 +35,10 @@ class AttendanceController extends Controller
         $teacher_id = Auth::user()->teacher->id;
 
         $class_section_ids = ClassTeacher::where('class_teacher_id', $teacher_id)->pluck('class_section_id');
-        $class_sections = ClassSection::with('class', 'section', 'classTeachers', 'class.streams')->whereIn('id', $class_section_ids)->get();
+        $class_sections = ClassSection::with('class', 'section', 'classTeachers', 'class.streams')
+            ->withOutTrashedRelations('section', 'class', 'classTeachers')
+            ->whereIn('id', $class_section_ids)->get();
+
         return view('attendance.index', compact('class_sections'));
     }
 
@@ -124,20 +127,22 @@ class AttendanceController extends Controller
                             $image = null;
                             $userinfo = null;
 
-                            $notification = new Notification();
-                            $notification->send_to = 4;
-                            $notification->title = $title;
-                            $notification->message = $body;
-                            $notification->type = $type;
-                            $notification->date = Carbon::now();
-                            $notification->is_custom = 0;
-                            $notification->save();
+                            $notification = Notification::create([
+                                'notification' => $body,
+                                'send_to' => 4,
+                                'title' => $title,
+                                'message' => $body,
+                                'type' => $type,
+                                'date' => now(),
+                                'is_custom' => 0,
+                            ]);
 
                             foreach ($user as $data) {
-                                $user_notification = new UserNotification();
-                                $user_notification->notification_id = $notification->id;
-                                $user_notification->user_id = $data;
-                                $user_notification->save();
+                                $user_notification = UserNotification::create([
+                                    'notification_id' => $notification->id,
+                                    'user_id' => $data,
+                                ]);
+
                             }
 
                             send_notification($user, $title, $body, $type, $image, $userinfo);
@@ -163,19 +168,12 @@ class AttendanceController extends Controller
         return response()->json($response);
     }
 
-    /**
-     * Display the specified resource.
-     *
-     * @param int $id
-     * @return \Illuminate\Http\Response
-     */
     public function show(Request $request)
     {
         if (! Auth::user()->can('attendance-list')) {
-            $response = array(
+            return response()->json([
                 'message' => trans('no_permission_message')
-            );
-            return response()->json($response);
+            ]);
         }
         $offset = 0;
         $limit = 200;
@@ -213,10 +211,10 @@ class AttendanceController extends Controller
             }
             $total = $sql2->count();
             $res = $sql2->get();
-            $bulkData = array();
+            $bulkData = [];
             $bulkData['total'] = $total;
-            $rows = array();
-            $tempRow = array();
+            $rows = [];
+            $tempRow = [];
             $no = 1;
             foreach ($res as $row) {
                 $get_type = $row->type;
@@ -247,12 +245,12 @@ class AttendanceController extends Controller
                 $tempRow['student_id'] = "<input type='text' name='student_id[]' class='form-control' readonly value=" . $row->student_id . ">";
                 $tempRow['admission_no'] = $row->student->admission_no;
                 $tempRow['roll_no'] = $row->student->roll_number;
-                $tempRow['name'] = $row->student->user->first_name . ' ' . $row->student->user->last_name;
+                $tempRow['name'] = $row->student->user?->full_name;
                 $tempRow['type'] = $type;
                 $rows[] = $tempRow;
             }
         } else {
-            $sql = Students::with('user')->where('class_section_id', $class_section_id);
+            $sql = Students::with('user')->where('class_section_id', $class_section_id)->ofTeacher();
 
             if (isset($_GET['search']) && ! empty($_GET['search'])) {
                 $search = $_GET['search'];
@@ -268,10 +266,10 @@ class AttendanceController extends Controller
             $total = $sql->count();
             $sql->orderBy($sort, $order)->skip($offset)->take($limit);
             $res = $sql->get();
-            $bulkData = array();
+            $bulkData = [];
             $bulkData['total'] = $total;
-            $rows = array();
-            $tempRow = array();
+            $rows = [];
+            $tempRow = [];
             $no = 1;
             foreach ($res as $row) {
                 $type = '<div class="d-flex"><div class="form-check-inline"><label class="form-check-label">
@@ -286,7 +284,7 @@ class AttendanceController extends Controller
                 $tempRow['student_id'] = "<input type='text' name='student_id[]' class='form-control' readonly value=" . $row->id . ">";
                 $tempRow['admission_no'] = $row->admission_no;
                 $tempRow['roll_no'] = $row->roll_number;
-                $tempRow['name'] = $row->user->first_name . ' ' . $row->user->last_name;
+                $tempRow['name'] = $row->user?->full_name;
                 $tempRow['type'] = $type;
                 $rows[] = $tempRow;
             }
@@ -300,10 +298,9 @@ class AttendanceController extends Controller
     public function attendance_show(Request $request)
     {
         if (! Auth::user()->can('attendance-list')) {
-            $response = array(
+            return response()->json([
                 'message' => trans('no_permission_message')
-            );
-            return response()->json($response);
+            ]);
         }
         $offset = 0;
         $limit = 200;
@@ -329,11 +326,10 @@ class AttendanceController extends Controller
             'date' => 'required',
         ]);
         if ($validator->fails()) {
-            $response = array(
+            return response()->json([
                 'error' => true,
                 'message' => $validator->errors()->first()
-            );
-            return response()->json($response);
+            ]);
         }
 
         $sql = Attendance::where('date', $date)->where('class_section_id', $class_section_id)->with('student');
@@ -353,7 +349,7 @@ class AttendanceController extends Controller
                         ->orwhere('roll_number', 'LIKE', "%$search%");
                 });
         }
-        if (isset($attendance_type) && $attendance_type != '') {
+        if (! empty($attendance_type)) {
             $sql->where('type', $attendance_type);
         }
         $total = $sql->count();
@@ -361,10 +357,10 @@ class AttendanceController extends Controller
         $sql->orderBy($sort, $order)->skip($offset)->take($limit);
         $res = $sql->get();
 
-        $bulkData = array();
+        $bulkData = [];
         $bulkData['total'] = $total;
-        $rows = array();
-        $tempRow = array();
+        $rows = [];
+        $tempRow = [];
         $no = 1;
         foreach ($res as $row) {
             $type = $row->type;
@@ -374,7 +370,7 @@ class AttendanceController extends Controller
             $tempRow['user_id'] = $row->student->user_id;
             $tempRow['admission_no'] = $row->student->admission_no;
             $tempRow['roll_no'] = $row->student->roll_number;
-            $tempRow['name'] = $row->student->user->first_name . ' ' . $row->student->user->last_name;
+            $tempRow['name'] = $row->student->user?->full_name;
             $tempRow['type'] = ($type == 1) ? '<label class="badge badge-info"> Present</label>' : (($type == 3) ? '<label class="badge badge-success"> Holiday</label>' : '<label class="badge badge-danger"> Absent</label>');
             $rows[] = $tempRow;
         }
@@ -398,11 +394,10 @@ class AttendanceController extends Controller
     public function storeBulkData(Request $request)
     {
         if (! Auth::user()->can('attendance-create') || ! Auth::user()->can('attendance-edit')) {
-            $response = array(
+            return response()->json([
                 'error' => true,
                 'message' => trans('no_permission_message')
-            );
-            return response()->json($response);
+            ]);
         }
 
         $validator = Validator::make($request->all(), [
@@ -410,11 +405,10 @@ class AttendanceController extends Controller
             'file' => 'required|mimes:csv,txt'
         ]);
         if ($validator->fails()) {
-            $response = array(
+            return response()->json([
                 'error' => true,
                 'message' => $validator->errors()->first()
-            );
-            return response()->json($response);
+            ]);
         }
         try {
             $class_section_id = $request->class_section_id;
@@ -425,10 +419,10 @@ class AttendanceController extends Controller
                 'message' => trans('data_store_successfully')
             ];
         } catch (Exception $e) {
-            $response = array(
+            $response = [
                 'error' => true,
                 'message' => trans('error_occurred'),
-            );
+            ];
         }
         return response()->json($response);
     }
@@ -441,16 +435,14 @@ class AttendanceController extends Controller
         ]);
 
         if ($validator->fails()) {
-            $response = array(
+            return response()->json([
                 'error' => true,
                 'message' => $validator->errors()->first()
-            );
-            return response()->json($response);
+            ]);
         }
         $class_section_id = $request->class_section_id;
         $date = $request->date;
 
         return Excel::download(new StudentsExport($class_section_id, $date), 'student_list.csv');
-
     }
 }

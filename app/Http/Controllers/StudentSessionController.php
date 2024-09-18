@@ -245,7 +245,7 @@ class StudentSessionController extends Controller
             $tempRow['student_id'] = "<input type='text' name='student_id[]' class='form-control' readonly value=" . $row->id . ">";
             $tempRow['admission_no'] = $row->admission_no;
             $tempRow['roll_no'] = $row->student->roll_number ?? null;
-            $tempRow['name'] = $row->user->first_name . ' ' . $row->user->last_name;
+            $tempRow['name'] = $row->user->full_name;
             $tempRow['result'] = $result;
             $tempRow['status'] = $status;
             $rows[] = $tempRow;

@@ -45,7 +45,7 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <form id="purchaseForm" method="POST" action="{{ route('enroll.store','coupon_code') }}">
+                <form id="purchaseForm" method="POST" action="{{ route('enroll.store', 'coupon_code') }}">
                     @csrf
                     <div class="form-group">
                         <label>Purchase Code</label>
@@ -56,8 +56,7 @@
                 </form>
             </div>
             <div class="modal-footer modal-footer-uniform">
-                <button type="submit" form="purchaseForm" class="btn btn-success"
-                    style="width: 100%;">Unlock</button>
+                <button type="submit" form="purchaseForm" class="btn btn-success" style="width: 100%;">Unlock</button>
             </div>
         </div>
     </div>
@@ -117,7 +116,26 @@
                         break;
 
                 }
+            })
+            $('.free_enrollment_btn').on('click', function(e) {
+                e.preventDefault();
+                const form = document.createElement('form');
+                form.method = 'POST';
+                form.action = `{{ route('enroll.store', 'free') }}`;
+                const lessonId = document.createElement('input');
+                lessonId.type = 'hidden';
+                lessonId.name = 'lesson_id';
+                lessonId.value = $(this).data('id');
 
+                const token = document.createElement('input');
+                token.type = 'hidden';
+                token.name = '_token';
+                token.value = "{{ csrf_token() }}";
+                form.appendChild(token);
+                form.appendChild(lessonId);
+
+                document.body.appendChild(form);
+                form.submit();
             })
             $('.locked-btn').on('click', function() {
                 var id = $(this).data('id');

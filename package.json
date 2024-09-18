@@ -23,6 +23,7 @@
         "vue-template-compiler": "^2.6.12"
     },
     "dependencies": {
-        "@fingerprintjs/fingerprintjs": "^4.4.3"
+        "@fingerprintjs/fingerprintjs": "^4.4.3",
+        "devtools-detect": "^4.0.2"
     }
 }

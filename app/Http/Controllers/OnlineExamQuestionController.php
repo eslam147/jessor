@@ -107,7 +107,6 @@ class OnlineExamQuestionController extends Controller
             $question_store = new OnlineExamQuestion();
             $question_store->class_subject_id = $class_subject_id;
             $question_store->explain_answer = $request->explain_answer;
-            $question_store->teacher_id = auth()->user()->teacher->id;
             $question_store->note = htmlspecialchars($request->note);
             $question_store->image_url = $this->questionBankService->storeImageFromRequest('image');
             // Types = 0 - Simple Question It Will Be Default, 1 - Equation Based Question, 2 - Image Based Question

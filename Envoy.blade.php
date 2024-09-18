@@ -1,18 +1,21 @@
-@servers(['jessor_main' => ['root@173.212.241.22']])
+@servers(['main' => ['admin@149.102.141.93']])
 
+@story('production')
+    pull_from_main
+@endstory
 @story('testing')
-    fetch_last_update_from_main
-    fetch_last_update_from_main_to_beta
+    pull_from_main_to_beta
 @endstory
 
-@task('fetch_last_update_from_main', ['on' => 'jessor_main'])
-    cd /home/jesoor.online/testing.jesoor.online/
+@task('pull_from_main', ['on' => 'main'])
+    cd /home/admin/public_html/
     git pull origin main
     composer dumpautoload
     php artisan optimize:clear
+    php artisan optimize
 @endtask
 
-@task('fetch_last_update_from_main_to_beta', ['on' => 'jessor_main'])
+@task('pull_from_main_to_beta', ['on' => 'main'])
     cd /home/jesoor.online/beta.jesoor.online/
     git pull origin main
     composer dumpautoload

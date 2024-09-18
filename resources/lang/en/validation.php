@@ -142,11 +142,10 @@ return [
     */
 
     'custom' => [
-        'attribute-name' => [
-            'rule-name' => 'custom-message',
+        'mobile' => [
+            'egyptPhone' => 'The :attribute must be a valid 11-digit Egyptian phone number.',
         ],
     ],
-
     /*
     |--------------------------------------------------------------------------
     | Custom Validation Attributes

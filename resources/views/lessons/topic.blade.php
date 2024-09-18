@@ -20,7 +20,7 @@
                         <h4 class="card-title">
                             {{ __('create') . ' ' . __('topic') }}
                         </h4>
-                        <form class="pt-3 add-topic-form" id="create-form" action="{{ route('lesson-topic.store') }}"
+                        <form class="pt-3 add-topic-form"  action="{{ route('lesson-topic.store') }}"
                             method="POST" novalidate="novalidate">
                             <div class="row">
                                 <div class="form-group col-sm-12 col-md-6">
@@ -84,13 +84,17 @@
                                         <label>{{ __('type') }}</label>
                                         <select id="file_type" name="file[0][type]" class="form-control file_type">
                                             <option value="">--{{ __('select') }}--</option>
-                                            <option value="file_upload">{{ __('file_upload') }}</option>
-                                            <option value="youtube_link">{{ __('youtube_link') }}</option>
-                                            <option value="video_upload">{{ __('video_upload') }}</option>
-                                            <option value="video_corner_link">{{ __('video_corner_link') }}</option>
-                                            <option value="external_link">{{ __('external_link') }}</option>
-                                            <option value="online_exam">{{ __('online_exam') }}</option>
-                                            <option value="assignment">{{ __('assignment') }}</option>
+                                            <optgroup label="Files">
+                                                <option value="file_upload">{{ __('file_upload') }}</option>
+                                                <option value="youtube_link">{{ __('youtube_link') }}</option>
+                                                <option value="video_upload">{{ __('video_upload') }}</option>
+                                                <option value="video_corner_link">{{ __('video_corner_link') }}</option>
+                                                <option value="external_link">{{ __('external_link') }}</option>
+                                            </optgroup>
+                                            <optgroup label="Other">
+                                                <option value="online_exam">{{ __('online_exam') }}</option>
+                                                <option value="assignment">{{ __('assignment') }}</option>
+                                            </optgroup>
                                         </select>
                                     </div>
                                     <div class="form-group input_file_content col-md-3" id="file_name_div"
@@ -134,14 +138,14 @@
                                     <div class="form-group input_file_content col-md-3" id="quizzes"
                                         style="display: none">
                                         <label>{{ __('online_exam') }} <span class="text-danger">*</span></label>
-                                        <select type="text" name="file[0][online_exam]" class="form-control quizzes" placeholder="{{ __('online_exam') }}" required>
+                                        <select name="file[0][online_exam]" disabled class="form-control quizzes" placeholder="{{ __('online_exam') }}" required>
                                             <option value="">{{ __('select_online_exam') }}</option>
                                         </select>
                                     </div>
                                     <div class="form-group input_file_content col-md-3" id="assignments"
                                         style="display: none">
                                         <label>{{ __('assignments') }} <span class="text-danger">*</span></label>
-                                        <select type="text" name="file[0][assignments]" class="form-control assignments" placeholder="{{ __('assignments') }}" required>
+                                        <select name="file[0][assignments]" disabled class="form-control assignments" placeholder="{{ __('assignments') }}" required>
                                             <option value="">{{ __('select_assignment') }}</option>
                                         </select>
                                     </div>
@@ -376,14 +380,14 @@
                                     <div class="form-group input_file_content col-md-3" id="edit_quizzes"
                                         style="display: none">
                                         <label>{{ __('online_exam') }} <span class="text-danger">*</span></label>
-                                        <select type="text" name="edit_file[0][online_exam]" class="form-control quizzes" placeholder="{{ __('online_exam') }}" required>
+                                        <select name="edit_file[0][online_exam]" class="form-control quizzes" placeholder="{{ __('online_exam') }}" required>
                                             <option value="">{{ __('select_online_exam') }}</option>
                                         </select>
                                     </div>
                                     <div class="form-group input_file_content col-md-3" id="edit_assignments"
                                         style="display: none">
                                         <label>{{ __('assignments') }} <span class="text-danger">*</span></label>
-                                        <select type="text" name="edit_file[0][assignments]" class="form-control assignments" placeholder="{{ __('assignments') }}" required>
+                                        <select name="edit_file[0][assignments]" class="form-control assignments" placeholder="{{ __('assignments') }}" required>
                                             <option value="">{{ __('select_assignment') }}</option>
                                         </select>
                                     </div>

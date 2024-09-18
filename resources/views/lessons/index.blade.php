@@ -1,8 +1,6 @@
 @extends('layouts.master')
 
-@section('title')
-    {{ __('manage') . ' ' . __('lesson') }}
-@endsection
+@section('title', __('manage') . ' ' . __('lesson'))
 @section('css')
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Dropify/0.2.2/css/dropify.min.css">
 @endsection
@@ -93,7 +91,8 @@
                                 </div>
 
                                 <div class="form-group col-sm-6 lesson_expiry_days ">
-                                    <label>{{ __('expiry_days') }}<span class="text-danger">*</span>(<small class="text-info">{{trans("expire_days_lesson")  }}</small>)</label>
+                                    <label>{{ __('expiry_days') }}<span class="text-danger">*</span>(<small
+                                            class="text-info">{{ trans('expire_days_lesson') }}</small>)</label>
 
                                     {!! Form::number('expiry_days', 0, [
                                         'required',
@@ -102,7 +101,7 @@
                                         'placeholder' => __('expiry_days'),
                                         'disabled',
                                         'class' => 'form-control',
-                                    ]) !!} 
+                                    ]) !!}
                                     @error('expiry_days')
                                         <p class="text-danger" role="alert">{{ $message }}</p>
                                     @enderror
@@ -224,7 +223,7 @@
                                         {{ __('status') }}</th>
                                     <th scope="col" data-field="price" data-sortable="false">
                                         {{ __('price') }}</th>
-                                    <th scope="col" data-field="expiry_days" data-sortable="false">
+                                    <th scope="col" data-field="expiry_days_str" data-sortable="false">
                                         {{ __('expiry_days') }}</th>
                                     <th scope="col" data-field="created_at" data-sortable="true"
                                         data-visible="false"> {{ __('created_at') }}</th>
@@ -320,6 +319,32 @@
                                         <input type="number" min="1" step="0.01" id="price" disabled
                                             name="price" placeholder="{{ __('price') }}" class="form-control" />
                                     </div>
+                                    <div class="form-group col-sm-6">
+                                        <div class="form-check form-check-inline">
+                                            <label class="form-check-label">
+                                                <input type="checkbox" name="has_expire_days" value="1"
+                                                    class="form-check-input lesson_has_expire_date"
+                                                    id="edit_lesson_has_expiry_date">Has Expiry Days
+                                                <i class="input-helper"></i><i class="input-helper"></i></label>
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group col-sm-6 lesson_expiry_days ">
+                                        <label>{{ __('expiry_days') }}<span class="text-danger">*</span>(<small
+                                                class="text-info">{{ trans('expire_days_lesson') }}</small>)</label>
+
+                                        {!! Form::number('expiry_days', 0, [
+                                            'required',
+                                            'min' => 1,
+                                            'step' => '1',
+                                            'placeholder' => __('expiry_days'),
+                                            'disabled',
+                                            'class' => 'form-control',
+                                        ]) !!}
+                                        @error('expiry_days')
+                                            <p class="text-danger" role="alert">{{ $message }}</p>
+                                        @enderror
+                                    </div>
                                     <div class="form-group col-sm-12 col-md-6">
                                         <label>{{ __('status') }} <span class="text-danger">*</span></label>
                                         <div class="d-flex">
@@ -376,8 +401,8 @@
                 $('.lesson_expiry_days input').attr('disabled', true);
             }
         });
-        // $('.expiry_days')
-        $('.payment_status').change(function() {
+
+        $(document).on('change', '.payment_status', function() {
             let $this = $(this);
             if ($this.val() == 1) {
                 $('.price_row input').removeAttr('disabled');

@@ -4,6 +4,7 @@ $(document).on("change", ".answer_qs", function () {
 });
 $(".send_exam").click(function (e) {
     e.preventDefault();
+    e.stopImmediatePropagation();
     $("#quizForm").submit();
 });
 $(".switch_btn").on("timeline-changed", function () {

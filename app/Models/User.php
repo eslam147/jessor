@@ -19,12 +19,10 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 class User extends Authenticatable implements Wallet, Customer, BannableInterface
 {
     use HasApiTokens, HasFactory, Notifiable, HasRoles;
-    use SoftDeletes;
-    use HasWallet, CanPay;
-    use Bannable;
+    use Bannable, SoftDeletes, HasWallet, CanPay;
     protected $guarded = [];
 
-    protected $appends =[
+    protected $appends = [
         'full_name'
     ];
 
@@ -32,11 +30,7 @@ class User extends Authenticatable implements Wallet, Customer, BannableInterfac
     {
         return $this->hasMany(UserDevice::class);
     }
-    /**
-     * The attributes that should be hidden for arrays.
-     *
-     * @var array
-     */
+
     protected $hidden = [
         'password',
         'remember_token',
@@ -45,11 +39,6 @@ class User extends Authenticatable implements Wallet, Customer, BannableInterfac
         "updated_at"
     ];
 
-    /**
-     * The attributes that should be cast to native types.
-     *
-     * @var array
-     */
     protected $casts = [
         'email_verified_at' => 'datetime',
     ];
@@ -60,7 +49,7 @@ class User extends Authenticatable implements Wallet, Customer, BannableInterfac
     }
     public function enrollmentLessons()
     {
-        return $this->belongsToMany(Lesson::class, Enrollment::class, 'user_id', 'lesson_id');
+        return $this->belongsToMany(Lesson::class, Enrollment::class, 'user_id', 'lesson_id')->withPivot('user_id', 'expires_at', 'lesson_id');
     }
 
     public function parent()
@@ -85,13 +74,8 @@ class User extends Authenticatable implements Wallet, Customer, BannableInterfac
     }
     public function getFullNameAttribute()
     {
-        return $this->first_name . ' ' . $this->last_name;
+        return ($this->first_name ?? '') . ' ' . ($this->last_name ?? '');
     }
-
-    // //Getter Attributes
-    // public function getOriginalImageAttribute() {
-    //     return $this->getRawOriginal('image');
-    // }
 
     public function notifications()
     {
@@ -108,8 +92,8 @@ class User extends Authenticatable implements Wallet, Customer, BannableInterfac
     }
     public function hasAccessToLesson($lessonId)
     {
-        return $this->whereHas('enrollmentLessons', function ($q) use ($lessonId) {
-            return $q->where('lessons.id', $lessonId);
-        })->exists();
+        return Enrollment::activeEnrollments($this->getRawOriginal('id'))
+            ->where('lesson_id', $lessonId)
+            ->exists();
     }
 }

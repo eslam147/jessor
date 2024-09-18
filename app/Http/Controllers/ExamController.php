@@ -532,7 +532,7 @@ class ExamController extends Controller
                     $operate .= '<a href=' . route('exams.destroy', $row->id) . ' class="btn btn-xs btn-secondary btn-icon delete-form" data-id=' . $row->id . '><i class="fa fa-trash"></i></a>';
                     $tempRow['id'] = $row->id;
                     $tempRow['no'] = $no++;
-                    $tempRow['student_name'] = $row->user->first_name . ' ' . $row->user->last_name;
+                    $tempRow['student_name'] = $row->user->full_name;
                     $tempRow['student_id'] = $row->id;
                     foreach ($subject_total_marks as $total_marks) {
                         $tempRow['total_marks'] = $total_marks;
@@ -551,7 +551,7 @@ class ExamController extends Controller
                 $operate .= '<a href=' . route('exams.destroy', $row->id) . ' class="btn btn-xs btn-secondary btn-icon delete-form" data-id=' . $row->id . '><i class="fa fa-trash"></i></a>';
                 $tempRow['id'] = $row->id;
                 $tempRow['no'] = $no++;
-                $tempRow['student_name'] = $row->user->first_name . ' ' . $row->user->last_name;
+                $tempRow['student_name'] = $row->user->full_name;
                 $tempRow['student_id'] = $row->id;
                 foreach ($subject_total_marks as $total_marks) {
                     $tempRow['total_marks'] = $total_marks;

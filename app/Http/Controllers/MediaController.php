@@ -182,7 +182,7 @@ class MediaController extends Controller
 
         $validator = Validator::make($request->all(), [
             'name' => 'required',
-            'thumbnail' => 'nullable|image|mimes:png,jpg,jpeg',
+            'thumbnail' => 'nullable|image|mimes:png,jpg,jpeg|max:2048',
         ]);
 
         if ($validator->fails()) {

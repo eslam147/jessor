@@ -16,8 +16,8 @@ class SubjectController extends Controller
     public function index()
     {
         $class_section_id = Students::where('user_id', Auth::user()->id)->value('class_section_id');
-
-        $class_id = ClassSection::whereId($class_section_id)->valueOrFail('class_id');
+        
+        $class_id = ClassSection::whereId($class_section_id)->withOutTrashedRelations('class')->value('class_id');
 
         $subjects = Subject::whereHas('classSubjects', fn($q) => $q->where('class_id', $class_id))
             ->latest()

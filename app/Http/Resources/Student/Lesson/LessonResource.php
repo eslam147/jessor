@@ -19,14 +19,14 @@ class LessonResource extends JsonResource
             'status' => $this->status,
             'class' => new ClassSchoolResource($this->whenLoaded('class')),
             'subject' => (new SubjectResource($this->subject))->withoutLessons(),
-            
+            // ------------------------------------------------ \\
             'files' => $this->when($this->is_enrolled, function () {
                 return FileResource::collection($this->file);
             }, null),
-
-            'is_enrolled' => ($this->is_enrolled ? true : false),
-            'is_paid' => (!$this->is_paid ? true : false),
-
+            // ------------------------------------------------ \\
+            'is_enrolled' => boolval($this->is_enrolled),
+            'is_paid' => boolval($this->is_paid),
+            // ------------------------------------------------ \\
             'topics' => LessonTopicResource::collection($this->topic)
         ];
     }

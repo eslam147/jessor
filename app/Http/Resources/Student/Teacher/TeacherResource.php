@@ -22,7 +22,7 @@ class TeacherResource extends JsonResource
             'first_name' => $this->user->first_name,
             'last_name' => $this->user->last_name,
             'gender' => $this->user->gender,
-            'image' => $this->when($this->user->getRawOriginal('image'), $this->user->image),
+            'image' => $this->when(!empty($this->user->getRawOriginal('image')), $this->user->image, global_asset('images/no_image_available.jpg')),
             'dob' => $this->user->dob,
             // ------------------------------------------
             'lessons_count' => $this->lessons_count,

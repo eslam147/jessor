@@ -11,7 +11,7 @@ use Znck\Eloquent\Traits\BelongsToThrough;
 
 class ClassSection extends Model
 {
-    use SoftDeletes, HasFactory, WithoutTrashedRelations,BelongsToThrough;
+    use SoftDeletes, HasFactory, WithoutTrashedRelations, BelongsToThrough;
     protected $guarded = [];
     protected $hidden = ["deleted_at", "created_at", "updated_at"];
 
@@ -48,6 +48,10 @@ class ClassSection extends Model
     public function subject_teachers()
     {
         return $this->hasMany(SubjectTeacher::class);
+    }
+    public function students()
+    {
+        return $this->hasMany(Students::class, 'class_section_id', 'id');
     }
 
     public function scopeClassTeacher($query)

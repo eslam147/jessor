@@ -3,19 +3,16 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Database\Eloquent\{Model, SoftDeletes};
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Storage;
 
 class Students extends Model
 {
-    use SoftDeletes;
-    use HasFactory;
+    use SoftDeletes, HasFactory;
 
     protected $hidden = ["deleted_at", "created_at", "updated_at"];
     protected $guarded = [];
-    
+
     public function announcement()
     {
         return $this->morphMany(Announcement::class, 'table');
@@ -38,47 +35,53 @@ class Students extends Model
 
     public function subjects()
     {
-        $session_year = getSettings('session_year');
-        $session_year_id = $session_year['session_year'];
+        $session_year_id = settingByType('session_year');
 
-        $class_id = $this->class_section->class->id;
+        $classSection = optional($this->class_section);
 
-        $class_section_id = $this->class_section->id;
+        $class_section_id = $classSection->id;
 
-        $core_subjects = (! empty($this->class_section->class->coreSubject)) ? $this->class_section->class->coreSubject->toArray() : [];
+        $core_subjects = (! empty($classSection->class->coreSubject)) ? $classSection->class->coreSubject->toArray() : [];
 
-        $elective_subject_count = $this->class_section->class->electiveSubjectGroup->count();
+        $elective_subject_count = $classSection->class?->electiveSubjectGroup->count() ?? 0;
 
-        $elective_subjects = StudentSubject::where('student_id', $this->id)->where('class_section_id', $class_section_id)
+        $elective_subjects = StudentSubject::where('student_id', $this->id)
+            ->where('class_section_id', $class_section_id)
             ->where('session_year_id', $session_year_id)
-            ->select("subject_id")->with('subject')->get();
+            ->select("subject_id")->with('subject')
+            ->get();
 
-        $response = [
-            'core_subject' => $core_subjects
+        return [
+            'core_subject' => $core_subjects,
+            'elective_subject' => ($elective_subject_count > 0 ? $elective_subjects : [])
         ];
-
-        $response['elective_subject'] = $elective_subject_count > 0 ? $elective_subjects : [];
-
-        return $response;
     }
 
     public function classSubjects()
     {
         $core_subjects = $this->class_section->class->coreSubject;
         $elective_subjects = $this->class_section->class->electiveSubjectGroup->load('electiveSubjects.subject');
-        return ['core_subject' => $core_subjects, 'elective_subject_group' => $elective_subjects];
+        return [
+            'core_subject' => $core_subjects,
+            'elective_subject_group' => $elective_subjects
+        ];
     }
-
 
     //Getter Attributes
     public function getFatherImageAttribute($value)
     {
-        return tenant_asset($value);
+        if ($value) {
+            return tenant_asset($value);
+        }
+        return null;
     }
 
     public function getMotherImageAttribute($value)
     {
-        return tenant_asset($value);
+        if ($value) {
+            return tenant_asset($value);
+        }
+        return null;
     }
 
     public function father()
@@ -101,17 +104,22 @@ class Students extends Model
         $user = Auth::user();
         if ($user->hasRole('Teacher')) {
             // for teacher list
-            $class_teacher = $user->teacher->class_sections;
-            $class_section_ids = array();
+            $teacher = $user->teacher;
+            $class_teacher = $teacher->class_sections;
+            $class_section_ids = [];
             if ($class_teacher->isNotEmpty()) {
                 $class_section_ids = $class_teacher->pluck('class_section_id')->toArray();
             }
-            $subject_teachers = $user->teacher->subjects;
+            $subject_teachers = $teacher->subjects;
             if ($subject_teachers) {
                 foreach ($subject_teachers as $subject_teacher) {
-                    $class_section_ids[] = array($subject_teacher->class_section_id);
+                    $class_section_ids[] = [$subject_teacher->class_section_id];
                 }
             }
+            $query->whereHas(
+                'user.enrollmentLessons',
+                fn($q) => $q->where('teacher_id', $teacher->id)
+            );
             return $query->whereIn('class_section_id', $class_section_ids);
         } else {
             // for admin list
@@ -144,5 +152,57 @@ class Students extends Model
     public function student_subjects()
     {
         return $this->hasMany(StudentSubject::class, 'student_id');
+    }
+
+    /**
+     * Scope a query to also find records matching a given search term in multiple columns and relationships.
+     *
+     * @param \Illuminate\Database\Eloquent\Builder $query The query builder instance.
+     * @param string $search The search term to match against.
+     * @return \Illuminate\Database\Eloquent\Builder The modified query builder instance.
+     */
+    public function scopeAdvancedSearch($query, $search)
+    {
+        return $query->where(function ($query) use ($search) {
+            $search = "%{$search}%";
+            $query->where('user_id', 'LIKE', $search)
+                ->orWhere('class_section_id', 'LIKE', $search)
+                ->orWhere('category_id', 'LIKE', $search)
+                ->orWhere('admission_no', 'LIKE', $search)
+                ->orWhere('roll_number', 'LIKE', $search)
+                ->orWhere('caste', 'LIKE', $search)
+                ->orWhere('religion', 'LIKE', $search)
+                ->orWhere('admission_date', 'LIKE', date('Y-m-d', strtotime($search)))
+                ->orWhere('blood_group', 'LIKE', $search)
+                ->orWhere('height', 'LIKE', $search)
+                ->orWhere('weight', 'LIKE', $search)
+                ->orWhere('is_new_admission', 'LIKE', $search)
+                ->orWhereHas('user', function ($q) use ($search) {
+                    $q->where('first_name', 'LIKE', $search)
+                        ->orWhere('mobile', 'LIKE', $search)
+                        ->orWhere('last_name', 'LIKE', $search)
+                        ->orWhere('email', 'LIKE', $search)
+                        ->orWhere('dob', 'LIKE', $search);
+                })
+                ->orWhereHas('father', function ($q) use ($search) {
+                    $q->where('first_name', 'LIKE', $search)
+                        ->orwhere('last_name', 'LIKE', $search)
+                        ->orwhere('email', 'LIKE', $search)
+                        ->orwhere('mobile', 'LIKE', $search)
+                        ->orwhere('occupation', 'LIKE', $search)
+                        ->orwhere('dob', 'LIKE', $search);
+                })
+                ->orWhereHas('mother', function ($q) use ($search) {
+                    $q->where('first_name', 'LIKE', $search)
+                        ->orwhere('last_name', 'LIKE', $search)
+                        ->orwhere('email', 'LIKE', $search)
+                        ->orwhere('mobile', 'LIKE', $search)
+                        ->orwhere('occupation', 'LIKE', $search)
+                        ->orwhere('dob', 'LIKE', $search);
+                })
+                ->orWhereHas('category', function ($q) use ($search) {
+                    $q->where('name', 'LIKE', $search);
+                });
+        });
     }
 }

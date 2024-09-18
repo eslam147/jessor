@@ -223,10 +223,5 @@
         function bgColorFormatter(value, row) {
             return "<p style='background-color:" + row.bg_color + "' class='color-code-box'>" + row.bg_color + "</p>";
         }
-
-        // function imageFormatter(value, row) {
-        //     return "<img src='" + row.image + "' class='img-fluid' />";
-
-        // }
     </script>
 @endsection

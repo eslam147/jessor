@@ -2,8 +2,12 @@
 
 namespace App\Exceptions;
 
-use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
 use Throwable;
+use Sentry\Laravel\Integration;
+use Illuminate\Support\Facades\App;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
 
 class Handler extends ExceptionHandler
 {
@@ -26,16 +30,34 @@ class Handler extends ExceptionHandler
         'password',
         'password_confirmation',
     ];
+    public function report(Throwable $exception)
+    {
+        $tenantId = null;
+        if (tenancy()->initialized) {
+            $tenantId = tenancy()->tenant->id;
+            Log::withContext(['tenant_id' => tenancy()->tenant->id]);
+        }
 
-    /**
-     * Register the exception handling callbacks for the application.
-     *
-     * @return void
-     */
+        parent::report($exception);
+        if (! App::environment('local') && $this->shouldReport($exception) && app()->bound('sentry')) {
+            \Sentry\configureScope(function (\Sentry\State\Scope $scope) use ($tenantId) {
+                if (session()->isStarted()) {
+                    if ($user = session()->get(Auth::getName())) {
+                        $scope->setTag('user_id', $user);
+                    }
+                }
+                if(!empty($tenantId)){
+                    $scope->setTag('tenant_id', $tenantId);
+                }
+            });
+            app('sentry')->captureException($exception);
+        }
+    }
+
     public function register()
     {
         $this->reportable(function (Throwable $e) {
-            //
+            Integration::captureUnhandledException($e);
         });
     }
 }

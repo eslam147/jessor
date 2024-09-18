@@ -32,10 +32,9 @@ Route::prefix('student')->middleware([
     Route::post('enroll_lesson_by_coupon', [StudentApiController::class, 'redeemCouponForLesson']);
     Route::get('enrollment_lessons', [StudentApiController::class, 'getEnrollmentLessons']);
 
-    Route::prefix('teachers')->group(function () {
-      Route::get('/', [StudentApiController::class, 'getTeachers']);
-
-    });
+    Route::get('teachers', [StudentApiController::class, 'getTeachers']);
+    // Route::prefix('teachers')->group(function () {
+    // });
 
     Route::get('lesson-topics', [StudentApiController::class, 'getLessonTopics']);
     Route::get('assignments', [StudentApiController::class, 'getAssignments']);

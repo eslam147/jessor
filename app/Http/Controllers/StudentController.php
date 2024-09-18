@@ -657,54 +657,9 @@ class StudentController extends Controller
 
         $sql = Students::with('user', 'class_section', 'category', 'father', 'mother', 'guardian')->ofTeacher()
             //search query
-            ->when($search, function ($query) use ($search) {
-                $query->where(function ($query) use ($search) {
-                    $query->where('user_id', 'LIKE', "%$search%")
-                        ->orWhere('class_section_id', 'LIKE', "%$search%")
-                        ->orWhere('category_id', 'LIKE', "%$search%")
-                        ->orWhere('admission_no', 'LIKE', "%$search%")
-                        ->orWhere('roll_number', 'LIKE', "%$search%")
-                        ->orWhere('caste', 'LIKE', "%$search%")
-                        ->orWhere('religion', 'LIKE', "%$search%")
-                        ->orWhere('admission_date', 'LIKE', date('Y-m-d', strtotime("%$search%")))
-                        ->orWhere('blood_group', 'LIKE', "%$search%")
-                        ->orWhere('height', 'LIKE', "%$search%")
-                        ->orWhere('weight', 'LIKE', "%$search%")
-                        ->orWhere('is_new_admission', 'LIKE', "%$search%")
-                        ->orWhereHas('user', function ($q) use ($search) {
-                            $q->where('first_name', 'LIKE', "%$search%")
-                                ->orWhere('mobile', 'LIKE', "%$search%")
-
-                                ->orWhere('last_name', 'LIKE', "%$search%")
-                                ->orWhere('email', 'LIKE', "%$search%")
-                                ->orWhere('dob', 'LIKE', "%$search%");
-                        })
-                        ->orWhereHas('father', function ($q) use ($search) {
-                            $q->where('first_name', 'LIKE', "%$search%")
-                                ->orwhere('last_name', 'LIKE', "%$search%")
-                                ->orwhere('email', 'LIKE', "%$search%")
-                                ->orwhere('mobile', 'LIKE', "%$search%")
-                                ->orwhere('occupation', 'LIKE', "%$search%")
-                                ->orwhere('dob', 'LIKE', "%$search%");
-                        })
-                        ->orWhereHas('mother', function ($q) use ($search) {
-                            $q->where('first_name', 'LIKE', "%$search%")
-                                ->orwhere('last_name', 'LIKE', "%$search%")
-                                ->orwhere('email', 'LIKE', "%$search%")
-                                ->orwhere('mobile', 'LIKE', "%$search%")
-                                ->orwhere('occupation', 'LIKE', "%$search%")
-                                ->orwhere('dob', 'LIKE', "%$search%");
-                        })
-                        ->orWhereHas('category', function ($q) use ($search) {
-                            $q->where('name', 'LIKE', "%$search%");
-                        });
-                });
-                //class filter data
-            })->when(request('class_id') != null, function ($query) {
-                $classId = request('class_id');
-                $query->where(function ($query) use ($classId) {
-                    $query->where('class_section_id', $classId);
-                });
+            ->when($search, fn($q) => $q->advancedSearch($search))
+            ->when(request()->filled('class_id'), function ($query) {
+                $query->where('class_section_id', request('class_id'));
             });
 
         $total = $sql->count();
@@ -720,6 +675,7 @@ class StudentController extends Controller
         $data = getSettings('date_formate');
         foreach ($res as $row) {
             $operate = '';
+
             if (Auth::user()->can('student-edit')) {
                 $operate = '<a class="btn btn-xs btn-gradient-primary btn-rounded btn-icon editdata" data-id=' . $row->id . ' data-url=' . url('students') . ' title="Edit" data-toggle="modal" data-target="#editModal"><i class="fa fa-edit"></i></a>&nbsp;&nbsp;';
             }
@@ -817,7 +773,102 @@ class StudentController extends Controller
         $bulkData['rows'] = $rows;
         return response()->json($bulkData);
     }
+    public function deletedStudents()
+    {
+        if (! Auth::user()->can('student-list-deleted')) {
+            return to_route('home')->withErrors([
+                'message' => trans('no_permission_message')
+            ]);
+        }
+        $class_section = ClassSection::with('class', 'section')->wherehas(
+            'students',
+            function ($query) {
+                $query->onlyTrashed();
+            }
+        )->withOutTrashedRelations('class', 'section')->get();
+        $category = Category::where('status', 1)->get();
+        $formFields = FormField::where('for', 1)->orderBy('rank')->get();
 
+        return view('students.deleted.deleted_list', compact('class_section', 'category', 'formFields'));
+    }
+    public function deletedStudentsList()
+    {
+        if (! Auth::user()->can('student-list')) {
+            return response()->json([
+                'message' => trans(key: 'no_permission_message')
+            ]);
+        }
+        $offset = request('offset', 0);
+        $limit = request('limit', 10);
+        $sort = request('sort', 'id');
+        $order = request('order', 'ASC');
+        $search = request('search');
+
+        $sql = Students::with([
+            'user' => fn($q) => $q->withTrashed(),
+            'class_section',
+            'category'
+        ])->ofTeacher()
+            ->onlyTrashed()
+            ->when($search, fn($q) => $q->advancedSearch($search))
+            ->when(request()->filled('class_id'), function ($q) {
+                $q->where('class_section_id', request('class_id'));
+            });
+
+        $total = $sql->count();
+
+        $sql->orderBy($sort, $order)->skip($offset)->take($limit);
+        $res = $sql->get();
+
+        $bulkData = [];
+        $bulkData['total'] = $total;
+        $rows = [];
+        $tempRow = [];
+        $no = 1;
+        $data = getSettings('date_formate');
+        foreach ($res as $row) {
+            $operate = view('students.deleted.datatables.deleted_users_actions', compact('row'))->render();
+
+
+            $user = optional($row->user);
+
+            $tempRow['id'] = $row->id;
+            $tempRow['no'] = $no++;
+            $tempRow['user_id'] = $row->user_id;
+            $tempRow['first_name'] = $user->first_name;
+            $tempRow['last_name'] = $user->last_name;
+            $tempRow['gender'] = $user->gender;
+            $tempRow['email'] = $user->email;
+            $tempRow['dob'] = date($data['date_formate'], strtotime($user->dob));
+            $tempRow['mobile'] = $user->mobile;
+            $tempRow['image'] = $user->image;
+            $tempRow['image_link'] = $user->image;
+            $tempRow['class_section_id'] = $row->class_section_id;
+            $tempRow['class_section_name'] = $row->class_section?->class?->name . "-" . $row->class_section?->section?->name;
+            $tempRow['stream_name'] = $row->class_section->class->streams->name ?? '';
+            $tempRow['category_id'] = $row->category_id;
+            $tempRow['category_name'] = $row->category->name;
+            $tempRow['admission_no'] = $row->admission_no;
+            $tempRow['roll_number'] = $row->roll_number;
+            $tempRow['caste'] = $row->caste;
+            $tempRow['religion'] = $row->religion;
+            $tempRow['admission_date'] = date($data['date_formate'], strtotime($row->admission_date));
+            $tempRow['blood_group'] = $row->blood_group;
+            $tempRow['height'] = $row->height;
+            $tempRow['weight'] = $row->weight;
+            $tempRow['current_address'] = $user->current_address;
+            $tempRow['permanent_address'] = $user->permanent_address;
+            $tempRow['is_new_admission'] = $row->is_new_admission;
+            $tempRow['dynamic_data_field'] = json_decode($row->dynamic_fields);
+
+            $tempRow['operate'] = $operate;
+            $rows[] = $tempRow;
+
+        }
+
+        $bulkData['rows'] = $rows;
+        return response()->json($bulkData);
+    }
     /**
      * Remove the specified resource from storage.
      *
@@ -833,7 +884,7 @@ class StudentController extends Controller
             return response()->json($response);
         }
         try {
-            
+
             $student_id = Students::select('id')->where('user_id', $id)->pluck('id')->first();
 
             // find that student is associate with other tables ..
@@ -856,20 +907,11 @@ class StudentController extends Controller
                 );
             } else {
                 $user = User::find($id);
-                if ($user->image != "" && Storage::disk('public')->exists($user->image)) {
-                    Storage::disk('public')->delete($user->image);
-                }
-                $user->delete();
-
-
                 $student = Students::find($student_id);
-                if ($student->father_image != "" && Storage::disk('public')->exists($student->father_image)) {
-                    Storage::disk('public')->delete($student->father_image);
-                }
-                if ($student->mother_image != "" && Storage::disk('public')->exists($student->mother_image)) {
-                    Storage::disk('public')->delete($student->mother_image);
-                }
-                $student->delete();
+                DB::transaction(function () use ($user, $student) {
+                    $student->delete();
+                    $user->delete();
+                });
 
                 $response = [
                     'error' => false,
@@ -877,10 +919,90 @@ class StudentController extends Controller
                 ];
             }
         } catch (Throwable $e) {
-            $response = array(
+            $response = [
                 'error' => true,
                 'message' => trans('error_occurred')
-            );
+            ];
+        }
+        return response()->json($response);
+    }
+    // 
+// 
+    public function permanent_delete($user)
+    {
+        if (! Auth::user()->can('student-force-delete')) {
+            return response()->json([
+                'message' => trans('no_permission_message')
+            ]);
+        }
+        try {
+            $user = User::onlyTrashed()->with([
+                'student' => fn($query) => $query->withTrashed()
+            ])->findOrFail($user);
+
+            $student = $user->student;
+            $studentImages = [
+                $user->getRawOriginal('image'),
+                $student->getRawOriginal('father_image'),
+                $student->getRawOriginal('mother_image'),
+            ];
+
+            $transactionSuccessful = DB::transaction(function () use ($user, $student) {
+                $student->forceDelete();
+                $user->forceDelete();
+                return true;
+            });
+
+            if ($transactionSuccessful) {
+                foreach ($studentImages as $img) {
+                    if (! empty($img) && Storage::disk('public')->exists($img)) {
+                        Storage::disk('public')->delete($img);
+                    }
+                }
+            }
+            $response = [
+                'error' => false,
+                'message' => trans('data_delete_successfully')
+            ];
+        } catch (Throwable $e) {
+            report($e);
+            $response = [
+                'error' => true,
+                'message' => trans('error_occurred')
+            ];
+        }
+        return response()->json($response);
+    }
+    public function restore($user)
+    {
+        if (! Auth::user()->can('student-restore')) {
+            return response()->json([
+                'message' => trans(key: 'no_permission_message')
+            ]);
+        }
+        try {
+            $user = User::onlyTrashed()->with([
+                'student' => fn($query) => $query->withTrashed()
+            ])->findOrFail($user);
+
+            $student = $user->student;
+
+            DB::transaction(function () use ($user, $student) {
+                $student->restore();
+                $user->restore();
+            });
+
+            $response = [
+                'error' => false,
+                'message' => trans('data_restored_successfully')
+            ];
+
+        } catch (Throwable $e) {
+            report($e);
+            $response = [
+                'error' => true,
+                'message' => trans('error_occurred')
+            ];
         }
         return response()->json($response);
     }
@@ -949,23 +1071,23 @@ class StudentController extends Controller
     public function change_password(Request $request)
     {
         if (! Auth::user()->can('student-change-password')) {
-            $response = array(
+            return response()->json([
                 'message' => trans('no_permission_message')
-            );
-            return response()->json($response);
+            ]);
         }
         try {
-            $dob = date('dmY', strtotime($request->dob));
             $user = User::find($request->id);
-            $user->reset_request = 0;
-            $user->password = Hash::make($dob);
-            $user->save();
+            $user->update([
+                'reset_request' => 0,
+                'password' => bcrypt(date('dmY', strtotime($request->dob)))
+            ]);
 
             $response = [
                 'error' => false,
                 'message' => trans('data_update_successfully')
             ];
         } catch (Throwable $e) {
+            report($e);
             $response = array(
                 'error' => true,
                 'message' => trans('error_occurred')
@@ -1770,10 +1892,9 @@ class StudentController extends Controller
     public function studentList(Request $request)
     {
         if (! Auth::user()->can('student-list')) {
-            $response = array(
+            return response()->json([
                 'message' => trans('no_permission_message')
-            );
-            return response()->json($response);
+            ]);
         }
         $offset = request('offset', 0);
         $limit = request('limit', 10);
@@ -1781,7 +1902,8 @@ class StudentController extends Controller
         $order = request('order', 'ASC');
         $search = request('search');
 
-        $sql = Students::where('class_section_id', $request->class_section_id);
+        $sql = Students::where('class_section_id', $request->class_section_id)->ofTeacher();
+        // $sql/
         $total = $sql->count();
 
         $sql->orderBy($sort, $order)->skip($offset)->take($limit);
@@ -1802,7 +1924,7 @@ class StudentController extends Controller
             $tempRow['id'] = $row->id;
             $tempRow['no'] = $no++;
             $tempRow['user_id'] = $row->user_id;
-            $tempRow['student_name'] = $row->user->first_name . ' ' . $row->user->last_name;
+            $tempRow['student_name'] = $row->user->full_name;
             $tempRow['dob'] = date($data['date_formate'], strtotime($row->user->dob));
             $tempRow['admission_no'] = $row->admission_no;
             $tempRow['class_section_id'] = $row->class_section_id;

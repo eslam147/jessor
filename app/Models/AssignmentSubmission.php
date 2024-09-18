@@ -9,21 +9,40 @@ use Illuminate\Support\Facades\Auth;
 class AssignmentSubmission extends Model
 {
     use HasFactory;
+    const STATUS_PENDING = 0;
+    const STATUS_ACCEPTED = 1;
+    const STATUS_REJECTED = 2;
     protected $guarded = [];
 
-    public function file() {
+    public function file()
+    {
         return $this->morphMany(File::class, 'modal');
     }
+    public function isApproved()
+    {
+        return $this->status == self::STATUS_ACCEPTED;
+    }
+    public function isPending()
+    {
+        return $this->status == self::STATUS_PENDING;
+    }
+    public function isRejected()
+    {
+        return $this->status == self::STATUS_REJECTED;
+    }
 
-    public function assignment() {
+    public function assignment()
+    {
         return $this->belongsTo(Assignment::class);
     }
 
-    public function student() {
+    public function student()
+    {
         return $this->belongsTo(Students::class);
     }
 
-    public function scopeAssignmentSubmissionTeachers($query) {
+    public function scopeAssignmentSubmissionTeachers($query)
+    {
         $user = Auth::user();
         if ($user->hasRole('Teacher')) {
             $teacher_id = $user->teacher()->select('id')->pluck('id')->first();

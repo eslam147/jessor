@@ -26,11 +26,10 @@ Homestead.json
 storage/framework/views/*
 .vscode/sftp.json
 
+node_modules/
 public/source_code/
 .vscode/settings.json
 .env
 /html_tmeplate/
 jeso_demo.sql
 /vendor/
-/storage/
-

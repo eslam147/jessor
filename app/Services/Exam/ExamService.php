@@ -36,14 +36,12 @@ class ExamService
         //get current
         $time_data = $date->toArray();
         $current_date_time = $time_data['formatted'];
-        // dd(
-        //     $current_date_time
-        // );
+
         // checks the subject id param is passed or not .
         // query meets the condition for both class section and class
         $examQuery = OnlineExam::query()
             ->where('session_year_id', $session_year_id)
-            ->where(function ($q) use ($class_section_id,$class_id){
+            ->where(function ($q) use ($class_section_id, $class_id) {
                 $q->where(function ($q) use ($class_section_id) {
                     $q->where('model_type', ClassSection::class)->where('model_id', $class_section_id);
                 })->orWhere(function ($q) use ($class_id) {
@@ -69,15 +67,12 @@ class ExamService
 
 
         $exam_data_db = $examQuery->orderBy('start_date')->paginate(15);
-        // dd(
-        //     $exam_data_db
-        // );
         $choicesMarks = OnlineExamQuestionChoice::whereIn('online_exam_id', $exam_data_db->pluck('id'))->select([
             'online_exam_id',
             DB::raw("sum(online_exam_question_choices.marks) as total_marks"),
         ])->groupBy('online_exam_id')->pluck('total_marks', 'online_exam_id');
 
-        
+
         $subjectsWithExams = $exam_data_db->groupBy('subject.id')->map(function ($items) use ($exam_data_db) {
 
             return [
@@ -135,12 +130,6 @@ class ExamService
                 'data' => $exam_list,
                 'by_subject' => $subjectsWithExams,
                 'current_date' => $date,
-                // 'current_page' => $exam_data_db['current_page'],
-                // 'from' => $exam_data_db['from'],
-                // 'last_page' => $exam_data_db['last_page'],
-                // 'per_page' => $exam_data_db['per_page'],
-                // 'to' => $exam_data_db['to'],
-                // 'total' => $exam_data_db['total'],
             ];
         }
         return $exam_data;
@@ -211,9 +200,6 @@ class ExamService
     }
     function formatQuestion($question, $options, $answers)
     {
-        // dd(
-        //     $question, $options, $answers
-        // );
         return [
             'id' => $question->id,
             'question' => htmlspecialchars_decode($question->question),
@@ -225,14 +211,14 @@ class ExamService
             'note' => $question->note,
         ];
     }
-    public function getOnlineExamStatus($studentId, $examId)
+    public function getOnlineExamStatus($studentId, $examId): ?StudentOnlineExamStatus
     {
         return StudentOnlineExamStatus::where([
             'online_exam_id' => $examId,
             'student_id' => $studentId
         ])->first();
     }
-    public function createOnlineExamStatus($studentId, $examId)
+    public function createOnlineExamStatus($studentId, $examId): StudentOnlineExamStatus
     {
         return StudentOnlineExamStatus::firstOrCreate([
             'online_exam_id' => $examId,

@@ -182,7 +182,6 @@
                                             Send Exam
                                         </button>
                                     @endif
-
                                 </div>
                             </div>
                         </form>
@@ -193,8 +192,7 @@
     </div>
 @endsection
 @section('script')
-    <script src="{{ global_asset('student/assets/vendor_components/horizontal-timeline/js/horizontal-timeline.js') }}">
-    </script>
+    <script src="{{ global_asset('student/assets/vendor_components/horizontal-timeline/js/horizontal-timeline.js') }}"></script>
     <script src="{{ global_asset('vendor/sweetalert/sweetalert.all.js') }}"></script>
     <script src="{{ global_asset('assets/js/custom/exam.js') }}"></script>
 @endsection
