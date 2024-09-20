@@ -13,8 +13,8 @@ class OnlineExam extends Model
     use HasFactory, SoftDeletes;
     protected $hidden = ["deleted_at", "created_at", "updated_at"];
     protected $guarded = [];
-    public $casts = [
-        'start_date' => 'datetime:Y-m-d H:i:s',
+    public $dates = [
+        'start_date'
     ];
 
 

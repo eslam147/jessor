@@ -138,7 +138,7 @@ class ExamService
     {
 
     }
-    public function getRemainingMinutes(StudentOnlineExamStatus $studentStatus, OnlineExam $exam)
+    public function calculateRemainingMinutes(StudentOnlineExamStatus $studentStatus, OnlineExam $exam): float|int
     {
         $elapsedTime = now()->diffInMinutes($studentStatus->created_at);
 
@@ -146,18 +146,16 @@ class ExamService
 
         return $remainingMinutes;
     }
-    public function getOnlineExamQuestions(Request $request)
+    public function getOnlineExamQuestions(OnlineExam $onlineExam)
     {
-        $onlineExam = OnlineExam::where('id', $request->exam)->firstOrFail();
-        // get total questions
-        $total_questions = OnlineExamQuestionChoice::where('online_exam_id', $request->exam)->count();
-
-        // get the questions data
-        $get_exam_questions_db = OnlineExamQuestionChoice::where('online_exam_id', $request->exam)->with('questions')->get();
-
+        // --------------------------------------------- \\
+        $onlineExam->load('question_choice.questions')->loadCount('question_choice');
+        // --------------------------------------------- \\
+        $get_exam_questions_db = $onlineExam->question_choice;
+        // --------------------------------------------- \\
         $questions_data = [];
         $total_marks = 0;
-
+        // --------------------------------------------- \\
         foreach ($get_exam_questions_db as $exam_questions) {
             $total_marks += $exam_questions->marks;
             // make question array
@@ -166,12 +164,12 @@ class ExamService
                 $this->foramtExamOptions($exam_questions->questions->options),
                 $this->formatAnswers($exam_questions->questions->answers)
             );
-
         }
+
         return [
             'data' => collect($questions_data)->shuffle() ?? [],
             'exam' => $onlineExam,
-            'total_questions' => $total_questions,
+            'total_questions' => $onlineExam->question_choice_count,
             'total_marks' => $total_marks,
         ];
     }
@@ -220,10 +218,10 @@ class ExamService
     }
     public function createOnlineExamStatus($studentId, $examId): StudentOnlineExamStatus
     {
-        return StudentOnlineExamStatus::firstOrCreate([
+        return StudentOnlineExamStatus::create([
             'online_exam_id' => $examId,
             'student_id' => $studentId,
-            'status' => 1,
+            'status' => StudentOnlineExamStatus::IN_PROGRESS,
         ]);
     }
 

@@ -7,6 +7,7 @@ use App\Models\WebSetting;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Cache;
 use Intervention\Image\Facades\Image;
+use Mcamara\LaravelLocalization\Facades\LaravelLocalization;
 
 
 if (! function_exists('getYouTubeVideoId')) {
@@ -235,5 +236,22 @@ if (! function_exists('isRouteActive')) {
     function isRouteActive($routeName, $activeClassName = 'active')
     {
         return request()->routeIs($routeName) ? $activeClassName : '';
+    }
+}
+if (! function_exists('readableDuration')) {
+    function readableDuration(int $minutes): string
+    {
+        $hours = floor($minutes / 60);
+        $remainingMinutes = $minutes % 60;
+
+        $durationString = '';
+
+        if ($hours > 0) {
+            $durationString .= $hours . ' hour' . ($hours > 1 ? 's' : '') . ', ';
+        }
+
+        $durationString .= $remainingMinutes . ' minute' . ($remainingMinutes != 1 ? 's' : '');
+
+        return trim($durationString, ', ');
     }
 }

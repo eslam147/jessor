@@ -44,8 +44,8 @@ class InitializeSchool
         // ------------------------------------------------------------------------------------------------------------ \\
         $appSettings = $settings->whereIn('type', ['school_name', 'time_zone'])->pluck('message', 'type')->toArray();
         Config::set('app.name', $appSettings['school_name']);
-        date_default_timezone_set($appSettings['time_zone']);
         Config::set('app.timezone', $appSettings['time_zone']);
+        date_default_timezone_set($appSettings['time_zone']);
         // ------------------------------------------------------------------------------------------------------------ \\
         $mailValues = ['mail_host', 'mail_port', 'mail_mailer', 'mail_username', 'mail_password', 'mail_encryption', 'mail_send_from'];
         $mailSettings = $settings->whereIn('type', $mailValues)->pluck('message', 'type')->toArray();

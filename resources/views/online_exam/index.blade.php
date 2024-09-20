@@ -298,7 +298,7 @@
                             </div>
                             <div class="form-group col-md-6">
                                 <label>{{ __('pass') }} {{ __('mark') }} <span class="text-danger">*</span></label>
-                                <input type="number" id="edit-online-exam-key" name="edit_pass_mark"
+                                <input type="number" id="edit-online-pass-mark" name="edit_pass_mark"
                                     placeholder="{{ __('pass_mark') }}" class="form-control" />
                             </div>
                             <div class="form-group col-md-6">

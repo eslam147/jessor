@@ -2729,7 +2729,6 @@ class StudentApiController extends Controller
     public function getChatUserList(Request $request)
     {
         try {
-
             $offset = $request->offset ?? 0;
             $limit = $request->limit ?? 10;
             $search = $request->search;
@@ -2765,7 +2764,6 @@ class StudentApiController extends Controller
                 )
                 ->with('user:id,first_name,last_name,image,mobile,email', 'subjects.subject')
                 ->offset($offset)->limit($limit)
-
                 ->get();
 
 

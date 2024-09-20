@@ -270,34 +270,12 @@ class OnlineExamController extends Controller
     }
     public function showAsStudent($id)
     {
-        // return auth()->user();
-        $onlineExam = OnlineExam::where('id', $id)->firstOrFail();
-        $questions_data = (new ExamService)->getOnlineExamQuestions(request()->merge(
-            [
-                'exam' => $id
-            ]
-        ));
+        $onlineExam = OnlineExam::whereId($id)->firstOrFail();
+        $questions_data = (new ExamService)->getOnlineExamQuestions($onlineExam);
         return view('online_exam.show_as_student_embeded', compact('questions_data'));
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function edit($id)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
+    
     public function update(Request $request, $id)
     {
         if (! Auth::user()->can('manage-online-exam')) {
