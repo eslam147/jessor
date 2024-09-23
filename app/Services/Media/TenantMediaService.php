@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Services\Media;
 
 use Illuminate\Http\UploadedFile;
@@ -10,13 +11,13 @@ class TenantMediaService
         if (!preg_match('/^[a-zA-Z0-9_\/\\\\]+$/', $path)) {
             throw new \InvalidArgumentException('The path can only contain letters, numbers, underscores and slashes.');
         }
-
         return $path;
     }
+
     public static function uploadImage(UploadedFile $newImage, string $path, $oldImage = null, bool $resizeImage = true, ?string $imageName = null)
     {
         self::checkPath($path);
-    
+
         if (! empty($newImage) && ! is_null($newImage)) {
             self::removeImage($oldImage);
 
@@ -29,13 +30,12 @@ class TenantMediaService
             $destinationPath = storage_path("app/public/{$path}");
             $newImage->move($destinationPath, $imageName);
 
-            return "{$path}". DIRECTORY_SEPARATOR ."{$imageName}";
+            return "{$path}" . DIRECTORY_SEPARATOR . "{$imageName}";
         }
         return $oldImage;
     }
 
-
-    public static function removeImage($path,$disk = 'local')
+    public static function removeImage($path, $disk = 'local')
     {
         if (! empty($path) && Storage::disk($disk)->exists($path)) {
             Storage::disk($disk)->delete($path);

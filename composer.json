@@ -29,6 +29,7 @@
         "laravelcollective/html": "^6.3",
         "maatwebsite/excel": "^3.1",
         "overtrue/laravel-follow": "5.0",
+        "mcamara/laravel-localization": "^2.0",
         "psr/simple-cache": "^2.0",
         "pusher/pusher-php-server": "^7.2",
         "razorpay/razorpay": "2.*",
@@ -40,7 +41,8 @@
         "staudenmeir/belongs-to-through": "^2.5",
         "staudenmeir/eloquent-has-many-deep": "^1.7",
         "stripe/stripe-php": "^10.0",
-        "unicodeveloper/laravel-paystack": "^1.1"
+        "unicodeveloper/laravel-paystack": "^1.1",
+        "wikimedia/composer-merge-plugin": "^2.1"
     },
     "require-dev": {
         "barryvdh/laravel-debugbar": "^3.6",
@@ -87,6 +89,11 @@
         "laravel": {
             "dont-discover": []
         },
+        "merge-plugin": {
+            "include": [
+                "packages/*/composer.json"
+            ]
+        },
         "google/apiclient-services": [
             "FirebaseCloudMessaging"
         ]
@@ -94,7 +101,10 @@
     "config": {
         "optimize-autoloader": true,
         "preferred-install": "dist",
-        "sort-packages": true
+        "sort-packages": true,
+        "allow-plugins": {
+            "wikimedia/composer-merge-plugin": true
+        }
     },
     "minimum-stability": "dev",
     "prefer-stable": true

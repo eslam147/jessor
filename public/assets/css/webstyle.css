@@ -1017,7 +1017,7 @@ footer .linksWrapper .title {
     color: #29363f;
     font-weight: 700;
     margin-top: 10px;
-    margin-bottom: 34px;
+    margin-bottom: 1rem;
 }
 
 @media screen and (max-width: 767px) {

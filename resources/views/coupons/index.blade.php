@@ -71,7 +71,7 @@
                                                 {{ __('maximum_usage') }}
                                             </th>
                                             @canany(['coupons-delete', 'coupons-edit'])
-                                                <th data-events="actionEvents" scope="col" data-field="status"
+                                                <th scope="col" data-field="status"
                                                     data-sortable="false">{{ __('status') }}</th>
 
                                                 <th data-events="actionEvents" scope="col" data-field="operate"

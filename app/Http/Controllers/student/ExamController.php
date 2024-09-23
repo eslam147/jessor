@@ -15,7 +15,7 @@ use App\Models\OnlineExamQuestionChoice;
 use App\Models\OnlineExamQuestionOption;
 use RealRashid\SweetAlert\Facades\Alert;
 use Illuminate\Support\Facades\Validator;
-use Illuminate\Support\Facades\URL as FacadesURL;
+use Illuminate\Support\Facades\URL as FacadeURL;
 
 class ExamController extends Controller
 {
@@ -193,9 +193,7 @@ class ExamController extends Controller
             'exam_key' => 'nullable|string',
         ]);
 
-        $exam = OnlineExam::where([
-            'id' => $request->exam_id,
-        ])->firstOrFail();
+        $exam = OnlineExam::whereId($request->exam_id)->firstOrFail();
 
         if (! empty($exam->exam_key) && $exam->exam_key != $request->exam_key) {
             Alert::error(trans('invalid_exam_key'), trans('invalid_exam_key'));
@@ -210,67 +208,61 @@ class ExamController extends Controller
             $exam->id
         );
 
-        if ($studentExamStatus && $studentExamStatus->status == 2) {
+        // -------------------------------------------------------------- \\
+        if ($studentExamStatus && $studentExamStatus->status == StudentOnlineExamStatus::COMPLETED) {
             Alert::error(trans('student_already_attempted_exam'), trans('student_already_attempted_exam'));
             return redirect()->back();
         }
 
+        // -------------------------------------------------------------- \\
         if ($exam->start_date->isFuture()) {
             Alert::error(trans('exam_not_started_yet'), trans('exam_not_started_yet'));
             return redirect()->back();
         }
 
         // add the exam status
-        $examStatus = $this->examService->createOnlineExamStatus($student->id, $request->exam_id);
         // -------------------------------------------------------------- \\
-        $duration = $this->examService->getRemainingMinutes($examStatus, $exam);
+        $examStatus = $this->examService->createOnlineExamStatus($student->id, $exam->id);
         // -------------------------------------------------------------- \\
-        $generateTempUrl = FacadesURL::temporarySignedRoute('student_dashboard.exams.online.show', now()->addMinutes($duration), [
-            'exam' => $request->exam_id,
-        ]);
+        $duration = $this->examService->calculateRemainingMinutes($examStatus, $exam);
+        // -------------------------------------------------------------- \\
+        $generateTempUrl = FacadeURL::temporarySignedRoute(
+            name: 'student_dashboard.exams.online.show',
+            expiration: now()->addMinutes($duration),
+            parameters: [
+                'exam' => $exam->id,
+            ],
+            absolute: false
+        );
         // -------------------------------------------------------------- \\
         return redirect($generateTempUrl);
     }
     public function show(Request $request, $id)
     {
-        if(!empty($request->all()))
-        {
-            $exam = OnlineExam::where('id', $request->exam)->firstOrFail();
-        }
-        else
-        {
-            $exam = OnlineExam::where('id', $id)->firstOrFail();
-        }
+        $exam = OnlineExam::whereId($request->exam)->firstOrFail();
         $student = $request->user()->student;
 
-        $check_student_status = $this->examService->getOnlineExamStatus(
+        $examStatus = $this->examService->getOnlineExamStatus(
             $student->id,
             $exam->id
         );
 
-        if (! $check_student_status) {
+        if (! $examStatus) {
             Alert::error(__('unauthorized_access'));
             return to_route('student_dashboard.exams.online.index');
         }
-        if ($check_student_status->status == 2) {
+        if ($examStatus->status == StudentOnlineExamStatus::COMPLETED) {
             Alert::error(__('student_already_attempted_exam'));
             return redirect()->back();
         }
 
-        // //checks the exam started or not
-        $time_data = now()->toArray();
-        $current_date_time = $time_data['formatted'];
-
-        $check_start_date = OnlineExam::whereId($request->exam)
-            ->where('start_date', '>', $current_date_time)
-            ->first();
-        if ($check_start_date) {
+        if ($exam->start_date->isFuture()) {
             Alert::error(trans('exam_not_started_yet'));
             return redirect()->back();
         }
 
-        $duration = $this->examService->getRemainingMinutes(
-            $check_student_status,
+        $duration = $this->examService->calculateRemainingMinutes(
+            $examStatus,
             $exam
         );
         $examEndTime = now()->addMinutes($duration);
@@ -278,7 +270,7 @@ class ExamController extends Controller
             Alert::error('error', __('exam_expired'));
             return redirect()->route('student_dashboard.exams.online.index');
         }
-        $questions_data = $this->examService->getOnlineExamQuestions($request);
+        $questions_data = $this->examService->getOnlineExamQuestions($exam);
         return view('student_dashboard.exams.show', compact('duration', 'examEndTime', 'questions_data'));
     }
 }
