@@ -59,8 +59,7 @@
         "files": [
             "app/Helpers/settings_helper.php",
             "app/Helpers/notification_helper.php",
-            "app/Helpers/DeviceHelper.php",
-            "app/helpers.php"
+            "app/Helpers/DeviceHelper.php"
         ]
     },
     "autoload-dev": {

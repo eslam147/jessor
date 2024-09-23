@@ -178,7 +178,7 @@
                                     </div>
                                     <a data-id="3" href="#" class="emoji-trigger publisher-btn" id="emoji-trigger"><i class="fa fa-smile-o"></i></a>
                                     <div class="emoji-picker emoji-picker_3">
-                                        <textarea data-id="3" class="emoji-wysiwyg-editor emoji-wysiwyg-editor_3" rows="1"></textarea>
+                                        <textarea data-id="{{ $teacher->id }}" class="emoji-wysiwyg-editor emoji-wysiwyg-editor_3" rows="1" style="display: none;"></textarea>
                                     </div>
                                     <span class="publisher-btn file-group">
                                         <i class="fa fa-camera file-browser"></i>
@@ -197,14 +197,15 @@
             </section>
         </div>
     </div>
+    <div class="success"></div>
 @endsection
 @section('js')
     <script src="{{ url('/student/assets/jquery-timeago/js/jquery.timeago.js') }}"></script>
-    <script src="{{ url('/assets/js/teacher.js') }}"></script>
     <script src="{{ url('/student/assets/icons/font-awesome/js/config.min.js') }}"></script>
     <script src="{{ url('/student/assets/icons/font-awesome/js/util.min.js') }}"></script>
     <script src="{{ url('/student/assets/icons/font-awesome/js/jquery.emojiarea.min.js') }}"></script>
     <script src="{{ url('/student/assets/icons/font-awesome/js/emoji-picker.min.js') }}"></script>
     <script src="{{ url('/student/assets/emojis/emojionearea.js') }}"></script>
     <script src="{{ url('/student/assets/emojis/emojis.js') }}"></script>
+    <script src="{{ url('/assets/js/teacher.js') }}"></script>
 @endsection

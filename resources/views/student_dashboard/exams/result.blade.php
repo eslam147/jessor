@@ -86,10 +86,10 @@
                                                             <input type="hidden"
                                                                 name="answers_data[{{ $question['id'] }}][question_id]"
                                                                 value="{{ $question['id'] }}">
-                                                            @foreach ($question->questions->options as $option)
+                                                            @foreach ($question->options as $option)
                                                                 <div
-                                                                    class="form-check form-quiz {{ in_array($option['id'], $question->correct_answers) ? 'success' : 'error' }}">
-                                                                    <input disabled @checked($question->student_answer == $option['id'])
+                                                                    class="form-check form-quiz {{ in_array($option['id'],$question->correct_answers) ? 'success' : 'error' }}">
+                                                                    <input disabled @if(count($question->student_answers) > 0 && in_array($option['id'], $question->student_answers)) checked @endif
                                                                         class="form-check-input answer_qs text-black"
                                                                         type="radio"
                                                                         name="answers_data[{{ $question['id'] }}][option_id][]"

@@ -16,7 +16,7 @@ trait HasComments
      */
     public function comments()
     {
-        return $this->morphMany(config('comments.comment_class'), 'commentable')->with('commentator','directReplies');
+        return $this->morphMany(config('comments.comment_class'), 'commentable')->with(['commentator','directReplies' => function($query) { $query->orderBy('id','desc'); }]);
     }
 
     /**
@@ -87,5 +87,34 @@ trait HasComments
         }
         $comment = new $commentClass($data);
         return $this->comments()->save($comment);
+    }
+
+    public function editComment(int $commentId, string|null $comment, null|array $extraFields = [])
+    {
+        $commentClass = config('comments.comment_class')::where('id',$commentId)->first();
+        if (is_null($commentClass)) {
+            throw new \Exception('Comment not found.');
+        }
+        if (!is_null($comment)) {
+            $commentClass->comment = $comment;
+        }
+        if (!empty($extraFields)) {
+            foreach ($extraFields as $key => $value) {
+                $commentClass[$key] = $value;
+            }
+        }
+        if(!empty($commentClass->image) && !empty($extraFields))
+        {
+            $image = current($extraFields);
+            if(empty($image))
+            {
+                $commentClass->image = null;
+            }
+        } 
+        elseif(!empty($commentClass->image) && empty($extraFields))
+        {
+            $commentClass->image = null;
+        }
+        return $commentClass->save();
     }
 }

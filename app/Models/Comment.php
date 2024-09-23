@@ -37,19 +37,12 @@ class Comment extends Model
         return $this->belongsTo($this->getAuthModelName(), 'user_id');
     }
 
-
-    public function nestedReplies()
-    {
-        return $this->hasMany(config('comments.comment_class'), 'commentable_id')
-            ->with(['nestedReplies' => function($query) { 
-                $query->with('commentator'); 
-            }, 'commentator']);
-    }
-    
     public function directReplies()
     {
         return $this->hasMany(config('comments.comment_class'), 'commentable_id')
-            ->with(['nestedReplies', 'commentator']);
+            ->with(['directReplies'  => function($query) { 
+                $query->orderBy('id','desc')->with('commentator'); 
+            }, 'commentator']);
     }
     public function approve()
     {

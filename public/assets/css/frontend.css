@@ -747,12 +747,13 @@ h3 {
 .emojionearea.form-control {
     border: none !important;
 }
-
+.d-none {
+    display: none !important;
+}
 .emojionearea-button-close,
 .emojionearea-button-open {
     display: none !important;
 }
-
 .emoji-picker {
     position: absolute;
     display: none;
@@ -818,7 +819,7 @@ h3 {
     width: 80%;
 }
 
-.emoji-trigger {
+.emoji-trigger, .emoji-trigger-edit {
     color: inherit;
     text-decoration: none;
 }
@@ -884,7 +885,14 @@ h3 {
 .replay-media.show {
     display: block;
 }
-
+.media-body .media {
+    flex-grow: 1;
+    margin-left: 0;
+    width: 100%;
+}
+.flex-1 {
+    flex:1 !important;
+}
 .pr-1 {
     padding-right: 3.5rem;
 }
@@ -898,7 +906,7 @@ h3 {
 }
 
 form.publisher {
-    display: -webkit-box !important;
+    display: -webkit-box;
 }
 
 /* تغيير ألوان الخلفية والنصوص للتوستار */

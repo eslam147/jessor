@@ -24,7 +24,6 @@
     <!-- Toastr CSS -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
 
-    <script src="https://js.pusher.com/7.0/pusher.min.js"></script>
     <!-- Style-->
     <link rel="stylesheet" href="{{ global_asset('student/css/style.css') }}?v=1.0.1">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
@@ -144,7 +143,6 @@
             });
         });
     </script>
-    <script src="{{ url('js/pusher.js') }}"></script>
 
     @include('web.footer')
     @yield('js')

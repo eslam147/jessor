@@ -101,20 +101,17 @@ class WebController extends Controller
     {
         $user = User::find(auth()->user()->id);
         $subject = Subject::find($request->id);
-        if($user->hasDisliked($subject))
-        {
+        if ($user->hasDisliked($subject)) {
             $user->undislike($subject);
         }
         $user->toggleLike($subject);
-
     }
 
     public function send_dislike(Request $request)
     {
         $user = User::find(auth()->user()->id);
         $subject = Subject::find($request->id);
-        if($user->hasLiked($subject))
-        {
+        if ($user->hasLiked($subject)) {
             $user->unlike($subject);
         }
         $user->toggleDislike($subject);
@@ -238,68 +235,25 @@ class WebController extends Controller
                 }
             }
         }
-        $comments = $teacher->comments()->orderBy('id','desc')->paginate(10);
+        $comments = $teacher->comments()->orderByDesc('id')->paginate(10);
         $classes = ['bg-success-light', 'bg-info-light', 'bg-primary-light', 'bg-warning-light', 'bg-danger-light', 'bg-light-light', 'bg-dark-light', 'bg-success-dark'];
         $headers = ['bg-info', 'bg-primary', 'bg-warning', 'bg-danger', 'bg-dark', 'bg-success'];
         $settings = getSettings();
-        return view('web.teacher', compact('follow','teacher','comments', 'all_subjects', 'school_classes', 'headers', 'classes', 'subjects', 'files', 'settings'));
+        return view('web.teacher', compact('follow', 'teacher', 'comments', 'all_subjects', 'school_classes', 'headers', 'classes', 'subjects', 'files', 'settings'));
     }
 
-    public function store_comment(CommentsRequest $request)
-    {
-        $teacher = Teacher::find(trim($request->id));
-        if ($request->hasFile('image')) {
-            $image = $request->file('image');
-            $newImage = TenantMediaService::uploadImage($image,"comment/image");
-            $teacher->comment($request->msg, [
-                'type' => 'comment',
-                'image' => $newImage,
-                'parent_id' => null,
-                'file_type' => 'image'
-            ]);
-        } else {
-            $teacher->comment($request->msg);
-        }
-    }
-
-    public function replay_comment(CommentsRequest $request)
-    {
-        $comment = Comment::where('id',trim($request->id))->first();
-        $user = User::find($comment->user_id);
-        if ($request->hasFile('image')) {
-            $image = $request->file('image');
-            $newImage = TenantMediaService::uploadImage($image,"comment/image");
-            $comment->commentAsUser($user,$request->msg, 
-            [
-                'image' => $newImage,
-                'file_type' => 'image'
-            ]);
-        } else {
-            $comment->commentAsUser($user,$request->msg);
-        }
-    }
-
-    public function get_replaies_comment(Request $request)
-    {
-        $replies = Comment::find($request->id);;
-        $replies = $replies->comments()->paginate(10);
-        $comment = Comment::where('id',trim($request->id))->with('commentator')->first();
-        return view('web.comments.get_replaies_comment',compact('replies','comment'));
-    }
     public function get_auth()
     {
         return response()->json(auth()->user());
     }
-    public function get_comments(Request $request)
-    {
-        $page = $request->page ?? 1;
-        $teacher = Teacher::find(trim($request->id));
-        $comments = $teacher->comments()->orderBy('id','desc')->paginate(10);
-        return view('web.comments.comments',compact('comments'));
-    }
     public function get_subjects(Request $request)
     {
-        $class_section_id = (auth()->check() && auth()->user()->student) ? Students::where('user_id', Auth::user()->id)->value('class_section_id') : null;
+        $user = null;
+        if (auth()->check()) {
+            $user = auth()->user();
+            $user->load('student');
+        }
+        $class_section_id = optional($user)->student->value('class_section_id');
         $id = $request->teacher;
         $class_id = $request->class_id;
         $subject_id = $request->subject;
@@ -312,13 +266,11 @@ class WebController extends Controller
                 $query->where(DB::raw('lessons.class_section_id'), $class_section_id);
             }
         }]);
-        if (auth()->check() && auth()->user()->student) {
-            $teacher = $teacher->whereHas('students', function ($q) use ($class_section_id) {
+        $teacher = $teacher->when($user->student, function ($q) use ($class_section_id) {
+            $q->whereHas('students', function ($q) use ($class_section_id) {
                 $q->where('students.class_section_id', $class_section_id);
-            })->first();
-        } else {
-            $teacher = $teacher->first();
-        }
+            });
+        })->first();
 
         $subjects = $teacher->subjects();
         if (!empty($subject_id)) {
@@ -387,7 +339,7 @@ class WebController extends Controller
         $class_section = ClassSection::with(['class', 'section'])->withOutTrashedRelations('class', 'section')->get();
         $headers = ['bg-info', 'bg-primary', 'bg-warning', 'bg-danger', 'bg-dark', 'bg-success'];
         $settings = getSettings();
-        return view('web.subject', compact('follow','teacher', 'class_section', 'subject', 'headers', 'classes', 'lessons', 'settings', 'id'));
+        return view('web.subject', compact('follow', 'teacher', 'class_section', 'subject', 'headers', 'classes', 'lessons', 'settings', 'id'));
     }
     public function get_lessons(Request $request)
     {
@@ -397,7 +349,6 @@ class WebController extends Controller
         $lessons = !empty($class_section_id) ? Lesson::where('subject_id', $id)->where('class_section_id', $class_section_id)->withCount('topic')->paginate(9) : Lesson::where('subject_id', $id)->withCount('topic')->paginate(9);
         return view('web.get_lessons', compact('lessons'))->render();
     }
-
     public function lesson(Lesson $id)
     {
         $lesson = $id;
@@ -408,12 +359,14 @@ class WebController extends Controller
             'topic' => function ($q) {
                 $q->with(['file' => function ($q) {
                     $q->with([
-                        'exam', 'assignment' => function ($q) {
-                        $q->with('submission');
-                    }]);
+                        'exam',
+                        'assignment' => function ($q) {
+                            $q->with('submission');
+                        }
+                    ]);
                 }]);
             },
-            'teacher' => function ($q) use ($class_section_id,$class_id) {
+            'teacher' => function ($q) use ($class_section_id, $class_id) {
                 $q->with('user')->withCount([
                     'students',
                     'subjects' => function ($query) use ($class_section_id) {
@@ -422,11 +375,13 @@ class WebController extends Controller
                                 $q->whereId($class_section_id);
                             });
                         }
-                    }, 'lessons_teacher' => function ($query) use ($class_section_id) {
+                    },
+                    'lessons_teacher' => function ($query) use ($class_section_id) {
                         if ($class_section_id) {
                             $query->where(DB::raw('lessons.class_section_id'), $class_section_id);
                         }
-                    }, 'questions' => function ($query) use ($class_id) {
+                    },
+                    'questions' => function ($query) use ($class_id) {
                         if ($class_id) {
                             $query->whereHas('class_subject', function ($query) use ($class_id) {
                                 $query->where('class_id', $class_id);
@@ -442,24 +397,17 @@ class WebController extends Controller
         $ids = [];
         $ids = $lesson->topic->pluck('id')->toArray();
         $arr = [];
-        foreach($topics as $topic)
-        {
+        foreach ($topics as $topic) {
             $files = $topic->file;
-            if(count($files) > 0)
-            {
-                foreach($files as $file)
-                {
-                    if(!empty($file->online_exam_id))
-                    {
-                        if($file->exam->highest_degree < $file->exam->pass_mark)
-                        {
+            if (count($files) > 0) {
+                foreach ($files as $file) {
+                    if (!empty($file->online_exam_id)) {
+                        if ($file->exam->highest_degree < $file->exam->pass_mark) {
                             $arr[] = $file->modal_id;
                         }
                     }
-                    if(!empty($file->assignment_id))
-                    {
-                        if(empty($file->assignment->submission) || !empty($file->assignment->submission) && $file->assignment->submission->status != 1)
-                        {
+                    if (!empty($file->assignment_id)) {
+                        if (empty($file->assignment->submission) || !empty($file->assignment->submission) && $file->assignment->submission->status != 1) {
                             $arr[] = $file->modal_id;
                         }
                     }
@@ -467,18 +415,17 @@ class WebController extends Controller
             }
         }
         $result = [];
-        if(!empty($arr))
-        {
+        if (!empty($arr)) {
             $arr = array_unique($arr);
             $first = $arr[0];
-            $result = array_filter($ids, function($item) use ($first) {
+            $result = array_filter($ids, function ($item) use ($first) {
                 return $item > $first;
             });
         }
         $settings = getSettings();
         $classes = ['bg-success-light', 'bg-info-light', 'bg-primary-light', 'bg-warning-light', 'bg-danger-light', 'bg-light-light', 'bg-dark-light', 'bg-success-dark'];
         $headers = ['bg-info', 'bg-primary', 'bg-warning', 'bg-danger', 'bg-dark', 'bg-success'];
-        return view('web.lessons',compact('follow','lesson','settings','result', 'classes', 'headers'));
+        return view('web.lessons', compact('follow', 'lesson', 'settings', 'result', 'classes', 'headers'));
     }
     public function about()
     {
