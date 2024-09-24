@@ -3,10 +3,11 @@
 namespace App\Http\Middleware;
 
 use Closure;
+use App\Models\Language;
 use App\Models\Settings;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Config;
 use Stancl\Tenancy\Facades\Tenancy;
+use Illuminate\Support\Facades\Config;
 
 class InitializeSchool
 {
@@ -14,6 +15,9 @@ class InitializeSchool
     {
         $tenancy = tenant();
         if ($tenancy) {
+
+            view()->share('languagesEnabled', Language::get());
+
             $settings = cachedSettings();
             if ($settings->count()) {
                 $this->setSchool($settings);

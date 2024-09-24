@@ -78,11 +78,9 @@ class ParentApiController extends Controller
             return response()->json($response);
         }
 
-        $session_year = getSettings('session_year');
-        $session_year_id = $session_year['session_year'];
+        $session_year_id = settingByType('session_year');
 
-        $compulsory_fees_mode = getSettings('compulsory_fee_payment_mode');
-        $compulsory_fees_mode = $compulsory_fees_mode['compulsory_fee_payment_mode'];
+        $compulsory_fees_mode = settingByType('compulsory_fee_payment_mode');
 
         $session_year = SessionYear::where('id', $session_year_id)->first();
         $isInstallment = $session_year->include_fee_installments;
@@ -90,17 +88,16 @@ class ParentApiController extends Controller
         $due_date = $session_year->fee_due_date;
         $free_app_use_date = $session_year->free_app_use_date;
 
-        $current_date = Carbon::now()->toDateString();
+        $current_date = now()->toDateString();
 
         if (Auth::attempt(['email' => $request->email, 'password' => $request->password])) {
             $auth = Auth::user();
             if (! $auth->hasRole('Parent')) {
-                $response = array(
+                return response()->json([
                     'error' => true,
-                    'message' => 'Invalid Login Credentials',
+                    'message' => 'Can\'t login as Parent',
                     'code' => 101
-                );
-                return response()->json($response, 200);
+                ], 200);
             }
             if ($request->fcm_id) {
                 $auth->fcm_id = $request->fcm_id;
@@ -260,21 +257,19 @@ class ParentApiController extends Controller
                 unset($child->category);
             }
             $data = array_merge($user, ['dynamic_fields' => $parentDynamicFields ?? null, 'children' => $children->toArray(),]);
-            $response = array(
+            return response()->json([
                 'error' => false,
                 'message' => 'User logged-in!',
                 'token' => $token,
                 'data' => $data,
                 'code' => 100,
-            );
-            return response()->json($response, 200);
+            ], 200);
         } else {
-            $response = array(
+            return response()->json([
                 'error' => true,
                 'message' => 'Invalid Login Credentials',
                 'code' => 101
-            );
-            return response()->json($response, 200);
+            ], 200);
         }
     }
 
@@ -1183,12 +1178,14 @@ class ParentApiController extends Controller
             if (isset($compulsory_fees_data) && ! empty($compulsory_fees_data)) {
                 $paid_charges_due = FeesChoiceable::where(['student_id' => $request->child_id, 'class_id' => $class_id, 'session_year_id' => $session_year_id, 'is_due_charges' => 1]);
                 if ($paid_charges_due->count()) {
-                    array_push($compulsory_fees_data, array(
-                        'id' => "",
-                        'name' => 'Due Charges',
-                        'amount' => $paid_charges_due->first()->total_amount,
-                        'is_paid' => 1
-                    )
+                    array_push(
+                        $compulsory_fees_data,
+                        array(
+                            'id' => "",
+                            'name' => 'Due Charges',
+                            'amount' => $paid_charges_due->first()->total_amount,
+                            'is_paid' => 1
+                        )
                     );
                 }
             }
@@ -2925,7 +2922,7 @@ class ParentApiController extends Controller
                 $lastReadMessageId = $lastReadMessage->last_read_message_id;
 
                 $unreadCount = ChatMessage::where('modal_id', $receiver_id)
-                    ->when(! empty($lastReadMessageId), function ($q) use ($lastReadMessageId){
+                    ->when(! empty($lastReadMessageId), function ($q) use ($lastReadMessageId) {
                         return $q->where('id', '>', $lastReadMessageId);
                     })->where('sender_id', $parent->user_id)->count();
             }

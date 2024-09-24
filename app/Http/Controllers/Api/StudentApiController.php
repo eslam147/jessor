@@ -810,7 +810,7 @@ class StudentApiController extends Controller
 
             $student = $request->user()->student;
             $student_subject = $student->subjects();
-            $class_subject = $student->classSubjects();
+            // $class_subject = $student->classSubjects();
 
             $core_subjects = array_column($student_subject["core_subject"], 'subject_id');
 
@@ -1413,7 +1413,7 @@ class StudentApiController extends Controller
             $student_id = Auth::user()->student->id;
             $student = Students::with('class_section')->where('id', $student_id)->first();
             $student_subject = $student->subjects();
-            $class_id = $student->class_section->class_id;
+            $class_id = $student->class_section?->class_id;
 
             $core_subjects = array_column($student_subject["core_subject"], 'subject_id') ?? [];
             // dd($core_subjects);

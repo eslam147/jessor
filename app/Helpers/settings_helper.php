@@ -255,3 +255,9 @@ if (! function_exists('readableDuration')) {
         return trim($durationString, ', ');
     }
 }
+if (! function_exists('mainDirection')) {
+    function mainDirection($reverse = false)
+    {
+        return LaravelLocalization::getCurrentLocaleDirection() === 'rtl' && ! $reverse ? 'right' : 'left';
+    }
+}

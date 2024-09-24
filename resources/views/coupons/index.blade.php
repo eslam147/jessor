@@ -71,8 +71,8 @@
                                                 {{ __('maximum_usage') }}
                                             </th>
                                             @canany(['coupons-delete', 'coupons-edit'])
-                                                <th scope="col" data-field="status"
-                                                    data-sortable="false">{{ __('status') }}</th>
+                                                <th scope="col" data-field="status" data-sortable="false">
+                                                    {{ __('status') }}</th>
 
                                                 <th data-events="actionEvents" scope="col" data-field="operate"
                                                     data-sortable="false">{{ __('action') }}</th>
@@ -98,97 +98,109 @@
     <script>
         const export_url = `{{ route('coupons.export') }}`;
         window.actionEvents = {
-        "click .active_coupon": function (e, value, row, index) {
-            e.preventDefault();
-            let item = $(this);
+            "click .active_coupon": function(e, value, row, index) {
+                e.preventDefault();
+                let item = $(this);
 
-            if (e.target !== this) {
-                item = $(e.target).closest("a");
-            }
-
-            let href = item.attr("href");
-            let status = item.data("status");
-
-            changeStatus(href, status);
-        },
-        "click .view_coupon": function (e, value, row, index) {
-            e.preventDefault();
-            let item = $(this);
-
-            if (e.target !== this) {
-                item = $(e.target).closest("a");
-            }
-
-            let url = item.attr("href");
-
-            function successCallback(response) {
-                let couponData = response.data;
-                $("#coupon-code").text(couponData.code);
-                $("#coupon-expiry-date").text(couponData.expiry_date);
-
-                $("#coupon-price").text(couponData.price);
-                $("#coupon-is-disabled").text(
-                    couponData.is_disabled ? "Yes" : "No"
-                );
-                $("#coupon-maximum-usage").text(couponData.maximum_usage);
-                $("#coupon-type").text(couponData.type);
-                $("#coupon-created_at").text(couponData.created_at);
-
-                $("#show_coupon_modal").modal("show");
-            }
-
-            function errorCallback(response) {
-                showErrorToast(response.message);
-            }
-
-            ajaxRequest("get", url, {}, null, successCallback, errorCallback);
-        },
-        "click .disable_coupon": function (e, value, row, index) {
-            e.preventDefault();
-            let item = $(this);
-
-            if (e.target !== this) {
-                item = $(e.target).closest("a");
-            }
-
-            let href = item.attr("href");
-            let status = item.data("status");
-
-            Swal.fire({
-                title: "Are you sure?",
-                text: "to change status of this coupon!",
-                icon: "warning",
-                showCancelButton: true,
-                confirmButtonColor: "#3085d6",
-                cancelButtonColor: "#d33",
-                confirmButtonText: "Yes, Change it!",
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    changeStatus(href, status);
+                if (e.target !== this) {
+                    item = $(e.target).closest("a");
                 }
-            });
-        },
-    };
-    function queryParams(p) {
-        return {
-            limit: p.limit,
-            sort: p.sort,
-            order: p.order,
-            offset: p.offset,
-            search: p.search,
-            medium_id: $("#coupon_filter_medium_id").val(),
-            price: $("#coupon_filter_price").val(),
-            class_id: $("#coupon_filter_class_id").val(),
-            teacher_id: $("#coupon_filter_teacher_id").val(),
-            subject_id: $("#coupon_filter_subject_id").val(),
-            lesson_id: $("#coupon_filter_lesson_id").val(),
-            tags: $("#coupon_filter_tags").val(),
-            status: $("#coupon_filter_status").val(),
 
-            purchased: $("#coupon_filter_used").prop("checked") ? "true" : null,
+                let href = item.attr("href");
+                let status = item.data("status");
+
+                changeStatus(href, status);
+            },
+            "click .view_coupon": function(e, value, row, index) {
+                e.preventDefault();
+                let item = $(this);
+                $("#coupon_usages tbody").empty()
+                if (e.target !== this) {
+                    item = $(e.target).closest("a");
+                }
+
+                let url = item.attr("href");
+
+                function successCallback(response) {
+                    let couponData = response.data;
+                    $("#coupon-code").text(couponData.code);
+                    $("#coupon-expiry-date").text(couponData.expiry_date);
+
+                    $("#coupon-price").text(couponData.price);
+                    $("#coupon-is-disabled").text(
+                        couponData.is_disabled ? "Yes" : "No"
+                    );
+                    $("#coupon-maximum-usage").text(couponData.maximum_usage);
+                    $("#coupon-type").text(couponData.type);
+                    $("#coupon-created_at").text(couponData.created_at);
+
+                    couponData.usages.forEach(usage => {
+                        $("#coupon_usages tbody").append(`<tr>
+                            <td>${usage.id}</td>
+                            <td>${usage.user.name}</td>
+                            <td>${usage.price}</td>
+                            <td>${usage.applied}</td>
+                            <td>${usage.created_at}</td>
+                        </tr>`);
+
+                    });
+                    $("#show_coupon_modal").modal("show");
+
+                }
+
+                function errorCallback(response) {
+                    showErrorToast(response.message);
+                }
+
+                ajaxRequest("get", url, {}, null, successCallback, errorCallback);
+            },
+            "click .disable_coupon": function(e, value, row, index) {
+                e.preventDefault();
+                let item = $(this);
+
+                if (e.target !== this) {
+                    item = $(e.target).closest("a");
+                }
+
+                let href = item.attr("href");
+                let status = item.data("status");
+
+                Swal.fire({
+                    title: "Are you sure?",
+                    text: "to change status of this coupon!",
+                    icon: "warning",
+                    showCancelButton: true,
+                    confirmButtonColor: "#3085d6",
+                    cancelButtonColor: "#d33",
+                    confirmButtonText: "Yes, Change it!",
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        changeStatus(href, status);
+                    }
+                });
+            },
         };
-    }
-    
+
+        function queryParams(p) {
+            return {
+                limit: p.limit,
+                sort: p.sort,
+                order: p.order,
+                offset: p.offset,
+                search: p.search,
+                medium_id: $("#coupon_filter_medium_id").val(),
+                price: $("#coupon_filter_price").val(),
+                class_id: $("#coupon_filter_class_id").val(),
+                teacher_id: $("#coupon_filter_teacher_id").val(),
+                subject_id: $("#coupon_filter_subject_id").val(),
+                lesson_id: $("#coupon_filter_lesson_id").val(),
+                tags: $("#coupon_filter_tags").val(),
+                status: $("#coupon_filter_status").val(),
+
+                purchased: $("#coupon_filter_used").prop("checked") ? "true" : null,
+            };
+        }
+
         const initialData = {
             'classes': @json($mediums->pluck('class', 'id')->toArray()),
             'classSubjects': @json($classSubjects),

@@ -30,14 +30,14 @@
                                     <div class="row">
                                         <div class="col-12 col-xl-7">
                                             <h2>Welcome back, <strong> {{ Auth::user()->first_name }} !</strong></h2>
-
+{{-- 
                                             <p class="text-dark my-10 fs-16">
                                                 Your students complated <strong class="text-warning">80%</strong> of the
                                                 tasks.
                                             </p>
                                             <p class="text-dark my-10 fs-16">
                                                 Progress is <strong class="text-warning">very good!</strong>
-                                            </p>
+                                            </p> --}}
                                         </div>
                                         <div class="col-12 col-xl-5"></div>
                                     </div>
@@ -53,23 +53,27 @@
                                     </div>
                                     <div class="box-body p-0">
                                         <div class="media-list media-list-hover">
-                                            @foreach ($purchasedLessons as $lesson)
+                                            @forelse ($purchasedLessons as $lesson)
                                                 <div class="media bar-0">
-                                                    <span class="avatar avatar-lg bg-primary-light rounded">
-                                                        <img src="{{ !empty($lesson->thumbnail) ? $lesson->thumbnail : loadTenantMainAsset('logo1', global_asset('assets/logo.svg')) }}" width="50" alt="{{ $lesson->name }}">
+                                                    <span class="avatar avatar-lg bg-primary-light overflow-hidden rounded-2">
+                                                        <img src="{{ !empty($lesson->thumbnail) ? $lesson->thumbnail : loadTenantMainAsset('logo1', global_asset('assets/logo.svg')) }}"
+                                                            width="50" class="rounded-0" alt="{{ $lesson->name }}">
                                                     </span>
                                                     <div class="media-body fw-500">
                                                         <p class="d-flex align-items-center justify-content-between">
                                                             <a class="hover-success"
                                                                 href="{{ route('student_dashboard.lesson.show', $lesson->id) }}"><strong>{{ $lesson->name }}</strong></a>
-                                                        <span class="text-fade fw-500 fs-12">{{ $lesson->subject->name }}</span>
+                                                            <span
+                                                                class="text-fade fw-500 fs-12">{{ $lesson->subject->name }}</span>
 
                                                         </p>
                                                         <p class="text-fade">{{ str($lesson->description)->limit(15) }}</p>
                                                     </div>
                                                 </div>
-                                            @endforeach
-                                          
+                                            @empty
+                                                <p class="text-center">No Purchased Lesson found</p>
+                                            @endforelse
+
                                         </div>
                                     </div>
                                     {{-- <div class="box-footer text-center p-10">
@@ -77,6 +81,7 @@
                                     </div> --}}
                                 </div>
                             </div>
+                      
                             {{-- <div class="col-12 col-xl-6">
                                 <div class="box">
                                     <div class="box-header with-border">
@@ -237,6 +242,40 @@
                      </div>
                   </div> --}}
 
+                    </div>
+                    <div class="col-xl-4 col-12">
+                        <div class="box">
+                            <div class="box-header bg-primary-light with-border">
+                                <h4 class="box-title">Upcoming Live Sessions</h4>
+                                <ul class="box-controls pull-right d-md-flex d-none">
+                                    <li>
+                                        <span class="badge bg-bitbucket px-10">Scheduled</span>
+                                    </li>
+                                </ul>
+                            </div>
+                            <div class="box-body p-0">
+                                <div class="media-list media-list-hover">
+                                    {{-- @foreach ($liveSessions as $session)
+                                        <div class="media bar-0">
+                                            <a class="align-self-start" href="#"><img
+                                                    class="avatar avatar-lg bg-success-light rounded"
+                                                    src="{{ $session->teacher->user->image }}" alt="{{ $session->teacher->user->full_name }}"></a>
+                                            <div class="media-body">
+                                                <p class="mb-0">
+                                                    <a class="hover-success fs-16"
+                                                        href="#">{{ $session->teacher->user->full_name }}</a>
+                                                    <span class="float-end text-fade"><span
+                                                            class="fw-500">{{ $session->start_at->format('Y-m-d g:i A') }}</span></span>
+                                                </p>
+                                                <h6 class="text-fade my-10">{{ $session->name }} <span class="text-success">({{ $session->subject->name }})</span> </h6>
+                                                <p>{{ $session->description }}</p>
+                                                </h6>
+                                            </div>
+                                        </div>
+                                    @endforeach --}}
+                                </div>
+                            </div>
+                        </div>
                     </div>
                     {{-- <div class="col-xl-4 col-12">
                         <div class="box">

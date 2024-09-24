@@ -1891,6 +1891,7 @@ window.onlineExamEvents = {
         $("#edit_id").val(row.online_exam_id);
         $("#edit-online-exam-title").val(row.title);
         $("#edit-online-exam-key").val(row.exam_key);
+        $("#edit-online-pass-mark").val(row.pass_mark);
         $("#edit-online-exam-duration").val(row.duration);
         $("#edit-online-exam-start-date").val(row.start_date);
         $("#edit-online-exam-end-date").val(row.end_date);

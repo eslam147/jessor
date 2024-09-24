@@ -10,10 +10,11 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Database\Eloquent\Builder;
 use Znck\Eloquent\Traits\BelongsToThrough;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Lesson extends Model
 {
-    use HasFactory, BelongsToThrough, BelongsToTeacher;
+    use HasFactory, BelongsToThrough, BelongsToTeacher, SoftDeletes;
     protected $guarded = [];
     public $casts = [
         'status' => LessonStatus::class,
@@ -53,7 +54,7 @@ class Lesson extends Model
     }
     public function studentActiveEnrollment()
     {
-        return $this->hasOne(Enrollment::class)->where(function (Builder $q){
+        return $this->hasOne(Enrollment::class)->where(function (Builder $q) {
             $q->whereNull('expires_at')->orWhere('expires_at', '>', now());
         })->where('user_id', auth()->user()->id)->orderByDesc('id');
     }
@@ -88,8 +89,9 @@ class Lesson extends Model
     {
         return $this->morphMany(File::class, 'modal');
     }
-    public function getThumbnailAttribute($value){
-        if(isset($value)){
+    public function getThumbnailAttribute($value)
+    {
+        if (isset($value)) {
             return tenant_asset($value);
         }
     }

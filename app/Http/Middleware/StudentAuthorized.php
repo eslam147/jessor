@@ -13,6 +13,6 @@ class StudentAuthorized
         if(Auth::check() && Auth::user()->hasRole('Student')){
             return $next($request);
         }
-        return to_route('login');
+        return to_route('login.view');
     }
 }

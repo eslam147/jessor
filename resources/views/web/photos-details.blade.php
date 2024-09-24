@@ -14,11 +14,11 @@
                     </span>
                     <span>
                         <span class="home"><a href="{{url('/')}}">{{ __('home') }}</a></span>
-                        <span><i class="fa-solid fa-angles-right"></i></span>
+                        <span><i class="fa-solid fa-angles-{{ mainDirection(true) }}"></i></span>
                         <span class="home"><a href="#">{{ __('gallery') }}</a></span>
-                        <span><i class="fa-solid fa-angles-right"></i></span>
+                        <span><i class="fa-solid fa-angles-{{ mainDirection(true) }}"></i></span>
                         <span class="home"><a href="{{ route('photo') }}">{{ __('photos') }}</a></span>
-                        <span><i class="fa-solid fa-angles-right"></i></span>
+                        <span><i class="fa-solid fa-angles-{{ mainDirection(true) }}"></i></span>
                         <span class="page">{{ __('photos_details') }}</span>
                     </span>
                 </div>

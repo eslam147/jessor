@@ -15,6 +15,7 @@ use App\Exports\CouponExport;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Services\Coupon\CouponService;
 use App\Http\Requests\Dashboard\Coupon\CouponRequest;
+use App\Http\Resources\Dashboard\CouponResource;
 
 class CouponController extends Controller
 {
@@ -161,21 +162,10 @@ class CouponController extends Controller
 
     public function show(Coupon $coupon)
     {
-        $coupon->load('onlyAppliedTo', 'usages', 'teacher.user');
+        $coupon->load('onlyAppliedTo', 'usages.usedByUser', 'usages.appliedTo', 'teacher.user');
         return response()->json([
             'error' => false,
-            'data' => [
-                'code' => $coupon->code,
-                'price' => $coupon->price,
-                'maximum_usage' => $coupon->maximum_usage,
-                'expiry_date' => $coupon->expiry_date->toDateString(),
-                'only_applied_to' => $coupon->only_applied_to_type instanceof Lesson ? $coupon->onlyAppliedTo->name : '',
-                'is_disabled' => $coupon->is_disabled,
-                'used_count' => $coupon->usages()->count(),
-                'teacher' => optional($coupon->teacher)->user->name ?? 'N/A',
-                'created_at' => convertDateFormat($coupon->created_at, 'd-m-Y H:i:s'),
-                'type' => $coupon->type->translatedName()
-            ],
+            'data' => CouponResource::make($coupon),
             'message' => trans('coupon_fetch_successfully'),
         ]);
     }

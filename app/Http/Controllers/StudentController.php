@@ -37,9 +37,15 @@ use App\Models\OnlineExamStudentAnswer;
 use App\Models\StudentOnlineExamStatus;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
+use App\Services\Auth\RegisterAuthService;
+use App\Http\Requests\Dashboard\Student\StudentStoreRequest;
 
 class StudentController extends Controller
 {
+    public function __construct(
+        private readonly RegisterAuthService $registerService
+    ) {
+    }
     public function index()
     {
         if (! Auth::user()->can('student-list')) {
@@ -88,10 +94,9 @@ class StudentController extends Controller
     public function storeBulkData(Request $request)
     {
         if (! Auth::user()->can('student-create') || ! Auth::user()->can('student-edit')) {
-            $response = array(
+            return response()->json([
                 'message' => trans('no_permission_message')
-            );
-            return response()->json($response);
+            ]);
         }
         $validator = Validator::make($request->all(), [
             'class_section_id' => 'required',
@@ -122,10 +127,9 @@ class StudentController extends Controller
     public function update(Request $request)
     {
         if (! Auth::user()->can('student-create') || ! Auth::user()->can('student-edit')) {
-            $response = array(
+            return response()->json([
                 'message' => trans('no_permission_message')
-            );
-            return response()->json($response);
+            ]);
         }
         $request->validate(
             [
@@ -136,7 +140,7 @@ class StudentController extends Controller
                 'dob' => 'required',
                 'class_section_id' => 'required',
                 'category_id' => 'required',
-                'admission_no' => 'required|unique:users,email,' . $request->edit_id,
+                'admission_no' => "required|unique:users,email,{$request->edit_id}",
                 'roll_number' => 'required',
                 'admission_date' => 'required',
                 'current_address' => 'required',
@@ -389,207 +393,64 @@ class StudentController extends Controller
                 'message' => trans('data_store_successfully')
             ];
         } catch (Exception $e) {
-            $response = array(
+            $response = [
                 'error' => true,
                 'message' => trans('error_occurred'),
                 'data' => $e
-            );
+            ];
         }
         return response()->json($response);
     }
-    public function store(Request $request)
+    public function store(StudentStoreRequest $request)
     {
-        #check if admin has permission
         if (! Auth::user()->can('student-create') || ! Auth::user()->can('student-edit')) {
-            $response = array(
+            return response()->json([
                 'message' => trans('no_permission_message')
-            );
-            return response()->json($response);
-        }
-
-
-
-        //Add Father in User and Parent table data
-        //check if isset parent
-        if (isset($request->parent)) {
-            //validate parent's data
-            $validator = Validator::make($request->all(), [
-                //father
-                'father_email' => 'required|email',
-                'father_first_name' => 'required|string',
-                'father_last_name' => 'required|string',
-                'father_mobile' => 'required|regex:/^([0-9\s\-\+\(\)]*)$/|min:10|max:15',
-                'father_password' => 'required|string|min:6',
-                //mother
-                'mother_email' => 'required|email',
-                'mother_first_name' => 'required|string',
-                'mother_last_name' => 'required|string',
-                'mother_mobile' => 'required|regex:/^([0-9\s\-\+\(\)]*)$/|min:10|max:15',
-                'mother_password' => 'required|string|min:6',
             ]);
-
-            //add Parents
-            if ($validator->fails()) {
-                $response = array(
-                    'error' => true,
-                    'message' => $validator->messages()->all()[0],
-                );
-                return response()->json($response);
-            } else {
-                //check if the email is exist
-                $fatherExists = User::where('email', $request->father_email)->exists();
-                if ($fatherExists) {
-                    $response = array(
-                        'error' => true,
-                        'message' => 'the father email you are using is alredy exist',
-                    );
-                    return response()->json($response);
-                } else {
-                    $father = User::create([
-                        'first_name' => $request->father_first_name,
-                        'last_name' => $request->father_last_name,
-                        'gender' => 'Male',
-                        'email' => $request->father_email,
-                        'password' => Hash::make($request->password),
-                        'mobile' => $request->father_mobile,
-
-                    ]);
-
-                    //add father to parent table
-                    Parents::create([
-                        'user_id' => $father->id,
-                        'first_name' => $request->father_first_name,
-                        'last_name' => $request->father_last_name,
-                        'gender' => 'Male',
-                        'email' => $request->father_email,
-                        'password' => Hash::make($request->password),
-                        'mobile' => $request->father_mobile,
-                    ]);
-                }
-                //add mother to user table
-                //check if the email is exist
-                $motherExists = User::where('email', $request->mother_email)->exists();
-                if ($motherExists) {
-                    $response = array(
-                        'error' => true,
-                        'message' => 'the mother email you are using is alredy exist',
-                    );
-                    return response()->json($response);
-                } else {
-                    $mother = User::create([
-                        'first_name' => $request->mother_first_name,
-                        'last_name' => $request->mother_last_name,
-                        'gender' => 'Male',
-                        'email' => $request->mother_email,
-                        'password' => Hash::make($request->password),
-                        'mobile' => $request->mother_mobile,
-
-                    ]);
-
-                    //add Mother to parent table
-                    Parents::create([
-                        'user_id' => $mother->id,
-                        'first_name' => $request->mother_first_name,
-                        'last_name' => $request->mother_last_name,
-                        'gender' => 'Male',
-                        'email' => $request->mother_email,
-                        'mobile' => $request->mother_mobile,
-                    ]);
-                }
-
-            }
-
-
-
         }
-        //check if isset guardian
-        if (isset($request->guardian)) {
-            $validate = Validator::make($request->all(), [
-                //father
-                'guardian_email' => 'required|email',
-                'guardian_first_name' => 'required|string',
-                'guardian_last_name' => 'required|string',
-                'guardian_mobile' => 'required|regex:/^([0-9\s\-\+\(\)]*)$/|min:10|max:15',
-                'guardian_password' => 'required|string|min:6',
+
+        return rescue(function () use ($request) {
+            // -------------------------------------------------------- \\
+            DB::beginTransaction();
+            // -------------------------------------------------------- \\
+            if (isset($request->parent)) {
+                $parents = $this->registerService->storeParents($request);
+                $father = $parents['father'];
+                $mother = $parents['mother'];
+            }
+            // -------------------------------------------------------- \\
+            //check if isset guardian
+            // -------------------------------------------------------- \\
+            if (isset($request->guardian)) {
+                $guardian = $this->registerService->storeGuardian($request);
+            }
+            // -------------------------------------------------------- \\
+            $request->merge([
+                'email_addreess' => $request->student_email,
             ]);
-
-            if ($validator->fails()) {
-                $response = array(
-                    'error' => true,
-                    'message' => $validator->messages()->all()[0],
-                );
-                return response()->json($response);
-            } else {
-                $guardian = User::create([
-                    'first_name' => $request->guardian_first_name,
-                    'last_name' => $request->guardian_last_name,
-                    'gender' => $request->guardian_gender,
-                    'email' => $request->guardian_email,
-                    'password' => Hash::make($request->password),
-                    'mobile' => $request->guardian_mobile,
-                ]);
-
-                //add Mother to parent table
-                Parents::create([
-                    'user_id' => $guardian->id,
-                    'first_name' => $request->guardian_first_name,
-                    'last_name' => $request->guardian_last_name,
-                    'gender' => 'Male',
-                    'email' => $request->guardian_email,
-                    'password' => Hash::make($request->password),
-                    'mobile' => $request->guardian_mobile,
-                ]);
-            }
-        }
-
-
-        //check student data
-        $validator = Validator::make($request->all(), [
-            //students
-            'first_name' => 'required|string',
-            'last_name' => 'required|string',
-            'student_password' => 'required|string|min:6',
-            'gender' => 'required|string',
-            'student_email' => 'required|email|unique:users,email',
-        ]);
-
-        if ($validator->fails()) {
-            $response = array(
-                'error' => true,
-                'message' => $validator->messages()->all()[0],
-            );
-            return response()->json($response);
-        } else {
+            // -------------------------------------------------------- \\
             //add student to users table
-            $student = User::create([
-                'first_name' => $request->first_name,
-                'last_name' => $request->last_name,
-                'gender' => $request->gender,
-                'email' => $request->student_email,
-                'password' => Hash::make($request->student_password)
-            ]);
-            $studentRole = Role::where('name', 'Student')->first();
-            $student->assignRole($studentRole);
-            //add students to students table
-            Students::create([
-                'user_id' => $student->id,
-                'class_section_id' => $request->class_section_id,
-                'category_id' => $request->category_id,
-                'father_id' => isset($father) ? $father->id : null,
-                'mother_id' => isset($mother) ? $mother->id : null,
-                'guardian_id' => isset($guardian) ? $guardian->id : null,
-            ]);
-
-            $response = [
+            $this->registerService->storeStudent(
+                $request,
+                $father?->id ?? null,
+                $mother?->id ?? null,
+                $guardian?->id ?? null
+            );
+            // -------------------------------------------------------- \\
+            DB::commit();
+            // -------------------------------------------------------- \\
+            return response()->json([
                 'error' => false,
                 'message' => 'student has been added successfully!',
-            ];
-            return response()->json($response);
-        }
-
+            ]);
+        }, function ($v) {
+            DB::rollBack();
+            return response()->json([
+                'error' => true,
+                'message' => trans("error_occurred"),
+            ]);
+        });
     }
-
-
 
 
     private function createOrUpdateParent($request, $type, $parentRole)

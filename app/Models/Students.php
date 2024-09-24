@@ -59,8 +59,9 @@ class Students extends Model
 
     public function classSubjects()
     {
-        $core_subjects = $this->class_section->class->coreSubject;
-        $elective_subjects = $this->class_section->class->electiveSubjectGroup->load('electiveSubjects.subject');
+        $studentClass = optional($this->class_section?->class);
+        $core_subjects = $studentClass->coreSubject;
+        $elective_subjects = $studentClass->electiveSubjectGroup->load('electiveSubjects.subject');
         return [
             'core_subject' => $core_subjects,
             'elective_subject_group' => $elective_subjects

@@ -231,7 +231,6 @@
             </li>
         @endcan
         {{-- Purchased Lessons --}}
-        {{-- #TODO add Permission For Purchased --}}
         @can('enrollments-list')
             <li class="nav-item">
                 <a href="{{ route('enrollment.index') }}" class="nav-link">
@@ -441,6 +440,14 @@
                     </ul>
                 </div>
             </li>
+            @can('live_lesson-list')
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ route('live_lessons.index') }}">
+                        <i class="fa fa-play menu-icon"></i>
+                        <span class="menu-title">{{ __('live_lessons') }}</span>
+                    </a>
+                </li>
+            @endcan
         @endcanany
 
         {{-- student assignment --}}
@@ -674,6 +681,25 @@
             </li>
         @endcan
 
+        {{-- Video Conference Settings --}}
+        @canany(['video-confernce-settings'])
+            <li class="nav-item">
+                <a class="nav-link" data-toggle="collapse" href="#video_conference-settings" aria-expanded="false"
+                    aria-controls="settings-menu"><i class="fa fa-wrench menu-icon" style="margin: 0 2px 0 2px"></i>
+                    <span class="menu-title">{{ __('video_conference.title') }}</span>
+                    <i class="fa fa-angle-left menu-arrow"></i>
+                </a>
+                <div class="collapse" id="video_conference-settings">
+                    <ul class="nav flex-column sub-menu">
+                        @foreach (collect(config('videoconfernce.providers'))->where('is_active', true) as $service)
+                            <li class="nav-item">
+                                <a class="nav-link"
+                                    href="{{ route('video_conference.settings.show', ['service' => $service['name']]) }}">{{ ucfirst($service['name']) }}</a>
+                            </li>
+                        @endforeach
+                </div>
+            </li>
+        @endcan
 
         {{-- web-settings --}}
         @canany(['content-create', 'event-create', 'program-create', 'media-create', 'faq-create', 'contact-us'])
