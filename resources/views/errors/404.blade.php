@@ -7,7 +7,7 @@
         <p>
             {{ __('not_found_msg') }}
         </p>
-        <a href="{{ route('end_user.home') }}" class="btn btn-primary">
+        <a href="{{ url('/') }}" class="btn btn-primary">
             {{ __('go_back_home') }}
         </a>
     </div>
