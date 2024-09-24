@@ -138,6 +138,8 @@
                         $("#coupon_usages tbody").append(`<tr>
                             <td>${usage.id}</td>
                             <td>${usage.user.name}</td>
+                            <td>${usage.user.email}</td>
+                            <td>${usage.user.phone}</td>
                             <td>${usage.price}</td>
                             <td>${usage.applied}</td>
                             <td>${usage.created_at}</td>

@@ -24,6 +24,8 @@
                         <tr>
                             <th>#</th>
                             <th>{{ __('student_name') }}</th>
+                            <th>{{ __('email') }}</th>
+                            <th>{{ __('phone_number') }}</th>
                             <th>{{ __('discount') }}</th>
                             <th>{{ __('applied') }}</th>
                             <th>{{ __('created_at') }}</th>

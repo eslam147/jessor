@@ -42,7 +42,8 @@ class CouponResource extends JsonResource
                     'user' => [
                         'id' => $user->id,
                         'name' => $user->full_name ?? 'N/A',
-                        'email' => $user->email ?? 'N/A'
+                        'email' => $user->email ?? 'N/A',
+                        'phone' => $user->mobile ?? 'N/A',
                     ],
                     'created_at' => convertDateFormat($usage->created_at, "Y-m-d h:i A"),
                 ];
