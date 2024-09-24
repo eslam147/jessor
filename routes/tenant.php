@@ -47,7 +47,6 @@ use App\Http\Controllers\SessionYearController;
 use App\Http\Controllers\AnnouncementController;
 use App\Http\Controllers\ClassTeacherController;
 use App\Http\Controllers\NotificationController;
-use App\Http\Controllers\SystemUpdateController;
 use App\Http\Controllers\ExamTimetableController;
 use App\Http\Controllers\student\EnrollController;
 use App\Http\Controllers\student\SignupController;
@@ -77,13 +76,12 @@ Route::middleware([
     PreventAccessFromCentralDomains::class,
     InitializeSchool::class,
 ])->group(function () {
-    LaravelAuth::routes();
     Route::prefix(LaravelLocalization::setLocale())->middleware([
         'localeSessionRedirect',
         'localizationRedirect',
         'localeViewPath'
     ])->group(function () {
-        Route::get('/', [WebController::class, 'index']);
+        Route::get('/', [WebController::class, 'index'])->name('end_user.home');
 
         Route::get('about', [WebController::class, 'about'])->name('about.us');
         Route::get('contact', [WebController::class, 'contact_us'])->name('contact.us');
@@ -93,7 +91,11 @@ Route::middleware([
         Route::get('video-gallery', [WebController::class, 'video_details'])->name('video.gallery');
         Route::post('contact-us/store', [WebController::class, 'contact_us_store'])->name('contact_us.store');
 
-        Route::view('login', 'auth.login')->middleware('guest')->name('login');
+        Route::view('login', 'auth.login')->middleware('guest')->name('login.view');
+        Route::prefix('auth')->group(function () {
+            LaravelAuth::routes();
+        });
+        
         Route::controller(SignupController::class)->as('signup.')->group(function () {
             Route::get('signup', 'index')->name('index');
             Route::post('signup', 'store')->name('store');
@@ -104,13 +106,8 @@ Route::middleware([
     Route::post('webhook/stripe', [WebhookController::class, 'stripe']);
     Route::post('webhook/paystack', [WebhookController::class, 'paystack']);
 
-    Route::get('/privacy-policy', function () {
-        return settingByType('privacy_policy');
-    });
-
-    Route::get('/terms-conditions', function () {
-        return settingByType('terms_condition');
-    });
+    Route::get('/privacy-policy', fn() => settingByType('privacy_policy'));
+    Route::get('/terms-conditions', fn() => settingByType('terms_condition'));
 
     // ***************************
     // Students
@@ -263,10 +260,10 @@ Route::middleware([
 
             Route::resource('subject-teachers', SubjectTeacherController::class);
             Route::get('subject-teachers-list', [SubjectTeacherController::class, 'show']);
-            // Route::controller(VideoConferenceController::class)->prefix('video_conference')->as('video_conference.')->group(function () {
-            //     Route::get('settings/{service}', 'show')->name('settings.show');
-            //     Route::post('settings/{service}', 'update')->name('settings.update');
-            // });
+            Route::controller(VideoConferenceController::class)->prefix('video_conference')->as('video_conference.')->group(function () {
+                Route::get('settings/{service}', 'show')->name('settings.show');
+                Route::post('settings/{service}', 'update')->name('settings.update');
+            });
             Route::resource('timetable', TimetableController::class);
             Route::get('timetable-list', [TimetableController::class, 'show']);
             Route::get('checkTimetable', [TimetableController::class, 'checkTimetable']);
@@ -439,8 +436,8 @@ Route::middleware([
 
             Route::get('app-settings', [SettingController::class, 'app_index']);
             Route::post('app-settings', [SettingController::class, 'app_update']);
-            Route::get('system-update', [SystemUpdateController::class, 'index'])->name('system-update.index');
-            Route::post('system-update', [SystemUpdateController::class, 'update'])->name('system-update.update');
+            // Route::get('system-update', [SystemUpdateController::class, 'index'])->name('system-update.index');
+            // Route::post('system-update', [SystemUpdateController::class, 'update'])->name('system-update.update');
 
 
             Route::resource('stream', StreamController::class);
@@ -552,6 +549,7 @@ Route::middleware([
             //     Route::get('list', 'list')->name('list');
             //     Route::post('start/{live_lesson}', 'start')->name('start');
             //     Route::post('stop/{live_lesson}', 'stop')->name('stop');
+            //     Route::post('create_meeting/{liveLesson}', 'createMeeting')->name('createMeeting');
             // });
             // ------------------------------------------------------ \\
             Route::prefix('coupons')->as('coupons.')->controller(CouponController::class)->group(function () {
