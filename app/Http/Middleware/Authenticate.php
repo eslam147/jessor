@@ -17,11 +17,12 @@ class Authenticate extends Middleware
     }
     public function handle($request, Closure $next, ...$guards)
     {
-        if (app(UserDeviceHistoryService::class)->checkSessionCookiesIsValid()) {
-            return parent::handle($request, $next, ...$guards);
-        } else {
-            app(UserDeviceHistoryService::class)->storeUserLogoutHistory(auth()->user()->id);
-            return to_route('login.view');
+        if (auth()->check() && auth()->user()->hasRole('Student')) {
+            if (! app(UserDeviceHistoryService::class)->checkSessionCookiesIsValid()) {
+                app(UserDeviceHistoryService::class)->storeUserLogoutHistory(auth()->user()->id);
+                return to_route('login.view');
+            }
         }
+        return parent::handle($request, $next, ...$guards);
     }
 }
