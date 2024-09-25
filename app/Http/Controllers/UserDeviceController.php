@@ -72,7 +72,7 @@ class UserDeviceController extends Controller
                 'device_ip' => $row->device_ip,
                 'device_agent' => $row->device_agent,
                 // ----------------------------------------------- \\
-                'operate' => view('user_devices.datatables.actions')->render(),
+                'operate' => view('user_devices.datatables.actions', compact('row'))->render(),
             ];
         }
         // ----------------------------------------------- \\
