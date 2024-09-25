@@ -69,6 +69,7 @@ use App\Http\Controllers\student\SubjectController as StudentSubjectController;
 use App\Http\Controllers\student\SettingController as StudentSettingsController;
 use App\Http\Controllers\student\AssignmentController as StudentAssignmentController;
 use App\Http\Controllers\student\OfflineExamController as StudentOfflineExamController;
+use App\Http\Controllers\UserDeviceController;
 
 Route::middleware([
     'web',
@@ -92,7 +93,7 @@ Route::middleware([
         Route::post('contact-us/store', [WebController::class, 'contact_us_store'])->name('contact_us.store');
 
         Route::view('login', 'auth.login')->middleware('guest')->name('login.view');
-        Route::prefix('auth')->group(function () {
+        Route::prefix('auth')->as('auth.')->group(function () {
             LaravelAuth::routes();
         });
         
@@ -549,7 +550,7 @@ Route::middleware([
             //     Route::get('list', 'list')->name('list');
             //     Route::post('start/{live_lesson}', 'start')->name('start');
             //     Route::post('stop/{live_lesson}', 'stop')->name('stop');
-            //     Route::post('create_meeting/{liveLesson}', 'createMeeting')->name('createMeeting');
+            //     Route::post('create_meeting/{liveLesson}', 'scheduleMeeting')->name('schedule_meeting');
             // });
             // ------------------------------------------------------ \\
             Route::prefix('coupons')->as('coupons.')->controller(CouponController::class)->group(function () {
@@ -565,6 +566,14 @@ Route::middleware([
                 Route::get('show/{coupon}', 'show')->name('show');
                 Route::put('update/{coupon}', 'update')->name('update');
                 Route::delete('destroy/{coupon}', 'destroy')->name('destroy');
+                // #TODO Change Here
+            });
+            // ------------------------------------------------------ \\
+            Route::prefix('user_devices')->as('user_devices.')->controller(UserDeviceController::class)->group(function () {
+                Route::get('/', 'index')->name('index');
+                Route::get('/list', 'list')->name('list');
+
+                Route::delete('destroy/{userDevice}', 'destroy')->name('destroy');
                 // #TODO Change Here
             });
             // ------------------------------------------------------ \\
