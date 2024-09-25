@@ -42,6 +42,12 @@
                             <span>Assignments</span>
                         </a>
                     </li>
+                    <li>
+                        <a href="{{ route('student_dashboard.live_lessons.index') }}">
+                            <i class="si-control-play si"></i>
+                            <span>Live Lessons</span>
+                        </a>
+                    </li>
                     {{-- <li>
                         <a href="#">
                             <i class="si-calendar si"></i>

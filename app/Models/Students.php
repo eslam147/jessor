@@ -61,7 +61,7 @@ class Students extends Model
     {
         $studentClass = optional($this->class_section?->class);
         $core_subjects = $studentClass->coreSubject;
-        $elective_subjects = $studentClass->electiveSubjectGroup->load('electiveSubjects.subject');
+        $elective_subjects = $studentClass->electiveSubjectGroup?->load('electiveSubjects.subject');
         return [
             'core_subject' => $core_subjects,
             'elective_subject_group' => $elective_subjects

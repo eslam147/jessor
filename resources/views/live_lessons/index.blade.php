@@ -20,16 +20,6 @@
                             <div class="row">
 
                                 <div class="form-group col-sm-12 col-md-6">
-                                    <label>{{ __('service') }} <span class="text-danger">*</span></label>
-                                    <select name="service" id="service" class="service form-control">
-                                        <option value="">--{{ __('select') }}--</option>
-                                        @foreach ($services as $service)
-                                            <option value="{{ $service }}">
-                                                {{ trans('video_conference.services.' . $service) }}</option>
-                                        @endforeach
-                                    </select>
-                                </div>
-                                <div class="form-group col-sm-12 col-md-6">
                                     <label>{{ __('class') . ' ' . __('section') }} <span
                                             class="text-danger">*</span></label>
                                     <select name="class_section_id" id="class_section_id"
@@ -57,11 +47,7 @@
                                     </label>
                                     <input type="datetime-local" name="session_date" id="session_date" class="form-control"
                                         required placeholder="{{ __('session_date') }}">
-                                    {{-- {!! Form::datetime('session_date', null, [
-                                        'required',
-                                        'placeholder' => __('session_date'),
-                                        'class' => 'form-control',
-                                    ]) !!} --}}
+
                                     @error('session_date')
                                         <p class="text-danger" role="alert">{{ $message }}</p>
                                     @enderror
@@ -92,28 +78,11 @@
                                         placeholder="{{ __('lesson_name') }}" class="form-control" />
                                 </div>
 
-                                <div class="form-group col-sm-12 col-md-6">
+                                <div class="form-group col-sm-12 col-md-8">
                                     <label>{{ __('lesson_description') }} <span class="text-danger">*</span></label>
                                     <textarea id="description" name="description" placeholder="{{ __('lesson_description') }}" class="form-control"></textarea>
                                 </div>
-                                <div class="col-12">
-                                    <hr>
-                                </div>
-                                <div class="form-group col-sm-12 col-md-6">
-                                    <label>{{ __('password') }} <span class="text-danger">*</span></label>
-                                    <input type="text" id="password" name="password" placeholder="{{ __('password') }}"
-                                        class="form-control" required />
-                                </div>
-                                <div class="form-group col-sm-12 col-md-6">
-                                    <div class="form-check">
-                                        <label class="form-check-label">
-                                            <input type="checkbox" class="form-check-input" name="autorecord"
-                                                id="autorecord" value="1">
-                                            Auto Record
-                                        </label>
-                                    </div>
-                                </div>
-
+                                <hr>
 
                             </div>
                             <hr>
@@ -225,153 +194,69 @@
             </div>
 
             <!-- Modal -->
-            {{-- <div class="modal fade" id="editModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
-                aria-hidden="true">
-                <div class="modal-dialog modal-xl" role="document">
+            <div class="modal fade" id="connectMeetingModal" tabindex="-1" role="dialog"
+                aria-labelledby="exampleModalLabel" aria-hidden="true">
+                <div class="modal-dialog" role="document">
                     <div class="modal-content">
                         <div class="modal-header">
-                            <h5 class="modal-title" id="exampleModalLabel">
-                                {{ __('edit') . ' ' . __('lesson') }}
+                            <h5 class="modal-title text-capitalize" id="exampleModalLabel">
+                                {{ __('connect') . ' ' . __('lesson') . ' ' . __('with') . ' ' . __('meeting') }}
                             </h5>
                             <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                                 <span aria-hidden="true">&times;</span>
                             </button>
                         </div>
-                        <form class="pt-3 edit-lesson-form" id="edit-form" action="{{ url('lesson') }}"
+                        <form class="pt-3 assign-meeting-form" id="assign_meeting_modal" action="#"
                             novalidate="novalidate">
-                            <input type="hidden" name="edit_id" id="edit_id" value="" />
-                            <div class="modal-body">
+                            <input type="hidden" name="live_lesson_id" id="live_lesson_id" value="" />
+                            <div class="modal-body py-0">
                                 <div class="row">
-                                    <div class="form-group col-sm-12 col-md-6">
-                                        <label>{{ __('class') . ' ' . __('section') }} <span
-                                                class="text-danger">*</span></label>
-                                        <select name="class_section_id" id="edit_class_section_id"
-                                            class="class_section_id form-control">
+                                    <div class="form-group col-sm-12">
+                                        <label>{{ __('services') }} <span class="text-danger">*</span></label>
+                                        <select name="service" id="meeting_service" class="meeting_service form-control">
                                             <option value="">--{{ __('select') }}--</option>
-                                            @foreach ($class_section as $section)
-                                                <option value="{{ $section->id }}"
-                                                    data-class="{{ $section->class->id }}">
-                                                    {{ $section->class->name . ' ' . $section->section->name . ' - ' . $section->class->medium->name }}
+                                            @foreach ($services as $service)
+                                                <option value="{{ $service }}">
+                                                    {{ str()->ucfirst($service) }}
                                                 </option>
                                             @endforeach
                                         </select>
                                     </div>
-
-                                    <div class="form-group col-sm-12 col-md-6">
-                                        <label>{{ __('subject') }} <span class="text-danger">*</span></label>
-                                        <select name="subject_id" id="edit_subject_id" class="subject_id form-control">
-                                            <option value="">--{{ __('select') }}--</option>
-                                            @foreach ($subjects as $subject)
-                                                <option value="{{ $subject->id }}">
-                                                    {{ $subject->name . ' - ' . $subject->type }}</option>
-                                            @endforeach
-                                        </select>
+                                    <div class="form-group col-sm-12">
+                                        <label>{{ __('start_date') }} <span class="text-danger">*</span></label>
+                                        <input type="text" id="meeting_start_date" class="form-control" disabled>
                                     </div>
-                                </div>
-
-                                <div class="row">
-                                    <div class="form-group col-sm-12 col-md-6">
-                                        <label>{{ __('lesson_name') }} <span class="text-danger">*</span></label>
-                                        <input type="text" id="edit_name" name="name"
-                                            placeholder="{{ __('lesson_name') }}" class="form-control" />
+                                    <div class="form-group col-sm-12">
+                                        <label>{{ __('duration') }} <span class="text-danger">*</span></label>
+                                        <input type="number" id="meeting_duration" class="form-control" disabled>
                                     </div>
-
-                                    <div class="form-group col-sm-12 col-md-6">
-                                        <label>{{ __('lesson_description') }} <span class="text-danger">*</span></label>
-                                        <textarea id="edit_description" name="description" placeholder="{{ __('lesson_description') }}"
-                                            class="form-control"></textarea>
+                                    <div class="form-group col-sm-12">
+                                        <label>{{ __('password') }}</label>
+                                        <input type="text" id="password" name="password"
+                                            placeholder="{{ __('password') }}" class="form-control" />
                                     </div>
-                                    <div class="form-group col-sm-12 col-md-6">
-                                        <label>{{ __('paid_or_free') }} <span class="text-danger">*</span></label>
-                                        <div class="d-flex">
-                                            <div class="form-check form-check-inline">
-                                                <label class="form-check-label">
-                                                    <input name="payment_status" class="payment_status free"
-                                                        type="radio" value="0">
-                                                    Free
-                                                    <i class="input-helper"></i></label>
-                                            </div>
-                                            <div class="form-check form-check-inline">
-                                                <label class="form-check-label">
-                                                    <input name="payment_status" class="payment_status paid"
-                                                        type="radio" value="1">
-                                                    Paid
-                                                    <i class="input-helper"></i></label>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="form-group col-sm-12 col-md-6 price_row">
-                                        <label>{{ __('price') }} <span class="text-danger">*</span></label>
-                                        <input type="number" min="1" step="0.01" id="price" disabled
-                                            name="price" placeholder="{{ __('price') }}" class="form-control" />
-                                    </div>
-                                    <div class="form-group col-sm-6">
-                                        <div class="form-check form-check-inline">
+                                    <div class="form-group col-sm-12">
+                                        <div class="form-check">
                                             <label class="form-check-label">
-                                                <input type="checkbox" name="has_expire_days" value="1"
-                                                    class="form-check-input lesson_has_expire_date"
-                                                    id="edit_lesson_has_expiry_date">Has Expiry Days
-                                                <i class="input-helper"></i><i class="input-helper"></i></label>
+                                                <input type="checkbox" class="form-check-input" name="autorecord"
+                                                    id="autorecord" value="1">
+                                                Auto Record
+                                            </label>
                                         </div>
-                                    </div>
-
-                                    <div class="form-group col-sm-6 lesson_expiry_days ">
-                                        <label>{{ __('expiry_days') }}<span class="text-danger">*</span>(<small
-                                                class="text-info">{{ trans('expire_days_lesson') }}</small>)</label>
-
-                                        {!! Form::number('expiry_days', 0, [
-                                            'required',
-                                            'min' => 1,
-                                            'step' => '1',
-                                            'placeholder' => __('expiry_days'),
-                                            'disabled',
-                                            'class' => 'form-control',
-                                        ]) !!}
-                                        @error('expiry_days')
-                                            <p class="text-danger" role="alert">{{ $message }}</p>
-                                        @enderror
-                                    </div>
-                                    <div class="form-group col-sm-12 col-md-6">
-                                        <label>{{ __('status') }} <span class="text-danger">*</span></label>
-                                        <div class="d-flex">
-                                            <div class="form-check form-check-inline">
-                                                <label class="form-check-label">
-                                                    <input name="status" type="radio" value="draft">
-                                                    Draft
-                                                    <i class="input-helper"></i></label>
-                                            </div>
-                                            <div class="form-check form-check-inline">
-                                                <label class="form-check-label">
-                                                    <input name="status" type="radio" value="published">
-                                                    Published
-                                                    <i class="input-helper"></i></label>
-                                            </div>
-                                            <div class="form-check form-check-inline">
-                                                <label class="form-check-label">
-                                                    <input name="status" type="radio" value="archived">
-                                                    Archived
-                                                    <i class="input-helper"></i></label>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="form-group col-sm-12 col-md-6">
-                                        <label>{{ __('lesson_thumbnail') }} <span class="text-danger">*</span><small
-                                                class="text-info">({{ __('preferred_size', ['w' => '300', 'h' => '300']) }})</small></label>
-                                        <input type="file" name="lesson_thumbnail" data-show-remove="false"
-                                            data-default-file="{{ global_asset('images/default-image.png') }}"
-                                            class="dropify" id="lesson_thumbnail">
                                     </div>
                                 </div>
+                                <hr class="mt-0">
                             </div>
                             <div class="modal-footer">
                                 <button type="button" class="btn btn-secondary"
                                     data-dismiss="modal">{{ __('close') }}</button>
-                                <input class="btn btn-theme" type="submit" value={{ __('edit') }} />
+                                <button type="submit" id="assign_meeting_btn"
+                                    class="btn btn-theme">{{ __('create') }}</button>
                             </div>
                         </form>
                     </div>
                 </div>
-            </div> --}}
+            </div>
         </div>
     </div>
 @endsection
@@ -456,29 +341,46 @@
                     }
                 });
 
-            }
+            },
+            'click .connect_meeting': function(e, value, row, index) {
+                e.preventDefault();
+                let modal = $("#connectMeetingModal");
+                $("#connectMeetingModal form")[0].reset();
+                // ----------------------------------------------------------- \\
+                let url = `{{ route('live_lessons.schedule_meeting', ':live_lesson') }}`.replace(':live_lesson',
+                    row
+                    .id);
+                modal.find('form').attr('action', url);
+                // ----------------------------------------------------------- \\
+                modal.find('#live_lesson_id').val(row.id);
+                modal.find('#meeting_start_date').val(row.session_date);
+                modal.find('#meeting_duration').val(row.duration);
+                // ----------------------------------------------------------- \\
+                modal.modal('show');
+                // ----------------------------------------------------------- \\
+            },
         };
+        $("#connectMeetingModal form").submit(function(e) {
+            e.preventDefault();
+            let formElement = $(this);
+
+            let data = new FormData(this);
+            let url = $(this).attr('action')
+            let submitButtonElement = $(this).find("#assign_meeting_btn");
+
+            function beforeSendCallback() {
+                submitButtonElement.attr('disabled', true);
+            }
+
+            function successCallback(response) {
+                modal.modal('hide');
+            }
+
+            function errorCallback(response) {
+                showErrorToast(response.message);
+            }
+
+            formAjaxRequest('POST', url, data, formElement, submitButtonElement, successCallback);
+        })
     </script>
-
-    {{-- <script src="https://cdnjs.cloudflare.com/ajax/libs/Dropify/0.2.2/js/dropify.min.js"></script>
-    <script>
-        // $('.dropify').dropify();
-
-        // $('.lesson_has_expire_date').change(function(e) {
-        //     if ($(this).is(':checked')) {
-        //         $('.lesson_expiry_days input').removeAttr('disabled');
-        //     } else {
-        //         $('.lesson_expiry_days input').attr('disabled', true);
-        //     }
-        // });
-
-        // $(document).on('change', '.payment_status', function() {
-        //     let $this = $(this);
-        //     if ($this.val() == 1) {
-        //         $('.price_row input').removeAttr('disabled');
-        //     } else {
-        //         $('.price_row input').attr('disabled', '');
-        //     }
-        // })
-    </script> --}}
 @endsection

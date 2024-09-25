@@ -37,7 +37,7 @@ use App\Http\Controllers\TimetableController;
 use App\Http\Controllers\AssignmentController;
 use App\Http\Controllers\AttendanceController;
 use App\Http\Controllers\EnrollmentController;
-// use App\Http\Controllers\LiveLessonController;
+use App\Http\Controllers\LiveLessonController;
 use App\Http\Controllers\OnlineExamController;
 use App\Http\Controllers\WebSettingController;
 use App\Http\Controllers\ClassSchoolController;
@@ -65,7 +65,7 @@ use App\Http\Controllers\student\WalletController as StudentWallet;
 use App\Http\Controllers\student\LessonController as StudentLessonController;
 use App\Http\Controllers\student\ExamController as StudentOnlineExamController;
 use App\Http\Controllers\student\SubjectController as StudentSubjectController;
-// use App\Http\Controllers\student\LiveLessonController as StudentLiveLessonController;
+use App\Http\Controllers\student\LiveLessonController as StudentLiveLessonController;
 use App\Http\Controllers\student\SettingController as StudentSettingsController;
 use App\Http\Controllers\student\AssignmentController as StudentAssignmentController;
 use App\Http\Controllers\student\OfflineExamController as StudentOfflineExamController;
@@ -137,9 +137,9 @@ Route::middleware([
                 Route::get('/{assignment}', 'show')->name('show');
                 Route::post('submit/{assignment}', 'submit')->name('submit');
             });
-            // Route::controller(StudentLiveLessonController::class)->prefix('live_lessons')->as('student_dashboard.live_lessons.')->group(function () {
-            //     Route::get('/', 'index')->name('index');
-            // });
+            Route::controller(StudentLiveLessonController::class)->prefix('live_lessons')->as('student_dashboard.live_lessons.')->group(function () {
+                Route::get('/', 'index')->name('index');
+            });
 
             Route::controller(StudentLessonController::class)->prefix('lesson')->as('student_dashboard.lesson.')->group(function () {
                 Route::get('/{lesson}', 'show')->name('show');
@@ -261,10 +261,10 @@ Route::middleware([
 
             Route::resource('subject-teachers', SubjectTeacherController::class);
             Route::get('subject-teachers-list', [SubjectTeacherController::class, 'show']);
-            Route::controller(VideoConferenceController::class)->prefix('video_conference')->as('video_conference.')->group(function () {
-                Route::get('settings/{service}', 'show')->name('settings.show');
-                Route::post('settings/{service}', 'update')->name('settings.update');
-            });
+            // Route::controller(VideoConferenceController::class)->prefix('video_conference')->as('video_conference.')->group(function () {
+            //     Route::get('settings/{service}', 'show')->name('settings.show');
+            //     Route::post('settings/{service}', 'update')->name('settings.update');
+            // });
             Route::resource('timetable', TimetableController::class);
             Route::get('timetable-list', [TimetableController::class, 'show']);
             Route::get('checkTimetable', [TimetableController::class, 'checkTimetable']);
@@ -539,19 +539,19 @@ Route::middleware([
                 Route::get('/messages/{user}', action: 'chatMessages')->name('messages');
                 Route::post('/send-message', 'sendMessage')->name('send.message');
             });
-            // Route::prefix('live_lessons')->as('live_lessons.')->controller(LiveLessonController::class)->group(function () {
-            //     Route::get('/', 'index')->name('index');
-            //     Route::get('create', 'create')->name('create');
-            //     Route::post('store', 'store')->name('store');
-            //     Route::get('edit/{live_lesson}', 'edit')->name('edit');
-            //     Route::put('update/{live_lesson}', 'update')->name('update');
-            //     Route::delete('destroy/{live_lesson}', 'destroy')->name('destroy');
-            //     Route::get('show/{live_lesson}', 'show')->name('show');
-            //     Route::get('list', 'list')->name('list');
-            //     Route::post('start/{live_lesson}', 'start')->name('start');
-            //     Route::post('stop/{live_lesson}', 'stop')->name('stop');
-            //     Route::post('create_meeting/{liveLesson}', 'scheduleMeeting')->name('schedule_meeting');
-            // });
+            Route::prefix('live_lessons')->as('live_lessons.')->controller(LiveLessonController::class)->group(function () {
+                Route::get('/', 'index')->name('index');
+                Route::get('create', 'create')->name('create');
+                Route::post('store', 'store')->name('store');
+                Route::get('edit/{live_lesson}', 'edit')->name('edit');
+                Route::put('update/{live_lesson}', 'update')->name('update');
+                Route::delete('destroy/{live_lesson}', 'destroy')->name('destroy');
+                Route::get('show/{live_lesson}', 'show')->name('show');
+                Route::get('list', 'list')->name('list');
+                Route::post('start/{live_lesson}', 'start')->name('start');
+                Route::post('stop/{live_lesson}', 'stop')->name('stop');
+                Route::post('create_meeting/{liveLesson}', 'scheduleMeeting')->name('schedule_meeting');
+            });
             // ------------------------------------------------------ \\
             Route::prefix('coupons')->as('coupons.')->controller(CouponController::class)->group(function () {
                 Route::get('/', 'index')->name('index');
