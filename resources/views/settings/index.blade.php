@@ -334,7 +334,7 @@
                             <div class="row mb-5">
                                 <div class="col-8 text-center">
                                     <input type="number" min="1" class="form-control" name="device_limit"
-                                        value="@if (isset(getSettings('device_limit')['device_limit'])) {{ getSettings('device_limit')['device_limit'] }}@else @endif">
+                                        value="{{ settingByType('device_limit') }}">
                                 </div>
                             </div>
                             <input class="btn btn-theme" type="submit" value="Submit">
