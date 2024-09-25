@@ -70,10 +70,14 @@ class UserDeviceHistoryService
     {
         $savedToken = null;
         try {
-            $savedToken = decrypt(Cookie::get('device_token')) ?? null;
-        } catch (\Throwable $th) {
+            $cookieToken = Cookie::get('device_token');
+            if ($cookieToken) {
+                $savedToken = decrypt($cookieToken);
+            }
+        } catch (\Illuminate\Contracts\Encryption\DecryptException $e) {
             $savedToken = null;
         }
+
         if (! empty($savedToken) && $this->userDeviceModel->query()->where('device_token', $savedToken)->whereNull('session_end_at')->exists()) {
             $token = $this->generateSessionToken();
             return ($token === $savedToken);
