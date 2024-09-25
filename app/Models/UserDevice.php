@@ -4,17 +4,14 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class UserDevice extends Model
 {
-    use HasFactory;
+    use HasFactory, SoftDeletes;
 
-    // protected $fillable = ['user_id', 'device_name', 'device_ip', 'device_agent'];
     protected $guarded = [];
 
-    /**
-     * The user that owns the device.
-     */
     public function user()
     {
         return $this->belongsTo(User::class);

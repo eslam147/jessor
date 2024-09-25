@@ -724,6 +724,10 @@
     "web.demo_content": "Lorem ipsum dolor sit amet consectetur. \n Faucibus non mauris risus enim sed. Lectus fusce elit duis dignissim aliquet nisl vitae. Eget sit nisi vulputate enim sem. Facilisi\ntincidunt donec interdum in in eros quisque consectetur sit. Sagittis purus velit amet\nrisus egestas sed arcu nam. Pellentesque pharetra blandit fringilla volutpat tristique\nsit. Sit euismod praesent volutpat eu et. Id egestas dictum cursus purus morbi semper\npraesent quam.",
     "my_dashboard": "My Dashboard",
     "panel": "Panel",
-    "not_found_msg" : "Oops sorry we can't find that page!",
-    "go_back_home" : "Go Back Home"
+    "not_found_msg": "Oops sorry we can't find that page!",
+    "go_back_home": "Go Back Home",
+    "signup": "Sign Up",
+    "device_name": "Device Name",
+    "device_ip": "Device IP",
+    "device_agent": "Device Agent"
 }

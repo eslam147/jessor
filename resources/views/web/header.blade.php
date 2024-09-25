@@ -18,13 +18,13 @@
                 <div class="rightDiv">
                     <div class="langs">
                         @if (count($languagesEnabled))
-                        <div class="dropdown">
-                            <a class="dropdown-toggle " href="#" role="button" id="dropdownMenuLink"
-                                data-bs-toggle="dropdown" aria-expanded="true">
-                                {{ LaravelLocalization::getCurrentLocaleName() }}
-                            </a>
+                            <div class="dropdown">
+                                <a class="dropdown-toggle " href="#" role="button" id="dropdownMenuLink"
+                                    data-bs-toggle="dropdown" aria-expanded="true">
+                                    {{ LaravelLocalization::getCurrentLocaleName() }}
+                                </a>
                                 <ul class="dropdown-menu" aria-labelledby="dropdownMenuLink" data-bs-popper="none">
-                                    @foreach ($languagesEnabled as $lang )
+                                    @foreach ($languagesEnabled as $lang)
                                         <li>
                                             <a rel="alternate" class="dropdown-item" hreflang="{{ $lang->code }}"
                                                 href="{{ LaravelLocalization::getLocalizedURL($lang->code, null, [], true) }}">
@@ -34,12 +34,12 @@
                                     @endforeach
                                 </ul>
                             </div>
-                            @else
+                        @else
                             <span>
                                 {{ LaravelLocalization::getCurrentLocaleName() }}
 
                             </span>
-                            @endif
+                        @endif
 
                     </div>
 
@@ -95,13 +95,19 @@
 
                                 <ul class="dropdown-menu" aria-labelledby="dropdownMenuLink">
                                     @if ($photo)
-                                        <li><a class="dropdown-item" href="{{ route('photo') }}">
-                                                {{ __('photos') }}</a></li>
+                                        <li>
+                                            <a class="dropdown-item" href="{{ route('photo') }}">
+                                                {{ __('photos') }}
+                                            </a>
+                                        </li>
                                     @endif
                                     <hr>
                                     @if ($video)
-                                        <li><a class="dropdown-item" href="{{ route('video') }}">
-                                                {{ __('videos') }}</a></li>
+                                        <li>
+                                            <a class="dropdown-item" href="{{ route('video') }}">
+                                                {{ __('videos') }}
+                                            </a>
+                                        </li>
                                     @endif
                                 </ul>
                             </div>
@@ -210,7 +216,7 @@
                                 {{ __('login') }}
                             </button>
                             <a href="{{ route('signup.index') }}" class="commonBtn mb-3" name="contactbtn">
-                                Signup
+                                {{ __('signup') }}
                             </a>
                         @endguest
                     </li>

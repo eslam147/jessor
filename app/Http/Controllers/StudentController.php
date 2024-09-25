@@ -791,6 +791,7 @@ class StudentController extends Controller
 // 
     public function permanent_delete($user)
     {
+        return abort(404);
         if (! Auth::user()->can('student-force-delete')) {
             return response()->json([
                 'message' => trans('no_permission_message')
@@ -838,7 +839,7 @@ class StudentController extends Controller
     {
         if (! Auth::user()->can('student-restore')) {
             return response()->json([
-                'message' => trans(key: 'no_permission_message')
+                'message' => trans('no_permission_message')
             ]);
         }
         try {

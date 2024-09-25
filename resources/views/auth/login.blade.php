@@ -28,7 +28,7 @@
                                 <div class="brand-logo text-center">
                                     <img src="{{ loadTenantMainAsset('logo2', url('assets/logo.svg')) }}" alt="logo">
                                 </div>
-                                <form action="{{ route('login') }}" id="frmLogin" method="POST" class="pt-3">
+                                <form action="{{ route('auth.login') }}" id="frmLogin" method="POST" class="pt-3">
                                     @csrf
                                     <div class="form-group">
                                         <label>{{ __('email') }}</label>
