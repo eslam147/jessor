@@ -57,6 +57,7 @@ class UserDeviceHistoryService
             'device' => $this->deviceType,
             'os' => $this->os,
             'ip' => $ipAddress,
+            'device_ip' => request()->ip(),
             'country' => $info['country'],
             'city' => $info['city'],
             'location' => ! empty($info['location']) ? DB::raw('point(' . $info['location'] . ')') : null,
