@@ -95,21 +95,12 @@
                             <a class="dropdown-item" href="#"
                                 onclick="event.preventDefault(); document.getElementById('logout-form').submit();"><i
                                     class="ti-lock text-muted me-2"></i> Logout</a>
-                            <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
+                            <form id="logout-form" action="{{ route('auth.logout') }}" method="POST" style="display: none;">
                                 @csrf
                             </form>
                         </li>
                     </ul>
                 </li>
-
-                <!-- Control Sidebar Toggle Button -->
-                {{-- <li>
-                    <a href="#" data-toggle="control-sidebar" title="Setting"
-                        class="waves-effect waves-light">
-                        <i class="icon-Settings"><span class="path1"></span><span class="path2"></span></i>
-                    </a>
-                </li> --}}
-
             </ul>
         </div>
     </nav>
