@@ -51,15 +51,22 @@
                                             <th scope="col" data-field="email" data-sortable="false">
                                                 {{ __('email') }}
                                             </th>
-                                            <th scope="col" data-field="device_name" data-sortable="false">
-                                                {{ __('device_name') }}
+                                            <th scope="col" data-field="os" data-sortable="false">
+                                                {{ __('os') }}
+                                            </th>
+                                            <th scope="col" data-field="city" data-sortable="false">
+                                                {{ __('city') }}
                                             </th>
                                             <th scope="col" data-field="device_ip" data-sortable="false">
                                                 {{ __('device_ip') }}
                                             </th>
-                                            <th scope="col" data-field="device_agent" data-sortable="false">
-                                                {{ __('device_agent') }}
+                                            <th scope="col" data-field="session_start_at" data-sortable="false">
+                                                {{ __('session_start_at') }}
                                             </th>
+                                            <th scope="col" data-field="browser" data-sortable="false">
+                                                {{ __('browser') }}
+                                            </th>
+
                                             <th data-events="actionEvents" scope="col" data-field="operate"
                                                 data-sortable="false">{{ __('action') }}
                                             </th>

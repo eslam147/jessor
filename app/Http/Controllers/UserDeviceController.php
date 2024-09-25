@@ -70,6 +70,12 @@ class UserDeviceController extends Controller
                 // ----------------------------------------------- \\
                 'device_name' => $row->device_name,
                 'device_ip' => $row->device_ip,
+                'os' => $row->os,
+                'browser' => $row->browser,
+                'city' => $row->city,
+                // ----------------------------------------------- \\
+                'session_start_at' => $row->session_start_at,
+                'session_end_at' => $row->session_end_at,
                 'device_agent' => $row->device_agent,
                 // ----------------------------------------------- \\
                 'operate' => view('user_devices.datatables.actions', compact('row'))->render(),
