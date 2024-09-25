@@ -10,7 +10,7 @@ class UserDeviceController extends Controller
 {
     public function index()
     {
-        if (! auth()->user()->can('user-device-list')) {
+        if (! auth()->user()->can('user-devices-list')) {
             return to_route('home')->withErrors([
                 'message' => trans('no_permission_message')
             ]);
@@ -21,7 +21,7 @@ class UserDeviceController extends Controller
 
     public function list()
     {
-        if (! auth()->user()->can('user-device-list')) {
+        if (! auth()->user()->can('user-devices-list')) {
             return response()->json([
                 'message' => trans('no_permission_message')
             ]);
@@ -82,7 +82,7 @@ class UserDeviceController extends Controller
     }
     public function delete(Request $request, UserDevice $userDevice)
     {
-        if (! Auth::user()->can('user-device-delete')) {
+        if (! Auth::user()->can('user-devices-delete')) {
             return response()->json([
                 'message' => trans('no_permission_message')
             ]);

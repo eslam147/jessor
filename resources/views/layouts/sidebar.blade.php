@@ -533,7 +533,7 @@
         @canany(['user-devices-list'])
             <li class="nav-item">
                 <a class="nav-link" data-toggle="collapse" href="#userDevices-menu" aria-expanded="false"
-                    aria-controls="userDevices-menu"><i class="fa fa-file-text menu-icon" style="margin: 0 2px 0 2px"></i>
+                    aria-controls="userDevices-menu"><i class="fa fa-laptop menu-icon" style="margin: 0 2px 0 2px"></i>
                     <span class="menu-title">{{ __('user_devices') }}</span>
                     <i class="fa fa-angle-left menu-arrow"></i>
                 </a>
