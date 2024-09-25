@@ -68,20 +68,21 @@ class UserDeviceHistoryService
     }
     public function checkSessionCookiesIsValid(): bool
     {
-        return rescue(
-            function () {
-                $savedToken = decrypt(Cookie::get('device_token'));
-                if (!empty($savedToken) && $this->userDeviceModel->query()->where('device_token', $savedToken)->whereNull('session_end_at')->exists()) {
-                    $token = $this->generateSessionToken();
-                    return ($token === $savedToken);
-                }
-                return false;
-            }
-        ) ?? false;
+        $savedToken = null;
+        try {
+            $savedToken = decrypt(Cookie::get('device_token')) ?? null;
+        } catch (\Throwable $th) {
+            $savedToken = null;
+        }
+        if (! empty($savedToken) && $this->userDeviceModel->query()->where('device_token', $savedToken)->whereNull('session_end_at')->exists()) {
+            $token = $this->generateSessionToken();
+            return ($token === $savedToken);
+        }
+        return false;
     }
     public function storeUserLogoutHistory($userId)
     {
-        if(!empty($userId)){
+        if (! empty($userId)) {
             $session = $this->userDeviceModel->query()
                 ->where('user_id', $userId)
                 ->where('browser', $this->browser)
@@ -90,13 +91,13 @@ class UserDeviceHistoryService
                 ->whereNull('session_end_at')
                 ->orderByDesc('created_at')
                 ->first();
-    
+
             if (! empty($session)) {
                 $session->update([
                     'session_end_at' => time(),
                     'end_session_type' => 'default'
                 ]);
-    
+
                 $sessionManager = app('session');
                 $sessionManager->getHandler()->destroy($session->session_id);
             }
