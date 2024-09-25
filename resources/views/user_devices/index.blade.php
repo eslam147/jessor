@@ -29,7 +29,7 @@
                                     data-maintain-selected="true" data-export-types='["txt","excel"]'
                                     data-export-options='{ "fileName": "devices-list-{{ today() }}" ,"ignoreColumn":
                                     ["operate"]}'
-                                    data-query-params="devicesQueryParams">
+                                    data-query-params="queryParams">
                                     <thead>
                                         <tr>
                                             <th scope="col" data-field="id" data-sortable="true" data-visible="false">
