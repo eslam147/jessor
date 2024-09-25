@@ -729,5 +729,6 @@
     "signup": "Sign Up",
     "device_name": "Device Name",
     "device_ip": "Device IP",
-    "device_agent": "Device Agent"
+    "device_agent": "Device Agent",
+    "user_devices" : "User Devices"
 }
