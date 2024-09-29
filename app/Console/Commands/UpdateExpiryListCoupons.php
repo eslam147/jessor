@@ -3,26 +3,26 @@
 namespace App\Console\Commands;
 
 use App\Models\Tenant;
-use App\Models\Teacher;
-use App\Imports\CouponImport;
-use App\Models\ClassSchool;
-use App\Models\Subject;
 use Illuminate\Console\Command;
+use App\Imports\UpdateCouponImport;
 use Stancl\Tenancy\Facades\Tenancy;
 use Illuminate\Support\Facades\File;
 
 class UpdateExpiryListCoupons extends Command
 {
     private readonly Tenant $tenant;
-    private readonly CouponImport $couponImport;
+    private readonly UpdateCouponImport $couponImport;
 
     public function __construct(
-        CouponImport $couponImport
+        UpdateCouponImport $couponImport
     ) {
         $this->couponImport = $couponImport;
         parent::__construct();
     }
-
+    /*
+    
+    php artisan renewexpiry:coupons --tenant=zaakr --file=coupons_mina
+    */
     protected $signature = 'renewexpiry:coupons {--tenant=} {--file=}';
 
     protected $description = 'Coupons Update Duration Import';
@@ -37,14 +37,14 @@ class UpdateExpiryListCoupons extends Command
 
 
         $this->setTenant($tenant);
-        $this->checkIsDataCorrect();
+
         $file = $this->filePath();
 
         if (! File::exists(storage_path($file))) {
             $this->error("File not found: {$file}");
             return Command::FAILURE;
         }
-        $this->setDataToImport($this->options());
+
         $this->importCoupons(storage_path($file));
         $this->endTenant();
         $this->info('Coupons imported successfully');
@@ -61,47 +61,12 @@ class UpdateExpiryListCoupons extends Command
         Tenancy::initialize($tenant);
         $this->info("Tenant set: {$tenant->id}");
     }
-    private function setDataToImport($options)
-    {
-        return $this->couponImport->setData(
-            tags: (array) $options['tags'],
-            classId: $options['class'],
-            subjectId: $options['subject'],
-            teacherId: $options['teacher']
-        );
-    }
+    
     private function endTenant()
     {
         if ($this->tenant && tenancy()->initialized) {
             Tenancy::end();
         }
-    }
-    private function checkIsDataCorrect()
-    {
-        $teacherId = $this->option('teacher');
-        $classId = $this->option('class');
-        $subjectId = $this->option('subject');
-        if ($teacherId) {
-            $teacher = Teacher::find($teacherId);
-            if (! $teacher) {
-                throw new \Exception("Teacher with ID $teacherId not found.");
-            }
-        }
-
-        if ($classId) {
-            $class = ClassSchool::find($classId);
-            if (! $class) {
-                throw new \Exception("Class with ID $classId not found.");
-            }
-        }
-
-        if ($subjectId) {
-            $subject = Subject::find($subjectId);
-            if (! $subject) {
-                throw new \Exception("Subject with ID $subjectId not found.");
-            }
-        }
-
     }
     private function filePath()
     {

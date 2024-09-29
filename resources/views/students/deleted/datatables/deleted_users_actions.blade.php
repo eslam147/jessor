@@ -1,7 +1,7 @@
 @canany(['student-restore', 'student-force-delete'])
     @can('student-restore')
-        <a class="btn btn-xs btn-gradient-success btn-rounded btn-icon restore_btn" data-id="{{ $row->id }}"
-            data-user_id="{{ $row->user_id }}" data-url="{{ route('students.restore', $row->user_id) }}" title="Restore">
+        <a class="btn btn-xs btn-gradient-success btn-rounded btn-icon restore_btn" data-id="{{ $row->student->id }}"
+            data-user_id="{{ $row->id }}" data-url="{{ route('students.restore', $row->id) }}" title="Restore">
             <i class="fa fa-undo"></i>
         </a>
     @endcan

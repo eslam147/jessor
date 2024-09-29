@@ -95,7 +95,7 @@
                                             <p class="text-danger">{{ $message }}</p>
                                         @enderror
                                     </div>
-                                    @if (Route::has('login'))
+                                    @if (Route::has('auth.login'))
                                         <div class="my-2 d-flex justify-content-end align-items-center col-12">
                                             <a class="auth-link text-info" href="{{ route('login.view') }}">
                                                 {{ __('already_have_account') }}

@@ -70,7 +70,7 @@ class CouponController extends Controller
 
         $coupons
             ->withCount('usages')
-            ->with('classModel', 'classModel.medium', 'classModel.streams', 'subject:id,name')
+            ->with('classModel', 'classModel.medium', 'classModel.streams','teacher.user', 'subject:id,name')
             ->when($findOrderKey, fn($q) => $q->orderBy($mappedOrderKeys[$sort], $order))
             ->skip($offset)
             ->take($limit);
@@ -90,6 +90,7 @@ class CouponController extends Controller
             $tempRow['tags_imploded'] = $row->tags->pluck('name')->implode(', ');
             $tempRow['type'] = $row->type->translatedName();
             $tempRow['class_name'] = optional($row->classModel)?->name ?? 'N/A';
+            $tempRow['teacher_name'] = optional($row->teacher->user)?->full_name ?? 'N/A';
             $tempRow['subject_name'] = optional($row->subject)?->name ?? 'N/A';
             $tempRow['expiry_date'] = $row->expiry_date->toDateString();
             $tempRow['price'] = ! is_null($row->price) ? number_format($row->price, 2) : 'N/A';
@@ -272,7 +273,10 @@ class CouponController extends Controller
         });
 
         $couponQuery->when(request()->filled('lesson_id'), function ($q) {
-            return $q->where('lesson_id', request('lesson_id'));
+            return $q->whereHas('onlyAppliedTo', function ($query) {
+                $query->where('teacher_id', auth()->user()->teacher->id);
+            })->where('only_applied_to_type', Lesson::class)
+                ->where('only_applied_to_id', request('lesson_id'));
         });
 
         $couponQuery->when(request()->filled('filter_start_date'), function ($q) {

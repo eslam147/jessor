@@ -9,7 +9,6 @@ use App\Models\Exam;
 use App\Models\File;
 use App\Models\User;
 use App\Models\Event;
-use App\Models\Grade;
 use App\Models\Shift;
 use Razorpay\Api\Api;
 use App\Models\Lesson;
@@ -24,9 +23,7 @@ use App\Models\Settings;
 use App\Models\Students;
 use Stripe\StripeClient;
 use App\Models\ExamClass;
-use App\Models\ExamMarks;
 use App\Models\FeesClass;
-use App\Models\FormField;
 use App\Models\Timetable;
 use App\Models\Assignment;
 use App\Models\Attendance;
@@ -40,7 +37,6 @@ use App\Models\ReadMessage;
 use App\Models\SessionYear;
 use App\Models\Announcement;
 use App\Models\ClassSection;
-use App\Models\ClassSubject;
 use App\Models\ClassTeacher;
 use App\Models\Notification;
 use Illuminate\Http\Request;
@@ -55,35 +51,32 @@ use App\Models\UserNotification;
 use App\Models\PaidInstallmentFee;
 use App\Models\PaymentTransaction;
 use Illuminate\Support\Facades\DB;
-use Spatie\Permission\Models\Role;
-use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
 use App\Models\AssignmentSubmission;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Hash;
 use App\Services\Coupon\CouponService;
 use App\Models\OnlineExamStudentAnswer;
 use App\Models\StudentOnlineExamStatus;
-use Illuminate\Support\Facades\Storage;
 use App\Models\OnlineExamQuestionAnswer;
 use App\Models\OnlineExamQuestionChoice;
 use App\Models\OnlineExamQuestionOption;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Validator;
 use App\Services\Auth\RegisterAuthService;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Auth;
 use App\Services\Purchase\PurchaseService;
 use App\Http\Resources\TimetableCollection;
 use Symfony\Component\HttpFoundation\Response;
 use App\Http\Requests\Api\V1\Auth\RegisterRequest;
-use Symfony\Component\HttpFoundation\JsonResponse;
 use App\Http\Resources\Student\ClassSchoolResource;
 use App\Http\Resources\Student\Lesson\LessonResource;
 use App\Http\Resources\Student\Teacher\TeacherResource;
 use App\Http\Resources\Student\LessonTopic\LessonTopicResource;
+use App\Services\Auth\LoginService;
 
 class StudentApiController extends Controller
 {
     public function __construct(
+        protected LoginService $loginService,
         protected RegisterAuthService $registerAuthService,
         private CouponService $couponService,
         private PurchaseService $purchaseService
@@ -175,12 +168,9 @@ class StudentApiController extends Controller
 
 
         if (Auth::attempt(['email' => $request->gr_number, 'password' => $request->password])) {
-            $session_year = getSettings('session_year');
-            $session_year_id = $session_year['session_year'];
 
-            $compulsory_fees_mode = getSettings('compulsory_fee_payment_mode');
-
-            $compulsory_fees_mode = $compulsory_fees_mode['compulsory_fee_payment_mode'] ?? 0;
+            $session_year_id = settingByType('session_year');
+            $compulsory_fees_mode = settingByType('compulsory_fee_payment_mode') ?? 0;
 
             $session_year = SessionYear::where('id', $session_year_id)->first();
             $isInstallment = $session_year->include_fee_installments;
@@ -200,6 +190,8 @@ class StudentApiController extends Controller
 
                 ], 200);
             }
+            // $this->loginService->handleDeviceLimit($auth);
+
             $token = $auth->createToken($auth->first_name)->plainTextToken;
             $user = $auth->load(['student.class_section', 'student.category']);
 
@@ -392,7 +384,7 @@ class StudentApiController extends Controller
                 })->orderBy('start_time', 'asc')->get();
 
 
-            $class_id = $student->class_section->class_id;
+            $class_id = $student->class_section?->class_id;
 
             $exam_data_db = Exam::with([
                 'timetable' => function ($q) use ($request, $class_id, $subject_id) {

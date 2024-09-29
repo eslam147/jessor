@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Services\Coupon\CouponService;
 use RealRashid\SweetAlert\Facades\Alert;
+use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Cache\RateLimiter as RateLimiterCache;
 
@@ -28,32 +29,37 @@ class WalletController extends Controller
     {
         $user = auth()->user();
         $rateLimitKey = "apply-coupon-to-wallet: {$user->id}";
+        $validator = Validator::make($request->all(), [
+            'coupon_code' => 'required|string',
+        ]);
+        if ($validator->fails()) {
+            Alert::warning('warning', $validator->messages()->all()[0]);
+            return redirect()->back();
+        } else {
+            if (RateLimiter::tooManyAttempts($rateLimitKey, 5)) {
+                // $user->ban([
+                //     'comment' => 'Too many attempts to apply coupon to wallet!',
+                //     'expired_at' => '+1 month',
+                // ]);
+                $leftSeconds = RateLimiter::availableIn($rateLimitKey);
 
-        if (RateLimiter::tooManyAttempts($rateLimitKey, 5)) {
-            // $user->ban([
-            //     'comment' => 'Too many attempts to apply coupon to wallet!',
-            //     'expired_at' => '+1 month',
-            // ]);
+                Alert::error(__('unauthorized_access'), __('please_try_again_after', ['secs' => $leftSeconds]));
+                return redirect()->route('student_dashboard.wallet.index');
+            }
             $leftSeconds = RateLimiter::availableIn($rateLimitKey);
 
-            Alert::error(__('unauthorized_access'), __('please_try_again_after', ['secs' => $leftSeconds]));
-            return redirect()->route('student_dashboard.wallet.index');
-        }
-        $leftSeconds = RateLimiter::availableIn($rateLimitKey);
-        // dd(
-        //     $leftSeconds
-        // );
-        RateLimiter::hit($rateLimitKey);
+            RateLimiter::hit($rateLimitKey);
 
-        $coupon = $this->couponService->applyCouponToWallet($user, $request->coupon_code);
+            $coupon = $this->couponService->applyCouponToWallet($user, $request->string('coupon_code'));
 
-        if ($coupon['status']) {
-            Alert::success("Coupon Success", __('coupon_successfully_applied'));
-            return to_route('student_dashboard.wallet.index');
+            if ($coupon['status']) {
+                Alert::success("Coupon Success", __('coupon_successfully_applied'));
+                return to_route('student_dashboard.wallet.index');
+            }
+
+            Alert::error("Coupon Error", $coupon['message']);
+            return redirect()->back();
         }
-        // toast($coupon['message'], 'error');
-        Alert::error("Coupon Error", $coupon['message']);
-        return redirect()->back();
 
     }
 }

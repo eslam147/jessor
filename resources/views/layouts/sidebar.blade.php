@@ -532,22 +532,13 @@
         {{-- User Devices --}}
         @canany(['user-devices-list'])
             <li class="nav-item">
-                <a class="nav-link" data-toggle="collapse" href="#userDevices-menu" aria-expanded="false"
-                    aria-controls="userDevices-menu"><i class="fa fa-laptop menu-icon" style="margin: 0 2px 0 2px"></i>
+                <a href="{{ route('user_devices.index') }}" class="nav-link">
+                    <i class="fa fa-laptop menu-icon" style="margin: 0 1px 0 1px"></i>
                     <span class="menu-title">{{ __('user_devices') }}</span>
-                    <i class="fa fa-angle-left menu-arrow"></i>
                 </a>
-                <div class="collapse" id="userDevices-menu">
-                    <ul class="nav flex-column sub-menu">
-                        <li class="nav-item">
-                            <a class="nav-link" href="{{ route('user_devices.index') }}"> {{ __('user_devices') }}
-                            </a>
-                        </li>
-                    </ul>
-                </div>
             </li>
         @endcan
-
+        {{-- End Of User Devices --}}
         {{-- Fees --}}
         @canany(['fees-type', 'fees-classes', 'fees-paid'])
             <li class="nav-item">

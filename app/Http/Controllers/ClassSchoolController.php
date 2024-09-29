@@ -255,10 +255,10 @@ class ClassSchoolController extends Controller
             $class_fees = FeesClass::where('class_id', $id)->count();
 
             if ($class_subject || $class_exam || $class_fees) {
-                $response = array(
+                $response = [
                     'error' => true,
                     'message' => trans('cannot_delete_beacuse_data_is_associated_with_other_data')
-                );
+                ];
             } else {
                 $class = ClassSchool::find($id);
                 $class_section = ClassSection::where('class_id', $class->id);
@@ -385,10 +385,10 @@ class ClassSchoolController extends Controller
             ]);
         }
 
-        $classes = ClassSchool::orderBy('id', 'DESC')->with('medium', 'sections', 'streams')->get();
-        $subjects = Subject::orderBy('id', 'ASC')->get();
-        $mediums = Mediums::orderBy('id', 'ASC')->get();
-        $streams = Stream::orderBy('id', 'ASC')->get();
+        $classes = ClassSchool::orderByDesc('id')->with('medium', 'sections', 'streams')->get();
+        $subjects = Subject::orderBy('id')->get();
+        $mediums = Mediums::orderBy('id')->get();
+        $streams = Stream::orderBy('id')->get();
 
 
         return response(view('class.subject', compact('classes', 'subjects', 'mediums', 'streams')));
@@ -396,7 +396,7 @@ class ClassSchoolController extends Controller
 
     public function update_subjects(Request $request, $id)
     {
-        $validation_rules = array(
+        $validator = Validator::make($request->all(), [
             'class_id' => 'required|numeric',
             'edit_core_subject' => 'nullable|array',
             'edit_core_subject.*' => 'nullable|array|required_array_keys:class_subject_id,subject_id',
@@ -405,35 +405,33 @@ class ClassSchoolController extends Controller
             'elective_subjects' => 'nullable|array',
             'elective_subjects.*.subject_id' => 'required|array',
             'elective_subjects.*.total_selectable_subjects' => 'required|numeric',
-        );
-        $validator = Validator::make($request->all(), $validation_rules);
+        ]);
 
         if ($validator->fails()) {
-            $response = array(
+            return response()->json([
                 'error' => true,
                 'message' => $validator->errors()->first()
-            );
-            return response()->json($response);
+            ]);
         }
         try {
             //Update Core Subjects first
             if ($request->edit_core_subject) {
                 foreach ($request->edit_core_subject as $row) {
-                    $edit_core_subject = ClassSubject::findOrFail($row['class_subject_id']);
-                    $edit_core_subject->subject_id = $row['subject_id'];
-                    $edit_core_subject->save();
+                    $coreSubject = ClassSubject::findOrFail($row['class_subject_id']);
+                    $coreSubject->subject_id = $row['subject_id'];
+                    $coreSubject->save();
                 }
             }
 
             //Add New Core subjects
             if ($request->core_subject_id) {
-                $core_subjects = array();
+                $core_subjects = [];
                 foreach ($request->core_subject_id as $row) {
-                    $core_subjects[] = array(
+                    $core_subjects[] = [
                         'class_id' => $request->class_id,
                         'type' => "Compulsory",
                         'subject_id' => $row,
-                    );
+                    ];
                 }
                 ClassSubject::insert($core_subjects);
             }
@@ -505,11 +503,10 @@ class ClassSchoolController extends Controller
     public function subject_list()
     {
         if (! Auth::user()->can('class-list')) {
-            $response = array(
+            return response()->json([
                 'error' => true,
                 'message' => trans('no_permission_message')
-            );
-            return response()->json($response);
+            ]);
         }
         $offset = 0;
         $limit = 10;
@@ -539,10 +536,10 @@ class ClassSchoolController extends Controller
 
         $sql->orderBy($sort, $order)->skip($offset)->take($limit);
         $res = $sql->get();
-        $bulkData = array();
+        $bulkData = [];
         $bulkData['total'] = $total;
-        $rows = array();
-        $tempRow = array();
+        $rows = [];
+        $tempRow = [];
         $no = 1;
 
         foreach ($res as $row) {

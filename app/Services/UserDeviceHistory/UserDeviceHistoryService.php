@@ -12,6 +12,7 @@ class UserDeviceHistoryService
 {
     protected string $browser;
     protected string $deviceType;
+    const cookiesKeyName = 'device_token';
     protected string $os;
 
     public function __construct(
@@ -27,9 +28,10 @@ class UserDeviceHistoryService
 
         $this->os = "$platform-$version";
     }
-    public function generateSessionToken()
+
+    public function generateSessionToken($fingerPrintToken = null)
     {
-        return $this->browser . $this->deviceType . $this->os;
+        return $fingerPrintToken . $this->browser . $this->deviceType . $this->os;
     }
 
     public function storeUserLoginHistory($user)
@@ -40,7 +42,7 @@ class UserDeviceHistoryService
             'city' => null,
             'location' => null,
         ];
-        $deviceToken = $this->generateSessionToken();
+        $deviceToken = $this->generateSessionToken(request('visitor_id'));
         $locationData = $this->getUserLocation($ipAddress);
         if (! empty($locationData) and ! empty($locationData['status']) and $locationData['status'] == "success") {
             $info['country'] = $locationData['country'] ?? null;
@@ -62,16 +64,23 @@ class UserDeviceHistoryService
             'city' => $info['city'],
             'location' => ! empty($info['location']) ? DB::raw('point(' . $info['location'] . ')') : null,
             'session_token' => $userSession,
-            'session_start_at' => now(),
+            'session_start_at' => now()->toDateTimeLocalString(),
             'device_token' => $deviceToken
         ]);
         return encrypt($deviceToken);
+    }
+    public function checkFingerPrintToken($fingerPrintDeviceToken): bool
+    {
+        if (! empty($fingerPrintDeviceToken) && $this->userDeviceModel->query()->where(self::cookiesKeyName, $fingerPrintDeviceToken)->whereNull('session_end_at')->exists()) {
+            return true;
+        }
+        return false;
     }
     public function checkSessionCookiesIsValid(): bool
     {
         $savedToken = null;
         try {
-            $cookieToken = Cookie::get('device_token');
+            $cookieToken = Cookie::get(self::cookiesKeyName);
             if ($cookieToken) {
                 $savedToken = decrypt($cookieToken);
             }
