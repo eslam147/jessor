@@ -532,22 +532,13 @@
         {{-- User Devices --}}
         @canany(['user-devices-list'])
             <li class="nav-item">
-                <a class="nav-link" data-toggle="collapse" href="#userDevices-menu" aria-expanded="false"
-                    aria-controls="userDevices-menu"><i class="fa fa-laptop menu-icon" style="margin: 0 2px 0 2px"></i>
+                <a href="{{ route('user_devices.index') }}" class="nav-link">
+                    <i class="fa fa-laptop menu-icon" style="margin: 0 1px 0 1px"></i>
                     <span class="menu-title">{{ __('user_devices') }}</span>
-                    <i class="fa fa-angle-left menu-arrow"></i>
                 </a>
-                <div class="collapse" id="userDevices-menu">
-                    <ul class="nav flex-column sub-menu">
-                        <li class="nav-item">
-                            <a class="nav-link" href="{{ route('user_devices.index') }}"> {{ __('user_devices') }}
-                            </a>
-                        </li>
-                    </ul>
-                </div>
             </li>
         @endcan
-
+        {{-- End Of User Devices --}}
         {{-- Fees --}}
         @canany(['fees-type', 'fees-classes', 'fees-paid'])
             <li class="nav-item">
@@ -700,19 +691,19 @@
         @endcan
 
         {{-- Video Conference Settings --}}
-        @canany(['video-confernce-settings'])
+        @canany(['meeting-provider-settings'])
             <li class="nav-item">
-                <a class="nav-link" data-toggle="collapse" href="#video_conference-settings" aria-expanded="false"
+                <a class="nav-link" data-toggle="collapse" href="#meeting_provider_settings" aria-expanded="false"
                     aria-controls="settings-menu"><i class="fa fa-wrench menu-icon" style="margin: 0 2px 0 2px"></i>
-                    <span class="menu-title">{{ __('video_conference.title') }}</span>
+                    <span class="menu-title">{{ __('meeting.title') }}</span>
                     <i class="fa fa-angle-left menu-arrow"></i>
                 </a>
-                <div class="collapse" id="video_conference-settings">
+                <div class="collapse" id="meeting_provider_settings">
                     <ul class="nav flex-column sub-menu">
-                        @foreach (collect(config('videoconfernce.providers'))->where('is_active', true) as $service)
+                        @foreach (collect(config('meetings.providers'))->where('is_active', true) as $service)
                             <li class="nav-item">
                                 <a class="nav-link"
-                                    href="{{ route('video_conference.settings.show', ['service' => $service['name']]) }}">{{ ucfirst($service['name']) }}</a>
+                                    href="{{ route('meeting.provider.settings.show', ['service' => $service['name']]) }}">{{ ucfirst($service['name']) }}</a>
                             </li>
                         @endforeach
                 </div>

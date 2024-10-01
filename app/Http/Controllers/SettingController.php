@@ -54,7 +54,8 @@ class SettingController extends Controller
             'online_payment' => 'required|in:0,1',
             'custom_browser' => 'required|in:enabled,disabled',
             'browser_url' => 'required|string',
-            'device_limit' => 'required|string',
+            'device_limitation_status' => 'required|boolean',
+            'device_limit' => 'required_if:device_limitation_status,1|numeric',
             'facebook' => 'required',
             'instagram' => 'required',
             'linkedin' => 'required',
@@ -80,7 +81,8 @@ class SettingController extends Controller
             'maplink',
             'custom_browser',
             'browser_url',
-            'device_limit'
+            'device_limit',
+            'device_limitation_status'
         ];
         try {
             foreach ($settings as $row) {
@@ -109,10 +111,11 @@ class SettingController extends Controller
                     }
                     Settings::where('type', $row)->update($data);
                 } else {
-                    $setting = new Settings();
-                    $setting->type = $row;
-                    $setting->message = $row == 'school_name' ? str_replace('"', '', $request->$row) : $request->$row;
-                    $setting->save();
+                    $settingRow = $row == 'school_name' ?  str_replace('"', '', $request->post($row)) : $request->post($row);
+                    $setting = Settings::create([
+                        'type' => $row,
+                        'message' => $settingRow
+                    ]);
                 }
             }
 

@@ -663,7 +663,7 @@
     "lesson_thumbnail": "Lesson Thumbnail",
     "preferred_size": "Preferred Size (:w x :h)",
     "download_link": "Download Link",
-    "device_limit": "device limit",
+    "device_limit": "Device Limit",
     "Protection_browser": "Protection browser",
     "coupon_errors_price_limit": "Coupon price limit exceeded",
     "all_teachers": "All Teachers",
@@ -695,6 +695,8 @@
     "explain_answer": "Explain Answer",
     "coupon_charge_amount": "Charge Amount",
     "coupon_purchase": "Purchase",
+    "purchase": "Purchase",
+    "wallet": "Wallet",
     "unauthorized_access": "Unauthorized access",
     "invalid_online_exam_attempt_not_found": "Invalid Online Exam Attempt Not Found",
     "coupon_successfully_applied": "Coupon Successfully Applied",
@@ -730,5 +732,12 @@
     "device_name": "Device Name",
     "device_ip": "Device IP",
     "device_agent": "Device Agent",
-    "user_devices" : "User Devices"
+    "user_devices" : "User Devices",
+    "session_started_at" : "Session Started At",
+    "session_ended_at" : "Session Ended At",
+    "browser" : "Browser",
+    "os" : "OS",
+    "city" : "City",
+    "coupon_type" : "Coupon Type"
+
 }

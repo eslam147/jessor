@@ -25,7 +25,7 @@ class CouponResource extends JsonResource
             'only_applied_to' => '$appliedTo',
             'is_disabled' => $this->is_disabled,
             'used_count' => $this->usages->count(),
-            'teacher' => optional($this->teacher)->user->name ?? 'N/A',
+            'teacher' => optional($this->teacher)->user->full_name ?? 'N/A',
             'created_at' => convertDateFormat($this->created_at, 'd-m-Y H:i:s'),
             'type' => $this->type->translatedName(),
             'usages' => $this->usages->map(function ($usage) {

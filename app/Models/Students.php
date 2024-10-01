@@ -43,7 +43,7 @@ class Students extends Model
 
         $core_subjects = (! empty($classSection->class->coreSubject)) ? $classSection->class->coreSubject->toArray() : [];
 
-        $elective_subject_count = $classSection->class?->electiveSubjectGroup->count() ?? 0;
+        $elective_subject_count = $classSection->class?->electiveSubjectGroup?->count() ?? 0;
 
         $elective_subjects = StudentSubject::where('student_id', $this->id)
             ->where('class_section_id', $class_section_id)
@@ -61,7 +61,7 @@ class Students extends Model
     {
         $studentClass = optional($this->class_section?->class);
         $core_subjects = $studentClass->coreSubject;
-        $elective_subjects = $studentClass->electiveSubjectGroup->load('electiveSubjects.subject');
+        $elective_subjects = $studentClass->electiveSubjectGroup?->load('electiveSubjects.subject');
         return [
             'core_subject' => $core_subjects,
             'elective_subject_group' => $elective_subjects

@@ -10,26 +10,33 @@ class LoginService
     public function __construct(
         private readonly UserDeviceHistoryService $userDeviceHistoryService
     ) {
-
     }
     public function handleDeviceLimit(User $user)
     {
-        $maxDevices = settingByType('device_limit') ;
+        $maxDevices = settingByType('device_limit');
+        $maxDevicesModuleStatus = boolval(settingByType('device_limitation_status'));
 
         if ($user->hasRole('Student')) {
-            if (! is_null($maxDevices)) {
-                $deviceCount = $user->devices()->whereNull('session_end_at')->count();
+            if (! is_null($maxDevices) && $maxDevicesModuleStatus) {
+                if (! $this->userDeviceHistoryService->checkSessionCookiesIsValid()) {
+                    $deviceCount = $user->devices()->whereNull('session_end_at')->count();
+                    if ($deviceCount >= $maxDevices) {
+                        auth()->logout();
+                        throw new HttpResponseException($this->failedResponse());
+                    } else {
+                        $token = $this->userDeviceHistoryService->storeUserLoginHistory($user);
 
-                if ($deviceCount >= $maxDevices) {
-                    auth()->logout();
-                    throw new HttpResponseException($this->failedResponse());
-                } else {
-                    $token = $this->userDeviceHistoryService->storeUserLoginHistory($user);
-                    return [
-                        'success' => true,
-                        'token' => $token
-                    ];
+                        return [
+                            'success' => true,
+                            'token' => $token
+                        ];
+                    }
                 }
+            } else {
+                return [
+                    'success' => true,
+                    'token' => $this->userDeviceHistoryService->generateSessionToken()
+                ];
             }
         }
         return [

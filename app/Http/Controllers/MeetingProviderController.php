@@ -6,35 +6,38 @@ use App\Models\Settings;
 use Illuminate\Http\Request;
 use App\Enums\Response\HttpResponseCode;
 use Illuminate\Support\Facades\Validator;
-use App\Factories\VideoConference\VideoConferenceFactory;
+use App\Factories\MeetingProvider\MeetingProviderFactory;
 
-class VideoConferenceController extends Controller
+class MeetingProviderController extends Controller
 {
-    public function __construct()
-    {
+    public function __construct(
+        private readonly MeetingProviderFactory $meetingProviderFactory
+    ) {
         $this->middleware('permission:video-confernce-settings', ['only' => ['show']]);
         $this->middleware('permission:video-confernce-settings-update', ['only' => ['update']]);
     }
     public function show($serviceName)
     {
-        $videoServices = collect(config('videoconfernce.providers'));
+        $videoServices = collect(config('meetings.providers'));
         $service = $videoServices->where('name', $serviceName)->where('is_active', true)->firstOrFail();
 
-        $serviceSettings = json_decode(settingByType("video_conference_" . strtolower($serviceName)), true) ?? [];
-        $serviceFactory = VideoConferenceFactory::make($service['name']);
+        $serviceSettings = $this->meetingProviderFactory->serviceSettings($serviceName);
+        $serviceBuilder = $this->meetingProviderFactory
+            ->setProvider($service['name'])
+            ->build();
 
-        $tutorial = $serviceFactory->tutorial();
+        $tutorial = $serviceBuilder->tutorial();
 
         foreach ($service['fields'] as $field => $values) {
             $serviceSettings[$field] = ! empty($serviceSettings[$field]) ? $serviceSettings[$field] : '---';
         }
 
-        return view('video_conference_settings.show', compact('service', 'serviceSettings', 'tutorial'));
+        return view('meeting_provider.settings.show', compact('service', 'serviceSettings', 'tutorial'));
     }
     public function update(Request $request, string $serviceName)
     {
         try {
-            $videoServices = collect(config('videoconfernce.providers'));
+            $videoServices = collect(config('meetings.providers'));
             $service = $videoServices->where('name', $serviceName)->where('is_active', true)->firstOrFail();
             $rules = [];
             foreach ($service['fields'] as $field => $values) {
@@ -49,7 +52,7 @@ class VideoConferenceController extends Controller
                     'message' => $validator->errors()->first()
                 ]);
             }
-            $serviceSettings = json_decode(settingByType("video_conference_" . strtolower($serviceName)), true) ?? [];
+            $serviceSettings = $this->meetingProviderFactory->serviceSettings($serviceName);
             foreach ($service['fields'] as $field => $values) {
                 $serviceSettings[$field] = $request->input($field);
             }
@@ -66,7 +69,7 @@ class VideoConferenceController extends Controller
             if (! $checkIsValid) {
                 return response()->json([
                     'error' => true,
-                    'message' => trans("video_conference.errors.invalid_credentials")
+                    'message' => trans("meeting.errors.invalid_credentials")
                 ]);
             }
 
@@ -92,8 +95,12 @@ class VideoConferenceController extends Controller
     private function checkCredentials(string $service, $credentials = []): bool
     {
         try {
-            $serviceFactory = VideoConferenceFactory::make($service, $credentials);
-            return $serviceFactory->creadentialsIsValid();
+            $serviceFactory = app(MeetingProviderFactory::class)
+                ->setProvider($service)
+                ->setCredentials($credentials)
+                ->getProviderInstance();
+
+            return $serviceFactory->credentialsIsValid();
         } catch (\Exception $e) {
             report($e);
         }

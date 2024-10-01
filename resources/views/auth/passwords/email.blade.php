@@ -77,11 +77,10 @@
                                     {{ session('status') }}
                                 </div>
                             @endif
-                            <form method="POST" action="{{ route('password.email') }}">
+                            <form method="POST" action="{{ route('auth.password.email') }}">
                                 @csrf
                                 <div class="form-group">
                                     <label>{{ __('email') }}</label>
-                                    {{-- <input type="text" name="username" required class="form-control form-control-lg" placeholder="{{__('username')}}"> --}}
                                     <input id="email" type="email" class="form-control form-control-lg"
                                         name="email" value="{{ old('email') }}" required autocomplete="email"
                                         autofocus placeholder="{{ __('email') }}">
@@ -95,9 +94,7 @@
                     </div>
                 </div>
             </div>
-            <!-- content-wrapper ends -->
         </div>
-        <!-- page-body-wrapper ends -->
     </div>
 
     <script src="{{ url('assets/js/vendor.bundle.base.js') }}"></script>

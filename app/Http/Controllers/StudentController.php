@@ -37,6 +37,7 @@ use App\Models\OnlineExamStudentAnswer;
 use App\Models\StudentOnlineExamStatus;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\Rules\Password;
 use App\Services\Auth\RegisterAuthService;
 use App\Http\Requests\Dashboard\Student\StudentStoreRequest;
 
@@ -131,20 +132,17 @@ class StudentController extends Controller
                 'message' => trans('no_permission_message')
             ]);
         }
+
         $request->validate(
             [
-                'first_name' => 'required',
-                'last_name' => 'required',
+                'first_name' => 'required|string|min:3',
+                'last_name' => 'required|string|min:3',
+                'gender' => 'required|string',
                 'mobile' => 'nullable|numeric',
                 'image' => 'mimes:jpeg,png,jpg|image|max:2048',
-                'dob' => 'required',
+                'student_password' => ['nullable', Password::min(6)->mixedCase(), 'confirmed'],
+
                 'class_section_id' => 'required',
-                'category_id' => 'required',
-                'admission_no' => "required|unique:users,email,{$request->edit_id}",
-                'roll_number' => 'required',
-                'admission_date' => 'required',
-                'current_address' => 'required',
-                'permanent_address' => 'required',
                 'parent' => 'required_without:guardian',
                 'guardian' => 'required_without:parent',
             ],
@@ -287,15 +285,18 @@ class StudentController extends Controller
 
             //Create Student User First
             $user = User::find($request->edit_id);
+            if($request->filled('student_password')){
+                $user->password = bcrypt($request->student_password);
+            }
             //            $user->password = Hash::make(str_replace('/', '', $request->dob));
             $user->first_name = $request->first_name;
             $user->last_name = $request->last_name;
             //            $user->email = (isset($request->email)) ? $request->email : "";
             //            $user->email = $request->admission_no;
             $user->mobile = (isset($request->mobile)) ? $request->mobile : "";
-            $user->dob = date('Y-m-d', strtotime($request->dob));
-            $user->current_address = $request->current_address;
-            $user->permanent_address = $request->permanent_address;
+            // $user->dob = date('Y-m-d', strtotime($request->dob));
+            // $user->current_address = $request->current_address;
+            // $user->permanent_address = $request->permanent_address;
             $user->gender = $request->gender;
 
             //If Image exists then upload new image and delete the old image
@@ -656,7 +657,7 @@ class StudentController extends Controller
     {
         if (! Auth::user()->can('student-list')) {
             return response()->json([
-                'message' => trans(key: 'no_permission_message')
+                'message' => trans('no_permission_message')
             ]);
         }
         $offset = request('offset', 0);
@@ -665,17 +666,19 @@ class StudentController extends Controller
         $order = request('order', 'ASC');
         $search = request('search');
 
-        $sql = Students::with([
-            'user' => fn($q) => $q->withTrashed(),
-            'class_section',
-            'category'
-        ])->ofTeacher()
-            ->onlyTrashed()
-            ->when($search, fn($q) => $q->advancedSearch($search))
-            ->when(request()->filled('class_id'), function ($q) {
-                $q->where('class_section_id', request('class_id'));
+        $sql = User::onlyTrashed()
+            ->withWhereHas('student', function ($q) use ($search) {
+                $q->ofTeacher()->with(
+                    'class_section',
+                    'category'
+                )->when(
+                        request()->filled('class_id'),
+                        fn($q) =>
+                        $q->where('class_section_id', request('class_id'))
+                    )
+                    ->when($search, fn($q) => $q->advancedSearch($search))->withTrashed();
             });
-
+        // ------------------------------------- \\
         $total = $sql->count();
 
         $sql->orderBy($sort, $order)->skip($offset)->take($limit);
@@ -688,40 +691,43 @@ class StudentController extends Controller
         $no = 1;
         $data = getSettings('date_formate');
         foreach ($res as $row) {
+            // ------------------------------------- \\
             $operate = view('students.deleted.datatables.deleted_users_actions', compact('row'))->render();
-
-
-            $user = optional($row->user);
-
+            // ------------------------------------- \\
+            $user = optional($row);
+            $student = $user->student;
+            // ------------------------------------- \\
             $tempRow['id'] = $row->id;
             $tempRow['no'] = $no++;
-            $tempRow['user_id'] = $row->user_id;
+            $tempRow['user_id'] = $row->id;
             $tempRow['first_name'] = $user->first_name;
             $tempRow['last_name'] = $user->last_name;
+            // ------------------------------------- \\
             $tempRow['gender'] = $user->gender;
             $tempRow['email'] = $user->email;
+            // ------------------------------------- \\
             $tempRow['dob'] = date($data['date_formate'], strtotime($user->dob));
             $tempRow['mobile'] = $user->mobile;
             $tempRow['image'] = $user->image;
-            $tempRow['image_link'] = $user->image;
-            $tempRow['class_section_id'] = $row->class_section_id;
-            $tempRow['class_section_name'] = $row->class_section?->class?->name . "-" . $row->class_section?->section?->name;
-            $tempRow['stream_name'] = $row->class_section->class->streams->name ?? '';
-            $tempRow['category_id'] = $row->category_id;
-            $tempRow['category_name'] = $row->category->name;
-            $tempRow['admission_no'] = $row->admission_no;
-            $tempRow['roll_number'] = $row->roll_number;
-            $tempRow['caste'] = $row->caste;
-            $tempRow['religion'] = $row->religion;
-            $tempRow['admission_date'] = date($data['date_formate'], strtotime($row->admission_date));
-            $tempRow['blood_group'] = $row->blood_group;
-            $tempRow['height'] = $row->height;
-            $tempRow['weight'] = $row->weight;
+            // ------------------------------------- \\
+            $tempRow['class_section_id'] = $student->class_section_id;
+            $tempRow['class_section_name'] = $student->class_section?->class?->name . "-" . $student->class_section?->section?->name;
+            $tempRow['stream_name'] = $student->class_section->class->streams->name ?? '';
+            $tempRow['category_id'] = $student->category_id;
+            $tempRow['category_name'] = $student->category->name;
+            $tempRow['admission_no'] = $student->admission_no;
+            $tempRow['roll_number'] = $student->roll_number;
+            $tempRow['caste'] = $student->caste;
+            $tempRow['religion'] = $student->religion;
+            $tempRow['admission_date'] = date($data['date_formate'], strtotime($student->admission_date));
+            $tempRow['blood_group'] = $student->blood_group;
+            $tempRow['height'] = $student->height;
+            $tempRow['weight'] = $student->weight;
             $tempRow['current_address'] = $user->current_address;
             $tempRow['permanent_address'] = $user->permanent_address;
-            $tempRow['is_new_admission'] = $row->is_new_admission;
-            $tempRow['dynamic_data_field'] = json_decode($row->dynamic_fields);
-
+            $tempRow['is_new_admission'] = $student->is_new_admission;
+            $tempRow['dynamic_data_field'] = json_decode($student->dynamic_fields);
+            // -------------------------------------------------------- \\
             $tempRow['operate'] = $operate;
             $rows[] = $tempRow;
 

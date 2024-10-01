@@ -172,6 +172,8 @@ return [
          */
         Spatie\Permission\PermissionServiceProvider::class,
         Maatwebsite\Excel\ExcelServiceProvider::class,
+        Jubaer\Zoom\ZoomServiceProvider::class,
+
         /*
          * Application Service Providers...
          */

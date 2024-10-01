@@ -280,6 +280,7 @@ class ApiController extends Controller
     }
     public function getClassSchools()
     {
+
         $classSections = ClassSection::with(['class.medium', 'streams', 'section'])->withOutTrashedRelations('section', 'class')->get();
         $classSectionsMapped = [];
 

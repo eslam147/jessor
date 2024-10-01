@@ -1,12 +1,12 @@
 @extends('layouts.master')
 
-@section('title', __('devices'))
+@section('title', __('user_devices'))
 
 @section('content')
     <div class="content-wrapper">
         <div class="page-header">
             <h3 class="page-title">
-                {{ __('devices') }}
+                {{ __('user_devices') }}
             </h3>
         </div>
 
@@ -15,7 +15,7 @@
                 <div class="card">
                     <div class="card-body">
                         <h4 class="card-title">
-                            {{ __('devices') }}
+                            {{ __('list') . ' ' . __('user_devices') }}
                         </h4>
                         <div class="row">
                             <div class="col-12">
@@ -42,14 +42,8 @@
                                                 data-visible="false">
                                                 {{ __('user_id') }}
                                             </th>
-                                            <th scope="col" data-field="first_name" data-sortable="false">
-                                                {{ __('first_name') }}
-                                            </th>
-                                            <th scope="col" data-field="last_name" data-sortable="false">
-                                                {{ __('last_name') }}
-                                            </th>
-                                            <th scope="col" data-field="email" data-sortable="false">
-                                                {{ __('email') }}
+                                            <th scope="col" data-field="student" data-sortable="false">
+                                                {{ __('student') }}
                                             </th>
                                             <th scope="col" data-field="os" data-sortable="false">
                                                 {{ __('os') }}
@@ -61,12 +55,14 @@
                                                 {{ __('device_ip') }}
                                             </th>
                                             <th scope="col" data-field="session_start_at" data-sortable="false">
-                                                {{ __('session_start_at') }}
+                                                {{ __('session_started_at') }}
+                                            </th>
+                                            <th scope="col" data-field="session_end_at" data-sortable="false">
+                                                {{ __('session_ended_at') }}
                                             </th>
                                             <th scope="col" data-field="browser" data-sortable="false">
                                                 {{ __('browser') }}
                                             </th>
-
                                             <th data-events="actionEvents" scope="col" data-field="operate"
                                                 data-sortable="false">{{ __('action') }}
                                             </th>
@@ -88,8 +84,7 @@
         window.actionEvents = {
             "click .delete_device": function(e, value, row, index) {
                 e.preventDefault();
-                let item = $(this);
-                let url = item.data("url");
+                let item = $(e.target);
 
                 Swal.fire({
                     title: "Are you sure?",
@@ -98,7 +93,7 @@
                     showCancelButton: true,
                     confirmButtonColor: "#3085d6",
                     cancelButtonColor: "#d33",
-                    confirmButtonText: "Yes, Change it!",
+                    confirmButtonText: "Yes, Delete The Device!",
                 }).then((result) => {
                     if (result.isConfirmed) {
                         let data = JSON.stringify({
@@ -115,7 +110,7 @@
                             showErrorToast(response.message);
                         }
 
-                        ajaxRequest("DELETE", url, data, null, successCallback, errorCallback);
+                        ajaxRequest("DELETE", item.data("url"), data, null, successCallback, errorCallback);
                     }
                 });
             },

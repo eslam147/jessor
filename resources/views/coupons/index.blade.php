@@ -122,19 +122,20 @@
                 let url = item.attr("href");
 
                 function successCallback(response) {
-                    let couponData = response.data;
-                    $("#coupon-code").text(couponData.code);
-                    $("#coupon-expiry-date").text(couponData.expiry_date);
+                    var coupon = response.data;
+                    $("#coupon-code").text(coupon.code);
+                    $("#coupon-expiry-date").text(coupon.expiry_date);
 
-                    $("#coupon-price").text(couponData.price);
+                    $("#coupon-teacher").text(coupon.teacher);
+                    $("#coupon-price").text(coupon.price);
                     $("#coupon-is-disabled").text(
-                        couponData.is_disabled ? "Yes" : "No"
+                        coupon.is_disabled ? "Yes" : "No"
                     );
-                    $("#coupon-maximum-usage").text(couponData.maximum_usage);
-                    $("#coupon-type").text(couponData.type);
-                    $("#coupon-created_at").text(couponData.created_at);
+                    $("#coupon-maximum-usage").text(coupon.maximum_usage);
+                    $("#coupon-type").text(coupon.type);
+                    $("#coupon-created_at").text(coupon.created_at);
 
-                    couponData.usages.forEach(usage => {
+                    coupon.usages.forEach(usage => {
                         $("#coupon_usages tbody").append(`<tr>
                             <td>${usage.id}</td>
                             <td>${usage.user.name}</td>

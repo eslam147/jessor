@@ -22,7 +22,9 @@ class ImportListCoupons extends Command
         $this->couponImport = $couponImport;
         parent::__construct();
     }
-
+    /*
+    php artisan import:coupons --tenant=zaakr --file=coupons_mina --tags=at_28_september_2024 --tags=importedBySemiColon
+    */
     protected $signature = 'import:coupons {--tenant=} {--file=} {--class=} {--subject=} {--teacher=} {--tags=*}';
 
     protected $description = 'Coupons import';
