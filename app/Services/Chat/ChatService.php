@@ -61,8 +61,7 @@ class ChatService
                       WHERE (messages.modal_id = students.user_id AND messages.sender_id = ?) 
                          OR (messages.modal_id = ? AND messages.sender_id = students.user_id)) DESC",
                     [Auth::user()->id, Auth::user()->id]
-                )
-                ->orderByDesc('id')
+                )->orderByDesc('id')
                 ->paginate();
 
             $studentIds = $students->pluck('user_id')->toArray();
@@ -104,15 +103,15 @@ class ChatService
                         }
                     }
 
-                    $student_subject = $student->subjects();
+                    // $student_subject = $student->subjects;
 
-                    $core_subjects = array_column($student_subject["core_subject"], 'subject_id');
+                    // $core_subjects = array_column($student_subject["core_subject"], 'subject_id');
 
-                    $elective_subjects = $student_subject["elective_subject"] ?? [];
-                    if ($elective_subjects) {
-                        $elective_subjects = $elective_subjects->pluck('subject_id')->toArray();
-                    }
-                    $subject_id = array_merge($core_subjects, $elective_subjects);
+                    // $elective_subjects = $student_subject["elective_subject"] ?? [];
+                    // if ($elective_subjects) {
+                    //     $elective_subjects = $elective_subjects->pluck('subject_id')->toArray();
+                    // }
+                    // $subject_id = array_merge($core_subjects, $elective_subjects);
 
                     // $subjects = Subject::whereIn('id', $subject_id)->select('id', 'name')->get(['id', 'name'])->toArray();
                     $studentUser = optional($student->user);

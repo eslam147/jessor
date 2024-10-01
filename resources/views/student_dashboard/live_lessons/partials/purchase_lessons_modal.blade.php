@@ -11,11 +11,11 @@
                         <div class="col-md-12">
                             <div class="form-group validate">
                                 <div class="controls">
-                                    <fieldset>
+                                    {{-- <fieldset>
                                         <input name="payment_method" type="radio" id="coupon_code" value="coupon_code"
                                             required="" aria-invalid="false">
                                         <label for="coupon_code">Coupon Code</label>
-                                    </fieldset>
+                                    </fieldset> --}}
                                     <fieldset>
                                         <input name="payment_method" type="radio" id="wallet" value="wallet"
                                             aria-invalid="false">
@@ -25,7 +25,9 @@
                                 </div>
                             </div>
                             <hr>
-                            <button class="btn btn-primary" id="payment-btn" type="submit">Complete</button>
+                            <div class="text-center">
+                                <button class="btn btn-primary" id="payment-btn" type="submit">Continue</button>
+                            </div>
                         </div>
 
                     </div>
@@ -45,7 +47,8 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <form id="purchaseForm" method="POST" action="{{ route('enroll.store', 'coupon_code') }}">
+                <form id="purchaseForm" method="POST"
+                    action="{{ route('student_dashboard.live_lessons.enroll.store', 'coupon_code') }}">
                     @csrf
                     <div class="form-group">
                         <label>Purchase Code</label>
@@ -96,18 +99,27 @@
                                 $('#payment-methods').modal('hide');
                                 const form = document.createElement('form');
                                 form.method = 'POST';
-                                form.action = `{{ route('enroll.store', 'wallet') }}`;
+                                form.action =
+                                    `{{ route('student_dashboard.live_lessons.enroll.store', ':lesson') }}`
+                                    .replace(
+                                        ':lesson', $('#LessonId').val()
+                                    );
                                 const lessonId = document.createElement('input');
                                 lessonId.type = 'hidden';
                                 lessonId.name = 'lesson_id';
                                 lessonId.value = $('#LessonId').val();
+                                let paymentMethod = document.createElement('input');
+                                paymentMethod.type = 'hidden';
+                                paymentMethod.name = 'payment_method';
+                                paymentMethod.value = 'wallet';
 
                                 const token = document.createElement('input');
                                 token.type = 'hidden';
                                 token.name = '_token';
                                 token.value = "{{ csrf_token() }}";
-                                form.appendChild(token);
                                 form.appendChild(lessonId);
+                                form.appendChild(token);
+                                form.appendChild(paymentMethod);
 
                                 document.body.appendChild(form);
                                 form.submit();
@@ -117,26 +129,27 @@
 
                 }
             })
-            $('.free_enrollment_btn').on('click', function(e) {
-                e.preventDefault();
-                const form = document.createElement('form');
-                form.method = 'POST';
-                form.action = `{{ route('enroll.store', 'free') }}`;
-                const lessonId = document.createElement('input');
-                lessonId.type = 'hidden';
-                lessonId.name = 'lesson_id';
-                lessonId.value = $(this).data('id');
+            // $('.free_enrollment_btn').on('click', function(e) {
+            //     e.preventDefault();
+            //     const form = document.createElement('form');
+            //     form.method = 'POST';
+            //     form.action = `{{ route('student_dashboard.live_lessons.enroll.store', 'free') }}`;
 
-                const token = document.createElement('input');
-                token.type = 'hidden';
-                token.name = '_token';
-                token.value = "{{ csrf_token() }}";
-                form.appendChild(token);
-                form.appendChild(lessonId);
+            //     let paymentMethod = document.createElement('input');
+            //     paymentMethod.type = 'hidden';
+            //     paymentMethod.name = 'payment_method';
+            //     paymentMethod.value = 'free';
 
-                document.body.appendChild(form);
-                form.submit();
-            })
+            //     const token = document.createElement('input');
+            //     token.type = 'hidden';
+            //     token.name = '_token';
+            //     token.value = "{{ csrf_token() }}";
+
+            //     form.appendChild(token, paymentMethod, lessonId);
+
+            //     document.body.appendChild(form);
+            //     form.submit();
+            // })
             $('.locked-btn').on('click', function() {
                 var id = $(this).data('id');
 

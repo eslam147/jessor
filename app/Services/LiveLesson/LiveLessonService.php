@@ -22,7 +22,7 @@ class LiveLessonService
       'description' => $liveLessonRequest->description,
       'name' => $liveLessonRequest->name,
       'duration' => $liveLessonRequest->session_duration,
-      'session_date' => Carbon::parse($liveLessonRequest->session_date)->toDateTimeString(),
+      'session_start_at' => Carbon::parse($liveLessonRequest->session_date)->toDateTimeString(),
     ]);
   }
   public function update(LiveLessonRequest $liveLessonRequest, LiveLesson $liveLesson)
@@ -34,14 +34,14 @@ class LiveLessonService
       'description' => $liveLessonRequest->description,
       'name' => $liveLessonRequest->name,
       'duration' => $liveLessonRequest->session_duration,
-      'session_date' => Carbon::parse($liveLessonRequest->session_date)->toDateTimeString(),
+      'session_start_at' => Carbon::parse($liveLessonRequest->session_date)->toDateTimeString(),
     ]);
   }
   public function createMeeting(LiveLesson $liveLesson, string $provider)
   {
     return $liveLesson->scheduleMeeting($provider)
       ->withTopic($liveLesson->name)
-      ->startingAt($liveLesson->session_date)
+      ->startingAt($liveLesson->session_start_at)
       ->during($liveLesson->duration)
       ->withMetaAttributes([
         'password' => request('password')

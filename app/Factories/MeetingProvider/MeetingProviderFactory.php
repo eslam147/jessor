@@ -2,7 +2,7 @@
 namespace App\Factories\MeetingProvider;
 
 use App\Contracts\MeetingProviderContract;
-use App\Services\MeetingProvider\Zoom\ZoomService;
+use App\Services\Meeting\Providers\Zoom\ZoomService;
 
 class MeetingProviderFactory
 {

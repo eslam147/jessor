@@ -37,7 +37,7 @@ class MeetingParticipant extends MorphPivot
      *
      * @return self
      */
-    public function join(): self
+    public function joinParticipant(): self
     {
         $joinTime = $this->started_at ?? now();
         $this->fill(['started_at' => $joinTime])->save();

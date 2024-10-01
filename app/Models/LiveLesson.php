@@ -18,9 +18,10 @@ class LiveLesson extends Model
         'status' => LiveLessonStatus::class
     ];
     public $dates = [
-        'session_date'
+        'session_start_at'
     ];
     protected $hidden = ["deleted_at", "created_at", "updated_at"];
+    protected $appends = ["left_time_as_percent"];
 
     public function subject()
     {
@@ -51,5 +52,13 @@ class LiveLesson extends Model
     public function participants()
     {
         return $this->morphMany(MeetingParticipant::class, Meeting::class);
+    }
+    public function getLeftTimeAsPercentAttribute()
+    {
+        $totalMinutes = $this->created_at->diffInMinutes($this->session_start_at);
+        $elapsedMinutes = $totalMinutes - $this->session_start_at->diffInMinutes();
+        $progressPercentage = ($elapsedMinutes / $totalMinutes) * 100;
+
+        return round($progressPercentage, 2);
     }
 }

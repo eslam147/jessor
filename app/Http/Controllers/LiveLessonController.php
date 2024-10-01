@@ -164,7 +164,7 @@ class LiveLessonController extends Controller
         $sort = request('sort', 'id');
         $order = request('order', 'DESC');
 
-        $sql = LiveLesson::relatedToTeacher()->with('subject', 'class_section', 'meetings');
+        $sql = LiveLesson::relatedToTeacher()->with('subject', 'class_section', 'meeting');
         if (request()->filled('search')) {
             $search = request('search');
             $sql->where(function ($query) use ($search) {
@@ -200,6 +200,7 @@ class LiveLessonController extends Controller
         $rows = [];
         $tempRow = [];
         $no = 1;
+
         foreach ($res as $row) {
             $row = (object) $row;
 
@@ -211,7 +212,7 @@ class LiveLessonController extends Controller
 
             $tempRow['name'] = $row->name;
             $tempRow['duration'] = $row->duration;
-            $tempRow['session_date'] = $row->session_date->format('Y-m-d h:i A');
+            $tempRow['session_date'] = $row->session_start_at->format('Y-m-d h:i A');
 
             $tempRow['started_at'] = $row->meeting?->started_at?->format('Y-m-d h:i A') ?? 'Not Started Yet';
 
@@ -246,7 +247,7 @@ class LiveLessonController extends Controller
         if (! Auth::user()->can('lesson-edit') || $lesson->teacher_id != $teacher->id) {
             return response()->json([
                 'error' => true,
-                'message' => trans(key: 'no_permission_message')
+                'message' => trans('no_permission_message')
             ]);
         }
         $this->liveLessonService->update($request, $lesson);
@@ -283,14 +284,12 @@ class LiveLessonController extends Controller
         //     ]);
         // }
         if ($liveLesson->status->value == LiveLessonStatus::DEFAULT ) {
-            // dd(
-            //     $liveLesson
-            // );
+
             $liveLesson->update([
                 'status' => LiveLessonStatus::STARTED,
-                'started_at' => now(),
+                // 'started_at' => now(),
             ]);
-            $liveLesson->meeting()->started();
+            $liveLesson->meeting()->start();
             return response()->json([
                 'error' => false,
                 'message' => trans('data_store_successfully'),

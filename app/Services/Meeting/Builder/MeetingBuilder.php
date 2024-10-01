@@ -145,12 +145,12 @@ class MeetingBuilder implements Arrayable
      */
     public function save(): Meeting
     {
-        $transformData = new MeetingInfoDto(
+        $meetingRequestData = new MeetingInfoDto(
             $this->topic,
             $this->startTime,
             $this->duration
         );
-        $scheduledMeeting = $this->provider->scheduling($transformData);
+        $scheduledMeeting = $this->provider->scheduling($meetingRequestData);
 
         $meeting = $this->saveMeeting($scheduledMeeting);
 

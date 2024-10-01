@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\student;
 
-
 use App\Models\Lesson;
 use App\Models\Enrollment;
 use App\Models\CouponUsage;
@@ -11,9 +10,10 @@ use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use App\Services\Coupon\CouponService;
-use App\Services\Purchase\PurchaseService;
+use App\Actions\Lesson\EnrollmentAction;
 use RealRashid\SweetAlert\Facades\Alert;
 use Illuminate\Support\Facades\Validator;
+use App\Services\Purchase\PurchaseService;
 
 class EnrollController extends Controller
 {
@@ -30,81 +30,39 @@ class EnrollController extends Controller
         $user = Auth::user();
         try {
             $lesson = Lesson::find($request->lesson_id);
-            if (! $this->purchaseService->isLessonAlreadyEnrolled($lesson, $user->id)) {
-                if ($payment_method == 'coupon_code') {
-                    $validator = Validator::make($request->all(), [
-                        'purchase_code' => 'required|string',
-                        'lesson_id' => 'required|exists:lessons,id'
-                    ]);
-                    $msg = "";
-                    if ($validator->fails()) {
-                        Alert::warning('warning', $validator->messages()->all()[0]);
-                        return redirect()->back();
-                    } else {
-                        // ----------------------------------------------- #
-                        $purchaseCode = $request->input('purchase_code');
-                        // ----------------------------------------------- #
-                        DB::beginTransaction();
-
-                        $applyCouponCode = $this->couponService->redeemCoupon($user, $purchaseCode, $lesson);
-                        if ($applyCouponCode['status']) {
-                            // ----------------------------------------------- #
-                            $this->purchaseService->enrollLesson($lesson, $user->id);
-                            // ----------------------------------------------- #
-                            DB::commit();
-                            Alert::success('Success', 'Lesson has been unlocked successfully.');
-                            return redirect()->back();
-                        }
-                        Alert::error('error', $applyCouponCode['message']);
-                        return redirect()->back();
-                    }
-                } elseif ($payment_method == 'wallet') {
-                    $validator = Validator::make($request->all(), [
-                        'lesson_id' => 'required|exists:lessons,id'
-                    ]);
-                    $msg = "";
-                    if ($validator->fails()) {
-                        Alert::warning('warning', $validator->messages()->all()[0]);
-                        return redirect()->back();
-                    } else {
-                        // ----------------------------------------------- #
-                        DB::beginTransaction();
-                        // ----------------------------------------------- #
-                        if (! empty($lesson->price)) {
-                            if ($user->balance < $lesson->price) {
-                                Alert::html('error', view('student_dashboard.wallet.balance_is_not_e', compact('user'))->render(), icon: 'error');
-                                return redirect()->back();
-                            }
-                            $user->withdraw($lesson->price, [
-                                'description' => "Enroll Lesson {$lesson->name}",
-                            ]);
-                            // ----------------------------------------------- #
-                            $this->purchaseService->enrollLesson($lesson, $user->id);
-                            // ----------------------------------------------- #
-                            DB::commit();
-                            Alert::success('Success', 'Lesson has been unlocked successfully.');
-                            return redirect()->back();
-                        }
-                        // ----------------------------------------------- #
-                    }
-
-                } elseif ($payment_method == 'free') {
-                    if (empty($lesson->price) || $lesson->is_free == 1) {
-                        $this->purchaseService->enrollLesson($lesson, $user->id);
-                        Alert::success('Success', 'Lesson has been unlocked successfully.');
-                        return redirect()->back();
-                    }
-                }
-            } else {
+            if ($this->purchaseService->isLessonAlreadyEnrolled($lesson, $user->id)) {
                 Alert::warning('warning', 'You have already enrolled this lesson.');
+                return redirect()->back();
+            }
+            $validator = Validator::make($request->all(), [
+                'lesson_id' => 'required|exists:lessons,id',
+                'payment_method' => 'required|string',
+                'purchase_code' => 'required_if:payment_method,coupon_code|string',
+            ]);
+
+            if ($validator->fails()) {
+                Alert::warning('warning', $validator->messages()->all()[0]);
                 return back();
+            } else if ($payment_method == 'coupon_code') {
+                $purchaseCode = $request->input('purchase_code');
+                $applyCouponCode = $this->couponService->redeemCoupon($user, $purchaseCode, $lesson);
+                if (! $applyCouponCode['status']) {
+                    Alert::error('error', $applyCouponCode['message']);
+                    return back();
+                }
             }
 
+            $enrollLesson = match ($payment_method) {
+                'coupon_code' => app(EnrollmentAction::class)->usingCoupon($lesson),
+                'wallet' => app(EnrollmentAction::class)->usingWallet($lesson),
+                'free' => app(EnrollmentAction::class)->free($lesson),
+            };
+
+            return back();
         } catch (\Exception $e) {
-            DB::rollBack();
             report($e);
             Alert::error('error', "Error When Unlocking Lesson.");
-            return redirect()->back();
+            return back();
         }
     }
 }

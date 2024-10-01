@@ -345,7 +345,7 @@
 
             function successCallback(response) {
                 modal.modal('hide');
-                showSuccessToast(response.message);
+                // showSuccessToast(response.message);
                 $("#table_list").bootstrapTable("refresh");
             }
 

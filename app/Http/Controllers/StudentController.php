@@ -37,6 +37,7 @@ use App\Models\OnlineExamStudentAnswer;
 use App\Models\StudentOnlineExamStatus;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\Rules\Password;
 use App\Services\Auth\RegisterAuthService;
 use App\Http\Requests\Dashboard\Student\StudentStoreRequest;
 
@@ -131,20 +132,17 @@ class StudentController extends Controller
                 'message' => trans('no_permission_message')
             ]);
         }
+
         $request->validate(
             [
-                'first_name' => 'required',
-                'last_name' => 'required',
+                'first_name' => 'required|string|min:3',
+                'last_name' => 'required|string|min:3',
+                'gender' => 'required|string',
                 'mobile' => 'nullable|numeric',
                 'image' => 'mimes:jpeg,png,jpg|image|max:2048',
-                'dob' => 'required',
+                'student_password' => ['nullable', Password::min(6)->mixedCase(), 'confirmed'],
+
                 'class_section_id' => 'required',
-                'category_id' => 'required',
-                'admission_no' => "required|unique:users,email,{$request->edit_id}",
-                'roll_number' => 'required',
-                'admission_date' => 'required',
-                'current_address' => 'required',
-                'permanent_address' => 'required',
                 'parent' => 'required_without:guardian',
                 'guardian' => 'required_without:parent',
             ],
@@ -287,15 +285,18 @@ class StudentController extends Controller
 
             //Create Student User First
             $user = User::find($request->edit_id);
+            if($request->filled('student_password')){
+                $user->password = bcrypt($request->student_password);
+            }
             //            $user->password = Hash::make(str_replace('/', '', $request->dob));
             $user->first_name = $request->first_name;
             $user->last_name = $request->last_name;
             //            $user->email = (isset($request->email)) ? $request->email : "";
             //            $user->email = $request->admission_no;
             $user->mobile = (isset($request->mobile)) ? $request->mobile : "";
-            $user->dob = date('Y-m-d', strtotime($request->dob));
-            $user->current_address = $request->current_address;
-            $user->permanent_address = $request->permanent_address;
+            // $user->dob = date('Y-m-d', strtotime($request->dob));
+            // $user->current_address = $request->current_address;
+            // $user->permanent_address = $request->permanent_address;
             $user->gender = $request->gender;
 
             //If Image exists then upload new image and delete the old image
@@ -677,7 +678,7 @@ class StudentController extends Controller
                     )
                     ->when($search, fn($q) => $q->advancedSearch($search))->withTrashed();
             });
-            // ------------------------------------- \\
+        // ------------------------------------- \\
         $total = $sql->count();
 
         $sql->orderBy($sort, $order)->skip($offset)->take($limit);

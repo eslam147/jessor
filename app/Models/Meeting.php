@@ -54,15 +54,7 @@ class Meeting extends Model
      *
      * @var array
      */
-    protected $fillable = [
-        'uuid',
-        'topic',
-        'start_time',
-        'duration',
-        'started_at',
-        'ended_at',
-        'provider',
-    ];
+
 
     /**
      * The attributes that should be cast to native types.
@@ -128,7 +120,7 @@ class Meeting extends Model
      */
     public function participants(string $modelType): MorphToMany
     {
-        return $this->morphedByMany($modelType, 'participant', 'meeting_participants')
+        return $this->morphedByMany($modelType, 'participant')
             ->using(MeetingParticipant::class)
             ->withPivot(['uuid', 'started_at', 'ended_at'])
             ->withTimestamps();

@@ -139,7 +139,7 @@ Route::middleware([
             });
             Route::controller(StudentLiveLessonController::class)->prefix('live_lessons')->as('student_dashboard.live_lessons.')->group(function () {
                 Route::get('/', 'index')->name('index');
-                // Route::post('/enroll', 'enroll')->name('enroll');
+                Route::post('/enroll/{liveLesson}', 'enroll')->name('enroll.store');
             });
 
             Route::controller(StudentLessonController::class)->prefix('lesson')->as('student_dashboard.lesson.')->group(function () {

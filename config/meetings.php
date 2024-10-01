@@ -1,6 +1,6 @@
 <?php
 
-use App\Services\MeetingProvider\Zoom\ZoomService;
+use App\Services\Meeting\Providers\Zoom\ZoomService;
 return [
     'default_gateway' => 'zoom',
     'providers' => [

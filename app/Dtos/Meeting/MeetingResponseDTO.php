@@ -4,11 +4,11 @@ namespace App\Dtos\Meeting;
 
 class MeetingResponseDTO
 {
-    public  ?string $meetingId;
-    public  ?string $hostUrl;
-    public  ?string $participantUrl;
-    public  ?string $startTime;
-    public  ?string $duration;
+    public ?string $meetingId;
+    public ?string $hostUrl;
+    public ?string $participantUrl;
+    public ?string $startTime;
+    public ?string $duration;
     public ?string $timezone = null;
 
     public function __construct(string $meetingId, string $hostUrl, string $participantUrl, string $startTime, int $duration, string $timezone = null)
