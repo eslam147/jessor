@@ -2,7 +2,7 @@
 namespace App\Traits;
 
 use App\Models\Meeting;
-use App\Services\MeetingBuilder\MeetingBuilder;
+use App\Services\Meeting\Builder\MeetingBuilder;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 
 trait SchedulesMeetings

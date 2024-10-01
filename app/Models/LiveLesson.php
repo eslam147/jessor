@@ -2,13 +2,13 @@
 
 namespace App\Models;
 
-use App\Enums\Lesson\LiveLessonStatus;
 use App\Traits\BelongsToTeacher;
 use App\Traits\SchedulesMeetings;
+use App\Enums\Lesson\LiveLessonStatus;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class LiveLesson extends Model
 {
@@ -45,7 +45,11 @@ class LiveLesson extends Model
     }
     public function meeting(): MorphOne
     {
-        // return $this->meetings()->latest()->first();
         return $this->morphOne(Meeting::class, 'scheduler');
+    }
+
+    public function participants()
+    {
+        return $this->morphMany(MeetingParticipant::class, Meeting::class);
     }
 }

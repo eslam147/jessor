@@ -58,12 +58,38 @@
                                                     <p class="text-muted">
                                                         {{ $session->subject->description ?? 'No description available.' }}
                                                     </p>
+                                                    <button data-id="{{ $lesson->id }}" class="btn btn-success locked-btn"
+                                                        data-price="{{ $lesson->price }}" data-bs-toggle="modal"
+                                                        data-bs-target="#payment-methods">
+                                                        <i class="fa fa-shopping-cart mx-2"></i>
+                                                        Enroll Lesson!
+                                                    </button>
+                                                    {{-- @if ($session->is_lesson_free)
+                                                    <button data-id="{{ $lesson->id }}"
+                                                        class="btn btn-success free_enrollment_btn">
+                                                        <i class="fa fa-gift mx-2"></i>
+                                                        Enroll Lesson For Free!
+                                                    </button>
+                                                @else
+                                                    <button data-id="{{ $lesson->id }}"
+                                                        class="btn btn-success locked-btn"
+                                                        data-price="{{ $lesson->price }}" data-bs-toggle="modal"
+                                                        data-bs-target="#payment-methods">
+                                                        <i class="fa fa-shopping-cart mx-2"></i>
+                                                        Enroll Lesson!
+                                                    </button>
+                                                @endif --}}
                                                     <!-- Button to Join or Read More -->
-                                                    @if ($session->status->isStarted())
-                                                        <a class="btn btn-sm btn-bold btn-primary mt-15"
-                                                            href="{{ $session->join_url ?? '#' }}">
-                                                            Join Now
-                                                        </a>
+                                                    <a class="btn btn-sm btn-bold btn-primary mt-15" href="#">
+                                                        Purchase Now
+                                                    </a>
+                                                    @if ($session->meeting)
+                                                        @if ($session->status->isStarted())
+                                                            <a class="btn btn-sm btn-bold btn-primary mt-15"
+                                                                href="{{ $session->meeting->join_url ?? '#' }}">
+                                                                Join Now
+                                                            </a>
+                                                        @endif
                                                     @endif
                                                 </div>
 
@@ -84,4 +110,7 @@
                     @endforeach
 
             </section>
-        @endsection
+        </div>
+    </div>
+    @include('student_dashboard.live_lessons.partials.purchase_lessons_modal')
+@endsection

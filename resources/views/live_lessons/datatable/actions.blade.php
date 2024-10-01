@@ -1,3 +1,8 @@
+<a href="#" class="btn btn-sm btn-info btn-rounded show_users" data-id="{{ $row->id }}"
+    title="Show Students Enrolled">
+    <i class="fa fa-users"></i>
+    Show Students
+</a>
 @empty($row->meetings->count())
     <a href="#" class="btn btn-sm btn-success btn-rounded connect_meeting" data-id="{{ $row->id }}"
         title="Create Meeting">

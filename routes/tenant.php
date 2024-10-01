@@ -139,6 +139,7 @@ Route::middleware([
             });
             Route::controller(StudentLiveLessonController::class)->prefix('live_lessons')->as('student_dashboard.live_lessons.')->group(function () {
                 Route::get('/', 'index')->name('index');
+                // Route::post('/enroll', 'enroll')->name('enroll');
             });
 
             Route::controller(StudentLessonController::class)->prefix('lesson')->as('student_dashboard.lesson.')->group(function () {
@@ -261,7 +262,7 @@ Route::middleware([
 
             Route::resource('subject-teachers', SubjectTeacherController::class);
             Route::get('subject-teachers-list', [SubjectTeacherController::class, 'show']);
-            Route::controller(MeetingProviderController::class)->prefix('meeting.provider')->as('meeting.provider.')->group(function () {
+            Route::controller(MeetingProviderController::class)->prefix('meeting_provider')->as('meeting.provider.')->group(function () {
                 Route::get('settings/{service}', 'show')->name('settings.show');
                 Route::post('settings/{service}', 'update')->name('settings.update');
             });
@@ -548,6 +549,7 @@ Route::middleware([
                 Route::delete('destroy/{live_lesson}', 'destroy')->name('destroy');
                 Route::get('show/{live_lesson}', 'show')->name('show');
                 Route::get('list', 'list')->name('list');
+                Route::get('participants/{live_lesson}', 'participants')->name('participants');
                 Route::post('start/{live_lesson}', 'start')->name('start');
                 Route::post('stop/{live_lesson}', 'stop')->name('stop');
                 Route::post('create_meeting/{liveLesson}', 'scheduleMeeting')->name('schedule_meeting');

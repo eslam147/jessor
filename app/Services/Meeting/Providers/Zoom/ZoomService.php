@@ -1,5 +1,5 @@
 <?php
-namespace App\Services\MeetingProvider\Zoom;
+namespace App\Services\Meeting\Providers\Zoom;
 
 use Jubaer\Zoom\Facades\Zoom;
 use Illuminate\Support\Facades\Config;

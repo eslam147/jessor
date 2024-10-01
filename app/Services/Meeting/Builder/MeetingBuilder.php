@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Services\MeetingBuilder;
+namespace App\Services\Meeting\Builder;
 
 use Carbon\Carbon;
 use App\Models\Meeting;
@@ -176,7 +176,7 @@ class MeetingBuilder implements Arrayable
     private function saveMeeting(MeetingResponseDTO $scheduledMeeting): Meeting
     {
         $meeting = new Meeting([
-            'id' => \Illuminate\Support\Str::uuid(),
+            'uuid' => \Illuminate\Support\Str::uuid(),
             'topic' => $this->topic,
             'start_time' => $this->startTime,
             'meta' => ['duration' => $this->duration],
@@ -193,6 +193,7 @@ class MeetingBuilder implements Arrayable
         ]);
 
         $meeting->scheduler()->associate($this->scheduler);
+        $meeting->host()->associate($this->scheduler);
 
 
         // foreach ($this->metaAttributes as $key => $value) {

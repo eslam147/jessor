@@ -9,9 +9,12 @@ return new class extends Migration
     public function up()
     {
         Schema::create('meetings', function (Blueprint $table) {
-            $table->uuid("id")->primary();
+            $table->id();
+            // --------------------------------------------------- \\
+            $table->uuid("uuid");
             // --------------------------------------------------- \\
             $table->morphs('scheduler');
+            $table->morphs('host');
             // --------------------------------------------------- \\
             $table->string('topic',512);
             $table->string('provider')->comment('service of video conference');

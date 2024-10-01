@@ -136,7 +136,7 @@
                             data-fixed-number="2" data-fixed-right-number="1" data-trim-on-search="false"
                             data-mobile-responsive="true" data-sort-name="id" data-sort-order="desc"
                             data-maintain-selected="true" data-export-types='["txt","excel"]'
-                            data-query-params="CreateLiveLessonQueryParams"
+                            data-query-params="createLiveLessonQueryParams"
                             data-export-options='{ "fileName": "lesson-list-{{ date('d-m-y') }}" ,"ignoreColumn":
                             ["operate"]}'
                             data-show-export="true">
@@ -194,75 +194,14 @@
             </div>
 
             <!-- Modal -->
-            <div class="modal fade" id="connectMeetingModal" tabindex="-1" role="dialog"
-                aria-labelledby="exampleModalLabel" aria-hidden="true">
-                <div class="modal-dialog" role="document">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <h5 class="modal-title text-capitalize" id="exampleModalLabel">
-                                {{ __('connect') . ' ' . __('lesson') . ' ' . __('with') . ' ' . __('meeting') }}
-                            </h5>
-                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                <span aria-hidden="true">&times;</span>
-                            </button>
-                        </div>
-                        <form class="pt-3 assign-meeting-form" id="assign_meeting_modal" action="#"
-                            novalidate="novalidate">
-                            <input type="hidden" name="live_lesson_id" id="live_lesson_id" value="" />
-                            <div class="modal-body py-0">
-                                <div class="row">
-                                    <div class="form-group col-sm-12">
-                                        <label>{{ __('services') }} <span class="text-danger">*</span></label>
-                                        <select name="service" id="meeting_service" class="meeting_service form-control">
-                                            <option value="">--{{ __('select') }}--</option>
-                                            @foreach ($services as $service)
-                                                <option value="{{ $service }}">
-                                                    {{ str()->ucfirst($service) }}
-                                                </option>
-                                            @endforeach
-                                        </select>
-                                    </div>
-                                    <div class="form-group col-sm-12">
-                                        <label>{{ __('start_date') }} <span class="text-danger">*</span></label>
-                                        <input type="text" id="meeting_start_date" class="form-control" disabled>
-                                    </div>
-                                    <div class="form-group col-sm-12">
-                                        <label>{{ __('duration') }} <span class="text-danger">*</span></label>
-                                        <input type="number" id="meeting_duration" class="form-control" disabled>
-                                    </div>
-                                    <div class="form-group col-sm-12">
-                                        <label>{{ __('password') }}</label>
-                                        <input type="text" id="password" name="password"
-                                            placeholder="{{ __('password') }}" class="form-control" />
-                                    </div>
-                                    <div class="form-group col-sm-12">
-                                        <div class="form-check">
-                                            <label class="form-check-label">
-                                                <input type="checkbox" class="form-check-input" name="autorecord"
-                                                    id="autorecord" value="1">
-                                                Auto Record
-                                            </label>
-                                        </div>
-                                    </div>
-                                </div>
-                                <hr class="mt-0">
-                            </div>
-                            <div class="modal-footer">
-                                <button type="button" class="btn btn-secondary"
-                                    data-dismiss="modal">{{ __('close') }}</button>
-                                <button type="submit" id="assign_meeting_btn"
-                                    class="btn btn-theme">{{ __('create') }}</button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-            </div>
+            @include('live_lessons.modals.create_meeting')
+            @include('live_lessons.modals.show_participants')
         </div>
     </div>
 @endsection
 @section('js')
     <script>
-        function queryParams(p) {
+        function createLiveLessonQueryParams(p) {
             return {
                 limit: p.limit,
                 sort: p.sort,
@@ -359,6 +298,36 @@
                 modal.modal('show');
                 // ----------------------------------------------------------- \\
             },
+            'click .show_users': function(e, value, row, index) {
+                e.preventDefault();
+                $("#show_participants_table").empty(); // Clear the table before appending new data
+                $.ajax({
+                    url: "{{ route('live_lessons.participants', ':live_lesson') }}".replace(':live_lesson',
+                        row.id),
+                    type: 'GET',
+                    success: function(response) {
+                        let students = response.data.students;
+                        (Array.from(students)).forEach(student => {
+                            let joinStatus = student.is_joined ? '✅ Joined' : '❌ Not Joined';
+
+                            let studentRow = `<tr>
+                        <td>${student.id}</td>
+                        <td>${student.name}</td>
+                        <td>${student.email}</td>
+                        <td>${student.enrolled_at}</td>
+                        <td>${joinStatus}</td>
+                        <td>
+                            <button class="btn btn-secondary send-message" data-id="${row.id}">Send Message</button>
+                            <button class="btn btn-danger remove-student" data-id="${row.id}">Remove</button>
+                        </td>
+                    </tr>`;
+                            $("#show_participants_table").append(studentRow);
+                        });
+                        // Show the modal after appending the data
+                        $("#show_participants").modal('show');
+                    }
+                });
+            }
         };
         $("#connectMeetingModal form").submit(function(e) {
             e.preventDefault();
