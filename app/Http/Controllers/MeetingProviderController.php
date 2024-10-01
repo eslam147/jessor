@@ -13,8 +13,8 @@ class MeetingProviderController extends Controller
     public function __construct(
         private readonly MeetingProviderFactory $meetingProviderFactory
     ) {
-        $this->middleware('permission:video-confernce-settings', ['only' => ['show']]);
-        $this->middleware('permission:video-confernce-settings-update', ['only' => ['update']]);
+        $this->middleware('permission:meeting-provider-settings', ['only' => ['show']]);
+        $this->middleware('permission:meeting-provider-settings-update', ['only' => ['update']]);
     }
     public function show($serviceName)
     {
