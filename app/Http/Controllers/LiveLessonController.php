@@ -35,7 +35,7 @@ class LiveLessonController extends Controller
         $class_section = ClassSection::SubjectTeacher()->with('class.medium', 'section', 'class.streams')->withOutTrashedRelations('class', 'section')->get();
         $subjects = Subject::SubjectTeacher()->orderBy('id')->get();
         $lessons = Lesson::relatedToTeacher()->withCount('enrollments')->with('file')->select('id', 'name', 'description', 'class_section_id')->get();
-        $enabledServices = collect(config('videoconfernce.providers'))->where('is_active', true)->pluck('name')->map(fn($service) => [
+        $enabledServices = collect(config('meetings.providers'))->where('is_active', true)->pluck('name')->map(fn($service) => [
             'name' => $service,
             'concat_name' => "video_conference_{$service}"
         ]);
@@ -122,7 +122,9 @@ class LiveLessonController extends Controller
             $tempRow['name'] = $row->name;
             $tempRow['duration'] = $row->duration;
             $tempRow['session_date'] = $row->session_date->format('Y-m-d h:i A');
-            $tempRow['started_at'] = $row->started_at?->format('Y-m-d h:i A') ?? 'Not Started Yet';
+
+            $tempRow['started_at'] = $row->meeting?->started_at?->format('Y-m-d h:i A') ?? 'Not Started Yet';
+
             $tempRow['duration_readable'] = readableDuration($row->duration);
 
             $tempRow['description'] = str($row->description)->limit(10);
@@ -241,29 +243,10 @@ class LiveLessonController extends Controller
     }
     public function scheduleMeeting(MeetingRequest $request, LiveLesson $liveLesson)
     {
-        $meeting = $this->liveLessonService->createMeeting($liveLesson, $request->service);
-        $liveLesson->meetings()->create([
-            'provider' => $request->provider,
-            'topic' => $liveLesson->topic,
-            // -------------------------------- \\
-            'start_time' => $liveLesson->session_date,
-            'meeting_id' => $meeting->meetingId,
-            // -------------------------------- \\
-            'start_url' => $meeting->hostUrl,
-            'join_url' => $meeting->participantUrl,
-            // -------------------------------- \\
-            'timezone' => $meeting->timezone,
-            // -------------------------------- \\
-            'password' => $request->password,
-            'duration' => $meeting->duration
-        ]);
+        $this->liveLessonService->createMeeting($liveLesson, $request->service);
         return response()->json([
             'error' => false,
             'message' => trans('data_store_successfully'),
         ]);
-        // dd(
-        //     $request->all()
-        // );
-
     }
 }

@@ -1,15 +1,15 @@
 <?php
 
-namespace App\Dtos\VideoConference;
+namespace App\Dtos\Meeting;
 
-class VideoConferenceDTO
+class MeetingResponseDTO
 {
-    public readonly ?string $meetingId;
-    public readonly ?string $hostUrl;
-    public readonly ?string $participantUrl;
-    public readonly ?string $startTime;
-    public readonly ?string $duration;
-    public readonly ?string $timezone;
+    public  ?string $meetingId;
+    public  ?string $hostUrl;
+    public  ?string $participantUrl;
+    public  ?string $startTime;
+    public  ?string $duration;
+    public ?string $timezone = null;
 
     public function __construct(string $meetingId, string $hostUrl, string $participantUrl, string $startTime, int $duration, string $timezone = null)
     {

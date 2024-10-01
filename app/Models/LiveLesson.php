@@ -8,6 +8,7 @@ use App\Traits\SchedulesMeetings;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\MorphOne;
 
 class LiveLesson extends Model
 {
@@ -17,8 +18,7 @@ class LiveLesson extends Model
         'status' => LiveLessonStatus::class
     ];
     public $dates = [
-        'session_date',
-        'started_at'
+        'session_date'
     ];
     protected $hidden = ["deleted_at", "created_at", "updated_at"];
 
@@ -42,5 +42,10 @@ class LiveLesson extends Model
     public function scopeRelatedToCurrentStudentClass(Builder $q, Students $student)
     {
         return $q->whereHas('class', fn($q) => $q->where('class_sections.id', $student->class_section_id));
+    }
+    public function meeting(): MorphOne
+    {
+        // return $this->meetings()->latest()->first();
+        return $this->morphOne(Meeting::class, 'scheduler');
     }
 }

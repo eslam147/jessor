@@ -53,7 +53,7 @@ use App\Http\Controllers\student\SignupController;
 use App\Http\Controllers\student\TopicsController;
 use App\Http\Controllers\StudentSessionController;
 use App\Http\Controllers\SubjectTeacherController;
-// use App\Http\Controllers\VideoConferenceController;
+use App\Http\Controllers\MeetingProviderController;
 use Illuminate\Support\Facades\Auth as LaravelAuth;
 use App\Http\Controllers\student\TeachersController;
 use App\Http\Controllers\OnlineExamQuestionController;
@@ -261,10 +261,10 @@ Route::middleware([
 
             Route::resource('subject-teachers', SubjectTeacherController::class);
             Route::get('subject-teachers-list', [SubjectTeacherController::class, 'show']);
-            // Route::controller(VideoConferenceController::class)->prefix('video_conference')->as('video_conference.')->group(function () {
-            //     Route::get('settings/{service}', 'show')->name('settings.show');
-            //     Route::post('settings/{service}', 'update')->name('settings.update');
-            // });
+            Route::controller(MeetingProviderController::class)->prefix('meeting.provider')->as('meeting.provider.')->group(function () {
+                Route::get('settings/{service}', 'show')->name('settings.show');
+                Route::post('settings/{service}', 'update')->name('settings.update');
+            });
             Route::resource('timetable', TimetableController::class);
             Route::get('timetable-list', [TimetableController::class, 'show']);
             Route::get('checkTimetable', [TimetableController::class, 'checkTimetable']);

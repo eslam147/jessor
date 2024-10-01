@@ -1,6 +1,7 @@
 <?php
 
 use App\Enums\Lesson\LiveLessonStatus;
+use App\Enums\PaymentStatus\PaymentStatus;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
@@ -28,7 +29,10 @@ return new class extends Migration {
             $table->dateTimeTz('session_start_at');
             $table->unsignedInteger('duration')->comment("in minutes")->default(0);
             // --------------------------------------------------- \\
-            $table->text('notes')->nullable();
+            $table->text('notes')->nullable()->comment('After Session End');
+            // --------------------------------------------------- \\
+            $table->enum('payment_status', PaymentStatus::values())->default(PaymentStatus::DEFAULT );
+            $table->unsignedDecimal('price')->nullable()->default(0);
             // --------------------------------------------------- \\
             $table->softDeletes();
             $table->timestamps();

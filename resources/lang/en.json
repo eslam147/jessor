@@ -695,6 +695,8 @@
     "explain_answer": "Explain Answer",
     "coupon_charge_amount": "Charge Amount",
     "coupon_purchase": "Purchase",
+    "purchase": "Purchase",
+    "wallet": "Wallet",
     "unauthorized_access": "Unauthorized access",
     "invalid_online_exam_attempt_not_found": "Invalid Online Exam Attempt Not Found",
     "coupon_successfully_applied": "Coupon Successfully Applied",
@@ -735,6 +737,7 @@
     "session_ended_at" : "Session Ended At",
     "browser" : "Browser",
     "os" : "OS",
-    "city" : "City"
+    "city" : "City",
+    "coupon_type" : "Coupon Type"
 
 }

@@ -362,6 +362,8 @@
         };
         $("#connectMeetingModal form").submit(function(e) {
             e.preventDefault();
+            var modal = $("#connectMeetingModal");
+
             let formElement = $(this);
 
             let data = new FormData(this);
@@ -374,6 +376,8 @@
 
             function successCallback(response) {
                 modal.modal('hide');
+                showSuccessToast(response.message);
+                $("#table_list").bootstrapTable("refresh");
             }
 
             function errorCallback(response) {
@@ -381,6 +385,6 @@
             }
 
             formAjaxRequest('POST', url, data, formElement, submitButtonElement, successCallback);
-        })
+        });
     </script>
 @endsection

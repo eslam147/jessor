@@ -7,6 +7,7 @@ use App\Models\Coupon;
 use App\Models\Lesson;
 use App\Models\Mediums;
 use App\Models\Teacher;
+use App\Models\LiveLesson;
 use App\Models\ClassSchool;
 use App\Models\ClassSection;
 use App\Models\ClassSubject;
@@ -14,8 +15,8 @@ use Illuminate\Http\Request;
 use App\Exports\CouponExport;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Services\Coupon\CouponService;
-use App\Http\Requests\Dashboard\Coupon\CouponRequest;
 use App\Http\Resources\Dashboard\CouponResource;
+use App\Http\Requests\Dashboard\Coupon\CouponRequest;
 
 class CouponController extends Controller
 {
@@ -70,7 +71,7 @@ class CouponController extends Controller
 
         $coupons
             ->withCount('usages')
-            ->with('classModel', 'classModel.medium', 'classModel.streams','teacher.user', 'subject:id,name')
+            ->with('classModel', 'classModel.medium', 'classModel.streams', 'teacher.user', 'subject:id,name')
             ->when($findOrderKey, fn($q) => $q->orderBy($mappedOrderKeys[$sort], $order))
             ->skip($offset)
             ->take($limit);
@@ -132,7 +133,10 @@ class CouponController extends Controller
         $lessons = Lesson::select('name', 'teacher_id', 'subject_id', 'class_section_id', 'id')->addSelect([
             'class_id' => ClassSection::select('class_id')->whereColumn('id', 'lessons.class_section_id'),
         ])->get();
-        return view('coupons.create', compact('teachers', 'lessons', 'mediums', 'subjects'));
+        $liveLessons = LiveLesson::select('name', 'teacher_id', 'subject_id', 'class_section_id', 'id')->addSelect([
+            'class_id' => ClassSection::select('class_id')->whereColumn('id', 'live_lessons.class_section_id'),
+        ]);
+        return view('coupons.create', compact('teachers', 'lessons', 'liveLessons', 'mediums', 'subjects'));
     }
 
     public function store(CouponRequest $request)

@@ -4,7 +4,6 @@ namespace App\Services\LiveLesson;
 use App\Models\LiveLesson;
 use Illuminate\Support\Carbon;
 use App\Enums\Lesson\LiveLessonStatus;
-use App\Factories\VideoConference\VideoConferenceFactory;
 use App\Http\Requests\Dashboard\LiveLesson\LiveLessonRequest;
 
 class LiveLessonService
@@ -40,13 +39,12 @@ class LiveLessonService
   }
   public function createMeeting(LiveLesson $liveLesson, string $provider)
   {
-
-    $videoService = VideoConferenceFactory::make($provider);
-
-    return $videoService->createMeeting([
-      "topicName" => $liveLesson->name,
-      "startTime" => $liveLesson->session_date->toDateTimeString(),
-      'password' => $liveLesson->password,
-    ]);
+    return $liveLesson->scheduleMeeting($provider)
+      ->withTopic($liveLesson->name)
+      ->startingAt($liveLesson->session_date)
+      ->during($liveLesson->duration)
+      ->withMetaAttributes([
+        'password' => request('password')
+      ])->save();
   }
 }

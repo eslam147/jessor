@@ -225,7 +225,7 @@
                                 </div>
                             </div>
                             <div class="row">
-                                <div class="form-group col-sm-12 col-md-4">
+                                {{-- <div class="form-group col-sm-12 col-md-4">
                                     <label> {{ __('category') }} <span class="text-danger">*</span></label>
                                     <select name="category_id" class="form-control" id="edit_category_id">
                                         <option value="">{{ __('select') . ' ' . __('category') }}</option>
@@ -233,13 +233,13 @@
                                             <option value="{{ $cat->id }}">{{ $cat->name }}</option>
                                         @endforeach
                                     </select>
-                                </div>
-                                <div class="form-group col-sm-12 col-md-4">
+                                </div> --}}
+                                {{-- <div class="form-group col-sm-12 col-md-4">
                                     <label>{{ __('gr_number') }} <span class="text-danger">*</span></label>
                                     {!! Form::text('admission_no', null, ['placeholder' => __('admission_no'), 'class' => 'form-control', 'id' => 'edit_admission_no' ,'readonly'=>true]) !!}
 
-                                </div>
-                                <div class="form-group col-sm-12 col-md-4">
+                                </div> --}}
+                                {{-- <div class="form-group col-sm-12 col-md-4">
                                     <label>{{ __('roll_no') }} <span class="text-danger">*</span></label>
                                     {!! Form::text('roll_number', null, ['placeholder' => __('roll_no'), 'class' => 'form-control', 'id' => 'edit_roll_number']) !!}
                                 </div>
@@ -247,18 +247,18 @@
                                     <label>{{ __('caste') }}</label>
                                     {!! Form::text('caste', null, ['placeholder' => __('caste'), 'class' => 'form-control', 'id' => 'edit_caste']) !!}
 
-                                </div>
-                                <div class="form-group col-sm-12 col-md-4">
+                                </div> --}}
+                                {{-- <div class="form-group col-sm-12 col-md-4">
                                     <label>{{ __('religion') }}</label>
                                     {!! Form::text('religion', null, ['placeholder' => __('religion'), 'class' => 'form-control', 'id' => 'edit_religion']) !!}
-                                </div>
-                                <div class="form-group col-sm-12 col-md-4">
+                                </div> --}}
+                                {{-- <div class="form-group col-sm-12 col-md-4">
                                     <label>{{ __('admission_date') }} <span class="text-danger">*</span></label>
                                     {!! Form::text('admission_date', null, ['placeholder' => __('admission_date'), 'class' => 'datepicker-popup-no-future form-control', 'id' => 'edit_admission_date']) !!}
                                     <span class="input-group-addon input-group-append">
                                     </span>
-                                </div>
-                                <div class="form-group col-sm-12 col-md-4">
+                                </div> --}}
+                                {{-- <div class="form-group col-sm-12 col-md-4">
                                     <label>{{ __('blood_group') }} <span class="text-danger">*</span></label>
                                     <select name="blood_group" class="form-control" id="edit_blood_group">
                                         <option value="">{{ __('select') . ' ' . __('blood_group') }}</option>
@@ -271,27 +271,27 @@
                                         <option value="AB+">AB+</option>
                                         <option value="AB-">AB-</option>
                                     </select>
-                                </div>
-                                <div class="form-group col-sm-12 col-md-4">
+                                </div> --}}
+                                {{-- <div class="form-group col-sm-12 col-md-4">
                                     <label>{{ __('height') }} <span class="text-danger">*</span></label>
                                     {!! Form::text('height', null, ['placeholder' => __('height'), 'class' => 'form-control', 'id' => 'edit_height']) !!}
                                 </div>
                                 <div class="form-group col-sm-12 col-md-4">
                                     <label>{{ __('weight') }} <span class="text-danger">*</span></label>
                                     {!! Form::text('weight', null, ['placeholder' => __('weight'), 'class' => 'form-control', 'id' => 'edit_weight']) !!}
-                                </div>
+                                </div> --}}
                                 <div class="form-group col-sm-12 col-md-4">
                                     <label>{{ __('email') }} <span class="text-danger">*</span></label>
                                     {!! Form::text('email', null, ['placeholder' => __('email'), 'class' => 'form-control', 'id' => 'edit_email','disabled'=>true]) !!}
                                 </div>
-                                <div class="form-group col-12">
+                                {{-- <div class="form-group col-12">
                                     <label>{{ __('address') }} <span class="text-danger">*</span></label>
                                     {!! Form::textarea('current_address', null, ['placeholder' => __('current_address'), 'class' => 'form-control', 'id' => 'current_address', 'id' => 'edit_current_address', 'rows' => 2]) !!}
                                 </div>
                                 <div class="form-group col-12">
                                     <label>{{ __('permanent_address') }} <span class="text-danger">*</span></label>
                                     {!! Form::textarea('permanent_address', null, ['placeholder' => __('permanent_address'), 'class' => 'form-control', 'id' => 'permanent_address', 'id' => 'edit_permanent_address', 'rows' => 2]) !!}
-                                </div>
+                                </div> --}}
                             </div>
                             <div class="row">
                                 @foreach ($formFields as $row)

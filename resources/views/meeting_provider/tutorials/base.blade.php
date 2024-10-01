@@ -6,7 +6,7 @@
                     <h4 class="card-title">{{ __('zoom_tutorials') }}</h4>
                 </div>
                 <div class="card-body">
-                    @include('video_conference_tutorials.inc.zoom')
+                    @include('meeting_provider.tutorials.inc.zoom')
                 </div>
             </div>
         </div>
