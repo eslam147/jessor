@@ -68,7 +68,10 @@ class Handler extends ExceptionHandler
     {
         if (! App::environment('local') && app()->bound('sentry') && $this->shouldReport($exception)) {
             $eventId = app(HubInterface::class)->captureException($exception);
-            return response()->view('errors.500_custom', ['eventId' => $eventId], Response::HTTP_INTERNAL_SERVER_ERROR);
+            if(!$request->expectsJson()){
+                return response()->view('errors.500_custom', ['eventId' => $eventId], Response::HTTP_INTERNAL_SERVER_ERROR);
+            }
+            
         }
 
         return parent::render($request, $exception);

@@ -40,9 +40,9 @@ class MeetingProviderFactory
 
                 // #TODO VALIDATE CREDENTIALS
                 $this->setCredentials([
-                    'client_id' => $serviceSettings['client_id'],
-                    'client_secret' => $serviceSettings['client_secret'],
-                    'account_id' => $serviceSettings['account_id'],
+                    'client_id' => $serviceSettings['client_id'] ?? null,
+                    'client_secret' => $serviceSettings['client_secret'] ?? null,
+                    'account_id' => $serviceSettings['account_id'] ?? null,
                 ]);
                 return $this->getProviderInstance();
         }
