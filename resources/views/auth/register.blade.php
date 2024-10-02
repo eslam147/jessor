@@ -41,7 +41,7 @@
                                                 @foreach ($classSections as $section)
                                                     <option @selected(old('class_section_id') == $section->id) value="{{ $section->id }}">
                                                         {{ optional($section->class)->name }} -
-                                                        {{ optional($section->class)->medium?->name ?? ' ' }}
+                                                        {{ optional($section->class)?->medium?->name ?? ' ' }}
                                                         {{ optional($section->section)?->name }}
                                                         {{ optional($section->class?->streams)->name ?? ' ' }}
                                                     </option>

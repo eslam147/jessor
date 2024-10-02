@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Models\UserDevice;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class UserDeviceController extends Controller
@@ -32,7 +31,12 @@ class UserDeviceController extends Controller
         $sort = request('sort', 'id');
         $order = request('order', 'DESC');
 
-        $sql = UserDevice::with('user');
+        $sql = UserDevice::with([
+            'user' => function ($q) {
+                $q->withTrashed()->select('id', 'first_name', 'last_name', 'email', 'gender', 'mobile', 'dob');
+            }
+        ]);
+
         if (! empty(request('search'))) {
             $search = request('search');
             $sql->where('id', 'LIKE', "%{$search}%")
@@ -55,6 +59,7 @@ class UserDeviceController extends Controller
         $bulkData = [];
         $bulkData['total'] = $total;
 
+        // ----------------------------------------------- \\
         $no = 1;
         // ----------------------------------------------- \\
         foreach ($res as $row) {
@@ -63,11 +68,6 @@ class UserDeviceController extends Controller
                 'id' => $row->id,
                 'no' => $no++,
                 'user_id' => $row->user_id,
-                'first_name' => $user->first_name ?? '',
-                'last_name' => $user->last_name ??' ',
-                'email' => $user->email ?? '',
-                'gender' => $user->gender ??' ',
-                'mobile' => $user->mobile ?? '',
                 // ----------------------------------------------- \\
                 'device_name' => $row->device_name,
                 'device_ip' => $row->ip,
