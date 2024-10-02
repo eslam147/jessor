@@ -1296,8 +1296,7 @@ class StudentApiController extends Controller
         }
         try {
             $student = $request->user()->student;
-            $session_year = getSettings('session_year');
-            $session_year_id = $session_year['session_year'];
+            $session_year_id = settingByType('session_year');
 
             $attendance = Attendance::where('student_id', $student->id)->where('session_year_id', $session_year_id);
             $holidays = new Holiday;
@@ -1315,20 +1314,20 @@ class StudentApiController extends Controller
             $holidays = $holidays->get();
 
 
-            $response = array(
+            $response = [
                 'error' => false,
                 'message' => "Attendance Details Fetched Successfully",
                 'data' => ['attendance' => $attendance, 'holidays' => $holidays, 'session_year' => $session_year_data],
                 'code' => 200,
-            );
+            ];
         } catch (Exception $e) {
             report($e);
 
-            $response = array(
+            $response = [
                 'error' => true,
                 'message' => trans('error_occurred'),
                 'code' => 103,
-            );
+            ];
         }
         return response()->json($response);
     }
@@ -1341,12 +1340,11 @@ class StudentApiController extends Controller
         ]);
 
         if ($validator->fails()) {
-            $response = array(
+            return response()->json([
                 'error' => true,
                 'message' => $validator->errors()->first(),
                 'code' => 102,
-            );
-            return response()->json($response);
+            ]);
         }
         try {
             $student = $request->user()->student;
@@ -1356,12 +1354,11 @@ class StudentApiController extends Controller
             if (isset($request->type) && $request->type == "subject") {
                 $table = SubjectTeacher::where('class_section_id', $student->class_section_id)->where('subject_id', $request->subject_id)->get()->pluck('id');
                 if (empty($table)) {
-                    $response = array(
+                    return response()->json([
                         'error' => true,
                         'message' => "Invalid Subject ID",
                         'code' => 106,
-                    );
-                    return response()->json($response);
+                    ]);
                 }
             }
 
@@ -1505,19 +1502,19 @@ class StudentApiController extends Controller
                 }
             }
 
-            $response = array(
+            $response = [
                 'error' => false,
                 'data' => isset($exam_data) ? $exam_data : [],
                 'code' => 200,
-            );
+            ];
         } catch (Exception $e) {
             report($e);
 
-            $response = array(
+            $response = [
                 'error' => true,
                 'message' => trans('error_occurred'),
                 'code' => 103,
-            );
+            ];
         }
         return response()->json($response);
     }

@@ -23,7 +23,8 @@ class ImportListCoupons extends Command
         parent::__construct();
     }
     /*
-    php artisan import:coupons --tenant=zaakr --file=coupons_mina --tags=at_28_september_2024 --tags=importedBySemiColon
+    php artisan import:coupons --tenant=geo --file=2_secondary --class=3 --tags=2_oct_2024 --tags=importedBySemiColon
+    php artisan import:coupons --tenant=geo --file=3_secondary --class=4 --tags=2_oct_2024 --tags=importedBySemiColon
     */
     protected $signature = 'import:coupons {--tenant=} {--file=} {--class=} {--subject=} {--teacher=} {--tags=*}';
 
@@ -67,9 +68,9 @@ class ImportListCoupons extends Command
     {
         return $this->couponImport->setData(
             tags: (array) $options['tags'],
-            classId: $options['class'],
-            subjectId: $options['subject'],
-            teacherId: $options['teacher']
+            classId: $options['class'] ?? null,
+            subjectId: $options['subject'] ?? null,
+            teacherId: $options['teacher'] ?? null
         );
     }
     private function endTenant()

@@ -58,16 +58,16 @@ class UserDeviceController extends Controller
         $no = 1;
         // ----------------------------------------------- \\
         foreach ($res as $row) {
-            $user = optional( $row->user);
+            $user = optional($row?->user);
             $bulkData['rows'][] = [
                 'id' => $row->id,
                 'no' => $no++,
                 'user_id' => $row->user_id,
-                'first_name' => $user->first_name,
-                'last_name' => $user->last_name,
-                'email' => $user->email,
-                'gender' => $user->gender,
-                'mobile' => $user->mobile,
+                'first_name' => $user->first_name ?? '',
+                'last_name' => $user->last_name ??' ',
+                'email' => $user->email ?? '',
+                'gender' => $user->gender ??' ',
+                'mobile' => $user->mobile ?? '',
                 // ----------------------------------------------- \\
                 'device_name' => $row->device_name,
                 'device_ip' => $row->ip,
