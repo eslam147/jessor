@@ -73,11 +73,8 @@
                                     <div class="mt-3">
                                         <button type="submit" name="btnlogin" id="login_btn"
                                             class="btn btn-block btn-theme btn-lg font-weight-medium auth-form-btn">{{ __('login') }}</button>
-
                                     </div>
                                 </form>
-
-
                             </div>
                         </div>
                     </div>
