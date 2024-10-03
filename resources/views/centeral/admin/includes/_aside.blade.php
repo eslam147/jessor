@@ -61,9 +61,9 @@
 
                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
                             fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                            stroke-linejoin="round" class="feather feather-airplay">
-                            <path d="M5 17H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2h-1"></path>
-                            <polygon points="12 15 17 21 7 21 12 15"></polygon>
+                            stroke-linejoin="round" class="feather feather-dollar-sign">
+                            <line x1="12" y1="1" x2="12" y2="23"></line>
+                            <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
                         </svg>
                         <span>الباقات</span>
                     </div>
@@ -72,12 +72,13 @@
             <li class="menu {{ isActive('central.admin.tenants.index') }}">
                 <a href="{{ route('central.tenants.index') }}" aria-expanded="false" class="dropdown-toggle">
                     <div>
-
                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
                             fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                            stroke-linejoin="round" class="feather feather-airplay">
-                            <path d="M5 17H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2h-1"></path>
-                            <polygon points="12 15 17 21 7 21 12 15"></polygon>
+                            stroke-linejoin="round" class="feather feather-users">
+                            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                            <circle cx="9" cy="7" r="4"></circle>
+                            <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                            <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
                         </svg>
                         <span>المستخدمين</span>
                     </div>
@@ -107,15 +108,15 @@
                         </svg>
                     </div>
                 </a>
-                <ul class="collapse submenu list-unstyled  {{ routeIs('setting.*') ? 'show' : '' }}"
+                <ul class="collapse submenu list-unstyled  {{ routeIs('central.setting.*') ? 'show' : '' }}"
                     id="side_settings" data-bs-parent="#accordionExample">
-                    <li class="{{ isActive('setting.general') }}">
-                        <a href="{{ route('setting.general') }}"> الاعدادات العامه </a>
+                    <li class="{{ isActive('central.setting.general') }}">
+                        <a href="{{ route('central.setting.general') }}"> الاعدادات العامه </a>
                     </li>
                     {{-- @canAny('general-settings')
                     @endcanAny --}}
-             
-                    
+
+
                 </ul>
             </li>
             {{-- @canAny('general-settings')

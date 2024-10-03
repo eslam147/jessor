@@ -25,7 +25,7 @@
         </div>
     </div>
     <div class="col-12">
-        <form action="{{ route('admin-dashboard.setting.general.update') }}" method="POST" enctype="multipart/form-data">
+        <form action="{{ route('central.setting.general.update') }}" method="POST" enctype="multipart/form-data">
             @csrf
             @method('PUT')
             <div class="row">
