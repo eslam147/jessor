@@ -1,0 +1,9 @@
+ *[dir=rtl] .ps__rail-y {
+        right: unset !important;
+        left: 0px !important;
+    }
+
+    *[dir=rtl] .ps__thumb-y {
+        right: unset !important;
+        left: 2px !important;
+    }
