@@ -261,3 +261,15 @@ if (! function_exists('mainDirection')) {
         return LaravelLocalization::getCurrentLocaleDirection() === 'rtl' && ! $reverse ? 'right' : 'left';
     }
 }
+if (! function_exists('isActive')) {
+    function isActive($route)
+    {
+        return false;
+    }
+}
+if (! function_exists('routeIs')) {
+    function routeIs($route)
+    {
+        return false;
+    }
+}

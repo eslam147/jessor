@@ -26,6 +26,10 @@ class AppServiceProvider extends ServiceProvider
                 'email' => $notifiable->getEmailForPasswordReset(),
             ], false));
         });
+        // --------------------------------------- \\
+        view()->share('static_site_logo', asset("assets/logo.svg"));
+        view()->share('static_site_name', 'Jessor');
+        // --------------------------------------- \\
         Schema::defaultStringLength(191);
     }
 }
