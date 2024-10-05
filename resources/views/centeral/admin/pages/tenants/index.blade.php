@@ -17,10 +17,6 @@
 @endpush
 
 
-
-
-
-
 @section('content')
     <div class="col-12">
         <div class="middle-content container">
@@ -50,28 +46,36 @@
     <div class="col-xl-12 col-lg-12 col-sm-12  layout-spacing">
         <div class="card">
             <div class="card-body">
-                <table class="table table-striped text-center">
+                <table class="table text-center">
                     <thead>
                         <tr>
                             <th>#</th>
                             <th>Domain</th>
-                            <th>Action</th>
+                            <th>منذ</th>
                         </tr>
                     </thead>
                     <tbody>
                         @foreach ($tenants as $tenant)
                             <tr>
-                                <td scope="row">{{ $tenant->id }}</td>
-                                <td>{{ $tenant->domains()->value('domain') }}</td>
-                                <td>
-                                    <a class="btn btn-sm btn-primary" href="#">Edit</a>
+                                <td scope="row">
+                                    {{ $loop->iteration }}
                                 </td>
+                                <td >{{ $tenant->id }}</td>
+                                <td>
+                                    @if ($domain = $tenant->domains()->value('domain'))
+                                        <a class="btn btn-sm btn-primary" target="_blank" href="//{{ $domain }}">عرض
+                                            المنصه</a>
+                                    @endif
+                                </td>
+                                <td>{{ $tenant->created_at->toDateString() }}</td>
+
+                                {{-- <td>
+                                    <a class="btn btn-sm btn-primary" href="#">Edit</a>
+                                </td> --}}
                             </tr>
                         @endforeach
-
                     </tbody>
                 </table>
-                {{-- {!! $dataTable->table(['class' => 'table table-striped dt-table-hover dataTable text-center']) !!} --}}
             </div>
         </div>
     </div>
@@ -80,15 +84,8 @@
 
 
 @push('js')
-    <!-- BEGIN PAGE LEVEL SCRIPTS -->
     <script src="{{ asset('dashboard-admin-assets/src/plugins/src/table/datatable/datatables.js') }}"></script>
-    <!-- END PAGE LEVEL SCRIPTS -->
-
-    <!-- BEGIN THEME GLOBAL STYLE -->
     <script src="{{ asset('dashboard-admin-assets/src/plugins/src/sweetalerts2/sweetalerts2.min.js') }}"></script>
     <script src="{{ asset('js/button-confirmation-datatable.js') }}?v=123"></script>
     <script src="{{ asset('js/update-status-mode.js') }}"></script>
-    <!-- END THEME GLOBAL STYLE -->
-
-    {{-- {!! $dataTable->scripts() !!} --}}
 @endpush

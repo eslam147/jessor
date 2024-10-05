@@ -738,6 +738,9 @@
     "browser" : "Browser",
     "os" : "OS",
     "city" : "City",
-    "coupon_type" : "Coupon Type"
+    "coupon_type" : "Coupon Type",
+    "meeting_url" : "Meeting Url",
+    "started_at" : "Started At",
+    "session_date" : "Session Date"
 
 }
