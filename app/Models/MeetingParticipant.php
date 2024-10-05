@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -12,21 +11,18 @@ class MeetingParticipant extends MorphPivot
 {
     use HasFactory;
     protected $guarded = [];
-     /**
-     * Undocumented function
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
-     */
+    protected $table = 'meeting_participants';
+
     public function meeting(): BelongsTo
     {
         return $this->belongsTo(Meeting::class);
     }
 
-    /**
-     * Undocumented function
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\MorphTo
-     */
+    public function purchaseable(): MorphTo
+    {
+        return $this->morphTo();
+    }
+
     public function participant(): MorphTo
     {
         return $this->morphTo();
@@ -67,5 +63,4 @@ class MeetingParticipant extends MorphPivot
     {
         return $this->delete();
     }
-    
 }

@@ -191,11 +191,10 @@ class ParentsController extends Controller
     public function update(Request $request, $id)
     {
         if (! Auth::user()->can('parents-create') || ! Auth::user()->can('parents-edit')) {
-            $response = array(
+            return response()->json([
                 'error' => true,
                 'message' => trans('no_permission_message')
-            );
-            return response()->json($response);
+            ]);
         }
         $request->validate([
             'edit_id' => 'required',
@@ -214,11 +213,10 @@ class ParentsController extends Controller
                 'email' => 'required|unique:users,email,' . $parents->user_id,
             ]);
             if ($validator->fails()) {
-                $response = array(
+                return response()->json([
                     'error' => true,
                     'message' => $validator->errors()->first()
-                );
-                return response()->json($response);
+                ]);
             }
             $formFields = FormField::where('for', 2)->orderBy('rank', 'ASC')->get();
             $data = array();
@@ -312,17 +310,17 @@ class ParentsController extends Controller
             }
 
             $parents->save();
-
             $response = [
                 'error' => false,
                 'message' => trans('data_store_successfully')
             ];
         } catch (Throwable $e) {
-            $response = array(
+            report($e);
+            $response = [
                 'error' => true,
                 'message' => trans('error_occurred'),
                 'data' => $e
-            );
+            ];
         }
         return response()->json($response);
     }

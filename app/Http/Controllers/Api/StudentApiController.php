@@ -165,8 +165,6 @@ class StudentApiController extends Controller
             ]);
         }
 
-
-
         if (Auth::attempt(['email' => $request->gr_number, 'password' => $request->password])) {
 
             $session_year_id = settingByType('session_year');
@@ -187,12 +185,21 @@ class StudentApiController extends Controller
                     'error' => true,
                     'message' => 'Invalid Login Credentials',
                     'code' => 101
-
                 ], 200);
             }
             // $this->loginService->handleDeviceLimit($auth);
 
-            $token = $auth->createToken($auth->first_name)->plainTextToken;
+            $genarateToken = $auth->createToken($auth->first_name);
+            $token = $genarateToken->plainTextToken;
+            // $checkDevice = app(LoginService::class)->handleDeviceLimit($auth, 'api', $genarateToken->accessToken);
+            // if ($request->filled('device_token')) {
+            //     if (! $checkDevice) {
+            //         return response()->json([
+            //             'error' => true,
+            //             'message' => 'Maximum device limit reached. Please contact your administrator.',
+            //         ]);
+            //     }
+            // }
             $user = $auth->load(['student.class_section', 'student.category']);
 
             if ($request->fcm_id) {
@@ -204,6 +211,7 @@ class StudentApiController extends Controller
                 $auth->device_type = $request->device_type;
                 $auth->save();
             }
+
             $classSection = optional($user->student->class_section);
             $classSectionName = $classSection->class?->name . " " . $classSection->section?->name;
 
@@ -778,20 +786,20 @@ class StudentApiController extends Controller
                 );
             }
 
-            $response = array(
+            $response = [
                 'error' => false,
                 'message' => "Parent Details Fetched Successfully",
                 'data' => $data,
                 'code' => 200,
-            );
+            ];
         } catch (Exception $e) {
             report($e);
 
-            $response = array(
+            $response = [
                 'error' => true,
                 'message' => trans('error_occurred'),
                 'code' => 103,
-            );
+            ];
         }
         return response()->json($response);
     }
@@ -2750,52 +2758,74 @@ class StudentApiController extends Controller
                             $subquery->whereRaw("concat(first_name,' ',last_name) LIKE '%{$search}%'");
                         });
                     })
-                )
-                ->with('user:id,first_name,last_name,image,mobile,email', 'subjects.subject')
+                )->with('user:id,first_name,last_name,image,mobile,email', 'subjects.subject')
                 ->offset($offset)->limit($limit)
                 ->get();
 
+            $data = [];
 
+            // Fetch necessary data before the loop
+            $teacherIds = $teachers->pluck('id')->toArray();
+            $teacherUserIds = $teachers->pluck('user.id')->toArray();
+
+
+            $subjects = Subject::withWhereHas('teachers', function ($q) use ($teachers) {
+                $q->whereIn('teachers.id', $teachers->pluck('id'));
+            })->get();
+
+            // Fetch the last chat messages between the user and all teachers
+            $lastMessages = ChatMessage::with('file')
+                ->whereIn('modal_id', $teacherIds)
+                ->where(function ($query) use ($user) {
+                    $query->where('sender_id', $user->id)->orWhere('modal_id', $user->id);
+                })
+                ->latest()
+                ->get()
+                ->groupBy('modal_id');
+
+            // $readMessage = ReadMessage::where('modal_id', $receiver_id)->where('user_id', $sender_id)->first();
+            // if (empty($readMessage)) {
+            //     $readMessage = new ReadMessage();
+            //     $readMessage->modal_id = $receiver_id;
+            //     $readMessage->modal_type = 'App/Models/User';
+            //     $readMessage->user_id = $sender_id;
+            //     $readMessage->save();
+            // }
+
+            // Fetch the last read messages for the user and group them by teacher_id
+            $lastReadMessages = ReadMessage::where('modal_id', $user->id)
+                ->whereIn('user_id', $teacherIds)
+                ->get()
+                ->keyBy('user_id');
+
+            // Fetch unread message counts in one go
+            $unreadCounts = ChatMessage::whereIn('sender_id', $teacherIds)
+                ->where('modal_id', $user->id)
+                ->select('sender_id', DB::raw('COUNT(*) as unread_count'))
+                ->groupBy('sender_id')
+                ->get()
+                ->keyBy('sender_id');
 
             $data = [];
 
             foreach ($teachers as $teacher) {
+                $subjectData = $subjects->where('teachers.id', $teacher->id)->map(function ($subject) {
+                    return [
+                        'id' => $subject->id ?? '',
+                        'name' => $subject->name ?? '',
+                    ];
+                })->toArray();
+
+                $lastMessage = isset($lastMessages[$teacher->user->id]) ? $lastMessages[$teacher->user->id]->first() : null;
 
                 $unreadCount = 0;
-                $subjectData = [];
-
-                foreach ($teacher->subjects as $subject) {
-                    $subjectData[] = [
-                        'id' => $subject->subject->id ?? '',
-                        'name' => $subject->subject->name ?? '',
-                    ];
+                if (isset($lastReadMessages[$teacher->user->id])) {
+                    $lastReadMessageId = $lastReadMessages[$teacher->user->id]->last_read_message_id;
+                    $unreadCount = $lastReadMessageId
+                        ? ChatMessage::where('sender_id', $teacher->user->id)->where('modal_id', $user->id)->where('id', '>', $lastReadMessageId)->count()
+                        : $unreadCounts[$teacher->user->id]->unread_count ?? 0;
                 }
 
-                $lastMessage = ChatMessage::with('file')->where(function ($query) use ($user, $teacher) {
-                    $query->where('modal_id', $teacher->user->id)
-                        ->where('sender_id', $user->id);
-                })
-                    ->orWhere(function ($query) use ($user, $teacher) {
-                        $query->where('sender_id', $teacher->user->id)
-                            ->where('modal_id', $user->id);
-                    })
-                    ->select('id', 'body', 'date')
-                    ->latest()
-                    ->first();
-
-
-                $lastReadMessage = ReadMessage::where('modal_id', $user->id)->where('user_id', $teacher->user->id)->first();
-
-                if ($lastReadMessage) {
-
-                    $lastReadMessageId = $lastReadMessage->last_read_message_id;
-                    if (! empty($lastReadMessageId)) {
-                        $unreadCount = ChatMessage::where('sender_id', $teacher->user->id)->where('modal_id', $user->id)->where('id', '>', $lastReadMessageId)->count();
-                    } else {
-                        $unreadCount = ChatMessage::where('sender_id', $teacher->user->id)->where('modal_id', $user->id)->count();
-                    }
-
-                }
                 $data[] = [
                     'id' => $teacher->id,
                     'user_id' => $teacher->user->id,
@@ -2806,16 +2836,17 @@ class StudentApiController extends Controller
                     'image' => $teacher->user->image,
                     'mobile_no' => $teacher->user->mobile,
                     'subjects' => $subjectData,
-                    'last_message' => $lastMessage ?? null,
-                    'unread_message' => $unreadCount ?? 0
+                    'last_message' => $lastMessage,
+                    'unread_message' => $unreadCount
                 ];
-
             }
+
             $total_items = count($data);
 
-            $unreadusers = array_filter($data, function ($teacher) {
-                return $teacher['unread_message'] > 0;
-            });
+            $unreadusers = array_filter(
+                $data,
+                fn($teacher) => $teacher['unread_message'] > 0
+            );
 
             $totalunreadusers = count($unreadusers);
 
@@ -2823,7 +2854,7 @@ class StudentApiController extends Controller
                 return boolval(optional($user['last_message'])->date);
             })->values();
 
-            $response = [
+            return response()->json([
                 'error' => false,
                 'message' => 'Data Fetched Successfully',
                 'data' => [
@@ -2832,20 +2863,17 @@ class StudentApiController extends Controller
                     'total_unread_users' => $totalunreadusers,
                 ],
                 'code' => 100,
-            ];
-
-            return response()->json($response);
+            ]);
 
         } catch (Exception $e) {
             report($e);
 
-            $response = array(
+            return response()->json([
                 'error' => true,
                 'message' => trans('error_occurred'),
                 'code' => 103,
-            );
+            ]);
         }
-        return response()->json($response);
     }
 
     public function sendMessage(Request $request)
@@ -2867,13 +2895,13 @@ class StudentApiController extends Controller
             $sender_id = $request->user()->id;
             $receiver_id = $request->receiver_id;
 
-            $message = new ChatMessage();
-            $message->modal_id = $receiver_id;
-            $message->modal_type = User::class;
-            $message->sender_id = $sender_id;
-            $message->body = $request->message ?? '';
-            $message->date = now();
-            $message->save();
+            $message = ChatMessage::create([
+                'modal_id' => $receiver_id,
+                'modal_type' => User::class,
+                'sender_id' => $sender_id,
+                'body' => $request->message ?? '',
+                'date' => now(),
+            ]);
             $count = 0;
             $unreadCount = 0;
 
@@ -2883,11 +2911,11 @@ class StudentApiController extends Controller
                     $originalName = $uploadedFile->hashName();
                     $filePath = $uploadedFile->storeAs('chatfile', $originalName, 'public');
 
-                    $file = new ChatFile();
-                    $file->file_type = 1;
-                    $file->file_name = $filePath;
-                    $file->message_id = $message->id;
-                    $file->save();
+                    $file = ChatFile::create([
+                        'file_type' => 1,
+                        'file_name' => $filePath,
+                        'message_id' => $message->id,
+                    ]);
                     $count++;
                 }
             }
@@ -2916,13 +2944,13 @@ class StudentApiController extends Controller
 
                 }
 
-                $data = array(
+                $data = [
                     'id' => $message->id,
                     'sender_id' => $message->sender_id,
                     'body' => $message->body,
                     'date' => $message->date,
                     'files' => $chatfile
-                );
+                ];
             }
 
             $student = Students::with('user')->where('user_id', $sender_id)->first();

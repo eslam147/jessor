@@ -88,6 +88,9 @@ class UserController extends Controller
 
     public function destroy($id)
     {
+        if(!Auth::user()->can('user-deleted')){
+            return $this->permissionDenied();
+        }
         User::find($id)->delete();
         return redirect()->route('users.index')
             ->with('success', trans('data_delete_successfully'));

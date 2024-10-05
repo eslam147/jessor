@@ -3,26 +3,20 @@
 namespace App\Http\Resources\Dashboard;
 
 use App\Models\Lesson;
+use App\Models\Teacher;
 use Bavix\Wallet\Models\Wallet;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class CouponResource extends JsonResource
 {
-    /**
-     * Transform the resource into an array.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return array|\Illuminate\Contracts\Support\Arrayable|\JsonSerializable
-     */
     public function toArray($request)
     {
-        // $appliedTo =
         return [
             'code' => $this->code,
             'price' => $this->price,
             'maximum_usage' => $this->maximum_usage,
             'expiry_date' => $this->expiry_date->toDateString(),
-            'only_applied_to' => '$appliedTo',
+            'only_applied_to' => $this->appliedToFormat($this->onlyAppliedTo),
             'is_disabled' => $this->is_disabled,
             'used_count' => $this->usages->count(),
             'teacher' => optional($this->teacher)->user->full_name ?? 'N/A',
@@ -49,5 +43,12 @@ class CouponResource extends JsonResource
                 ];
             })
         ];
+    }
+    private function appliedToFormat($appliedTo): string
+    {
+        return match (get_class($appliedTo)) {
+            Lesson::class => "Lesson: {$appliedTo->name}",
+            default => "N/A"
+        };
     }
 }

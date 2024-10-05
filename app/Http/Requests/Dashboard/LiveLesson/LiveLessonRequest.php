@@ -21,6 +21,8 @@ class LiveLessonRequest extends FormRequest
             'subject_id' => 'required|numeric',
             'session_date' => 'required|date_format:Y-m-d\TH:i',
             'session_duration' => 'required|numeric|min:1',
+            'payment_status' => 'required|in:0,1',
+            'price' => 'nullable|required_if:payment_status,1|numeric|gt:0',
         ];
     }
 

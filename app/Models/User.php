@@ -18,8 +18,10 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 
 class User extends Authenticatable implements Wallet, Customer, BannableInterface
 {
-    use HasApiTokens, HasFactory, Notifiable, HasRoles;
-    use Bannable, SoftDeletes, HasWallet, CanPay;
+    use HasApiTokens, SoftDeletes, HasFactory, Notifiable,
+        Bannable, HasRoles,
+        HasWallet, CanPay;
+
     protected $guarded = [];
 
     protected $appends = [
@@ -70,7 +72,10 @@ class User extends Authenticatable implements Wallet, Customer, BannableInterfac
     //Getter Attributes
     public function getImageAttribute($value)
     {
-        return tenant_asset($value);
+        if($value){
+            return tenant_asset($value);
+        }
+        return global_asset('images/student_placeholder.png');
     }
     public function getFullNameAttribute()
     {

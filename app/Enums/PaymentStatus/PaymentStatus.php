@@ -17,6 +17,10 @@ enum PaymentStatus: string
             self::FREE => 'success',
         };
     }
+    public function isPaid()
+    {
+        return $this == self::PAID;
+    }
     public function translatedName()
     {
         return match ($this) {

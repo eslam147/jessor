@@ -2,17 +2,18 @@
 
 namespace App\Models;
 
+use App\Contracts\MeetingProviderContract;
 use Illuminate\Support\Carbon;
 use App\Enums\Lesson\LiveLessonStatus;
+use App\Factories\MeetingProvider\MeetingProviderFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
 
 class Meeting extends Model
 {
-    use HasFactory;
+    use SoftDeletes, HasFactory;
     protected $guarded = [];
     public $casts = [
         'meta' => 'json',
@@ -32,22 +33,15 @@ class Meeting extends Model
     }
     public function start(): self
     {
-        $this->instance->starting($this);
+        // $this->instance->starting($this);
 
         $startedAt = $this->started_at ?? now();
         $this->fill(['started_at' => $startedAt])->save();
 
-        $this->instance->started($this);
+        // $this->instance->started($this);
 
         return $this;
     }
-    use SoftDeletes;
-    // use HasMetaAttributes;
-    // use Traits\QueriesMeeting;
-    // use Traits\DefinesMeetingRelationship;
-    // use Traits\ManipulatesParticipants;
-    // use Traits\ProvidesMeetingAccessors;
-    // use Traits\ManipulatesMeeting;
 
     /**
      * The attributes that are mass assignable.
@@ -112,17 +106,18 @@ class Meeting extends Model
 
         return 0;
     }
-    /**
-     * Get the MorphToMany Relation with the participant models
-     *
-     * @param string $modelType
-     * @return \Illuminate\Database\Eloquent\Relations\MorphToMany
-     */
-    public function participants(string $modelType): MorphToMany
+
+
+    public function getInstanceAttribute(): MeetingProviderContract
     {
-        return $this->morphedByMany($modelType, 'participant')
+        return app(MeetingProviderFactory::class)->setProvider($this->provider)->build();
+    }
+
+    public function participants(): MorphToMany
+    {
+        return $this->morphedByMany(User::class, 'participant', 'meeting_participants')
             ->using(MeetingParticipant::class)
-            ->withPivot(['uuid', 'started_at', 'ended_at'])
+            ->withPivot(['joined_at'])
             ->withTimestamps();
     }
 }

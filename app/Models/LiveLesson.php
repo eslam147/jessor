@@ -7,7 +7,9 @@ use App\Traits\SchedulesMeetings;
 use App\Enums\Lesson\LiveLessonStatus;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Builder;
+use App\Enums\PaymentStatus\PaymentStatus;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
+use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class LiveLesson extends Model
@@ -15,7 +17,8 @@ class LiveLesson extends Model
     use HasFactory, BelongsToTeacher, SchedulesMeetings;
     protected $guarded = [];
     public $casts = [
-        'status' => LiveLessonStatus::class
+        'status' => LiveLessonStatus::class,
+        'payment_status' => PaymentStatus::class,
     ];
     public $dates = [
         'session_start_at'
@@ -51,7 +54,14 @@ class LiveLesson extends Model
 
     public function participants()
     {
-        return $this->morphMany(MeetingParticipant::class, Meeting::class);
+        return $this->hasManyThrough(
+            MeetingParticipant::class,
+            Meeting::class,
+            'scheduler_id'
+        )->where(
+                'scheduler_type',
+                array_search(static::class, Relation::morphMap()) ?: static::class
+            );
     }
     public function getLeftTimeAsPercentAttribute()
     {

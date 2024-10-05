@@ -23,8 +23,9 @@ class ImportListCoupons extends Command
         parent::__construct();
     }
     /*
-    php artisan import:coupons --tenant=geo --file=2_secondary --class=3 --tags=2_oct_2024 --tags=importedBySemiColon
-    php artisan import:coupons --tenant=geo --file=3_secondary --class=4 --tags=2_oct_2024 --tags=importedBySemiColon
+    php artisan import:coupons --tenant=geo --class=3 --file=geo4_secondary  --tags=at_5_oct_2024 --tags=importedBySemiColon
+    // php artisan import:coupons --tenant=zaakr --file=peter_nabil_500 --teacher=10 --tags=at_4_oct_2024 --tags=importedBySemiColon 
+
     */
     protected $signature = 'import:coupons {--tenant=} {--file=} {--class=} {--subject=} {--teacher=} {--tags=*}';
 
@@ -104,6 +105,5 @@ class ImportListCoupons extends Command
                 throw new \Exception("Subject with ID $subjectId not found.");
             }
         }
-
     }
 }

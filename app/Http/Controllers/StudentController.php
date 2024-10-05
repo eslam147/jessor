@@ -143,8 +143,8 @@ class StudentController extends Controller
                 'student_password' => ['nullable', Password::min(6)->mixedCase(), 'confirmed'],
 
                 'class_section_id' => 'required',
-                'parent' => 'required_without:guardian',
-                'guardian' => 'required_without:parent',
+                // 'parent' => 'required_without:guardian',
+                // 'guardian' => 'required_without:parent',
             ],
             [
                 'mobile.regex' => 'The mobile number must be a length of 7 to 15 digits.'

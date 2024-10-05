@@ -286,8 +286,8 @@ class ApiController extends Controller
 
         foreach ($classSections as $classSection) {
             $name = "{$classSection->class->name} - {$classSection->section->name} " .
-                    $classSection->class?->medium?->name . '' .
-                    optional($classSection->streams)->name ?? '';
+                $classSection->class?->medium?->name . '' .
+                optional($classSection->streams)->name ?? '';
             $classSectionsMapped[] = [
                 'id' => $classSection->id,
                 'name' => trim($name),
@@ -309,12 +309,11 @@ class ApiController extends Controller
             'new_confirm_password' => 'same:new_password',
         ]);
         if ($validator->fails()) {
-            $response = array(
+            return response()->json([
                 'error' => true,
                 'message' => $validator->errors()->first(),
                 'code' => 102,
-            );
-            return response()->json($response);
+            ]);
         }
 
         try {
@@ -447,5 +446,11 @@ class ApiController extends Controller
             ];
         }
         return response()->json($response);
+    }
+    public function deleteAccount(Request $request)
+    {
+        $user = $request->user();
+        $user->delete();
+        return $this->successResponse([], 'Account Deleted Successfully');
     }
 }

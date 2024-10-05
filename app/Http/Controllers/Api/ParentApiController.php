@@ -5,8 +5,6 @@ namespace App\Http\Controllers\Api;
 use Throwable;
 use Carbon\Carbon;
 use App\Models\Exam;
-use App\Models\User;
-use App\Models\Grade;
 use App\Models\Shift;
 use Razorpay\Api\Api;
 use App\Models\Lesson;
@@ -24,6 +22,7 @@ use App\Models\FeesClass;
 use App\Models\Timetable;
 use App\Models\Assignment;
 use App\Models\Attendance;
+use App\Models\Enrollment;
 use App\Models\ExamResult;
 use App\Models\OnlineExam;
 use App\Models\ChatMessage;
@@ -33,7 +32,6 @@ use App\Models\ReadMessage;
 use App\Models\SessionYear;
 use App\Models\Announcement;
 use App\Models\ClassSection;
-use App\Models\ClassSubject;
 use App\Models\ClassTeacher;
 use App\Models\Notification;
 use Illuminate\Http\Request;
@@ -46,19 +44,17 @@ use App\Models\UserNotification;
 use App\Models\PaidInstallmentFee;
 use App\Models\PaymentTransaction;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
 use App\Models\AssignmentSubmission;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Http;
-use Illuminate\Support\Facades\Mail;
 use App\Models\OnlineExamStudentAnswer;
 use App\Models\StudentOnlineExamStatus;
 use App\Models\OnlineExamQuestionAnswer;
 use App\Models\OnlineExamQuestionChoice;
 use Illuminate\Support\Facades\Validator;
 use App\Http\Resources\TimetableCollection;
-use Unicodeveloper\Paystack\Facades\Paystack;
+use App\Http\Resources\Student\Lesson\LessonResource;
 
 class ParentApiController extends Controller
 {
@@ -70,12 +66,12 @@ class ParentApiController extends Controller
         ]);
 
         if ($validator->fails()) {
-            $response = array(
+            return response()->json([
                 'error' => true,
                 'message' => $validator->errors()->first(),
                 'code' => 102,
-            );
-            return response()->json($response);
+
+            ]);
         }
 
         $session_year_id = settingByType('session_year');
@@ -224,12 +220,12 @@ class ParentApiController extends Controller
 
                 unset($child->user);
 
-
-                $classSectionName = $child->class_section->class->name . " " . $child->class_section->section->name;
+                $classSection = optional($child->class_section);
+                $classSectionName = $classSection->class?->name . " " . $classSection->section?->name;
 
 
                 // Set Stream name
-                $streamName = $child->class_section->class->streams->name ?? null;
+                $streamName = $classSection->class->streams->name ?? null;
                 if ($streamName !== null) {
                     $child->class_section_name = $classSectionName . " " . $streamName;
                 } else {
@@ -237,11 +233,11 @@ class ParentApiController extends Controller
                 }
 
                 //Set Medium name
-                $child->medium_name = $child->class_section->class->medium->name;
+                $child->medium_name = $classSection->class?->medium?->name;
 
 
                 //Set Shift name
-                $child->shift_id = $child->class_section->class->shifts->id ?? '';
+                $child->shift_id = $classSection->class->shifts->id ?? '';
                 $child->shift = Shift::find($child->shift_id);
                 if ($child->shift) {
                     $child->shift->id;
@@ -301,12 +297,11 @@ class ParentApiController extends Controller
         ]);
 
         if ($validator->fails()) {
-            $response = array(
+            return response()->json([
                 'error' => true,
                 'message' => $validator->errors()->first(),
                 'code' => 102,
-            );
-            return response()->json($response);
+            ]);
         }
         try {
             DB::enableQueryLog();
@@ -323,12 +318,11 @@ class ParentApiController extends Controller
             return response()->json($response, 200);
         } catch (\Exception $e) {
             report($e);
-            $response = array(
+            return response()->json([
                 'error' => true,
                 'message' => trans('error_occurred'),
                 'code' => 103,
-            );
-            return response()->json($response, 200);
+            ], 200);
         }
     }
 
@@ -339,33 +333,31 @@ class ParentApiController extends Controller
         ]);
 
         if ($validator->fails()) {
-            $response = array(
+            return response()->json([
                 'error' => true,
                 'message' => $validator->errors()->first(),
                 'code' => 102,
-            );
-            return response()->json($response);
+            ]);
         }
         try {
             $user = $request->user();
             $children = $user->parent->children()->first()->where('id', $request->child_id)->first();
             $subjects = $children->classSubjects();
-            $response = array(
+
+            return response()->json([
                 'error' => false,
                 'message' => 'Class Subject Fetched Successfully.',
                 'data' => $subjects,
                 'code' => 103
-            );
-            return response()->json($response, 200);
+            ], 200);
         } catch (\Exception $e) {
             report($e);
 
-            $response = array(
+            return response()->json([
                 'error' => true,
                 'message' => trans('error_occurred'),
                 'code' => 103
-            );
-            return response()->json($response, 200);
+            ], 200);
         }
     }
 
@@ -376,12 +368,11 @@ class ParentApiController extends Controller
         ]);
 
         if ($validator->fails()) {
-            $response = array(
+            return response()->json([
                 'error' => true,
                 'message' => $validator->errors()->first(),
                 'code' => 102,
-            );
-            return response()->json($response);
+            ]);
         }
         try {
             $user = $request->user();
@@ -411,12 +402,12 @@ class ParentApiController extends Controller
                 }
             }
 
-            $response = array(
+            $response = [
                 'error' => false,
                 'message' => "Timetable Fetched Successfully",
                 'data' => new TimetableCollection($new_timetable),
                 'code' => 200,
-            );
+            ];
         } catch (\Exception $e) {
             report($e);
 
@@ -443,37 +434,46 @@ class ParentApiController extends Controller
         ]);
 
         if ($validator->fails()) {
-            $response = array(
+            return response()->json([
                 'error' => true,
                 'message' => $validator->errors()->first(),
                 'code' => 102,
-            );
-            return response()->json($response);
+            ]);
         }
 
         try {
+            // -------------------------------------- \\
             $user = $request->user();
             $children = $user->parent->children()->first()->where('id', $request->child_id)->first();
-            $data = Lesson::where('class_section_id', $children->class_section_id)->where('subject_id', $request->subject_id)->with('topic', 'file');
-            if ($request->lesson_id) {
-                $data->where('id', $request->lesson_id);
-            }
-            $data = $data->get();
+            // -------------------------------------- \\
+            $data = Lesson::where('teacher_id', $request->teacher_id)
+                ->active()
+                ->where('subject_id', $request->subject_id)
+                ->relatedToCurrentStudentClass($children)
+                ->with('topic.file', 'file', 'subject', 'class');
+            // -------------------------------------- \\
 
-            $response = array(
+            $data = $data->addSelect([
+                'is_enrolled' => Enrollment::whereColumn('lesson_id', 'lessons.id')
+                    ->select('id')
+                    ->activeEnrollments($children->id),
+            ])->get();
+
+            $response = [
                 'error' => false,
                 'message' => "Lessons Fetched Successfully",
-                'data' => $data,
+                'data' => LessonResource::collection($data),
                 'code' => 200,
-            );
+            ];
+
         } catch (\Exception $e) {
             report($e);
 
-            $response = array(
+            $response = [
                 'error' => true,
                 'message' => trans('error_occurred'),
                 'code' => 103,
-            );
+            ];
         }
         return response()->json($response);
     }
@@ -492,12 +492,11 @@ class ParentApiController extends Controller
         ]);
 
         if ($validator->fails()) {
-            $response = array(
+            return response()->json([
                 'error' => true,
                 'message' => $validator->errors()->first(),
                 'code' => 102,
-            );
-            return response()->json($response);
+            ]);
         }
 
         try {
@@ -514,20 +513,20 @@ class ParentApiController extends Controller
             }
             $data = $data->get();
 
-            $response = array(
+            $response = [
                 'error' => false,
                 'message' => "Topics Fetched Successfully",
                 'data' => $data,
                 'code' => 200,
-            );
+            ];
         } catch (\Exception $e) {
             report($e);
 
-            $response = array(
+            $response = [
                 'error' => true,
                 'message' => trans('error_occurred'),
                 'code' => 103,
-            );
+            ];
         }
         return response()->json($response);
     }
@@ -547,12 +546,11 @@ class ParentApiController extends Controller
         ]);
 
         if ($validator->fails()) {
-            $response = array(
+            return response()->json([
                 'error' => true,
                 'message' => $validator->errors()->first(),
                 'code' => 102,
-            );
-            return response()->json($response);
+            ]);
         }
 
         try {
@@ -589,20 +587,20 @@ class ParentApiController extends Controller
             }
 
             $data = $data->orderBy('id', 'desc')->paginate();
-            $response = array(
+            $response = [
                 'error' => false,
                 'message' => "Assignments Fetched Successfully",
                 'data' => $data,
                 'code' => 200,
-            );
+            ];
         } catch (\Exception $e) {
             report($e);
 
-            $response = array(
+            $response = [
                 'error' => true,
                 'message' => trans('error_occurred'),
                 'code' => 103,
-            );
+            ];
         }
         return response()->json($response);
     }
@@ -621,12 +619,11 @@ class ParentApiController extends Controller
         ]);
 
         if ($validator->fails()) {
-            $response = array(
+            return response()->json([
                 'error' => true,
                 'message' => $validator->errors()->first(),
                 'code' => 102,
-            );
-            return response()->json($response);
+            ]);
         }
         try {
             $user = $request->user();
@@ -676,12 +673,11 @@ class ParentApiController extends Controller
         ]);
 
         if ($validator->fails()) {
-            $response = array(
+            return response()->json([
                 'error' => true,
                 'message' => $validator->errors()->first(),
                 'code' => 102,
-            );
-            return response()->json($response);
+            ]);
         }
         try {
             $children = null;
@@ -689,12 +685,11 @@ class ParentApiController extends Controller
                 $user = $request->user();
                 $children = $user->parent->children()->first()->where('id', $request->child_id)->first();
                 if (empty($children)) {
-                    $response = array(
+                    return response()->json([
                         'error' => true,
                         'message' => "Invalid Child  ID",
                         'code' => 106,
-                    );
-                    return response()->json($response);
+                    ]);
                 }
                 $class_id = $children->class_section->class->id;
             }
@@ -705,12 +700,11 @@ class ParentApiController extends Controller
             if (isset($request->type) && $request->type == "subject") {
                 $table = SubjectTeacher::where('class_section_id', $children->class_section_id)->where('subject_id', $request->subject_id)->get()->pluck('id');
                 if (empty($table)) {
-                    $response = array(
+                    return response()->json([
                         'error' => true,
                         'message' => "Invalid Subject ID",
                         'code' => 106,
-                    );
-                    return response()->json($response);
+                    ]);
                 }
             }
             $data = Announcement::with('file')->where('session_year_id', $session_year_id);
@@ -728,20 +722,20 @@ class ParentApiController extends Controller
             }
 
             $data = $data->orderBy('id', 'desc')->paginate();
-            $response = array(
+            $response = [
                 'error' => false,
                 'message' => "Announcement Details Fetched Successfully",
                 'data' => $data,
                 'code' => 200,
-            );
+            ];
         } catch (\Exception $e) {
             report($e);
 
-            $response = array(
+            $response = [
                 'error' => true,
                 'message' => trans('error_occurred'),
                 'code' => 103,
-            );
+            ];
         }
         return response()->json($response);
     }
@@ -752,12 +746,11 @@ class ParentApiController extends Controller
             'child_id' => 'required|numeric',
         ]);
         if ($validator->fails()) {
-            $response = array(
+            return response()->json([
                 'error' => true,
                 'message' => $validator->errors()->first(),
                 'code' => 102,
-            );
-            return response()->json($response);
+            ]);
         }
         try {
             $user = $request->user();
@@ -786,7 +779,6 @@ class ParentApiController extends Controller
                 foreach ($teacher->subjects as $subject) {
                     $subjectData[] = $subject->subject->name;
                 }
-                $subjects = implode(', ', $subjectData);
 
                 $data[] = [
                     'id' => $teacher->id,
@@ -797,8 +789,7 @@ class ParentApiController extends Controller
                     'email' => $teacher->user->email,
                     'image' => $teacher->user->image,
                     'dob' => $teacher->user->dob,
-                    'mobile_no' => $teacher->user->mobile,
-                    'subjects' => $subjects,
+                    'subjects' => implode(', ', $subjectData),
                 ];
 
             }
@@ -2385,8 +2376,7 @@ class ParentApiController extends Controller
             $session_year = getSettings('session_year');
             $session_year_id = $session_year['session_year'];
 
-            $compulsory_fees_mode = getSettings('compulsory_fee_payment_mode');
-            $compulsory_fees_mode = $compulsory_fees_mode['compulsory_fee_payment_mode'];
+            $compulsory_fees_mode = settingByType('compulsory_fee_payment_mode');
 
             $session_year = SessionYear::where('id', $session_year_id)->first();
             $isInstallment = $session_year->include_fee_installments;

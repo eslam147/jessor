@@ -11,4 +11,11 @@ use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 class Controller extends BaseController
 {
     use AuthorizesRequests, DispatchesJobs, ValidatesRequests, ApiResponse;
+    public function permissionDenied()
+    {
+        return to_route('home')->withErrors([
+            'message' => trans('no_permission_message')
+        ]);
+    }
+
 }

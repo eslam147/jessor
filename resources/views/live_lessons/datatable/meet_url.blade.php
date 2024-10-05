@@ -3,4 +3,6 @@
         <i class="fa fa-video-camera"></i>
         Open Meeting
     </a>
+@else
+    Not Created
 @endif

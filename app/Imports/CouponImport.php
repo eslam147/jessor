@@ -18,7 +18,6 @@ class CouponImport implements ToCollection, WithHeadingRow, WithProgressBar
     public array $tags = [
         'importedBySemiColon',
     ];
-    // php artisan import:coupons --tenant=infin1 --file=2000_all --tags=at_12_september_2024 --tags=importedBySemiColon 
     public $subjectId = null;
     public $teacherId = null;
     public $classId = null;
