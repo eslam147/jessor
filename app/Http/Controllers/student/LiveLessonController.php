@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers\student;
 
-use App\Models\Lesson;
+use App\Models\User;
 use App\Models\LiveLesson;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -30,8 +30,13 @@ class LiveLessonController extends Controller
             ->orderByDesc('id')
             ->where('status', '!=', LiveLessonStatus::FINISHED)
             ->with('subject', 'teacher.user')
-            ->get()
+            ->withCount([
+                'participants' => fn($q) => $q
+                    ->where('participant_type', User::class)
+                    ->where('participant_id', Auth::user()->id),
+            ])->get()
             ->groupBy(fn($item) => $item->session_start_at->format('Y-m-d'));
+        // meeting->participants->where('users.id', auth()->user()->id)->first()
 
         return view('student_dashboard.live_lessons.index', compact('liveSessions'));
     }
@@ -39,12 +44,12 @@ class LiveLessonController extends Controller
     {
         $paymentMethod = $request->input('payment_method');
         $user = Auth::user();
-        // dd(
-        //     $liveLesson,
-        //     $request->all()
-        // );
+        $liveLesson->load([
+            'meeting'
+        ]);
+
         try {
-            if ($this->purchaseService->isLessonAlreadyEnrolled($lesson, $user->id)) {
+            if ($liveLesson->meeting->participants()->where('users.id', $user->id)->exists()) {
                 Alert::warning('warning', 'You have already enrolled this lesson.');
                 return redirect()->back();
             }
@@ -60,11 +65,12 @@ class LiveLessonController extends Controller
             } else if ($paymentMethod == 'coupon_code') {
                 $purchaseCode = $request->input('purchase_code');
 
-                $applyCouponCode = $this->couponService->redeemCoupon($user, $purchaseCode, $lesson);
+                $applyCouponCode = $this->couponService->redeemCoupon($user, $purchaseCode, $liveLesson);
                 if (! $applyCouponCode['status']) {
                     Alert::error('error', $applyCouponCode['message']);
                 }
             }
+
             $enrollLesson = match ($paymentMethod) {
                 'wallet' => app(EnrollmentAction::class)->usingWallet($liveLesson),
             // 'coupon_code' => app(EnrollmentAction::class)->usingCoupon($lesson),
@@ -74,8 +80,10 @@ class LiveLessonController extends Controller
             return back();
 
         } catch (\Exception $e) {
-            DB::rollBack();
+            // throw $e;
             report($e);
+            
+            DB::rollBack();
             Alert::error('error', "Error When Unlocking Lesson.");
             return redirect()->back();
         }

@@ -9,9 +9,8 @@ use Illuminate\Database\Eloquent\Model;
 use App\Dtos\Meeting\MeetingResponseDTO;
 use App\Contracts\MeetingProviderContract;
 use App\Factories\MeetingProvider\MeetingProviderFactory;
-use Illuminate\Contracts\Support\Arrayable;
 
-class MeetingBuilder implements Arrayable
+class MeetingBuilder
 {
 
     /**
@@ -157,22 +156,6 @@ class MeetingBuilder implements Arrayable
         return $meeting;
     }
 
-    /**
-     * Undocumented function
-     *
-     * @return array
-     */
-    public function toArray(): array
-    {
-        return [
-            'topic' => $this->topic,
-            'startTime' => $this->startTime->format('Y-m-d\TH:i:se'),
-            'duration' => $this->duration,
-            'provider' => $this->provider->getFacadeAccessor(),
-            'scheduler' => $this->scheduler,
-            'metaAttributes' => $this->metaAttributes,
-        ];
-    }
     private function saveMeeting(MeetingResponseDTO $scheduledMeeting): Meeting
     {
         $meeting = new Meeting([

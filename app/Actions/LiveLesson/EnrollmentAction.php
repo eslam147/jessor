@@ -2,6 +2,7 @@
 namespace App\Actions\LiveLesson;
 
 use App\Models\LiveLesson;
+use App\Models\MeetingParticipant;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use App\Services\Coupon\CouponService;
@@ -39,11 +40,16 @@ class EnrollmentAction
                 $user->withdraw($lesson->price, [
                     'description' => "Enroll Lesson {$lesson->name}",
                 ]);
-                // $particapnt = $lesson->participants()->where('user_id', $user->id)->first();
-                // if ($particapnt) {
-                //     $particapnt->delete();
-                // }
-                // $lesson->participants();
+                // ----------------------------------------------- #
+                if ($lesson->meeting) {
+                    $participant = new MeetingParticipant();
+                    $participant->meeting()->associate($lesson->meeting);
+
+                    $participant->participant()->associate($user);
+                    $participant->purchaseable()->associate($user->wallet()->first());
+
+                    $participant->save();
+                }
                 // ----------------------------------------------- #
                 // $this->purchaseService->enrollLesson($lesson, $user->id);
             });

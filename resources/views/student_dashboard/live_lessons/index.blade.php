@@ -62,7 +62,7 @@
                                                             </p>
 
                                                             @if (!$session->status->isFinished())
-                                                                @if ('Student Joined Lesson Logic')
+                                                                @if ($session->participants_count > 0)
                                                                     @if ($session->status->isStarted())
                                                                         <a class="btn btn-sm btn-bold btn-primary mt-15"
                                                                             target="_blank"
@@ -150,9 +150,8 @@
                             </div>
                         @endforeach
                     @endforeach
-
             </section>
         </div>
     </div>
-    {{-- @include('student_dashboard.live_lessons.partials.purchase_lessons_modal') --}}
+    @include('student_dashboard.live_lessons.partials.purchase_lessons_modal')
 @endsection

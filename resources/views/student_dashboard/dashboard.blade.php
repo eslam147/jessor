@@ -255,7 +255,7 @@
                             </div>
                             <div class="box-body p-0">
                                 <div class="media-list media-list-hover">
-                                    {{-- @foreach ($liveSessions as $session)
+                                    @foreach ($liveSessions as $session)
                                         <div class="media bar-0">
                                             <a class="align-self-start" href="#"><img
                                                     class="avatar avatar-lg bg-success-light rounded"
@@ -265,14 +265,14 @@
                                                     <a class="hover-success fs-16"
                                                         href="#">{{ $session->teacher->user->full_name }}</a>
                                                     <span class="float-end text-fade"><span
-                                                            class="fw-500">{{ $session->start_at->format('Y-m-d g:i A') }}</span></span>
+                                                            class="fw-500">{{ $session->session_start_at->format('Y-m-d g:i A') }}</span></span>
                                                 </p>
                                                 <h6 class="text-fade my-10">{{ $session->name }} <span class="text-success">({{ $session->subject->name }})</span> </h6>
                                                 <p>{{ $session->description }}</p>
                                                 </h6>
                                             </div>
                                         </div>
-                                    @endforeach --}}
+                                    @endforeach
                                 </div>
                             </div>
                         </div>

@@ -78,9 +78,33 @@
                                         placeholder="{{ __('lesson_name') }}" class="form-control" />
                                 </div>
 
-                                <div class="form-group col-sm-12 col-md-8">
+                                <div class="form-group col-sm-12 col-md-6">
                                     <label>{{ __('lesson_description') }} <span class="text-danger">*</span></label>
                                     <textarea id="description" name="description" placeholder="{{ __('lesson_description') }}" class="form-control"></textarea>
+                                </div>
+                                <div class="form-group col-sm-12 col-md-6">
+                                    <label>{{ __('paid_or_free') }} <span class="text-danger">*</span></label>
+                                    <div class="d-flex">
+                                        <div class="form-check form-check-inline">
+                                            <label class="form-check-label">
+                                                <input name="payment_status" class="payment_status" type="radio"
+                                                    value="0">
+                                                Free
+                                                <i class="input-helper"></i></label>
+                                        </div>
+                                        <div class="form-check form-check-inline">
+                                            <label class="form-check-label">
+                                                <input name="payment_status" class="payment_status" type="radio"
+                                                    value="1">
+                                                Paid
+                                                <i class="input-helper"></i></label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="form-group col-sm-12 col-md-6 price_row">
+                                    <label>{{ __('price') }} <span class="text-danger">*</span></label>
+                                    <input type="number" min="1" step="0.01" id="price" disabled
+                                        name="price" placeholder="{{ __('price') }}" class="form-control" />
                                 </div>
                                 <hr>
 
@@ -175,6 +199,12 @@
                                     <th scope="col" data-field="meeting_url" data-sortable="false">
                                         {{ __('meeting_url') }}
                                     </th>
+                                    <th scope="col" data-field="price" data-sortable="false">
+                                        {{ __('price') }}
+                                    </th>
+                                    <th scope="col" data-field="payment_status" data-sortable="false">
+                                        {{ __('payment_status') }}
+                                    </th>
                                     <th scope="col" data-field="duration_readable" data-sortable="false">
                                         {{ __('duration') }}
                                     </th>
@@ -212,6 +242,22 @@
                 'session_year_id': $('#session_year_id').val(),
             };
         }
+        $('.lesson_has_expire_date').change(function(e) {
+            if ($(this).is(':checked')) {
+                $('.lesson_expiry_days input').removeAttr('disabled');
+            } else {
+                $('.lesson_expiry_days input').attr('disabled', true);
+            }
+        });
+
+        $(document).on('change', '.payment_status', function() {
+            let $this = $(this);
+            if ($this.val() == 1) {
+                $('.price_row input').removeAttr('disabled');
+            } else {
+                $('.price_row input').attr('disabled', '');
+            }
+        })
         window.actionEvents = {
             'click .start_meeting': function(e, value, row, index) {
                 e.preventDefault();
@@ -236,7 +282,7 @@
 
                                 $("#table_list").bootstrapTable("refresh");
                                 // Open Tab with meeting link
-                                if (response.meeting_url) {
+                                if (response.data.meeting_url) {
                                     window.open(response.meeting_url, '_blank');
                                 }
                             }
@@ -309,7 +355,6 @@
                         let students = response.data.students;
                         (Array.from(students)).forEach(student => {
                             let joinStatus = student.is_joined ? '✅ Joined' : '❌ Not Joined';
-
                             let studentRow = `<tr>
                         <td>${student.id}</td>
                         <td>${student.name}</td>

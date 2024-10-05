@@ -165,16 +165,19 @@ Route::middleware([
     /**
      * GENERAL APIs
      **/
-    Route::get('holidays', [ApiController::class, 'getHolidays']);
-    Route::get('sliders', [ApiController::class, 'getSliders']);
-    Route::get('classes', [ApiController::class, 'getClassSchools']);
-    Route::get('current-session-year', [ApiController::class, 'getSessionYear']);
-    Route::get('settings', [ApiController::class, 'getSettings']);
-    Route::post('forgot-password', [ApiController::class, 'forgotPassword']);
-    Route::get('get-events-list', [ApiController::class, 'getEvents']);
-    Route::get('get-events-details', [ApiController::class, 'getEventsDetails']);
-    Route::group(['middleware' => ['auth:sanctum',]], function () {
-        Route::post('change-password', [ApiController::class, 'changePassword']);
+    Route::controller(ApiController::class)->group(function () {
+        Route::get('holidays', 'getHolidays');
+        Route::get('sliders', 'getSliders');
+        Route::get('classes', 'getClassSchools');
+        Route::get('current-session-year', 'getSessionYear');
+        Route::get('settings', 'getSettings');
+        Route::post('forgot-password', 'forgotPassword');
+        Route::get('get-events-list', 'getEvents');
+        Route::get('get-events-details', 'getEventsDetails');
+        Route::group(['middleware' => ['auth:sanctum']], function () {
+            Route::post('change-password', 'changePassword');
+            Route::delete('delete-account', 'deleteAccount');
+        });
     });
 
 });

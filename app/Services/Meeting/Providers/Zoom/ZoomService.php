@@ -10,9 +10,9 @@ use Jubaer\Zoom\Facades\Zoom as ZoomFacade;
 
 class ZoomService implements MeetingProviderContract
 {
-    public function __construct(
-        // private readonly ZoomService $zoomService
-    ) {
+    public function starting()
+    {
+
     }
     public function getFacadeAccessor(): string
     {
