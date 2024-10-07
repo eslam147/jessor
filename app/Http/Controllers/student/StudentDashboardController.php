@@ -2,59 +2,32 @@
 
 namespace App\Http\Controllers\student;
 
+use App\Models\User;
 use App\Models\Coupon;
 use App\Models\Lesson;
-use App\Models\Subject;
-use App\Models\Students;
-use App\Models\ClassSection;
-use App\Models\ClassSubject;
-use Illuminate\Http\Request;
+
+use App\Models\LiveLesson;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
+use App\Enums\Lesson\LiveLessonStatus;
 
 class StudentDashboardController extends Controller
 {
     public function index()
     {
-        $subjects = [];
         $purchasedLessons = Lesson::withWhereHas('studentActiveEnrollment')->orderByDesc('id')->with('subject')->get();
-        //get the subjects of the student
-        // $studentClassSection = Auth::user()->student->class_section_id;
-        // $class_section = ClassSection::find($studentClassSection);
-        // if ($class_section) {
-        //     $class_id = $class_section->class_id;
-        //     $subjects = Subject::whereHas('class', function ($q) use ($class_id) {
-        //         $q->where('class_id', $class_id);
-        //     })->latest()->take(3)->get();
-        // }
+        $classSectionId = Auth::user()->student()->value('class_section_id') ?? 0;
+        
+        $liveSessions = LiveLesson::where('class_section_id', $classSectionId)
+            ->where('status', LiveLessonStatus::SCHEDULED)
+            ->orderByDesc('id')
+            ->with('subject', 'teacher.user')
+            ->whereHas('participants',function ($q){
+                $q->where('participant_type', User::class)->where('participant_id', Auth::user()->id);
+            })->get();
 
         //get the time table of the student
-        return view('student_dashboard.dashboard', compact('purchasedLessons'));
-    }
-
-    public function create()
-    {
-        //
-    }
-
-    public function store(Request $request)
-    {
-        //
-    }
-
-    public function show($id)
-    {
-        //
-    }
-
-    public function edit($id)
-    {
-        //
-    }
-
-    public function update(Request $request, $id)
-    {
-        //
+        return view('student_dashboard.dashboard', compact('purchasedLessons', 'liveSessions'));
     }
 
     public function couponHistory()

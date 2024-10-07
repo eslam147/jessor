@@ -17,7 +17,7 @@ class RegisterAuthService
 {
     private static $parentRole;
     const FEMALE = 'female';
-    const MALE = 'male'; 
+    const MALE = 'male';
     public function __construct()
     {
         self::$parentRole = Role::where('name', 'Parent')->first();
@@ -25,9 +25,9 @@ class RegisterAuthService
 
     public function storeParents($request)
     {
-        if(! intval($request->father_email)) {
+        if (! intval($request->father_email)) {
             $father = $this->storeFather($request);
-        }else{
+        } else {
             $father = $this->findExistingParent($request->father_email);
         }
 
@@ -63,8 +63,9 @@ class RegisterAuthService
     }
     private function storeFather($request)
     {
-        #TODO Use Password Of Father Request
-        $father_plaintext_password = str_replace('-', '', date('d-m-Y', strtotime($request->father_dob)));
+        $plainTextPassword = str_replace('-', '', date('d-m-Y', strtotime($request->father_dob)));
+
+        $password = ! empty($request->father_password) ? $request->father_password : $plainTextPassword;
 
         $father_email = $request->father_email;
         $gender = 'Male';
@@ -73,7 +74,7 @@ class RegisterAuthService
             $request->father_last_name,
             $request->father_mobile,
             $father_email,
-            $father_plaintext_password,
+            bcrypt($password),
             $gender
         );
         $user->assignRole(self::$parentRole);
@@ -119,17 +120,18 @@ class RegisterAuthService
     private function storeMother($request): User
     {
         $mother_plaintext_password = str_replace('-', '', date('d-m-Y', strtotime($request->mother_dob)));
-        $mother_email = $request->mother_email;
+        $password = ! empty($request->mother_password) ? $request->mother_password : $mother_plaintext_password;
+
         $mother = $this->createUser(
             $request->mother_first_name,
             $request->mother_last_name,
             $request->mother_mobile,
-            $mother_email,
-            $mother_plaintext_password,
+            $request->mother_email,
+            bcrypt($password),
             'Female'
         );
-        $mother->assignRole(self::$parentRole);
 
+        $mother->assignRole(self::$parentRole);
         $mother_parent = new Parents();
 
         //Parent Dynamic FormField
@@ -144,17 +146,17 @@ class RegisterAuthService
             $dynamic_data
         );
         // End Parent Dynamic FormField
-
+        // --------------------------------------------------- \\
         $mother_parent->user_id = $mother->id;
         $mother_parent->first_name = $request->mother_first_name;
         $mother_parent->last_name = $request->mother_last_name;
-
-        $mother_parent->mobile = $request->mother_mobile;
-        $mother_parent->email = $request->mother_email;
-
+        // --------------------------------------------------- \\
+        $mother_parent->mobile = $mother->mobile;
+        $mother_parent->email = $mother->email;
+        // --------------------------------------------------- \\
         $mother_parent->gender = 'Female';
         $mother_parent->dynamic_fields = json_encode($data);
-
+        // --------------------------------------------------- \\
         $mother_parent->save();
 
         return $mother;
@@ -175,13 +177,14 @@ class RegisterAuthService
     private function storeGuardianModel($request)
     {
         $guardian_plaintext_password = str_replace('-', '', date('d-m-Y', strtotime($request->guardian_dob)));
-        $guardian_email = $request->guardian_email;
+        $password = ! empty($request->guardian_password) ? $request->guardian_password : $guardian_plaintext_password;
+        $guardianEmail = $request->guardian_email;
         $guardian_user = $this->createUser(
             $request->guardian_first_name,
             $request->guardian_last_name,
             $request->guardian_mobile,
-            $request->guardian_email,
-            $guardian_plaintext_password,
+            $guardianEmail,
+            $password,
             $request->guardian_gender,
         );
 
@@ -202,7 +205,7 @@ class RegisterAuthService
         $guardian_parent->first_name = $request->guardian_first_name;
         $guardian_parent->last_name = $request->guardian_last_name;
 
-        $guardian_parent->email = $guardian_email;
+        $guardian_parent->email = $guardianEmail;
         $guardian_parent->mobile = $request->guardian_mobile;
         $guardian_parent->gender = $request->guardian_gender;
         $guardian_parent->dynamic_fields = json_encode($data);
@@ -234,6 +237,7 @@ class RegisterAuthService
         $student->class_section_id = $request->class_section_id;
         $student->category_id = $request->category_id;
         $student->admission_no = $this->setSetudentGrNumber();
+        $student->admission_date = today();
 
         $student->father_id = $fatherId;
         $student->mother_id = $motherId;

@@ -19,7 +19,24 @@
                 <p><strong>Type:</strong> <span id="coupon-type"></span></p>
                 <p><strong>Only Applied To:</strong> <span id="coupon-only-applied-to"></span></p>
                 <p><strong>Created At:</strong> <span id="coupon-created_at"></span></p>
-        
+                <table id="coupon_usages" class="table table-responsive table-dark">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>{{ __('student_name') }}</th>
+                            <th>{{ __('email') }}</th>
+                            <th>{{ __('phone_number') }}</th>
+                            <th>{{ __('discount') }}</th>
+                            <th>{{ __('applied') }}</th>
+                            <th>{{ __('created_at') }}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td colspan="4">{{ __('no_data') }}</td>
+                        </tr>
+                    </tbody>
+                </table>
                 
             </div>
             <div class="modal-footer">

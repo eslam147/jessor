@@ -17,26 +17,32 @@
                             {{ isset($settings['school_address'])
                                 ? $settings['school_address']
                                 : ' Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor
-                                                                                                                                incididunt ut labore et dolore magna.' }}
+                                                                                                                                                                                                                                                                            incididunt ut labore et dolore magna.' }}
                         </span>
                     </div>
 
                     <div class="socialIcons">
-                        <span>
-                            <a href="{{ isset($settings['facebook']) ? $settings['facebook'] : '' }}" target="_blank">
-                                <i class="fa-brands fa-square-facebook"></i>
-                            </a>
-                        </span>
-                        <span>
-                            <a href="{{ isset($settings['instagram']) ? $settings['instagram'] : '' }}" target="_blank">
-                                <i class="fa-brands fa-square-instagram"></i>
-                            </a>
-                        </span>
-                        <span>
-                            <a href="{{ isset($settings['linkedin']) ? $settings['linkedin'] : '' }}" target="_blank">
-                                <i class="fa-brands fa-linkedin"></i>
-                            </a>
-                        </span>
+                        @if (isset($settings['facebook']))
+                            <span>
+                                <a href="{{ $settings['facebook'] ?? '' }}" target="_blank">
+                                    <i class="fa-brands fa-facebook"></i>
+                                </a>
+                            </span>
+                        @endif
+                        @if (isset($settings['instagram']))
+                            <span>
+                                <a href="{{ $settings['instagram'] ?? '' }}" target="_blank">
+                                    <i class="fa-brands fa-instagram"></i>
+                                </a>
+                            </span>
+                        @endif
+                        @if (isset($settings['linkedin']))
+                            <span>
+                                <a href="{{ $settings['linkedin'] ?? '' }}" target="_blank">
+                                    <i class="fa-brands fa-linkedin"></i>
+                                </a>
+                            </span>
+                        @endif
                     </div>
                 </div>
             </div>
@@ -90,16 +96,16 @@
                         </span>
                         <span>
                             <a
-                                href="tel:{{ $settings['school_phone'] }}">{{ isset($settings['school_phone']) ? $settings['school_phone'] : '( +91 ) 12345 67890' }}</a>
+                                href="tel:{{ $settings['school_phone'] }}">{{ $settings['school_phone'] ?? '( +01 ) 12345 67890' }}</a>
                         </span>
                     </span>
                     <span class="iconsWrapper">
                         <span>
-                            <i class="fa-solid fa-envelope-circle-check"></i>
+                            <i class="fa-solid fa-envelope"></i>
                         </span>
                         <span>
                             <a
-                                href="mailto:{{ $settings['school_email'] }}">{{ isset($settings['school_email']) ? $settings['school_email'] : 'Schoolinfous@gmail.com' }}</a>
+                                href="mailto:{{ $settings['school_email'] }}">{{ $settings['school_email'] ?? 'info@example.com' }}</a>
                         </span>
                     </span>
                     <span class="iconsWrapper">
@@ -107,10 +113,7 @@
                             <i class="fa-solid fa-location-dot location"></i>
                         </span>
                         <span>
-                            {{ isset($settings['school_address'])
-                                ? $settings['school_address']
-                                : ' 4517 Washington Ave. Manchester, Kentucky
-                                                                                                                                    39495.' }}
+                            {{ $settings['school_address'] ?? '' }}
                         </span>
                     </span>
                 </div>
@@ -175,8 +178,6 @@
 
     // Infinite loop by resetting the position after transition
     swiperDataVideoWrappers.addEventListener('transitionend', () => {
-
-        console.log("Hello");
         if (currentVideoSlide === 0) {
             swiperDataVideoWrappers.style.transition = 'none';
             currentVideoSlide = swiperDataVideoWrappers.children.length / 1;
@@ -216,6 +217,7 @@
                 loop: false,
                 margin: 20,
                 nav: false,
+                rtl: {{ LaravelLocalization::getCurrentLocaleDirection() == 'rtl' ? 'true' : 'false' }},
                 responsive: {
                     0: {
                         items: 1,
@@ -250,6 +252,7 @@
         $(".hero-carousel").owlCarousel({
             items: 1,
             loop: true,
+            rtl: {{ LaravelLocalization::getCurrentLocaleDirection() == 'rtl' ? 'true' : 'false' }},
             autoplay: true,
             autoplayTimeout: 2000, // Set autoplay interval in milliseconds
             autoplayHoverPause: true, // Pause autoplay when mouse hovers over the carousel
@@ -261,39 +264,10 @@
         });
     });
 </script>
-{{-- <script>
-    // Load FingerprintJS
-    const fpPromise = FingerprintJS.load();
 
-    fpPromise
-      .then(fp => fp.get())
-      .then(result => {
-          // The visitor’s fingerprint
-          const fingerprint = result.visitorId;
-
-          // Send the fingerprint to your Laravel backend using AJAX
-          fetch('/store-fingerprint', {
-              method: 'POST',
-              headers: {
-                  'Content-Type': 'application/json',
-                  'X-CSRF-TOKEN': '{{ csrf_token() }}',
-              },
-              body: JSON.stringify({ fingerprint: fingerprint })
-          })
-          .then(response => response.json())
-          .then(data => {
-              console.log(data.message);
-          });
-      });
-</script> --}}
-
-@php
-    $theme_color = settingByType('theme_color');
-    $secondary_color = settingByType('secondary_color');
-@endphp
 <style>
     :root {
-        --primary-color: {{ $theme_color }};
-        --secondary-color1: {{ $secondary_color }};
+        --primary-color: {{ settingByType('theme_color') }};
+        --secondary-color1: {{ settingByType('secondary_color') }};
     }
 </style>

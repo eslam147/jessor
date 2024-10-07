@@ -15,6 +15,6 @@ class CheckRole
         if (Auth::user() && (Auth::user()->hasRole(['Super Admin', 'Teacher']))) {
             return $next($request);
         }
-        return to_route('login');
+        return to_route('login.view');
     }
 }

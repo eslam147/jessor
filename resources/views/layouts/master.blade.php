@@ -3,15 +3,8 @@
     $lang = Session::get('language');
 @endphp
 @if ($lang)
-    @if ($lang->is_rtl)
-        <html lang="en" dir="rtl">
-    @else
-        <html lang="en">
-    @endif
-@else
-    <html lang="en">
+    <html lang="en" dir="{{ $lang->is_rtl ? 'rtl' : '' }}">
 @endif
-
 <head>
     <!-- Required meta tags -->
     <meta charset="utf-8">
@@ -21,7 +14,6 @@
     @include('layouts.include')
     @yield('css')
 </head>
-
 <body class="sidebar-fixed">
     <div class="container-scroller">
 
@@ -58,4 +50,5 @@
     {{-- @include('layouts.firebase') --}}
     @yield('script')
 </body>
+
 </html>

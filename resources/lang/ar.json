@@ -684,5 +684,11 @@
     "sessions.started": "مبدأه",
     "sessions.cancelled": "ملغيه",
     "web.about.demo_heading": "Cutting-Edge Education That Empowers",
-    "web.demo_content": "هذا النص هو نص تجريبي للتطبيق."
+    "web.demo_content": "هذا النص هو نص تجريبي للتطبيق.",
+    "my_dashboard": "لوحة التحكم",
+    "panel": "البانل",
+    "not_found_msg": "عفوا لم يتم العثور علي هذه الصفحة!",
+    "go_back_home": "العودة للرئيسية",
+    "coupon_charge_amount": "كوبون شحن محفظه",
+    "coupon_purchase": "كوبون شراء"
 }

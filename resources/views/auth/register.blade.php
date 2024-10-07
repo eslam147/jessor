@@ -41,9 +41,9 @@
                                                 @foreach ($classSections as $section)
                                                     <option @selected(old('class_section_id') == $section->id) value="{{ $section->id }}">
                                                         {{ optional($section->class)->name }} -
-                                                        {{ optional($section->class->medium)->name }}
-                                                        {{ optional($section->section)->name }}
-                                                        {{ optional($section->class->streams)->name ?? ' ' }}
+                                                        {{ optional($section->class)?->medium?->name ?? ' ' }}
+                                                        {{ optional($section->section)?->name }}
+                                                        {{ optional($section->class?->streams)->name ?? ' ' }}
                                                     </option>
                                                 @endforeach
                                             @endisset
@@ -95,9 +95,9 @@
                                             <p class="text-danger">{{ $message }}</p>
                                         @enderror
                                     </div>
-                                    @if (Route::has('login'))
+                                    @if (Route::has('login.view'))
                                         <div class="my-2 d-flex justify-content-end align-items-center col-12">
-                                            <a class="auth-link text-info" href="{{ route('login') }}">
+                                            <a class="auth-link text-info" href="{{ route('login.view') }}">
                                                 {{ __('already_have_account') }}
                                             </a>
                                         </div>

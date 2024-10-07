@@ -7,6 +7,7 @@ use App\Models\Coupon;
 use App\Models\Lesson;
 use App\Models\Mediums;
 use App\Models\Teacher;
+use App\Models\LiveLesson;
 use App\Models\ClassSchool;
 use App\Models\ClassSection;
 use App\Models\ClassSubject;
@@ -14,6 +15,7 @@ use Illuminate\Http\Request;
 use App\Exports\CouponExport;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Services\Coupon\CouponService;
+use App\Http\Resources\Dashboard\CouponResource;
 use App\Http\Requests\Dashboard\Coupon\CouponRequest;
 
 class CouponController extends Controller
@@ -69,7 +71,7 @@ class CouponController extends Controller
 
         $coupons
             ->withCount('usages')
-            ->with('classModel', 'classModel.medium', 'classModel.streams', 'subject:id,name')
+            ->with('classModel', 'classModel.medium', 'classModel.streams', 'teacher.user', 'subject:id,name')
             ->when($findOrderKey, fn($q) => $q->orderBy($mappedOrderKeys[$sort], $order))
             ->skip($offset)
             ->take($limit);
@@ -89,6 +91,7 @@ class CouponController extends Controller
             $tempRow['tags_imploded'] = $row->tags->pluck('name')->implode(', ');
             $tempRow['type'] = $row->type->translatedName();
             $tempRow['class_name'] = optional($row->classModel)?->name ?? 'N/A';
+            $tempRow['teacher_name'] = optional($row->teacher)->user?->full_name ?? 'N/A';
             $tempRow['subject_name'] = optional($row->subject)?->name ?? 'N/A';
             $tempRow['expiry_date'] = $row->expiry_date->toDateString();
             $tempRow['price'] = ! is_null($row->price) ? number_format($row->price, 2) : 'N/A';
@@ -130,7 +133,10 @@ class CouponController extends Controller
         $lessons = Lesson::select('name', 'teacher_id', 'subject_id', 'class_section_id', 'id')->addSelect([
             'class_id' => ClassSection::select('class_id')->whereColumn('id', 'lessons.class_section_id'),
         ])->get();
-        return view('coupons.create', compact('teachers', 'lessons', 'mediums', 'subjects'));
+        $liveLessons = LiveLesson::select('name', 'teacher_id', 'subject_id', 'class_section_id', 'id')->addSelect([
+            'class_id' => ClassSection::select('class_id')->whereColumn('id', 'live_lessons.class_section_id'),
+        ]);
+        return view('coupons.create', compact('teachers', 'lessons', 'liveLessons', 'mediums', 'subjects'));
     }
 
     public function store(CouponRequest $request)
@@ -161,21 +167,10 @@ class CouponController extends Controller
 
     public function show(Coupon $coupon)
     {
-        $coupon->load('onlyAppliedTo', 'usages', 'teacher.user');
+        $coupon->load('onlyAppliedTo', 'usages.usedByUser', 'usages.appliedTo', 'teacher.user');
         return response()->json([
             'error' => false,
-            'data' => [
-                'code' => $coupon->code,
-                'price' => $coupon->price,
-                'maximum_usage' => $coupon->maximum_usage,
-                'expiry_date' => $coupon->expiry_date->toDateString(),
-                'only_applied_to' => $coupon->only_applied_to_type instanceof Lesson ? $coupon->onlyAppliedTo->name : '',
-                'is_disabled' => $coupon->is_disabled,
-                'used_count' => $coupon->usages()->count(),
-                'teacher' => optional($coupon->teacher)->user->name ?? 'N/A',
-                'created_at' => convertDateFormat($coupon->created_at, 'd-m-Y H:i:s'),
-                'type' => $coupon->type->translatedName()
-            ],
+            'data' => CouponResource::make($coupon),
             'message' => trans('coupon_fetch_successfully'),
         ]);
     }
@@ -282,7 +277,10 @@ class CouponController extends Controller
         });
 
         $couponQuery->when(request()->filled('lesson_id'), function ($q) {
-            return $q->where('lesson_id', request('lesson_id'));
+            return $q->whereHas('onlyAppliedTo', function ($query) {
+                $query->where('teacher_id', auth()->user()->teacher->id);
+            })->where('only_applied_to_type', Lesson::class)
+                ->where('only_applied_to_id', request('lesson_id'));
         });
 
         $couponQuery->when(request()->filled('filter_start_date'), function ($q) {

@@ -22,7 +22,11 @@ class ImportListCoupons extends Command
         $this->couponImport = $couponImport;
         parent::__construct();
     }
+    /*
+    php artisan import:coupons --tenant=geo --class=3 --file=geo4_secondary  --tags=at_5_oct_2024 --tags=importedBySemiColon
+    // php artisan import:coupons --tenant=zaakr --file=peter_nabil_500 --teacher=10 --tags=at_4_oct_2024 --tags=importedBySemiColon 
 
+    */
     protected $signature = 'import:coupons {--tenant=} {--file=} {--class=} {--subject=} {--teacher=} {--tags=*}';
 
     protected $description = 'Coupons import';
@@ -65,9 +69,9 @@ class ImportListCoupons extends Command
     {
         return $this->couponImport->setData(
             tags: (array) $options['tags'],
-            classId: $options['class'],
-            subjectId: $options['subject'],
-            teacherId: $options['teacher']
+            classId: $options['class'] ?? null,
+            subjectId: $options['subject'] ?? null,
+            teacherId: $options['teacher'] ?? null
         );
     }
     private function endTenant()
@@ -101,6 +105,5 @@ class ImportListCoupons extends Command
                 throw new \Exception("Subject with ID $subjectId not found.");
             }
         }
-
     }
 }

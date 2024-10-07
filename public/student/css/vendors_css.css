@@ -43,8 +43,8 @@
 @import url(/student/assets/vendor_plugins/iCheck/all.css);
 @import url(/student/assets/vendor_plugins/timepicker/bootstrap-timepicker.min.css);
 @import url(/student/assets/vendor_plugins/pace/pace.min.css);
-@import url(/student/assets/vendor_components/fullcalendar/fullcalendar.min.css);
-@import url(/student/assets/vendor_components/fullcalendar/fullcalendar.print.min.css);
-@import url(/student/assets/vendor_components/weather-icons/weather-icons.css);
+/* @import url(/student/assets/vendor_components/fullcalendar/fullcalendar.min.css); */
+/* @import url(/student/assets/vendor_components/fullcalendar/fullcalendar.print.min.css); */
+/* @import url(/student/assets/vendor_components/weather-icons/weather-icons.css); */
 
 /*# sourceMappingURL=vendors_css.css.map */

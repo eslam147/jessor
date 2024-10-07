@@ -132,7 +132,8 @@
                                 <div class="form-group col-sm-12 col-md-6">
                                     <label>{{ __('lesson_thumbnail') }} <span class="text-danger">*</span><small
                                             class="text-info">({{ __('preferred_size', ['w' => '300', 'h' => '300']) }})</small></label>
-                                    <input type="file" name="lesson_thumbnail" class="dropify" id="lesson_thumbnail">
+                                    <input type="file" name="lesson_thumbnail" class="dropify" required
+                                        id="lesson_thumbnail">
                                 </div>
                             </div>
                             <hr>

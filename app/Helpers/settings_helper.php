@@ -107,11 +107,11 @@ if (! function_exists('get_language')) {
 if (! function_exists('getTimeFormat')) {
     function getTimeFormat()
     {
-        $timeFormat = array();
-        $timeFormat['h:i a'] = 'h:i a - ' . date('h:i a');
-        $timeFormat['h:i A'] = 'h:i A - ' . date('h:i A');
-        $timeFormat['H:i'] = 'H:i - ' . date('H:i');
-        return $timeFormat;
+        return [
+            'h:i a' => 'h:i a - ' . date('h:i a'),
+            'h:i A' => 'h:i A - ' . date('h:i A'),
+            'H:i' => 'H:i - ' . date('H:i'),
+        ];
     }
 }
 
@@ -253,5 +253,23 @@ if (! function_exists('readableDuration')) {
         $durationString .= $remainingMinutes . ' minute' . ($remainingMinutes != 1 ? 's' : '');
 
         return trim($durationString, ', ');
+    }
+}
+if (! function_exists('mainDirection')) {
+    function mainDirection($reverse = false)
+    {
+        return LaravelLocalization::getCurrentLocaleDirection() === 'rtl' && ! $reverse ? 'right' : 'left';
+    }
+}
+if (! function_exists('isActive')) {
+    function isActive($route)
+    {
+        return false;
+    }
+}
+if (! function_exists('routeIs')) {
+    function routeIs($route)
+    {
+        return false;
     }
 }

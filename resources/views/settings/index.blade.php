@@ -297,7 +297,7 @@
                                 {{ __('Protection_browser') }}
                             </h4>
                             <hr>
-                            <div class="row mb-5">
+                            <div class="row mb-5 align-items-center">
                                 <div class="col-4 d-flex">
                                     <div class="form-check form-check-inline">
                                         <label class="form-check-label">
@@ -315,14 +315,10 @@
                                     </div>
                                 </div>
                                 <div class="col-8">
-                                    <div class="row align-items-center">
-                                        <div class="col-1">
-                                            <label for="browser_url" class="text-bold">Url :</label>
-                                        </div>
-                                        <div class="col-11">
-                                            <input type="text" id="browser_url" class="form-control"
-                                                name="browser_url" value="{{ settingByType('browser_url') }}">
-                                        </div>
+                                    <div c>
+                                        <label for="browser_url" class="text-bold">Url :</label>
+                                        <input type="text" id="browser_url" class="form-control" name="browser_url"
+                                            value="{{ settingByType('browser_url') }}">
                                     </div>
                                 </div>
                             </div>
@@ -331,13 +327,34 @@
                                 {{ __('device_limit') }}
                             </h4>
                             <hr>
-                            <div class="row mb-5">
-                                <div class="col-8 text-center">
-                                    <input type="number" min="1" class="form-control" name="device_limit"
-                                        value="@if (isset(getSettings('device_limit')['device_limit'])) {{ getSettings('device_limit')['device_limit'] }}@else @endif">
+                            <div class="mb-5 row align-items-center">
+                                <div class="col-4 d-flex">
+                                    <div class="form-check form-check-inline">
+                                        <label class="form-check-label">
+                                            <input type="radio" name="device_limitation_status"
+                                                class="device_limitation_status_toggle" value="1"
+                                                @checked(boolval(settingByType('device_limitation_status')))>
+                                            {{ __('enable') }}
+                                        </label>
+                                    </div>
+                                    <div class="form-check form-check-inline">
+                                        <label class="form-check-label">
+                                            <input type="radio" name="device_limitation_status"
+                                                class="device_limitation_status_toggle" value="0"
+                                                @checked(boolval(settingByType('device_limitation_status')) == false)>
+                                            {{ __('disable') }}
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="col-8">
+                                    <label>{{ __('device_limit') }}</label>
+                                    <span class="ml-1 text-danger">*</span>
+                                    <input type="number" min="1" @disabled(!boolval(settingByType('device_limitation_status')))
+                                        class="form-control" name="device_limit"
+                                        value="{{ settingByType('device_limit') }}" required id="device_limit_count">
                                 </div>
                             </div>
-                            <input class="btn btn-theme" type="submit" value="Submit">
+                            <button class="btn btn-theme" type="submit">{{ trans('submit') }}</button>
                         </form>
                     </div>
                 </div>
@@ -350,5 +367,12 @@
         if ($(".color-picker").length) {
             $('.color-picker').asColorPicker();
         }
+        $(".device_limitation_status_toggle").change(function() {
+            if ($(".device_limitation_status_toggle:checked").val() == 1) {
+                $("#device_limit_count").removeAttr('disabled');
+            } else {
+                $("#device_limit_count").attr('disabled', 'disabled');
+            }
+        })
     </script>
 @endsection

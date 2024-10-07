@@ -2,12 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use Throwable;
 use App\Models\Language;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Session;
-use Throwable;
 
 class LanguageController extends Controller
 {
@@ -44,35 +45,24 @@ class LanguageController extends Controller
     public function store(Request $request)
     {
         if (! Auth::user()->can('language-create')) {
-            $response = array(
+            return redirect(route('home'))->withErrors([
                 'error' => true,
                 'message' => trans('no_permission_message')
-            );
-            return redirect(route('home'))->withErrors($response);
+            ]);
         }
 
         $request->validate([
-            'name' => 'required',
-            'code' => 'required',
-            'file' => 'required|mimes:json',
+            'name' => 'required|string|min:3|max:255',
+            'code' => 'required|in:ar,en|unique:languages,code',
         ]);
 
         try {
-            $language =  Language::create([
+            Language::create([
                 'name' => $request->name,
                 'code' => $request->code,
-                'status' => 0,
-                'is_rtl' => isset($request->rtl) ? 1 : 0,
+                'status' =>  $request->boolean('active'),
+                'is_rtl' => $request->rtl ? 1 : 0,
             ]);
-
-            if ($request->hasFile('file')) {
-                $file = $request->file('file');
-                $filename = $request->code . '.' . $file->hashName();
-                $file->move(base_path('resources/lang/'), $filename);
-                $language->file = $filename;
-            }
-            $language->save();
-
 
             $response = [
                 'error' => false,
@@ -124,10 +114,10 @@ class LanguageController extends Controller
         $sql->orderBy($sort, $order)->skip($offset)->take($limit);
         $res = $sql->get();
 
-        $bulkData = array();
+        $bulkData = [];
         $bulkData['total'] = $total;
-        $rows = array();
-        $tempRow = array();
+        $rows = [];
+        $tempRow = [];
         $no = 1;
         foreach ($res as $row) {
             $operate = '<a class="btn btn-xs btn-gradient-primary btn-rounded btn-icon editdata" data-id=' . $row->id . ' title="Edit" data-toggle="modal" data-target="#editModal"><i class="fa fa-edit"></i></a>&nbsp;&nbsp;';
@@ -138,7 +128,8 @@ class LanguageController extends Controller
             $tempRow['name'] = $row->name;
             $tempRow['code'] = $row->code;
             $tempRow['rtl'] = $row->is_rtl;
-            $tempRow['status'] = $row->status;
+            $tempRow['status'] = $row->status ? 'Active' : 'Inactive';
+            $tempRow['is_active'] = $row->status;
             $tempRow['operate'] = $operate;
             $rows[] = $tempRow;
         }
@@ -155,33 +146,19 @@ class LanguageController extends Controller
                 'message' => trans('no_permission_message')
             ]);
         }
+        $language = Language::findOrFail($request->id);
         $request->validate([
             'name' => 'required',
-            'code' => 'required'
+            'code' => ['required', Rule::in('ar', 'en'), 'unique:languages,code,' . $request->id],
         ]);
 
         try {
-            $language = Language::find($request->id);
-            $language->name = $request->name;
-            $language->code = $request->code;
-            if ($request->hasFile('file')) {
-                $request->validate([
-                    'file' => 'required|mimes:json',
-                ]);
-                if (File::exists(base_path("resources/lang/") . $language->file)) {
-                    File::delete(base_path("resources/lang/") . $language->file);
-                }
-                $file = $request->file('file');
-                $filename = $request->code . '.' . $file->getClientOriginalExtension();
-                $file->move(base_path('resources/lang/'), $filename);
-                $language->file = $filename;
-            }
-            if ($request->rtl) {
-                $language->is_rtl = 1;
-            } else {
-                $language->is_rtl = 0;
-            }
-            $language->save();
+            $language->update([
+                'name' => $request->name,
+                'code' => $request->code,
+                'is_rtl' => $request->rtl ? 1 : 0,
+                'status' => $request->boolean('status') ? 1 : 0,
+            ]);
             $response = [
                 'error' => false,
                 'message' => trans('data_update_successfully'),
@@ -210,10 +187,10 @@ class LanguageController extends Controller
                 'message' => trans('data_delete_successfully')
             ];
         } catch (Throwable $e) {
-            $response = array(
+            $response = [
                 'error' => true,
                 'message' => trans('error_occurred')
-            );
+            ];
         }
         return response()->json($response);
     }

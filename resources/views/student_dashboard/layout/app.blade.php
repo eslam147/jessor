@@ -17,13 +17,13 @@
     <!-- Style-->
     <link rel="stylesheet" href="{{ global_asset('student/css/style.css') }}?v=1.0.1">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
-    <link rel="stylesheet" href="{{ global_asset('student/assets/icons/Ionicons/css/ionicons.css') }}">
-    <link rel="stylesheet" href="{{ global_asset('student/assets/icons/themify-icons/themify-icons.css') }}">
-    <link rel="stylesheet" href="{{ global_asset('student/assets/icons/linea-icons/linea.css') }}">
+    {{-- <link rel="stylesheet" href="{{ global_asset('student/assets/icons/Ionicons/css/ionicons.css') }}"> --}}
+    {{-- <link rel="stylesheet" href="{{ global_asset('student/assets/icons/themify-icons/themify-icons.css') }}"> --}}
+    {{-- <link rel="stylesheet" href="{{ global_asset('student/assets/icons/linea-icons/linea.css') }}"> --}}
     <link rel="stylesheet" href="{{ global_asset('student/assets/icons/glyphicons/glyphicon.css') }}">
     <link rel="stylesheet" href="{{ global_asset('student/assets/icons/flag-icon-css/css/flag-icon.css') }}">
     <link rel="stylesheet"
-        href="{{ global_asset('student/assets/icons/material-design-iconic-font/css/materialdesignicons.css') }}">
+        href="https://cdnjs.cloudflare.com/ajax/libs/MaterialDesign-Webfont/7.4.47/css/materialdesignicons.min.css">
     <link rel="stylesheet"
         href="{{ global_asset('student/assets/icons/simple-line-icons/css/simple-line-icons.css') }}">
     <link rel="stylesheet" href="{{ global_asset('student/assets/icons/cryptocoins-master/cryptocoins.css') }}">

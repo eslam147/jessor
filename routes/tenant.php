@@ -39,6 +39,13 @@ use App\Http\Controllers\SliderController;
 use App\Http\Controllers\StaffController;
 use App\Http\Controllers\StreamController;
 use App\Http\Controllers\student\AssignmentController as StudentAssignmentController;
+use App\Http\Controllers\StudentController;
+use App\Http\Controllers\SubjectController;
+use App\Http\Controllers\TeacherController;
+use App\Http\Controllers\WebhookController;
+use App\Http\Controllers\TimetableController;
+use App\Http\Controllers\LiveLessonController;
+use App\Http\Controllers\WebSettingController;
 use App\Http\Controllers\student\EnrollController;
 use App\Http\Controllers\student\ExamController as StudentOnlineExamController;
 use App\Http\Controllers\student\LessonController as StudentLessonController;
@@ -48,26 +55,22 @@ use App\Http\Controllers\student\SignupController;
 use App\Http\Controllers\student\StudentDashboardController;
 use App\Http\Controllers\student\SubjectController as StudentSubjectController;
 use App\Http\Controllers\student\TeachersController;
-// use App\Http\Controllers\LiveLessonController;
 use App\Http\Controllers\student\TopicsController;
 use App\Http\Controllers\student\WalletController as StudentWallet;
-use App\Http\Controllers\StudentController;
 use App\Http\Controllers\StudentSessionController;
-use App\Http\Controllers\SubjectController;
 use App\Http\Controllers\SubjectTeacherController;
 use App\Http\Controllers\SystemUpdateController;
-use App\Http\Controllers\TeacherController;
-use App\Http\Controllers\TimetableController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\WalletController;
 use App\Http\Controllers\WebController;
-use App\Http\Controllers\WebhookController;
-use App\Http\Controllers\WebSettingController;
 use App\Http\Middleware\InitializeSchool;
+use App\Http\Controllers\MeetingProviderController;
 use Illuminate\Support\Facades\Auth as LaravelAuth;
 use Illuminate\Support\Facades\Route;
 use Stancl\Tenancy\Middleware\InitializeTenancyByDomain;
 use Stancl\Tenancy\Middleware\PreventAccessFromCentralDomains;
+use Mcamara\LaravelLocalization\Facades\LaravelLocalization;
+use App\Http\Controllers\UserDeviceController;
 
 
 Route::middleware([
@@ -76,42 +79,44 @@ Route::middleware([
     PreventAccessFromCentralDomains::class,
     InitializeSchool::class,
 ])->group(function () {
-    LaravelAuth::routes();
-
-    Route::get('/', [WebController::class, 'index']);
-    Route::get('/instructors', [WebController::class, 'instructors']);
-    Route::get('/instructor/{id}', [WebController::class, 'instructor'])->name('instructor.profile');
-    Route::get('/subject/{id}', [WebController::class, 'subject'])->name('subject.lessons');
-    Route::get('/lesson/{id}', [WebController::class, 'lesson'])->name('lesson.topics');
-    Route::post('/get_subjects', [WebController::class, 'get_subjects']);
-    Route::post('/get_teachers', [WebController::class, 'get_teachers']);
-    Route::post('/get_lessons', [WebController::class, 'get_lessons']);
-    Route::get('about', [WebController::class, 'about'])->name('about.us');
-    Route::get('contact', [WebController::class, 'contact_us'])->name('contact.us');
-    Route::get('photo', [WebController::class, 'photo'])->name('photo');
-    Route::get('photo-gallery/{id}', [WebController::class, 'photo_details'])->name('photo.gallery');
-    Route::get('video', [WebController::class, 'video'])->name('video');
-    Route::get('video-gallery', [WebController::class, 'video_details'])->name('video.gallery');
-    Route::post('contact-us/store', [WebController::class, 'contact_us_store'])->name('contact_us.store');
-
-
-    Route::view('login', 'auth.login')->middleware('guest')->name('login');
-    Route::controller(SignupController::class)->as('signup.')->group(function () {
-        Route::get('signup', 'index')->name('index');
-        Route::post('signup', 'store')->name('store');
+    Route::prefix(LaravelLocalization::setLocale())->middleware([
+        'localeSessionRedirect',
+        'localizationRedirect',
+        'localeViewPath'
+    ])->group(function () {
+        Route::get('/', [WebController::class, 'index']);
+        Route::get('/instructors', [WebController::class, 'instructors']);
+        Route::get('/instructor/{id}', [WebController::class, 'instructor'])->name('instructor.profile');
+        Route::get('/subject/{id}', [WebController::class, 'subject'])->name('subject.lessons');
+        Route::get('/lesson/{id}', [WebController::class, 'lesson'])->name('lesson.topics');
+        Route::post('/get_subjects', [WebController::class, 'get_subjects']);
+        Route::post('/get_teachers', [WebController::class, 'get_teachers']);
+        Route::post('/get_lessons', [WebController::class, 'get_lessons']);
+        Route::get('about', [WebController::class, 'about'])->name('about.us');
+        Route::get('contact', [WebController::class, 'contact_us'])->name('contact.us');
+        Route::get('photo', [WebController::class, 'photo'])->name('photo');
+        Route::get('photo-gallery/{id}', [WebController::class, 'photo_details'])->name('photo.gallery');
+        Route::get('video', [WebController::class, 'video'])->name('video');
+        Route::get('video-gallery', [WebController::class, 'video_details'])->name('video.gallery');
+        Route::post('contact-us/store', [WebController::class, 'contact_us_store'])->name('contact_us.store');
+    
+        Route::view('login', 'auth.login')->middleware('guest')->name('login.view');
+        Route::prefix('auth')->as('auth.')->group(function () {
+            LaravelAuth::routes();
+        });
+        
+        Route::controller(SignupController::class)->as('signup.')->group(function () {
+            Route::get('signup', 'index')->name('index');
+            Route::post('signup', 'store')->name('store');
+        });
     });
     // webhooks
     Route::post('webhook/razorpay', [WebhookController::class, 'razorpay']);
     Route::post('webhook/stripe', [WebhookController::class, 'stripe']);
     Route::post('webhook/paystack', [WebhookController::class, 'paystack']);
 
-    Route::get('/privacy-policy', function () {
-        return settingByType('privacy_policy');
-    });
-
-    Route::get('/terms-conditions', function () {
-        return settingByType('terms_condition');
-    });
+    Route::get('/privacy-policy', fn() => settingByType('privacy_policy'));
+    Route::get('/terms-conditions', fn() => settingByType('terms_condition'));
 
     Route::group(['middleware' => 'auth'], function () {
         Route::post('/follow', [WebController::class, 'send_follow']);
@@ -160,6 +165,10 @@ Route::middleware([
                 Route::get('/{assignment}', 'show')->name('show');
                 Route::post('submit/{assignment}', 'submit')->name('submit');
             });
+            Route::controller(StudentLiveLessonController::class)->prefix('live_lessons')->as('student_dashboard.live_lessons.')->group(function () {
+                Route::get('/', 'index')->name('index');
+                Route::post('/enroll/{liveLesson}', 'enroll')->name('enroll.store');
+            });
 
             Route::controller(StudentLessonController::class)->prefix('lesson')->as('student_dashboard.lesson.')->group(function () {
                 Route::get('/{lesson}', 'show')->name('show');
@@ -180,7 +189,7 @@ Route::middleware([
                     Route::post('start', 'start')->name('start');
                     Route::post('submit/{exam}', 'submit')->name('submit');
                     Route::get('result/{exam}', 'result')->name('result');
-                    Route::get('show/{exam}', 'show')->name('show')->middleware('signed');
+                    Route::get('show/{exam}', 'show')->name('show')->middleware('signed:relative');
                 });
             });
 
@@ -280,7 +289,10 @@ Route::middleware([
 
             Route::resource('subject-teachers', SubjectTeacherController::class);
             Route::get('subject-teachers-list', [SubjectTeacherController::class, 'show']);
-
+            Route::controller(MeetingProviderController::class)->prefix('meeting_provider')->as('meeting.provider.')->group(function () {
+                Route::get('settings/{service}', 'show')->name('settings.show');
+                Route::post('settings/{service}', 'update')->name('settings.update');
+            });
             Route::resource('timetable', TimetableController::class);
             Route::get('timetable-list', [TimetableController::class, 'show']);
             Route::get('checkTimetable', [TimetableController::class, 'checkTimetable']);
@@ -453,8 +465,8 @@ Route::middleware([
 
             Route::get('app-settings', [SettingController::class, 'app_index']);
             Route::post('app-settings', [SettingController::class, 'app_update']);
-            Route::get('system-update', [SystemUpdateController::class, 'index'])->name('system-update.index');
-            Route::post('system-update', [SystemUpdateController::class, 'update'])->name('system-update.update');
+            // Route::get('system-update', [SystemUpdateController::class, 'index'])->name('system-update.index');
+            // Route::post('system-update', [SystemUpdateController::class, 'update'])->name('system-update.update');
 
 
             Route::resource('stream', StreamController::class);
@@ -555,19 +567,20 @@ Route::middleware([
                 Route::get('/messages/{user}', action: 'chatMessages')->name('messages');
                 Route::post('/send-message', 'sendMessage')->name('send.message');
             });
-            // Route::prefix('live_lessons')->as('live_lessons.')->controller(LiveLessonController::class)->group(function (){
-            //     Route::get('/', 'index')->name('index');
-            //     Route::get('create', 'create')->name('create');
-            //     Route::post('store', 'store')->name('store');
-            //     Route::get('edit/{live_lesson}', 'edit')->name('edit');
-            //     Route::put('update/{live_lesson}', 'update')->name('update');
-            //     Route::delete('destroy/{live_lesson}', 'destroy')->name('destroy');
-            //     Route::get('show/{live_lesson}', 'show')->name('show');
-            //     Route::get('list', 'list')->name('list');
-            //     Route::put('start/{live_lesson}', 'start')->name('start');
-            //     Route::put('stop/{live_lesson}', 'stop')->name('stop');
-                
-            // });
+            Route::prefix('live_lessons')->as('live_lessons.')->controller(LiveLessonController::class)->group(function () {
+                Route::get('/', 'index')->name('index');
+                Route::get('create', 'create')->name('create');
+                Route::post('store', 'store')->name('store');
+                Route::get('edit/{live_lesson}', 'edit')->name('edit');
+                Route::put('update/{live_lesson}', 'update')->name('update');
+                Route::delete('destroy/{live_lesson}', 'destroy')->name('destroy');
+                Route::get('show/{live_lesson}', 'show')->name('show');
+                Route::get('list', 'list')->name('list');
+                Route::get('participants/{live_lesson}', 'participants')->name('participants');
+                Route::post('start/{live_lesson}', 'start')->name('start');
+                Route::post('stop/{live_lesson}', 'stop')->name('stop');
+                Route::post('create_meeting/{liveLesson}', 'scheduleMeeting')->name('schedule_meeting');
+            });
             // ------------------------------------------------------ \\
             Route::prefix('coupons')->as('coupons.')->controller(CouponController::class)->group(function () {
                 Route::get('/', 'index')->name('index');
@@ -582,6 +595,14 @@ Route::middleware([
                 Route::get('show/{coupon}', 'show')->name('show');
                 Route::put('update/{coupon}', 'update')->name('update');
                 Route::delete('destroy/{coupon}', 'destroy')->name('destroy');
+                // #TODO Change Here
+            });
+            // ------------------------------------------------------ \\
+            Route::prefix('user_devices')->as('user_devices.')->controller(UserDeviceController::class)->group(function () {
+                Route::get('/', 'index')->name('index');
+                Route::get('/list', 'list')->name('list');
+
+                Route::delete('destroy/{userDevice}', 'destroy')->name('destroy');
                 // #TODO Change Here
             });
             // ------------------------------------------------------ \\

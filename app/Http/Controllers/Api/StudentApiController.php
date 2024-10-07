@@ -9,7 +9,6 @@ use App\Models\Exam;
 use App\Models\File;
 use App\Models\User;
 use App\Models\Event;
-use App\Models\Grade;
 use App\Models\Shift;
 use Razorpay\Api\Api;
 use App\Models\Lesson;
@@ -24,9 +23,7 @@ use App\Models\Settings;
 use App\Models\Students;
 use Stripe\StripeClient;
 use App\Models\ExamClass;
-use App\Models\ExamMarks;
 use App\Models\FeesClass;
-use App\Models\FormField;
 use App\Models\Timetable;
 use App\Models\Assignment;
 use App\Models\Attendance;
@@ -40,7 +37,6 @@ use App\Models\ReadMessage;
 use App\Models\SessionYear;
 use App\Models\Announcement;
 use App\Models\ClassSection;
-use App\Models\ClassSubject;
 use App\Models\ClassTeacher;
 use App\Models\Notification;
 use Illuminate\Http\Request;
@@ -55,35 +51,32 @@ use App\Models\UserNotification;
 use App\Models\PaidInstallmentFee;
 use App\Models\PaymentTransaction;
 use Illuminate\Support\Facades\DB;
-use Spatie\Permission\Models\Role;
-use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
 use App\Models\AssignmentSubmission;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Hash;
 use App\Services\Coupon\CouponService;
 use App\Models\OnlineExamStudentAnswer;
 use App\Models\StudentOnlineExamStatus;
-use Illuminate\Support\Facades\Storage;
 use App\Models\OnlineExamQuestionAnswer;
 use App\Models\OnlineExamQuestionChoice;
 use App\Models\OnlineExamQuestionOption;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Validator;
 use App\Services\Auth\RegisterAuthService;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Auth;
 use App\Services\Purchase\PurchaseService;
 use App\Http\Resources\TimetableCollection;
 use Symfony\Component\HttpFoundation\Response;
 use App\Http\Requests\Api\V1\Auth\RegisterRequest;
-use Symfony\Component\HttpFoundation\JsonResponse;
 use App\Http\Resources\Student\ClassSchoolResource;
 use App\Http\Resources\Student\Lesson\LessonResource;
 use App\Http\Resources\Student\Teacher\TeacherResource;
 use App\Http\Resources\Student\LessonTopic\LessonTopicResource;
+use App\Services\Auth\LoginService;
 
 class StudentApiController extends Controller
 {
     public function __construct(
+        protected LoginService $loginService,
         protected RegisterAuthService $registerAuthService,
         private CouponService $couponService,
         private PurchaseService $purchaseService
@@ -172,15 +165,10 @@ class StudentApiController extends Controller
             ]);
         }
 
-
-
         if (Auth::attempt(['email' => $request->gr_number, 'password' => $request->password])) {
-            $session_year = getSettings('session_year');
-            $session_year_id = $session_year['session_year'];
 
-            $compulsory_fees_mode = getSettings('compulsory_fee_payment_mode');
-
-            $compulsory_fees_mode = $compulsory_fees_mode['compulsory_fee_payment_mode'] ?? 0;
+            $session_year_id = settingByType('session_year');
+            $compulsory_fees_mode = settingByType('compulsory_fee_payment_mode') ?? 0;
 
             $session_year = SessionYear::where('id', $session_year_id)->first();
             $isInstallment = $session_year->include_fee_installments;
@@ -197,10 +185,21 @@ class StudentApiController extends Controller
                     'error' => true,
                     'message' => 'Invalid Login Credentials',
                     'code' => 101
-
                 ], 200);
             }
-            $token = $auth->createToken($auth->first_name)->plainTextToken;
+            // $this->loginService->handleDeviceLimit($auth);
+
+            $genarateToken = $auth->createToken($auth->first_name);
+            $token = $genarateToken->plainTextToken;
+            // $checkDevice = app(LoginService::class)->handleDeviceLimit($auth, 'api', $genarateToken->accessToken);
+            // if ($request->filled('device_token')) {
+            //     if (! $checkDevice) {
+            //         return response()->json([
+            //             'error' => true,
+            //             'message' => 'Maximum device limit reached. Please contact your administrator.',
+            //         ]);
+            //     }
+            // }
             $user = $auth->load(['student.class_section', 'student.category']);
 
             if ($request->fcm_id) {
@@ -212,6 +211,7 @@ class StudentApiController extends Controller
                 $auth->device_type = $request->device_type;
                 $auth->save();
             }
+
             $classSection = optional($user->student->class_section);
             $classSectionName = $classSection->class?->name . " " . $classSection->section?->name;
 
@@ -392,7 +392,7 @@ class StudentApiController extends Controller
                 })->orderBy('start_time', 'asc')->get();
 
 
-            $class_id = $student->class_section->class_id;
+            $class_id = $student->class_section?->class_id;
 
             $exam_data_db = Exam::with([
                 'timetable' => function ($q) use ($request, $class_id, $subject_id) {
@@ -646,6 +646,7 @@ class StudentApiController extends Controller
     public function selectSubjects(Request $request)
     {
         $validator = Validator::make($request->all(), [
+            'subject_group' => 'required|array',
             'subject_group.*.id' => 'required',
             'subject_group.*.subject_id' => 'required|array',
         ]);
@@ -661,11 +662,9 @@ class StudentApiController extends Controller
             $student = $request->user()->student;
             $class_section = $student->class_section;
             $student_subject = [];
-            $session_year_id = Settings::select('message')->where('type', 'session_year')->pluck('message')->first();
+            $session_year_id = settingByType('session_year');
             foreach ($request->subject_group as $key => $subject_group) {
-                $subject_group_id = $subject_group['id'];
                 foreach ($subject_group['subject_id'] as $subject_id) {
-
                     $if_subject_already_selected = StudentSubject::where([
                         'student_id' => $student->id,
                         'subject_id' => $subject_id,
@@ -673,30 +672,30 @@ class StudentApiController extends Controller
                         'session_year_id' => intval($session_year_id)
                     ])->first();
                     if (! $if_subject_already_selected) {
-                        $student_subject[] = array(
+                        $student_subject[] = [
                             'student_id' => $student->id,
                             'subject_id' => $subject_id,
                             'class_section_id' => $class_section->id,
                             'session_year_id' => intval($session_year_id)
-                        );
+                        ];
                     }
                 }
             }
             StudentSubject::insert($student_subject);
 
-            $response = array(
+            $response = [
                 'error' => false,
                 'message' => "Subject Selected Successfully",
                 'code' => 200,
-            );
+            ];
         } catch (Exception $e) {
             report($e);
 
-            $response = array(
+            $response = [
                 'error' => true,
                 'message' => trans('error_occurred'),
                 'code' => 103,
-            );
+            ];
         }
         return response()->json($response);
     }
@@ -770,36 +769,36 @@ class StudentApiController extends Controller
             }
 
             if ($student->father != null && $student->mother != null && $student->guardian != null) {
-                $data = array(
+                $data = [
                     'father' => (! empty($student->father)) ? $father : (object) [],
                     'mother' => (! empty($student->mother)) ? $mother : (object) [],
                     'guardian' => (! empty($student->guardian)) ? $guardian : (object) []
-                );
+                ];
             } elseif ($student->father != null && $student->mother != null) {
-                $data = array(
+                $data = [
                     'father' => (! empty($student->father)) ? $father : (object) [],
                     'mother' => (! empty($student->mother)) ? $mother : (object) [],
-                );
+                ];
             } else {
-                $data = array(
+                $data = [
                     'guardian' => (! empty($student->guardian)) ? $guardian : (object) []
-                );
+                ];
             }
 
-            $response = array(
+            $response = [
                 'error' => false,
                 'message' => "Parent Details Fetched Successfully",
                 'data' => $data,
                 'code' => 200,
-            );
+            ];
         } catch (Exception $e) {
             report($e);
 
-            $response = array(
+            $response = [
                 'error' => true,
                 'message' => trans('error_occurred'),
                 'code' => 103,
-            );
+            ];
         }
         return response()->json($response);
     }
@@ -810,7 +809,7 @@ class StudentApiController extends Controller
 
             $student = $request->user()->student;
             $student_subject = $student->subjects();
-            $class_subject = $student->classSubjects();
+            // $class_subject = $student->classSubjects();
 
             $core_subjects = array_column($student_subject["core_subject"], 'subject_id');
 
@@ -835,20 +834,20 @@ class StudentApiController extends Controller
                 }
             }
 
-            $response = array(
+            $response = [
                 'error' => false,
                 'message' => "Timetable Fetched Successfully",
                 'data' => new TimetableCollection($new_timetable),
                 'code' => 200,
-            );
+            ];
         } catch (Exception $e) {
             report($e);
 
-            $response = array(
+            $response = [
                 'error' => true,
                 'message' => trans('error_occurred'),
                 'code' => 103,
-            );
+            ];
         }
         return response()->json($response);
     }
@@ -866,11 +865,7 @@ class StudentApiController extends Controller
             'subject_id' => 'required|numeric',
         ]);
         if ($validator->fails()) {
-            return response()->json([
-                'error' => true,
-                'message' => $validator->errors()->first(),
-                'code' => 102,
-            ]);
+            return $this->validationResponse($validator);
         }
         try {
             $user = $request->user();
@@ -948,12 +943,7 @@ class StudentApiController extends Controller
         ]);
 
         if ($validator->fails()) {
-
-            return response()->json([
-                'error' => true,
-                'message' => $validator->errors()->first(),
-                'code' => 102,
-            ]);
+            return $this->validationResponse($validator);
 
         }
 
@@ -1001,12 +991,7 @@ class StudentApiController extends Controller
         ]);
 
         if ($validator->fails()) {
-            $response = array(
-                'error' => true,
-                'message' => $validator->errors()->first(),
-                'code' => 102,
-            );
-            return response()->json($response);
+            return $this->validationResponse($validator);
         }
 
         try {
@@ -1049,12 +1034,7 @@ class StudentApiController extends Controller
         ]);
 
         if ($validator->fails()) {
-            $response = [
-                'error' => true,
-                'message' => $validator->errors()->first(),
-                'code' => 102,
-            ];
-            return response()->json($response);
+            return $this->validationResponse($validator);
         }
 
         try {
@@ -1304,8 +1284,7 @@ class StudentApiController extends Controller
         }
         try {
             $student = $request->user()->student;
-            $session_year = getSettings('session_year');
-            $session_year_id = $session_year['session_year'];
+            $session_year_id = settingByType('session_year');
 
             $attendance = Attendance::where('student_id', $student->id)->where('session_year_id', $session_year_id);
             $holidays = new Holiday;
@@ -1323,20 +1302,20 @@ class StudentApiController extends Controller
             $holidays = $holidays->get();
 
 
-            $response = array(
+            $response = [
                 'error' => false,
                 'message' => "Attendance Details Fetched Successfully",
                 'data' => ['attendance' => $attendance, 'holidays' => $holidays, 'session_year' => $session_year_data],
                 'code' => 200,
-            );
+            ];
         } catch (Exception $e) {
             report($e);
 
-            $response = array(
+            $response = [
                 'error' => true,
                 'message' => trans('error_occurred'),
                 'code' => 103,
-            );
+            ];
         }
         return response()->json($response);
     }
@@ -1349,12 +1328,11 @@ class StudentApiController extends Controller
         ]);
 
         if ($validator->fails()) {
-            $response = array(
+            return response()->json([
                 'error' => true,
                 'message' => $validator->errors()->first(),
                 'code' => 102,
-            );
-            return response()->json($response);
+            ]);
         }
         try {
             $student = $request->user()->student;
@@ -1364,12 +1342,11 @@ class StudentApiController extends Controller
             if (isset($request->type) && $request->type == "subject") {
                 $table = SubjectTeacher::where('class_section_id', $student->class_section_id)->where('subject_id', $request->subject_id)->get()->pluck('id');
                 if (empty($table)) {
-                    $response = array(
+                    return response()->json([
                         'error' => true,
                         'message' => "Invalid Subject ID",
                         'code' => 106,
-                    );
-                    return response()->json($response);
+                    ]);
                 }
             }
 
@@ -1413,7 +1390,7 @@ class StudentApiController extends Controller
             $student_id = Auth::user()->student->id;
             $student = Students::with('class_section')->where('id', $student_id)->first();
             $student_subject = $student->subjects();
-            $class_id = $student->class_section->class_id;
+            $class_id = $student->class_section?->class_id;
 
             $core_subjects = array_column($student_subject["core_subject"], 'subject_id') ?? [];
             // dd($core_subjects);
@@ -1513,19 +1490,19 @@ class StudentApiController extends Controller
                 }
             }
 
-            $response = array(
+            $response = [
                 'error' => false,
                 'data' => isset($exam_data) ? $exam_data : [],
                 'code' => 200,
-            );
+            ];
         } catch (Exception $e) {
             report($e);
 
-            $response = array(
+            $response = [
                 'error' => true,
                 'message' => trans('error_occurred'),
                 'code' => 103,
-            );
+            ];
         }
         return response()->json($response);
     }
@@ -2563,11 +2540,9 @@ class StudentApiController extends Controller
     public function getProfileDetails()
     {
         try {
-            $session_year = getSettings('session_year');
-            $session_year_id = $session_year['session_year'];
+            $session_year_id = settingByType('session_year');
 
-            $compulsory_fees_mode = getSettings('compulsory_fee_payment_mode');
-            $compulsory_fees_mode = $compulsory_fees_mode['compulsory_fee_payment_mode'] ?? 0;
+            $compulsory_fees_mode = settingByType('compulsory_fee_payment_mode') ?? 0;
 
             $session_year = SessionYear::where('id', $session_year_id)->first();
             $isInstallment = $session_year->include_fee_installments;
@@ -2761,52 +2736,74 @@ class StudentApiController extends Controller
                             $subquery->whereRaw("concat(first_name,' ',last_name) LIKE '%{$search}%'");
                         });
                     })
-                )
-                ->with('user:id,first_name,last_name,image,mobile,email', 'subjects.subject')
+                )->with('user:id,first_name,last_name,image,mobile,email', 'subjects.subject')
                 ->offset($offset)->limit($limit)
                 ->get();
 
+            $data = [];
 
+            // Fetch necessary data before the loop
+            $teacherIds = $teachers->pluck('id')->toArray();
+            $teacherUserIds = $teachers->pluck('user.id')->toArray();
+
+
+            $subjects = Subject::withWhereHas('teachers', function ($q) use ($teachers) {
+                $q->whereIn('teachers.id', $teachers->pluck('id'));
+            })->get();
+
+            // Fetch the last chat messages between the user and all teachers
+            $lastMessages = ChatMessage::with('file')
+                ->whereIn('modal_id', $teacherIds)
+                ->where(function ($query) use ($user) {
+                    $query->where('sender_id', $user->id)->orWhere('modal_id', $user->id);
+                })
+                ->latest()
+                ->get()
+                ->groupBy('modal_id');
+
+            // $readMessage = ReadMessage::where('modal_id', $receiver_id)->where('user_id', $sender_id)->first();
+            // if (empty($readMessage)) {
+            //     $readMessage = new ReadMessage();
+            //     $readMessage->modal_id = $receiver_id;
+            //     $readMessage->modal_type = 'App/Models/User';
+            //     $readMessage->user_id = $sender_id;
+            //     $readMessage->save();
+            // }
+
+            // Fetch the last read messages for the user and group them by teacher_id
+            $lastReadMessages = ReadMessage::where('modal_id', $user->id)
+                ->whereIn('user_id', $teacherIds)
+                ->get()
+                ->keyBy('user_id');
+
+            // Fetch unread message counts in one go
+            $unreadCounts = ChatMessage::whereIn('sender_id', $teacherIds)
+                ->where('modal_id', $user->id)
+                ->select('sender_id', DB::raw('COUNT(*) as unread_count'))
+                ->groupBy('sender_id')
+                ->get()
+                ->keyBy('sender_id');
 
             $data = [];
 
             foreach ($teachers as $teacher) {
+                $subjectData = $subjects->where('teachers.id', $teacher->id)->map(function ($subject) {
+                    return [
+                        'id' => $subject->id ?? '',
+                        'name' => $subject->name ?? '',
+                    ];
+                })->toArray();
+
+                $lastMessage = isset($lastMessages[$teacher->user->id]) ? $lastMessages[$teacher->user->id]->first() : null;
 
                 $unreadCount = 0;
-                $subjectData = [];
-
-                foreach ($teacher->subjects as $subject) {
-                    $subjectData[] = [
-                        'id' => $subject->subject->id ?? '',
-                        'name' => $subject->subject->name ?? '',
-                    ];
+                if (isset($lastReadMessages[$teacher->user->id])) {
+                    $lastReadMessageId = $lastReadMessages[$teacher->user->id]->last_read_message_id;
+                    $unreadCount = $lastReadMessageId
+                        ? ChatMessage::where('sender_id', $teacher->user->id)->where('modal_id', $user->id)->where('id', '>', $lastReadMessageId)->count()
+                        : $unreadCounts[$teacher->user->id]->unread_count ?? 0;
                 }
 
-                $lastMessage = ChatMessage::with('file')->where(function ($query) use ($user, $teacher) {
-                    $query->where('modal_id', $teacher->user->id)
-                        ->where('sender_id', $user->id);
-                })
-                    ->orWhere(function ($query) use ($user, $teacher) {
-                        $query->where('sender_id', $teacher->user->id)
-                            ->where('modal_id', $user->id);
-                    })
-                    ->select('id', 'body', 'date')
-                    ->latest()
-                    ->first();
-
-
-                $lastReadMessage = ReadMessage::where('modal_id', $user->id)->where('user_id', $teacher->user->id)->first();
-
-                if ($lastReadMessage) {
-
-                    $lastReadMessageId = $lastReadMessage->last_read_message_id;
-                    if (! empty($lastReadMessageId)) {
-                        $unreadCount = ChatMessage::where('sender_id', $teacher->user->id)->where('modal_id', $user->id)->where('id', '>', $lastReadMessageId)->count();
-                    } else {
-                        $unreadCount = ChatMessage::where('sender_id', $teacher->user->id)->where('modal_id', $user->id)->count();
-                    }
-
-                }
                 $data[] = [
                     'id' => $teacher->id,
                     'user_id' => $teacher->user->id,
@@ -2817,16 +2814,17 @@ class StudentApiController extends Controller
                     'image' => $teacher->user->image,
                     'mobile_no' => $teacher->user->mobile,
                     'subjects' => $subjectData,
-                    'last_message' => $lastMessage ?? null,
-                    'unread_message' => $unreadCount ?? 0
+                    'last_message' => $lastMessage,
+                    'unread_message' => $unreadCount
                 ];
-
             }
+
             $total_items = count($data);
 
-            $unreadusers = array_filter($data, function ($teacher) {
-                return $teacher['unread_message'] > 0;
-            });
+            $unreadusers = array_filter(
+                $data,
+                fn($teacher) => $teacher['unread_message'] > 0
+            );
 
             $totalunreadusers = count($unreadusers);
 
@@ -2834,7 +2832,7 @@ class StudentApiController extends Controller
                 return boolval(optional($user['last_message'])->date);
             })->values();
 
-            $response = [
+            return response()->json([
                 'error' => false,
                 'message' => 'Data Fetched Successfully',
                 'data' => [
@@ -2843,20 +2841,17 @@ class StudentApiController extends Controller
                     'total_unread_users' => $totalunreadusers,
                 ],
                 'code' => 100,
-            ];
-
-            return response()->json($response);
+            ]);
 
         } catch (Exception $e) {
             report($e);
 
-            $response = array(
+            return response()->json([
                 'error' => true,
                 'message' => trans('error_occurred'),
                 'code' => 103,
-            );
+            ]);
         }
-        return response()->json($response);
     }
 
     public function sendMessage(Request $request)
@@ -2878,13 +2873,13 @@ class StudentApiController extends Controller
             $sender_id = $request->user()->id;
             $receiver_id = $request->receiver_id;
 
-            $message = new ChatMessage();
-            $message->modal_id = $receiver_id;
-            $message->modal_type = User::class;
-            $message->sender_id = $sender_id;
-            $message->body = $request->message ?? '';
-            $message->date = now();
-            $message->save();
+            $message = ChatMessage::create([
+                'modal_id' => $receiver_id,
+                'modal_type' => User::class,
+                'sender_id' => $sender_id,
+                'body' => $request->message ?? '',
+                'date' => now(),
+            ]);
             $count = 0;
             $unreadCount = 0;
 
@@ -2894,11 +2889,11 @@ class StudentApiController extends Controller
                     $originalName = $uploadedFile->hashName();
                     $filePath = $uploadedFile->storeAs('chatfile', $originalName, 'public');
 
-                    $file = new ChatFile();
-                    $file->file_type = 1;
-                    $file->file_name = $filePath;
-                    $file->message_id = $message->id;
-                    $file->save();
+                    $file = ChatFile::create([
+                        'file_type' => 1,
+                        'file_name' => $filePath,
+                        'message_id' => $message->id,
+                    ]);
                     $count++;
                 }
             }
@@ -2927,13 +2922,13 @@ class StudentApiController extends Controller
 
                 }
 
-                $data = array(
+                $data = [
                     'id' => $message->id,
                     'sender_id' => $message->sender_id,
                     'body' => $message->body,
                     'date' => $message->date,
                     'files' => $chatfile
-                );
+                ];
             }
 
             $student = Students::with('user')->where('user_id', $sender_id)->first();

@@ -35,7 +35,7 @@
                     <div class="row aboutWrapper">
                         <div class="col-sm-12 col-md-12 col-lg-6">
                             <div class="aboutImgWrapper">
-                                <img src="{{ isset($about->image) ? $about->image : url('assets/images/dummyImg.png') }}"
+                                <img src="{{ !empty($about->image) ? $about->image : global_asset('assets/images/dummyImg.png') }}"
                                     alt="">
                             </div>
                         </div>

@@ -3,10 +3,12 @@
 namespace App\Exceptions;
 
 use Throwable;
-use Sentry\Laravel\Integration;
+use Illuminate\Http\Response;
+use Sentry\State\HubInterface;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
+use Sentry\Laravel\Integration as SentryIntegration;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
 
 class Handler extends ExceptionHandler
@@ -30,6 +32,7 @@ class Handler extends ExceptionHandler
         'password',
         'password_confirmation',
     ];
+
     public function report(Throwable $exception)
     {
         $tenantId = null;
@@ -46,18 +49,30 @@ class Handler extends ExceptionHandler
                         $scope->setTag('user_id', $user);
                     }
                 }
-                if(!empty($tenantId)){
+                if (! empty($tenantId)) {
                     $scope->setTag('tenant_id', $tenantId);
                 }
             });
             app('sentry')->captureException($exception);
         }
+
     }
 
     public function register()
     {
         $this->reportable(function (Throwable $e) {
-            Integration::captureUnhandledException($e);
+            SentryIntegration::captureUnhandledException($e);
         });
+    }
+    public function render($request, Throwable $exception)
+    {
+        if (! App::environment('local') && app()->bound('sentry') && $this->shouldReport($exception)) {
+            $eventId = app(HubInterface::class)->captureException($exception);
+            if (! $request->expectsJson()) {
+                return response()->view('errors.500_custom', ['eventId' => $eventId], Response::HTTP_INTERNAL_SERVER_ERROR);
+            }
+        }
+
+        return parent::render($request, $exception);
     }
 }

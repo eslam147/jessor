@@ -58,7 +58,7 @@ class LessonController extends Controller
 
             'price' => 'nullable|required_if:payment_status,1|numeric|gt:0',
 
-            'lesson_thumbnail' => 'nullable|max:2048|image',
+            'lesson_thumbnail' => 'required|max:2048|image',
             'file' => 'nullable|array',
             'file.*.type' => ['nullable', Rule::in(['file_upload', 'youtube_link', 'video_upload', 'video_corner_link', 'video_corner_download_link', 'other_link'])],
             // 'file.*.name' => 'required_with:file.*.type',
@@ -212,7 +212,7 @@ class LessonController extends Controller
             $tempRow['topic'] = $row->topic;
 
             $tempRow['expiry_days_str'] = $row->expiry_days ? $row->expiry_days : "N/A";
-            $tempRow['expiry_days'] = $row->expiry_days ;
+            $tempRow['expiry_days'] = $row->expiry_days;
             $tempRow['price'] = $row->price;
             $tempRow['lesson_thumbnail'] = $row->thumbnail;
             $tempRow['created_at'] = convertDateFormat($row->created_at, 'd-m-Y H:i:s');
@@ -257,29 +257,9 @@ class LessonController extends Controller
 
             'lesson_thumbnail' => 'nullable|max:2048|image',
 
-            // 'edit_file' => 'nullable|array',
-            // 'edit_file.*.type' => 'nullable|in:file_upload,youtube_link,video_upload,other_link',
-            // 'edit_file.*.name' => 'nullable|required_with:edit_file.*.type',
-            // // 'edit_file.*.link' => 'nullable|required_if:edit_file.*.type,youtube_link,other_link',
-
-            // // for Youtube Link
-            // 'edit_file.*.link' => ['nullable|required_if:edit_file.*.type,youtube_link', new YouTubeUrl, 'nullable'],
-
-
-            // 'file' => 'nullable|array',
-            // 'file.*.type' => 'nullable|in:file_upload,youtube_link,video_upload,other_link',
-            // 'file.*.name' => 'nullable|required_with:file.*.type',
-            // 'file.*.thumbnail' => 'required_if:file.*.type,youtube_link,video_upload,other_link|max:2048',
-            // 'file.*.file' => 'nullable|required_if:file.*.type,file_upload,video_upload',
-            // 'file.*.link' => 'nullable|required_if:file.*.type,youtube_link,other_link',
-
-            //Regex for Youtube Link
-            // 'file.*.link' => ['nullable|required_if:file.*.type,youtube_link', new YouTubeUrl, 'nullable'],
-            // 'file.*.video_corner_url' => ['required_if:file.*.type,video_corner_url', 'nullable'],
             'has_expire_days' => 'nullable|in:0,1',
             'expiry_days' => 'nullable|numeric|required_if:has_expire_days,1|gt:0',
             //Regex for Other Link
-            // 'file.*.link'=>'required_if:file.*.type,other_link|url'
         ], [
             'name.unique' => trans('lesson_alredy_exists')
         ]);
@@ -291,9 +271,7 @@ class LessonController extends Controller
         }
         try {
             if ($request->hasFile('lesson_thumbnail')) {
-                if (! empty($lesson->getRawOriginal('thumbnail')) && Storage::disk('public')->exists($lesson->getRawOriginal('thumbnail'))) {
-                    Storage::disk('public')->delete($lesson->getRawOriginal('thumbnail'));
-                }
+
                 $fileThumbnail = $request->file('lesson_thumbnail');
                 $file_name = time() . '_' . $fileThumbnail->hashName();
                 $lessonThumbnailPath = "lessons/thumbnail/{$file_name}";
@@ -309,10 +287,14 @@ class LessonController extends Controller
             $lesson->subject_id = $request->subject_id;
             $lesson->status = $request->status;
             $lesson->expiry_days = $request->has_expire_days ? $request->expiry_days : null;
-            $lesson->is_paid =  ($request->payment_status == 1);
+            $lesson->is_paid = ($request->payment_status == 1);
             $lesson->price = $request->payment_status == 1 ? $request->price : null;
             $lesson->save();
-
+            if ($request->hasFile('lesson_thumbnail')) {
+                if (! empty($lesson->getRawOriginal('thumbnail')) && Storage::disk('public')->exists($lesson->getRawOriginal('thumbnail'))) {
+                    Storage::disk('public')->delete($lesson->getRawOriginal('thumbnail'));
+                }
+            }
             // Update the Old Files
             $response = [
                 'error' => false,

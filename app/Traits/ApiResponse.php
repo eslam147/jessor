@@ -24,4 +24,13 @@ trait ApiResponse
             'code' => $code,
         ]);
     }
+    public function validationResponse($validator)
+    {
+        return response()->json([
+            'error' => true,
+            'message' => $validator->errors()->first(),
+            'code' => 102,
+        ]);
+
+    }
 }

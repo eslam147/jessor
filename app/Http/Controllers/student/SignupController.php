@@ -21,7 +21,7 @@ class SignupController extends Controller
     {
         $category = Category::where('status', 1)->get();
 
-        $classSections = ClassSection::with(['class', 'section'])->get();
+        $classSections = ClassSection::with(['class', 'section'])->withoutTrashedRelations('class', 'section')->get();
 
         return view('auth.register', [
             'classSections' => $classSections,

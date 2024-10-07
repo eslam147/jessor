@@ -12,7 +12,7 @@
                     <span class="title"> {{ __('about-us') }}</span>
                     <span>
                         <span class="home"><a href="{{ url('/') }}">{{ __('home') }}</a></span>
-                        <span><i class="fa-solid fa-angles-right"></i></span>
+                        <span><i class="fa-solid fa-angles-{{ mainDirection(true) }}"></i></span>
                         <span class="page">{{ __('about-us') }}</span>
                     </span>
                 </div>
@@ -32,19 +32,14 @@
 
                         <div class="col-sm-12 col-md-12 col-lg-6">
                             <div class="aboutContentWrapper">
-                                <span class="commonTag"> {{ isset($about->tag) ? $about->tag : 'About Us' }}</span>
+                                <span class="commonTag"> {{ isset($about->tag) ? $about->tag : __('about-us') }}</span>
                                 <span class="commonTitle">
-                                    {{ isset($about->heading) ? $about->heading : 'Cutting-Edge Education That Empowers' }}
+                                    {{ isset($about->heading) ? $about->heading : trans("web.about.demo_heading") }}
                                 </span>
                                 <span class="commonDesc">
                                     {{ isset($about->content)
                                         ? $about->content
-                                        : " Lorem ipsum dolor sit amet consectetur. Faucibus non mauris risus enim sed. Lectus fusce
-                                                        elit duis dignissim aliquet nisl vitae. Eget sit nisi vulputate enim sem. Facilisi
-                                                        tincidunt donec interdum in in eros quisque consectetur sit. Sagittis purus velit amet
-                                                        risus egestas sed arcu nam. Pellentesque pharetra blandit fringilla volutpat tristique
-                                                        sit. Sit euismod praesent volutpat eu et. Id egestas dictum cursus purus morbi semper
-                                                        praesent quam." }}
+                                        : trans("web.demo_content") }}
                                 </span>
                             </div>
                         </div>

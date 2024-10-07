@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\centeral\DomainController;
 use App\Http\Controllers\centeral\TenantController;
+use App\Http\Controllers\centeral\Admin\Auth\AuthController;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -15,13 +16,11 @@ use App\Http\Controllers\centeral\TenantController;
 */
 
 foreach (config('tenancy.central_domains') as $domain) {
-    Route::domain($domain)->group(function () {
-        Route::get('/', function () {
-            return view('centeral.landing.home');
-        })->name('centeral.home');
-        Route::resource('domain', DomainController::class);
-        Route::resource('tenants',TenantController::class);
-        Route::get('settings',[TenantController::class,'upgrade_settings']);
-        Route::post('settings',[TenantController::class,'insert_settings_fields'])->name('insert.settings.field');
+    Route::domain($domain)->as('central.')->group(function () {
+        Route::prefix('admin')->group(base_path('routes/central/admin.php'));
+    // include_once base_path('routes/central/admin.php');
+        Route:: as('end_user.')->group(function () {
+            Route::view('/', 'centeral.landing.home')->name('home');
+        });
     });
 }

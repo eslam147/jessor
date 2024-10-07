@@ -37,9 +37,16 @@ use App\Models\OnlineExamStudentAnswer;
 use App\Models\StudentOnlineExamStatus;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\Rules\Password;
+use App\Services\Auth\RegisterAuthService;
+use App\Http\Requests\Dashboard\Student\StudentStoreRequest;
 
 class StudentController extends Controller
 {
+    public function __construct(
+        private readonly RegisterAuthService $registerService
+    ) {
+    }
     public function index()
     {
         if (! Auth::user()->can('student-list')) {
@@ -88,10 +95,9 @@ class StudentController extends Controller
     public function storeBulkData(Request $request)
     {
         if (! Auth::user()->can('student-create') || ! Auth::user()->can('student-edit')) {
-            $response = array(
+            return response()->json([
                 'message' => trans('no_permission_message')
-            );
-            return response()->json($response);
+            ]);
         }
         $validator = Validator::make($request->all(), [
             'class_section_id' => 'required',
@@ -122,27 +128,23 @@ class StudentController extends Controller
     public function update(Request $request)
     {
         if (! Auth::user()->can('student-create') || ! Auth::user()->can('student-edit')) {
-            $response = array(
+            return response()->json([
                 'message' => trans('no_permission_message')
-            );
-            return response()->json($response);
+            ]);
         }
+
         $request->validate(
             [
-                'first_name' => 'required',
-                'last_name' => 'required',
-                'mobile' => 'nullable|numeric',
+                'first_name' => 'required|string|min:3',
+                'last_name' => 'required|string|min:3',
+                'gender' => 'required|string',
+                'mobile' => 'nullable|numeric|min:7|max:15',
                 'image' => 'mimes:jpeg,png,jpg|image|max:2048',
-                'dob' => 'required',
+                'student_password' => ['nullable', Password::min(6)->mixedCase(), 'confirmed'],
+
                 'class_section_id' => 'required',
-                'category_id' => 'required',
-                'admission_no' => 'required|unique:users,email,' . $request->edit_id,
-                'roll_number' => 'required',
-                'admission_date' => 'required',
-                'current_address' => 'required',
-                'permanent_address' => 'required',
-                'parent' => 'required_without:guardian',
-                'guardian' => 'required_without:parent',
+                // 'parent' => 'required_without:guardian',
+                // 'guardian' => 'required_without:parent',
             ],
             [
                 'mobile.regex' => 'The mobile number must be a length of 7 to 15 digits.'
@@ -283,15 +285,18 @@ class StudentController extends Controller
 
             //Create Student User First
             $user = User::find($request->edit_id);
+            if($request->filled('student_password')){
+                $user->password = bcrypt($request->student_password);
+            }
             //            $user->password = Hash::make(str_replace('/', '', $request->dob));
             $user->first_name = $request->first_name;
             $user->last_name = $request->last_name;
             //            $user->email = (isset($request->email)) ? $request->email : "";
             //            $user->email = $request->admission_no;
             $user->mobile = (isset($request->mobile)) ? $request->mobile : "";
-            $user->dob = date('Y-m-d', strtotime($request->dob));
-            $user->current_address = $request->current_address;
-            $user->permanent_address = $request->permanent_address;
+            // $user->dob = date('Y-m-d', strtotime($request->dob));
+            // $user->current_address = $request->current_address;
+            // $user->permanent_address = $request->permanent_address;
             $user->gender = $request->gender;
 
             //If Image exists then upload new image and delete the old image
@@ -389,207 +394,64 @@ class StudentController extends Controller
                 'message' => trans('data_store_successfully')
             ];
         } catch (Exception $e) {
-            $response = array(
+            $response = [
                 'error' => true,
                 'message' => trans('error_occurred'),
                 'data' => $e
-            );
+            ];
         }
         return response()->json($response);
     }
-    public function store(Request $request)
+    public function store(StudentStoreRequest $request)
     {
-        #check if admin has permission
         if (! Auth::user()->can('student-create') || ! Auth::user()->can('student-edit')) {
-            $response = array(
+            return response()->json([
                 'message' => trans('no_permission_message')
-            );
-            return response()->json($response);
-        }
-
-
-
-        //Add Father in User and Parent table data
-        //check if isset parent
-        if (isset($request->parent)) {
-            //validate parent's data
-            $validator = Validator::make($request->all(), [
-                //father
-                'father_email' => 'required|email',
-                'father_first_name' => 'required|string',
-                'father_last_name' => 'required|string',
-                'father_mobile' => 'required|regex:/^([0-9\s\-\+\(\)]*)$/|min:10|max:15',
-                'father_password' => 'required|string|min:6',
-                //mother
-                'mother_email' => 'required|email',
-                'mother_first_name' => 'required|string',
-                'mother_last_name' => 'required|string',
-                'mother_mobile' => 'required|regex:/^([0-9\s\-\+\(\)]*)$/|min:10|max:15',
-                'mother_password' => 'required|string|min:6',
             ]);
-
-            //add Parents
-            if ($validator->fails()) {
-                $response = array(
-                    'error' => true,
-                    'message' => $validator->messages()->all()[0],
-                );
-                return response()->json($response);
-            } else {
-                //check if the email is exist
-                $fatherExists = User::where('email', $request->father_email)->exists();
-                if ($fatherExists) {
-                    $response = array(
-                        'error' => true,
-                        'message' => 'the father email you are using is alredy exist',
-                    );
-                    return response()->json($response);
-                } else {
-                    $father = User::create([
-                        'first_name' => $request->father_first_name,
-                        'last_name' => $request->father_last_name,
-                        'gender' => 'Male',
-                        'email' => $request->father_email,
-                        'password' => Hash::make($request->password),
-                        'mobile' => $request->father_mobile,
-
-                    ]);
-
-                    //add father to parent table
-                    Parents::create([
-                        'user_id' => $father->id,
-                        'first_name' => $request->father_first_name,
-                        'last_name' => $request->father_last_name,
-                        'gender' => 'Male',
-                        'email' => $request->father_email,
-                        'password' => Hash::make($request->password),
-                        'mobile' => $request->father_mobile,
-                    ]);
-                }
-                //add mother to user table
-                //check if the email is exist
-                $motherExists = User::where('email', $request->mother_email)->exists();
-                if ($motherExists) {
-                    $response = array(
-                        'error' => true,
-                        'message' => 'the mother email you are using is alredy exist',
-                    );
-                    return response()->json($response);
-                } else {
-                    $mother = User::create([
-                        'first_name' => $request->mother_first_name,
-                        'last_name' => $request->mother_last_name,
-                        'gender' => 'Male',
-                        'email' => $request->mother_email,
-                        'password' => Hash::make($request->password),
-                        'mobile' => $request->mother_mobile,
-
-                    ]);
-
-                    //add Mother to parent table
-                    Parents::create([
-                        'user_id' => $mother->id,
-                        'first_name' => $request->mother_first_name,
-                        'last_name' => $request->mother_last_name,
-                        'gender' => 'Male',
-                        'email' => $request->mother_email,
-                        'mobile' => $request->mother_mobile,
-                    ]);
-                }
-
-            }
-
-
-
         }
-        //check if isset guardian
-        if (isset($request->guardian)) {
-            $validate = Validator::make($request->all(), [
-                //father
-                'guardian_email' => 'required|email',
-                'guardian_first_name' => 'required|string',
-                'guardian_last_name' => 'required|string',
-                'guardian_mobile' => 'required|regex:/^([0-9\s\-\+\(\)]*)$/|min:10|max:15',
-                'guardian_password' => 'required|string|min:6',
+
+        return rescue(function () use ($request) {
+            // -------------------------------------------------------- \\
+            DB::beginTransaction();
+            // -------------------------------------------------------- \\
+            if (isset($request->parent)) {
+                $parents = $this->registerService->storeParents($request);
+                $father = $parents['father'];
+                $mother = $parents['mother'];
+            }
+            // -------------------------------------------------------- \\
+            //check if isset guardian
+            // -------------------------------------------------------- \\
+            if (isset($request->guardian)) {
+                $guardian = $this->registerService->storeGuardian($request);
+            }
+            // -------------------------------------------------------- \\
+            $request->merge([
+                'email_addreess' => $request->student_email,
             ]);
-
-            if ($validator->fails()) {
-                $response = array(
-                    'error' => true,
-                    'message' => $validator->messages()->all()[0],
-                );
-                return response()->json($response);
-            } else {
-                $guardian = User::create([
-                    'first_name' => $request->guardian_first_name,
-                    'last_name' => $request->guardian_last_name,
-                    'gender' => $request->guardian_gender,
-                    'email' => $request->guardian_email,
-                    'password' => Hash::make($request->password),
-                    'mobile' => $request->guardian_mobile,
-                ]);
-
-                //add Mother to parent table
-                Parents::create([
-                    'user_id' => $guardian->id,
-                    'first_name' => $request->guardian_first_name,
-                    'last_name' => $request->guardian_last_name,
-                    'gender' => 'Male',
-                    'email' => $request->guardian_email,
-                    'password' => Hash::make($request->password),
-                    'mobile' => $request->guardian_mobile,
-                ]);
-            }
-        }
-
-
-        //check student data
-        $validator = Validator::make($request->all(), [
-            //students
-            'first_name' => 'required|string',
-            'last_name' => 'required|string',
-            'student_password' => 'required|string|min:6',
-            'gender' => 'required|string',
-            'student_email' => 'required|email|unique:users,email',
-        ]);
-
-        if ($validator->fails()) {
-            $response = array(
-                'error' => true,
-                'message' => $validator->messages()->all()[0],
-            );
-            return response()->json($response);
-        } else {
+            // -------------------------------------------------------- \\
             //add student to users table
-            $student = User::create([
-                'first_name' => $request->first_name,
-                'last_name' => $request->last_name,
-                'gender' => $request->gender,
-                'email' => $request->student_email,
-                'password' => Hash::make($request->student_password)
-            ]);
-            $studentRole = Role::where('name', 'Student')->first();
-            $student->assignRole($studentRole);
-            //add students to students table
-            Students::create([
-                'user_id' => $student->id,
-                'class_section_id' => $request->class_section_id,
-                'category_id' => $request->category_id,
-                'father_id' => isset($father) ? $father->id : null,
-                'mother_id' => isset($mother) ? $mother->id : null,
-                'guardian_id' => isset($guardian) ? $guardian->id : null,
-            ]);
-
-            $response = [
+            $this->registerService->storeStudent(
+                $request,
+                $father?->id ?? null,
+                $mother?->id ?? null,
+                $guardian?->id ?? null
+            );
+            // -------------------------------------------------------- \\
+            DB::commit();
+            // -------------------------------------------------------- \\
+            return response()->json([
                 'error' => false,
                 'message' => 'student has been added successfully!',
-            ];
-            return response()->json($response);
-        }
-
+            ]);
+        }, function ($v) {
+            DB::rollBack();
+            return response()->json([
+                'error' => true,
+                'message' => trans("error_occurred"),
+            ]);
+        });
     }
-
-
 
 
     private function createOrUpdateParent($request, $type, $parentRole)
@@ -717,7 +579,7 @@ class StudentController extends Controller
             $tempRow['class_section_name'] = $row->class_section?->class?->name . "-" . $row->class_section?->section?->name;
             $tempRow['stream_name'] = $row->class_section->class->streams->name ?? '';
             $tempRow['category_id'] = $row->category_id;
-            $tempRow['category_name'] = $row->category->name;
+            $tempRow['category_name'] = optional($row->category)->name;
             $tempRow['admission_no'] = $row->admission_no;
             $tempRow['roll_number'] = $row->roll_number;
             $tempRow['caste'] = $row->caste;
@@ -730,7 +592,7 @@ class StudentController extends Controller
             $tempRow['permanent_address'] = $user->permanent_address;
             $tempRow['is_new_admission'] = $row->is_new_admission;
             $tempRow['dynamic_data_field'] = json_decode($row->dynamic_fields);
-
+            // ---------------------------------------------------- \\
             // Father Data
             $tempRow['father_id'] = ! empty($row->father) ? $row->father->id : '';
             $tempRow['father_email'] = ! empty($row->father) ? $row->father->email : '';
@@ -741,6 +603,7 @@ class StudentController extends Controller
             $tempRow['father_occupation'] = ! empty($row->father) ? $row->father->occupation : '';
             $tempRow['father_image'] = ! empty($row->father) ? $row->father->image : '';
             $tempRow['father_image_link'] = ! empty($row->father) ? $row->father->image : '';
+            // ---------------------------------------------------- \\
 
             // Mother Data
             $tempRow['mother_id'] = ! empty($row->mother) ? $row->mother->id : '';
@@ -752,7 +615,7 @@ class StudentController extends Controller
             $tempRow['mother_occupation'] = ! empty($row->mother) ? $row->mother->occupation : '';
             $tempRow['mother_image'] = ! empty($row->mother) ? $row->mother->image : '';
             $tempRow['mother_image_link'] = ! empty($row->mother) ? $row->mother->image : '';
-
+            // ---------------------------------------------------- \\
             // Guardian Data
             $tempRow['guardian_id'] = ! empty($row->guardian) ? $row->guardian->id : '';
             $tempRow['guardian_email'] = ! empty($row->guardian) ? $row->guardian->email : '';
@@ -764,10 +627,9 @@ class StudentController extends Controller
             $tempRow['guardian_occupation'] = ! empty($row->guardian) ? $row->guardian->occupation : '';
             $tempRow['guardian_image'] = ! empty($row->guardian) ? $row->guardian->image : '';
             $tempRow['guardian_image_link'] = ! empty($row->guardian) ? $row->guardian->image : '';
-
+            // ---------------------------------------------------- \\
             $tempRow['operate'] = $operate;
             $rows[] = $tempRow;
-
         }
 
         $bulkData['rows'] = $rows;
@@ -795,7 +657,7 @@ class StudentController extends Controller
     {
         if (! Auth::user()->can('student-list')) {
             return response()->json([
-                'message' => trans(key: 'no_permission_message')
+                'message' => trans('no_permission_message')
             ]);
         }
         $offset = request('offset', 0);
@@ -804,17 +666,19 @@ class StudentController extends Controller
         $order = request('order', 'ASC');
         $search = request('search');
 
-        $sql = Students::with([
-            'user' => fn($q) => $q->withTrashed(),
-            'class_section',
-            'category'
-        ])->ofTeacher()
-            ->onlyTrashed()
-            ->when($search, fn($q) => $q->advancedSearch($search))
-            ->when(request()->filled('class_id'), function ($q) {
-                $q->where('class_section_id', request('class_id'));
+        $sql = User::onlyTrashed()
+            ->withWhereHas('student', function ($q) use ($search) {
+                $q->ofTeacher()->with(
+                    'class_section',
+                    'category'
+                )->when(
+                        request()->filled('class_id'),
+                        fn($q) =>
+                        $q->where('class_section_id', request('class_id'))
+                    )
+                    ->when($search, fn($q) => $q->advancedSearch($search))->withTrashed();
             });
-
+        // ------------------------------------- \\
         $total = $sql->count();
 
         $sql->orderBy($sort, $order)->skip($offset)->take($limit);
@@ -827,40 +691,43 @@ class StudentController extends Controller
         $no = 1;
         $data = getSettings('date_formate');
         foreach ($res as $row) {
+            // ------------------------------------- \\
             $operate = view('students.deleted.datatables.deleted_users_actions', compact('row'))->render();
-
-
-            $user = optional($row->user);
-
+            // ------------------------------------- \\
+            $user = optional($row);
+            $student = $user->student;
+            // ------------------------------------- \\
             $tempRow['id'] = $row->id;
             $tempRow['no'] = $no++;
-            $tempRow['user_id'] = $row->user_id;
+            $tempRow['user_id'] = $row->id;
             $tempRow['first_name'] = $user->first_name;
             $tempRow['last_name'] = $user->last_name;
+            // ------------------------------------- \\
             $tempRow['gender'] = $user->gender;
             $tempRow['email'] = $user->email;
+            // ------------------------------------- \\
             $tempRow['dob'] = date($data['date_formate'], strtotime($user->dob));
             $tempRow['mobile'] = $user->mobile;
             $tempRow['image'] = $user->image;
-            $tempRow['image_link'] = $user->image;
-            $tempRow['class_section_id'] = $row->class_section_id;
-            $tempRow['class_section_name'] = $row->class_section?->class?->name . "-" . $row->class_section?->section?->name;
-            $tempRow['stream_name'] = $row->class_section->class->streams->name ?? '';
-            $tempRow['category_id'] = $row->category_id;
-            $tempRow['category_name'] = $row->category->name;
-            $tempRow['admission_no'] = $row->admission_no;
-            $tempRow['roll_number'] = $row->roll_number;
-            $tempRow['caste'] = $row->caste;
-            $tempRow['religion'] = $row->religion;
-            $tempRow['admission_date'] = date($data['date_formate'], strtotime($row->admission_date));
-            $tempRow['blood_group'] = $row->blood_group;
-            $tempRow['height'] = $row->height;
-            $tempRow['weight'] = $row->weight;
+            // ------------------------------------- \\
+            $tempRow['class_section_id'] = $student->class_section_id;
+            $tempRow['class_section_name'] = $student->class_section?->class?->name . "-" . $student->class_section?->section?->name;
+            $tempRow['stream_name'] = $student->class_section->class->streams->name ?? '';
+            $tempRow['category_id'] = $student->category_id;
+            $tempRow['category_name'] = $student->category->name;
+            $tempRow['admission_no'] = $student->admission_no;
+            $tempRow['roll_number'] = $student->roll_number;
+            $tempRow['caste'] = $student->caste;
+            $tempRow['religion'] = $student->religion;
+            $tempRow['admission_date'] = date($data['date_formate'], strtotime($student->admission_date));
+            $tempRow['blood_group'] = $student->blood_group;
+            $tempRow['height'] = $student->height;
+            $tempRow['weight'] = $student->weight;
             $tempRow['current_address'] = $user->current_address;
             $tempRow['permanent_address'] = $user->permanent_address;
-            $tempRow['is_new_admission'] = $row->is_new_admission;
-            $tempRow['dynamic_data_field'] = json_decode($row->dynamic_fields);
-
+            $tempRow['is_new_admission'] = $student->is_new_admission;
+            $tempRow['dynamic_data_field'] = json_decode($student->dynamic_fields);
+            // -------------------------------------------------------- \\
             $tempRow['operate'] = $operate;
             $rows[] = $tempRow;
 
@@ -930,6 +797,7 @@ class StudentController extends Controller
 // 
     public function permanent_delete($user)
     {
+        return abort(404);
         if (! Auth::user()->can('student-force-delete')) {
             return response()->json([
                 'message' => trans('no_permission_message')
@@ -977,7 +845,7 @@ class StudentController extends Controller
     {
         if (! Auth::user()->can('student-restore')) {
             return response()->json([
-                'message' => trans(key: 'no_permission_message')
+                'message' => trans('no_permission_message')
             ]);
         }
         try {
@@ -1048,10 +916,10 @@ class StudentController extends Controller
         $sql->orderBy($sort, $order)->skip($offset)->take($limit);
         $res = $sql->get();
 
-        $bulkData = array();
+        $bulkData = [];
         $bulkData['total'] = $total;
-        $rows = array();
-        $tempRow = array();
+        $rows = [];
+        $tempRow = [];
         $no = 1;
         foreach ($res as $row) {
             $operate = '<button class="btn btn-xs btn-gradient-primary btn-action btn-rounded btn-icon reset_password" data-id=' . $row->id . ' title="Reset-Password"><i class="fa fa-edit"></i></button>&nbsp;&nbsp;';

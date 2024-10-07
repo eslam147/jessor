@@ -231,7 +231,6 @@
             </li>
         @endcan
         {{-- Purchased Lessons --}}
-        {{-- #TODO add Permission For Purchased --}}
         @can('enrollments-list')
             <li class="nav-item">
                 <a href="{{ route('enrollment.index') }}" class="nav-link">
@@ -441,6 +440,14 @@
                     </ul>
                 </div>
             </li>
+            @can('live_lesson-list')
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ route('live_lessons.index') }}">
+                        <i class="fa fa-play menu-icon"></i>
+                        <span class="menu-title">{{ __('live_lessons') }}</span>
+                    </a>
+                </li>
+            @endcan
         @endcanany
 
         {{-- student assignment --}}
@@ -522,7 +529,16 @@
                 </div>
             </li>
         @endcan
-
+        {{-- User Devices --}}
+        @canany(['user-devices-list'])
+            <li class="nav-item">
+                <a href="{{ route('user_devices.index') }}" class="nav-link">
+                    <i class="fa fa-laptop menu-icon" style="margin: 0 1px 0 1px"></i>
+                    <span class="menu-title">{{ __('user_devices') }}</span>
+                </a>
+            </li>
+        @endcan
+        {{-- End Of User Devices --}}
         {{-- Fees --}}
         @canany(['fees-type', 'fees-classes', 'fees-paid'])
             <li class="nav-item">
@@ -674,6 +690,25 @@
             </li>
         @endcan
 
+        {{-- Video Conference Settings --}}
+        @canany(['meeting-provider-settings'])
+            <li class="nav-item">
+                <a class="nav-link" data-toggle="collapse" href="#meeting_provider_settings" aria-expanded="false"
+                    aria-controls="settings-menu"><i class="fa fa-wrench menu-icon" style="margin: 0 2px 0 2px"></i>
+                    <span class="menu-title">{{ __('meeting.title') }}</span>
+                    <i class="fa fa-angle-left menu-arrow"></i>
+                </a>
+                <div class="collapse" id="meeting_provider_settings">
+                    <ul class="nav flex-column sub-menu">
+                        @foreach (collect(config('meetings.providers'))->where('is_active', true) as $service)
+                            <li class="nav-item">
+                                <a class="nav-link"
+                                    href="{{ route('meeting.provider.settings.show', ['service' => $service['name']]) }}">{{ ucfirst($service['name']) }}</a>
+                            </li>
+                        @endforeach
+                </div>
+            </li>
+        @endcan
 
         {{-- web-settings --}}
         @canany(['content-create', 'event-create', 'program-create', 'media-create', 'faq-create', 'contact-us'])

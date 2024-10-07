@@ -11,7 +11,8 @@ return new class extends Migration {
      *
      * @return void
      */
-    public function up() {
+    public function up()
+    {
         Schema::create('students', function (Blueprint $table) {
             $table->id();
             $table->integer('user_id');
@@ -162,8 +163,8 @@ return new class extends Migration {
 
             $table->integer('subject_id');
             $table->boolean('is_paid')->default(1)->comment('0 = free , 1 = paid');
-            $table->timestamps();
             $table->softDeletes();
+            $table->timestamps();
         });
 
         Schema::create('lesson_topics', function (Blueprint $table) {
@@ -346,7 +347,8 @@ return new class extends Migration {
      *
      * @return void
      */
-    public function down() {
+    public function down()
+    {
         Schema::dropIfExists('students');
         Schema::dropIfExists('categories');
         Schema::dropIfExists('session_years');

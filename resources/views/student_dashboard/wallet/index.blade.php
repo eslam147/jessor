@@ -143,7 +143,7 @@
                     </form>
                 </div>
                 <div class="modal-footer modal-footer-uniform">
-                    <button type="submit" form="purchaseForm" class="btn btn-success" style="width: 100%;">Submit</button>
+                    <button type="submit" form="purchaseForm" class="btn btn-success " style="width: 100%;">Submit</button>
                 </div>
             </div>
         </div>

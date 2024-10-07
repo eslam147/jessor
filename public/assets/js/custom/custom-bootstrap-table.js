@@ -652,6 +652,7 @@ window.parentEvents = {
 
 window.studentEvents = {
     "click .editdata": function (e, value, row, index) {
+        $(".edit-student-registration-form")[0].reset();
         $("#edit_id").val(row.user_id);
         $("#edit_first_name").val(row.first_name);
         $("#edit_last_name").val(row.last_name);
@@ -1891,6 +1892,7 @@ window.onlineExamEvents = {
         $("#edit_id").val(row.online_exam_id);
         $("#edit-online-exam-title").val(row.title);
         $("#edit-online-exam-key").val(row.exam_key);
+        $("#edit-online-pass-mark").val(row.pass_mark);
         $("#edit-online-exam-duration").val(row.duration);
         $("#edit-online-exam-start-date").val(row.start_date);
         $("#edit-online-exam-end-date").val(row.end_date);

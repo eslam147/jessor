@@ -27,12 +27,14 @@
                                 </div>
                                 <div class="form-group col-md-6 col-sm-12">
                                     <label>{{ __('language_code') }} <span class="text-danger">*</span></label>
-                                    <input name="code" type="text" required placeholder="{{ __('language_code') }}"
-                                        class="form-control" />
+                                    <select class="form-control" name="code" id="code" required>
+                                        <option value="ar">Arabic (Ar)</option>
+                                        <option value="en">English (En)</option>
+                                    </select>
                                 </div>
                             </div>
                             <div class="row">
-                                <div class="form-group col-md-6 col-sm-12">
+                                {{-- <div class="form-group col-md-6 col-sm-12">
                                     <label>{{ __('upload_file') }} <span class="text-danger">*</span></label>
                                     <input type="file" name="file" class="file-upload-default" accept="application/json" />
                                     <div class="input-group col-xs-12">
@@ -43,17 +45,22 @@
                                                 type="button">{{ __('upload') }}</button>
                                         </span>
                                     </div>
-                                </div>
-                                <div class="form-group col-md-6 col-sm-12">
+                                </div> --}}
+                                {{-- <div class="form-group col-md-6 col-sm-12">
                                     <br>
                                     <a class="btn btn-success"
                                         href="{{ url('language-sample') }}">{{ __('download_sample') }}</a>
 
-                                </div>
+                                </div> --}}
                                 <div class="form-group col-md-6 col-sm-12">
                                     <input class="form-check-input mt-0 mx-1" type="checkbox" value="1" name="rtl"
                                         aria-label="Checkbox for following text input">
                                     <label class="mx-4">{{ __('Is RTL') }}</label>
+                                </div>
+                                <div class="form-group col-md-6 col-sm-12">
+                                    <input class="form-check-input mt-0 mx-1" id="status_lang" type="checkbox"
+                                        value="1" name="active" aria-label="Checkbox for following text input">
+                                    <label class="mx-4" for="status_lang">{{ __('active') }}</label>
                                 </div>
                             </div>
 
@@ -78,13 +85,15 @@
                                     data-fixed-columns="true" data-fixed-number="1" data-fixed-right-number="1"
                                     data-trim-on-search="false" data-mobile-responsive="true" data-sort-name="id"
                                     data-sort-order="desc" data-maintain-selected="true" data-export-types='["txt","excel"]'
-                                    data-export-options='{ "fileName": "language-list-<?= date('d-m-y') ?>","ignoreColumn": ["operate"]}'
+                                    data-export-options='{ "fileName": "language-list-<?= date('d-m-y') ?>","ignoreColumn":
+                                    ["operate"]}'
                                     data-query-params="queryParams">
                                     <thead>
                                         <tr>
                                             <th scope="col" data-field="id" data-sortable="true" data-visible="false">
                                                 {{ __('id') }}</th>
-                                            <th scope="col" data-field="no" data-sortable="false">{{ __('no.') }}</th>
+                                            <th scope="col" data-field="no" data-sortable="false">{{ __('no.') }}
+                                            </th>
                                             <th scope="col" data-field="name" data-sortable="false">{{ __('name') }}
                                             </th>
                                             <th scope="col" data-field="code" data-sortable="true">
@@ -93,7 +102,7 @@
                                                 data-formatter="languageRtlStatusFormatter">
                                                 {{ __('Is RTL') }}</th>
                                             <th scope="col" data-field="status" data-sortable="true"
-                                                data-visible="false">
+                                                data-visible="true">
                                                 {{ __('status') }}</th>
                                             <th data-events="actionEvents" scope="col" data-field="operate"
                                                 data-sortable="false">{{ __('action') }}</th>
@@ -118,43 +127,45 @@
                         <span aria-hidden="true"><i class="fa fa-close"></i></span>
                     </button>
                 </div>
-                <form id="formdata" class="editform" action="{{ url('language') }}" novalidate="novalidate">
+                <form id="formdata" class="editform" action="{{ route('language.update','') }}" novalidate="novalidate">
                     @csrf
                     <div class="modal-body">
                         <input type="hidden" name="id" id="id">
                         <div class="row">
                             <div class="form-group col-sm-12 col-md-12">
                                 <label>{{ __('language_name') }} <span class="text-danger">*</span></label>
-                                {!! Form::text('name', null, ['required', 'placeholder' => __('language_name'), 'class' => 'form-control', 'id' => 'name']) !!}
+                                {!! Form::text('name', null, [
+                                    'required',
+                                    'placeholder' => __('language_name'),
+                                    'class' => 'form-control',
+                                    'id' => 'name',
+                                ]) !!}
 
                             </div>
                         </div>
                         <div class="row">
                             <div class="form-group col-sm-12 col-md-12">
                                 <label>{{ __('language_code') }} <span class="text-danger">*</span></label>
-                                {!! Form::text('code', null, ['required', 'placeholder' => __('language_code'), 'class' => 'form-control', 'id' => 'code']) !!}
+                                {!! Form::text('code', null, [
+                                    'required',
+                                    'placeholder' => __('language_code'),
+                                    'class' => 'form-control',
+                                    'id' => 'code',
+                                ]) !!}
 
                             </div>
                         </div>
                         <div class="row">
-                            <div class="form-group col-sm-12 col-md-12">
-                                <label>{{ __('upload_file') }}</label><br>
-                                <input type="file" name="file" class="file-upload-default" />
-                                <div class="input-group col-xs-12">
-                                    <input type="text" class="form-control file-upload-info" disabled=""
-                                        placeholder="{{ __('upload_file') }}" />
-                                    <span class="input-group-append">
-                                        <button class="file-upload-browse btn btn-theme"
-                                            type="button">{{ __('upload') }}</button>
-                                    </span>
-                                </div>
+                            <div class="form-group col-md-6 col-sm-12">
+                                <input class="form-check-input mt-0 mx-1" id="status" type="checkbox" value="1"
+                                    name="status" aria-label="Checkbox for following text input">
+                                <label class="mx-4" for="status">{{ __('active') }}</label>
                             </div>
                         </div>
                         <div class="row">
                             <div class="form-group col-sm-12 col-md-12 mx-1.5">
                                 {!! Form::checkbox('rtl', null, ['required', 'class' => 'form-control', 'id' => 'rtl']) !!}
                                 <label>{{ __('Is RTL') }}</label>
-
                             </div>
                         </div>
                     </div>
@@ -172,13 +183,14 @@
     <script>
         window.actionEvents = {
             'click .editdata': function(e, value, row, index) {
-                $('#id').val(row.id);
-                $('#name').val(row.name);
-                $('#code').val(row.code);
+                $('.editform #id').val(row.id);
+                $('.editform #name').val(row.name);
+                $('.editform #code').val(row.code);
+                $('.editform #status').prop('checked', row.is_active); // set CheckBox True
                 if (row.rtl) {
-                    $('input:checkbox[name=rtl]').attr('checked', true); // set CheckBox True
+                    $('.editform input:checkbox[name=rtl]').attr('checked', true); // set CheckBox True
                 } else {
-                    $('input:checkbox[name=rtl]').attr('checked', false); // set CheckBox False
+                    $('.editform input:checkbox[name=rtl]').attr('checked', false); // set CheckBox False
                 }
                 $('#rtl').val(row.rtl);
             }
