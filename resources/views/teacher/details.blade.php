@@ -93,7 +93,6 @@
                             <div class="form-group col-sm-12 col-md-6">
                                 <label>{{ __('first_name') }} <span class="text-danger">*</span></label>
                                 {!! Form::text('first_name', null, ['required', 'placeholder' => __('first_name'), 'class' => 'form-control', 'id' => 'first_name']) !!}
-
                             </div>
                             <div class="form-group col-sm-12 col-md-6">
                                 <label>{{ __('last_name') }} <span class="text-danger">*</span></label>

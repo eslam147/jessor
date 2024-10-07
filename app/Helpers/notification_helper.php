@@ -132,7 +132,7 @@ function sendNotificationToFCM($url, $access_token, $Data)
 function getAccessToken()
 {
     $file_name = Settings::select('message')->where('type', 'service_account_file')->value('message');
-    if (Storage::disk('public')->exists($file_name)  ) {
+    if (! empty($file_name) && Storage::disk('public')->exists($file_name)) {
         $client = new Client();
         $client->setAuthConfig(storage_path("app/public/{$file_name}"));
         $client->setScopes(['https://www.googleapis.com/auth/firebase.messaging']);

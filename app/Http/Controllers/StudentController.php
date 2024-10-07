@@ -138,7 +138,7 @@ class StudentController extends Controller
                 'first_name' => 'required|string|min:3',
                 'last_name' => 'required|string|min:3',
                 'gender' => 'required|string',
-                'mobile' => 'nullable|numeric',
+                'mobile' => 'nullable|numeric|min:7|max:15',
                 'image' => 'mimes:jpeg,png,jpg|image|max:2048',
                 'student_password' => ['nullable', Password::min(6)->mixedCase(), 'confirmed'],
 
@@ -579,7 +579,7 @@ class StudentController extends Controller
             $tempRow['class_section_name'] = $row->class_section?->class?->name . "-" . $row->class_section?->section?->name;
             $tempRow['stream_name'] = $row->class_section->class->streams->name ?? '';
             $tempRow['category_id'] = $row->category_id;
-            $tempRow['category_name'] = $row->category->name;
+            $tempRow['category_name'] = optional($row->category)->name;
             $tempRow['admission_no'] = $row->admission_no;
             $tempRow['roll_number'] = $row->roll_number;
             $tempRow['caste'] = $row->caste;
@@ -592,7 +592,7 @@ class StudentController extends Controller
             $tempRow['permanent_address'] = $user->permanent_address;
             $tempRow['is_new_admission'] = $row->is_new_admission;
             $tempRow['dynamic_data_field'] = json_decode($row->dynamic_fields);
-
+            // ---------------------------------------------------- \\
             // Father Data
             $tempRow['father_id'] = ! empty($row->father) ? $row->father->id : '';
             $tempRow['father_email'] = ! empty($row->father) ? $row->father->email : '';
@@ -603,6 +603,7 @@ class StudentController extends Controller
             $tempRow['father_occupation'] = ! empty($row->father) ? $row->father->occupation : '';
             $tempRow['father_image'] = ! empty($row->father) ? $row->father->image : '';
             $tempRow['father_image_link'] = ! empty($row->father) ? $row->father->image : '';
+            // ---------------------------------------------------- \\
 
             // Mother Data
             $tempRow['mother_id'] = ! empty($row->mother) ? $row->mother->id : '';
@@ -614,7 +615,7 @@ class StudentController extends Controller
             $tempRow['mother_occupation'] = ! empty($row->mother) ? $row->mother->occupation : '';
             $tempRow['mother_image'] = ! empty($row->mother) ? $row->mother->image : '';
             $tempRow['mother_image_link'] = ! empty($row->mother) ? $row->mother->image : '';
-
+            // ---------------------------------------------------- \\
             // Guardian Data
             $tempRow['guardian_id'] = ! empty($row->guardian) ? $row->guardian->id : '';
             $tempRow['guardian_email'] = ! empty($row->guardian) ? $row->guardian->email : '';
@@ -626,10 +627,9 @@ class StudentController extends Controller
             $tempRow['guardian_occupation'] = ! empty($row->guardian) ? $row->guardian->occupation : '';
             $tempRow['guardian_image'] = ! empty($row->guardian) ? $row->guardian->image : '';
             $tempRow['guardian_image_link'] = ! empty($row->guardian) ? $row->guardian->image : '';
-
+            // ---------------------------------------------------- \\
             $tempRow['operate'] = $operate;
             $rows[] = $tempRow;
-
         }
 
         $bulkData['rows'] = $rows;
@@ -916,10 +916,10 @@ class StudentController extends Controller
         $sql->orderBy($sort, $order)->skip($offset)->take($limit);
         $res = $sql->get();
 
-        $bulkData = array();
+        $bulkData = [];
         $bulkData['total'] = $total;
-        $rows = array();
-        $tempRow = array();
+        $rows = [];
+        $tempRow = [];
         $no = 1;
         foreach ($res as $row) {
             $operate = '<button class="btn btn-xs btn-gradient-primary btn-action btn-rounded btn-icon reset_password" data-id=' . $row->id . ' title="Reset-Password"><i class="fa fa-edit"></i></button>&nbsp;&nbsp;';

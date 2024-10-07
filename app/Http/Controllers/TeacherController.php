@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Traits\TenantImageTrait;
 use Throwable;
 use App\Models\User;
 use App\Models\Teacher;
@@ -11,14 +10,12 @@ use App\Models\FormField;
 use App\Models\ClassTeacher;
 use Illuminate\Http\Request;
 use App\Models\SubjectTeacher;
-use Illuminate\Support\Facades\{
-    DB,
-    Auth,
-    Hash,
-    Mail,
-    Storage,
-    Validator
-};
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\Rules\Password;
 class TeacherController extends Controller
 {
     public function index()
@@ -292,7 +289,7 @@ class TeacherController extends Controller
                     'school_name' => $school_name['school_name']
                 ];
                 if ($request->password) {
-                    $data['password'] = Hash::make($request->password);
+                    $data['password'] = bcrypt($request->password);
                 }
                 // Mail::send('teacher.email', $data, function ($message) use ($data) {
                 //     $message->to($data['email'])->subject($data['subject']);
@@ -419,18 +416,16 @@ class TeacherController extends Controller
      */
     public function edit($id)
     {
-        $teacher = Teacher::findOrFail($id);
-        return response($teacher);
+        return response(Teacher::findOrFail($id));
     }
 
 
     public function update(Request $request)
     {
         if (! Auth::user()->can('teacher-edit')) {
-            $response = [
+            return response()->json([
                 'message' => trans('no_permission_message')
-            ];
-            return response()->json($response);
+            ]);
         }
         $validator = Validator::make(
             $request->all(),
@@ -439,7 +434,7 @@ class TeacherController extends Controller
                 'last_name' => 'required',
                 'gender' => 'required',
                 'email' => 'required|email|unique:users,email,' . $request->user_id,
-                'password' => 'required',
+                'password' => ['nullable', Password::min(6), 'confirmed'],
                 'mobile' => 'required|numeric|regex:/^[0-9]{7,16}$/',
                 'dob' => 'required|date',
                 'qualification' => 'required',
@@ -482,14 +477,16 @@ class TeacherController extends Controller
             $user->permanent_address = $request->permanent_address;
             $user->email = $request->email;
             $user->mobile = $request->mobile;
-            $user->password = Hash::make($request->password);
+            if (! empty($request->password)) {
+                $user->password = bcrypt($request->password);
+            }
             $user->dob = date('Y-m-d', strtotime($request->dob));
             $user->save();
 
             $teacher = Teacher::find($request->id);
 
             // Teacher dynamic fields
-            $formFields = FormField::where('for', 3)->orderBy('rank', 'ASC')->get();
+            $formFields = FormField::where('for', 3)->orderBy('rank')->get();
             $data = [];
             $status = 0;
             $i = 0;
@@ -569,11 +566,11 @@ class TeacherController extends Controller
                 'message' => trans('data_update_successfully')
             ];
         } catch (Throwable $e) {
-            $response = array(
+            $response = [
                 'error' => true,
                 'message' => trans('error_occurred'),
                 'data' => $e
-            );
+            ];
         }
         return response()->json($response);
     }

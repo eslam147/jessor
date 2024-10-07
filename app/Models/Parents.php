@@ -41,12 +41,17 @@ class Parents extends Model
 
     public function children()
     {
-        return $this->fatherRelationChild()->union($this->motherRelationChild())->union($this->guardianRelationChild());
+        return $this->fatherRelationChild()
+            ->union($this->motherRelationChild())
+            ->union($this->guardianRelationChild());
     }
 
     //Getter Attributes
     public function getImageAttribute($value)
     {
-        return tenant_asset($value);
+        if(!is_null($value)) {
+            return tenant_asset($value);
+        }
+        return null;
     }
 }

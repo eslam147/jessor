@@ -652,6 +652,7 @@ window.parentEvents = {
 
 window.studentEvents = {
     "click .editdata": function (e, value, row, index) {
+        $(".edit-student-registration-form")[0].reset();
         $("#edit_id").val(row.user_id);
         $("#edit_first_name").val(row.first_name);
         $("#edit_last_name").val(row.last_name);

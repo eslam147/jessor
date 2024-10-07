@@ -646,6 +646,7 @@ class StudentApiController extends Controller
     public function selectSubjects(Request $request)
     {
         $validator = Validator::make($request->all(), [
+            'subject_group' => 'required|array',
             'subject_group.*.id' => 'required',
             'subject_group.*.subject_id' => 'required|array',
         ]);
@@ -661,11 +662,9 @@ class StudentApiController extends Controller
             $student = $request->user()->student;
             $class_section = $student->class_section;
             $student_subject = [];
-            $session_year_id = Settings::select('message')->where('type', 'session_year')->pluck('message')->first();
+            $session_year_id = settingByType('session_year');
             foreach ($request->subject_group as $key => $subject_group) {
-                $subject_group_id = $subject_group['id'];
                 foreach ($subject_group['subject_id'] as $subject_id) {
-
                     $if_subject_already_selected = StudentSubject::where([
                         'student_id' => $student->id,
                         'subject_id' => $subject_id,
@@ -673,30 +672,30 @@ class StudentApiController extends Controller
                         'session_year_id' => intval($session_year_id)
                     ])->first();
                     if (! $if_subject_already_selected) {
-                        $student_subject[] = array(
+                        $student_subject[] = [
                             'student_id' => $student->id,
                             'subject_id' => $subject_id,
                             'class_section_id' => $class_section->id,
                             'session_year_id' => intval($session_year_id)
-                        );
+                        ];
                     }
                 }
             }
             StudentSubject::insert($student_subject);
 
-            $response = array(
+            $response = [
                 'error' => false,
                 'message' => "Subject Selected Successfully",
                 'code' => 200,
-            );
+            ];
         } catch (Exception $e) {
             report($e);
 
-            $response = array(
+            $response = [
                 'error' => true,
                 'message' => trans('error_occurred'),
                 'code' => 103,
-            );
+            ];
         }
         return response()->json($response);
     }
@@ -770,20 +769,20 @@ class StudentApiController extends Controller
             }
 
             if ($student->father != null && $student->mother != null && $student->guardian != null) {
-                $data = array(
+                $data = [
                     'father' => (! empty($student->father)) ? $father : (object) [],
                     'mother' => (! empty($student->mother)) ? $mother : (object) [],
                     'guardian' => (! empty($student->guardian)) ? $guardian : (object) []
-                );
+                ];
             } elseif ($student->father != null && $student->mother != null) {
-                $data = array(
+                $data = [
                     'father' => (! empty($student->father)) ? $father : (object) [],
                     'mother' => (! empty($student->mother)) ? $mother : (object) [],
-                );
+                ];
             } else {
-                $data = array(
+                $data = [
                     'guardian' => (! empty($student->guardian)) ? $guardian : (object) []
-                );
+                ];
             }
 
             $response = [
@@ -835,20 +834,20 @@ class StudentApiController extends Controller
                 }
             }
 
-            $response = array(
+            $response = [
                 'error' => false,
                 'message' => "Timetable Fetched Successfully",
                 'data' => new TimetableCollection($new_timetable),
                 'code' => 200,
-            );
+            ];
         } catch (Exception $e) {
             report($e);
 
-            $response = array(
+            $response = [
                 'error' => true,
                 'message' => trans('error_occurred'),
                 'code' => 103,
-            );
+            ];
         }
         return response()->json($response);
     }
@@ -866,11 +865,7 @@ class StudentApiController extends Controller
             'subject_id' => 'required|numeric',
         ]);
         if ($validator->fails()) {
-            return response()->json([
-                'error' => true,
-                'message' => $validator->errors()->first(),
-                'code' => 102,
-            ]);
+            return $this->validationResponse($validator);
         }
         try {
             $user = $request->user();
@@ -948,12 +943,7 @@ class StudentApiController extends Controller
         ]);
 
         if ($validator->fails()) {
-
-            return response()->json([
-                'error' => true,
-                'message' => $validator->errors()->first(),
-                'code' => 102,
-            ]);
+            return $this->validationResponse($validator);
 
         }
 
@@ -1001,12 +991,7 @@ class StudentApiController extends Controller
         ]);
 
         if ($validator->fails()) {
-            $response = array(
-                'error' => true,
-                'message' => $validator->errors()->first(),
-                'code' => 102,
-            );
-            return response()->json($response);
+            return $this->validationResponse($validator);
         }
 
         try {
@@ -1049,12 +1034,7 @@ class StudentApiController extends Controller
         ]);
 
         if ($validator->fails()) {
-            $response = [
-                'error' => true,
-                'message' => $validator->errors()->first(),
-                'code' => 102,
-            ];
-            return response()->json($response);
+            return $this->validationResponse($validator);
         }
 
         try {
@@ -2560,11 +2540,9 @@ class StudentApiController extends Controller
     public function getProfileDetails()
     {
         try {
-            $session_year = getSettings('session_year');
-            $session_year_id = $session_year['session_year'];
+            $session_year_id = settingByType('session_year');
 
-            $compulsory_fees_mode = getSettings('compulsory_fee_payment_mode');
-            $compulsory_fees_mode = $compulsory_fees_mode['compulsory_fee_payment_mode'] ?? 0;
+            $compulsory_fees_mode = settingByType('compulsory_fee_payment_mode') ?? 0;
 
             $session_year = SessionYear::where('id', $session_year_id)->first();
             $isInstallment = $session_year->include_fee_installments;
